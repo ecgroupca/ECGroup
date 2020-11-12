@@ -6,7 +6,7 @@
 
   'summary': """
   Sales commissions as % rate on sale order line and reporting.""",
-  'author': "Quickbeam",
+  'author': "Quickbeam - Adam O'Connor",
   'description': """
 Sales Commissions
 =============================
@@ -32,9 +32,6 @@ Key Features
 
   # always loaded
   'data': [
-      'security/ir.model.access.csv',
-      'security/sale_ebay_security.xml',
-      'views/res_partner_views.xml',
   ],
   # only loaded in demonstration mode
   'demo': [
