@@ -1,11 +1,11 @@
 # Copyright (C) 2019 - TODAY, Open Source Integrators
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
-
+#This works by updating all existing 
 
 def pre_init_product_code(cr):
     cr.execute(
         """UPDATE product_product
-        SET default_code = 'DEFAULT' || nextval('ir_default_id_seq')
+        SET default_code = 'DEFAULT' || default_code || "-" || nextval('ir_default_id_seq')
         WHERE id in (SELECT distinct(pp.id)
                      FROM product_product pp
                      INNER JOIN (SELECT default_code, COUNT(*)
