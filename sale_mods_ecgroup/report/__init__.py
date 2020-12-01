@@ -1,2 +1,2 @@
 # -*- coding: utf-8 -*-
-import sale_report
+from . import sale_report
