@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sales_order_filter" model="ir.ui.view">
+        <field name="name">sale.order.list.select</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <field name="product_id" position="after">
+                <field name="company_id"/>
+                <field name="origin"/>
+                <filter string="Last 7 days" name="filter_last7d" domain="[('date_order','&gt;=', (context_today() - datetime.timedelta(days=7)).strftime('%Y-%m-%d'))]"/>
+                <filter string="Last 4 weeks" name="filter_last4w" domain="[('date_order','&gt;=', (context_today() - datetime.timedelta(days=28)).strftime('%Y-%m-%d'))]"/>
+                <filter string="This Month" name="filter_this_month" domain="[('date_order', '>=', (context_today() + relativedelta(day=1)).strftime('%Y-%m-%d')),
+                                ('date_order', '&lt;=', (context_today() + relativedelta(months=1, day=1, days=-1)).strftime('%Y-%m-%d'))]"/>
+                 <filter string="Last Month" name="filter_last_month" domain="[('date_order', '>=', (context_today() - relativedelta(months=1)).strftime('%Y-%m-01')),
+                                ('date_order', '&lt;', (context_today() + relativedelta(day=1, days=-1)).strftime('%Y-%m-%d'))]"/>
+                <filter string="This Year" name="filter_this_year" domain="[('date_order','&gt;=',time.strftime('%Y-01-01'))]"/>
+                <filter string="Last Year" name="filter_last_year"
+                domain="[('date_order','&gt;=', (context_today() - relativedelta(years=1)).strftime('%Y-01-01')), ('date_order','&lt;', (context_today() - relativedelta(years=1)).strftime('%Y-12-31'))]"/>
+                <separator/>
+            </field>
+        </field>
+    </record>
+</odoo>

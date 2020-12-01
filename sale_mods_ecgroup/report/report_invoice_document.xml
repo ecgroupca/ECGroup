@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="report_invoice_document_inherit_sale" inherit_id="sale.report_invoice_document_inherit_sale">
+        <div class="col-xs-5 col-xs-offset-7" groups="sale.group_delivery_invoice_address" position="replace">
+            <div class="col-xs-5" style="height: 1.0in; padding-bottom: 0.8in;padding-top: 0.2in;">
+                    <strong t-if="o.type != 'in_invoice'">Bill To:</strong>
+                    <strong t-if="o.type == 'in_invoice'">Remit To:</strong>
+                    <br/>
+                    <span t-field="o.partner_id.name"/>
+					<br/>
+                    <span  t-field="o.partner_id" t-field-options='{"widget": "contact", "fields": ["address"], "no_marker": true}'/>
+					<br/>
+					<br/>
+					<br/>
+            </div>
+        </div>
+    </template>
+	
+    <template id="report_invoice_document_inherited_niche" inherit_id="account.report_invoice_document">
+		<xpath expr="//h2" position="replace">
+			<h2 style="margin-top:35px;">
+				<span>Invoice</span>
+				<span t-field="o.number"/>
+			</h2>
+		</xpath>
+    </template>
+
+
+    <template id="report_invoice_document" inherit_id="account.report_invoice_document">
+         <t t-call="report.external_layout" position="attributes"> 
+            <attribute name="t-call"/>
+        </t>
+
+        <xpath expr="//div[@class='page']" position="attributes">
+            <attribute name="t-attf-class">page company_#{o.company_id.id}</attribute>
+        </xpath>
+
+        <div class="page" position="before">
+            <!-- Multicompany -->
+            <t t-if="not o and doc">
+                <t t-set="o" t-value="doc"/>
+            </t>
+            <t t-if="o and 'company_id' in o">
+                <t t-set="company" t-value="o.company_id"/>
+            </t>
+            <t t-if="not o or not 'company_id' in o">
+                <t t-set="company" t-value="res_company"/>
+            </t>
+            <div t-attf-class="header company_#{company.id}">
+                <div class="row">
+                    <div class="col-xs-6" style="width: 43%; height: 1.1875in;">
+                        <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % company.logo" style="max-height: 100px;"/>
+                        <div style="float: right; padding-top:10px;">
+                            <strong><span t-field="o.company_id.name"></span></strong>
+                            <span t-field="o.company_id.partner_id" t-field-options='{"widget": "contact", "fields": ["address"], "no_marker": true}'/>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 text-right">
+                        <p style="line-height: 24px; font-weight: bold; padding-left: 16px; margin-left: -16px; padding-bottom: 0px; padding-top: 0px; margin-top: 0px; margin-bottom: 0px;">USA and CANADA TOLL-FREE</p>
+                        <font style="line-height: 24px; ">
+                            <span style="background: transparent url('/niche_sale_reports/static/src/img/ico-phone.png') no-repeat left center; padding-left: 24px; background-size: 18px 18px;"><span t-field="o.company_id.phone"/></span><br/>
+                            <span style="background: transparent url('/niche_sale_reports/static/src/img/ico-fax.png') no-repeat left center; padding-left: 24px; background-size: 18px 18px;"><span t-field="o.company_id.fax"/></span>
+                        </font>
+						<br/> 
+						<span>HST Registration No. </span><span t-field="company.vat"/>
+                    </div>
+                </div>
+
+                <div style="width: 100%;">
+                    <div class="o_hr" style="height: 6px;float: right;line-height: 0;margin-top: 20px;box-sizing: border-box;width: 100%;font-size: 1px;">0</div>
+                </div>
+               <!-- <table class="company_color" border="0" cellpadding="0" cellspacing="0" width="100%" >
+                    <tr style="vertical-align:top">
+                        <td class="window_envelope_top_custom">
+                                <img t-if="company.logo" t-att-src="'data:image/png;base64,%s' % company.logo" style="max-height: 100px;"/>
+                                <span t-field="o.company_id.partner_id" t-field-options='{"widget": "contact", "fields": ["address"], "no_marker": true}'/>
+                        </td>
+                        <td width="25%" style="padding-right: 20px;">
+                            <p style="line-height: 24px; font-weight: bold; background: transparent url(http://partdiscounter.com/media/odoo/new-icons/ico-arrow.png) no-repeat left top; background-size: 6px 8px; padding-left: 16px; margin-left: -16px; padding-bottom: 0px; padding-top: 0px; margin-top: 0px; margin-bottom: 0px;">USA and CANADA TOLL-FREE</p>
+                            <font style="line-height: 24px; ">
+                                <strong style="background: transparent url('http://partdiscounter.com/media/odoo/new-icons/ico-phone.png') no-repeat left center; padding-left: 24px; background-size: 18px 18px;">888.672.5141</strong><br/>
+                                <span style="background: transparent url('http://partdiscounter.com/media/odoo/new-icons/ico-fax.png') no-repeat left center; padding-left: 24px; background-size: 18px 18px;">888.632.7440</span>
+                            </font>
+                        </td>
+                    </tr>
+                </table>
+                <div t-attf-class="o_hr company_#{company.id}" style="display: table; width: 100%;">
+                    <div style="height: 6px;float: right;line-height: 0;box-sizing: border-box;width: 100%;font-size: 1px;">0</div>
+                </div>-->
+            </div>
+        </div>
+        <div class="page" position="after">
+            <div class="footer">
+                <div t-attf-class="o_hr company_#{company.id}" style="width: 100%; border: 0; height: 3px; margin-bottom: 10px;">.</div>
+                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                        <tr style="vertical-align:top;">
+                            <td width="33%" style="margin-right: 0.5%;">
+                                <font style="font-weight: bold; display: table; line-height: 24px;">PLEASE REMIT PAYMENT TO:</font>
+                                <b style="display: table; line-height: 24px;"><span t-field="company.name"/></b>
+                            <span  t-field="o.company_id.partner_id" t-field-options='{"widget": "contact", "fields": ["address"], "no_marker": true}'/>
+                            </td>
+                            <td width="36%" style="margin-left: 0.5%;">
+                                <font style="font-weight: bold; display: table; line-height: 24px;">ACCEPTED PAYMENT METHODS:</font>
+
+                                <div><font style="display: table; line-height: 24px; display: inline-block;"><img src="/niche_sale_reports/static/src/img/ico-money.png" alt="" title="" style="width: 18px; vertical-align: middle;"/><span style="padding-left: 10px;">Check | Money Order</span></font></div>
+
+                                <div><font style="display: table; line-height: 24px; display: inline-block;"><img src="/niche_sale_reports/static/src/img/ico-visa.png" alt="" title="" style="width: 18px; vertical-align: middle;"/><span style="padding-left: 10px;">Visa | MasterCard | American Express</span></font></div>
+
+                                <div><font style="display: table; line-height: 24px; display: inline-block;"><img src="/niche_sale_reports/static/src/img/ico-bank.png" alt="" title="" style="width: 18px; vertical-align: middle;"/><span style="padding-left: 10px;">Bank Transfer</span></font></div>
+
+                                <div style="display: table; line-height: 24px; margin-left: 30px;">
+                                  <b >Bank Name: </b> <span t-esc="company.get_bank_att('ba_name', o.currency_id)"/><br/>
+                                  <b >Routing Number: </b> <span t-esc="company.get_bank_att('ba_routing_number', o.currency_id)"/><br/>
+                                  <b >Swift: </b> <span t-esc="company.get_bank_att('ba_swift_code', o.currency_id)"/><br/>
+                                  <b >Account Number: </b> <span t-esc="company.get_bank_att('ba_number', o.currency_id)"/><br/>
+                                </div>
+                            </td>
+                            <td width="30%">
+                                <font style="font-weight: bold; display: table; line-height: 24px;">QUESTIONS?</font>
+                                <font style="display: table; line-height: 24px; display: inline-block;"><spant></spant>Contact <b><span t-field="user.display_name"/></b> at:</font>
+                                <div><font style="display: table; line-height: 24px; display: inline-block;"><img src="/niche_sale_reports/static/src/img/ico-mails.png" alt="" title="" style="width: 18px; vertical-align: middle;"/><span style="padding-left: 10px;" t-field="user.email"/></font></div>
+                                <div><font style="display: table; line-height: 24px; display: inline-block;"><img src="/niche_sale_reports/static/src/img/ico-phone.png" alt="" title="" style="width: 18px; vertical-align: middle;"/><span style="padding-left: 10px;" t-field="user.phone"/></font></div>
+                                <div><font style="display: table; line-height: 24px; display: inline-block;"><img src="/niche_sale_reports/static/src/img/ico-fax.png" alt="" title="" style="width: 18px; vertical-align: middle;"/><span style="padding-left: 10px;" t-field="user.fax"/></font></div>
+                            </td>
+                        </tr>
+                 </table>
+            </div>
+        </div>
+
+
+        <span t-if="o.type == 'in_invoice'" position="replace">
+            <span t-if="o.type == 'in_invoice'">Bill</span>
+        </span>
+
+        <xpath expr="//span[@t-field='l.price_subtotal']" position="replace">
+            <t t-if="o.currency_id.name == 'CAD'">
+                <span t-esc="'%.2f CAD' % l.price_subtotal"/>
+            </t>
+            <t t-else="">
+                <span t-field="l.price_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+            </t>
+        </xpath>
+
+        <xpath expr="//span[@t-field='o.amount_untaxed']" position="replace">
+            <t t-if="o.currency_id.name == 'CAD'">
+                <span t-esc="'%.2f CAD' % o.amount_untaxed"/>
+            </t>
+            <t t-else="">
+                <span t-field="o.amount_untaxed" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+            </t>
+        </xpath>
+
+        <xpath expr="//span[@t-field='o.amount_total']" position="replace">
+            <t t-if="o.currency_id.name == 'CAD'">
+                <span t-esc="'%.2f CAD' % o.amount_total"/>
+            </t>
+            <t t-else="">
+                <span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: o.currency_id}"/>
+            </t>
+        </xpath>
+
+        <xpath expr="//t[@t-foreach='o._get_tax_amount_by_group()']/tr" position="replace">
+            <t t-if="o.currency_id.name == 'CAD'">
+                <tr>
+                    <td><span t-esc="amount_by_group[0]"/></td>
+                    <td class="text-right">
+                        <span t-esc="str(amount_by_group[1]) + ' CAD' or ''"/>
+                    </td>
+                </tr>
+            </t>
+            <t t-else="">
+                <tr>
+                    <td><span t-esc="amount_by_group[0]"/></td>
+                    <td class="text-right">
+                        <span t-esc="amount_by_group[1]"/>
+                    </td>
+                </tr>
+            </t>
+        </xpath>
+
+        <xpath expr="//table[@class='table table-condensed']" position="attributes">
+            <attribute name="class">table</attribute>
+        </xpath>
+
+        <xpath expr="//div[@class='row']/div[@class='col-xs-4 pull-right']/table[@class='table table-condensed']/tr[1]"
+               position="attributes">
+            <attribute name="class" />
+        </xpath>
+
+        <xpath expr="//div[@class='col-xs-4 pull-right']//table[@class='table table-condensed']" position="attributes">
+            <attribute name="class">table</attribute>
+        </xpath>
+    </template>
+</odoo>
