@@ -20,12 +20,12 @@ class SaleOrder(models.Model):
             total_deps = 0
             company_id = sale.company_id
             config = self.env['res.config.settings']
-            setting = config.search(['company_id'=company_id])
+            setting = config.search(['company_id','=',company_id])
             setting = setting and setting[0] or None
             dep_product = setting and setting.deposit_default_product_id or None
             if dep_product:
                 for line in sale.order_line:
                     if line.product_id == dep_product:
                         total_deps += line.price_total
-                deposit_total = total_deps
+                sale.deposit_total = total_deps
                 
