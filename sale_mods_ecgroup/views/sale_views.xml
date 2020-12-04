@@ -5,9 +5,22 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <field name="team_id" position="after">
-               <field name="deposit_total"/> 
+            <field name="partner_shipping_id" position="after">
+               <field name="customer_code"/>
+               <field name="sidemark"/> 
+               <field name="client_order_ref"/> 			   
             </field>
+			<field name="payment_term_id" position="after">
+			   <field name="approx_lead_time"/>
+			   <field name="deposit_total"/> 
+			   <field name="commissions_total"/> 
+			</field>
+			<xpath expr="//notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+				<field name="comm_rate"/>
+			</xpath>
+			<xpath expr="//notebook/page/field[@name='order_line']/form/group/group/field[@name='price_unit']" position="after">
+				<field name="comm_rate"/>
+			</xpath>
         </field>
     </record>
 </odoo>
