@@ -57,7 +57,7 @@ class SaleOrder(models.Model):
                 if dep_product and str(line.product_id.id) == dep_product:
                     total_deps += abs(line.price_unit)
                 if line.comm_rate:
-                    total_comm += line.comm_rate*line.price_unit*line.quanity/100
+                    total_comm += line.comm_rate*line.price_unit*line.product_uom_qty/100
             sale.comm_total = total_comm        
             sale.deposit_total = total_deps
             

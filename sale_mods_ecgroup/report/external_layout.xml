@@ -6,6 +6,12 @@
 					<div class="col-3 mb4">
 					    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height:105px;margin:0px;padding:0px;" alt="Logo"/>
 					</div>
+					<div t-if="doc" style="width:auto;margin-left:680px;margin-top:5px;">
+					    <div>Sale Order: <span t-field="doc.name"/></div>
+                        <div>Order Date: <span t-esc="doc.date_order.strftime('%m/%d/%Y')"/></div>
+						<div>Showroom: <span t-field="doc.team_id"/></div>
+                        <div>Salesperson: <span t-field="doc.user_id"/></div>
+					</div>
 				</div>
 				<!--div t-if="company.logo or company.report_header" class="row zero_min_height">
 					<div class="col-12">
@@ -32,6 +38,78 @@
 					<div t-if="report_type == 'pdf'" class="text-muted">
 						Page: <span class="page"/> / <span class="topage"/>
 					</div>
-			</div>  
+			</div> 
+                <div class="oe_structure"/>
+                <div class="row col-xs-12" style="page-break-before:always;">
+                    <div>Revised: 01-16-2015 </div>
+<div>TERMS AND CONDITIONS OF SALE</div>
+<div>1. Scope of Agreement. These Terms and Conditions of Sale ("Terms") are a legally binding agreement between you and Dennis &amp; Leen and/or </div>
+<div>Formations and govern your purchase of any products from either company. These Terms apply to all merchandise sold to all customers. These </div>
+<div>Terms may not be altered in any manner without our prior consent. Our receipt of a fifty percent (50%) deposit on your order constitutes your </div>
+<div>consent and agreement to these Terms.</div>
+<div>2. Binding Agreement. BY PURCHASING ANY PRODUCTS FROM US, YOU UNDERSTAND AND AGREE THAT YOU ARE DEEMED TO HAVE READ, </div>
+<div>UNDERSTOOD AND AGREED TO ALL OF THE PROVISIONS OF THESE TERMS. IF YOU DO NOT UNDERSTAND OR AGREE TO ANYTHING IN THE IMMEDIATELY </div>
+<div>PRECEDING SENTENCE OR ANY OTHER PROVISION OF THESE TERMS, YOU SHOULD NOT PURCHASE ANY PRODUCTS FROM US.</div>
+<div>3. Prices, Payment, and Delivery. All orders require a 50% deposit of estimated purchase price plus estimated costs (including sales tax and other charges) </div>
+<div>before work will commence and payment in full (including adjustments) is required before products will be shipped and title to the products transferred to you. All</div>
+<div>prices may be corrected as a result of possible errors or omissions. You acknowledge that changes to designs may affect pricing and delivery schedules. Prices do not</div>
+<div>include freight, packing and handling charge, all of which are your sole responsibility. We are not responsible for delays in shipment beyond our control, including </div>
+<div>material shortages and labor or transit strikes, and will notify you in the event of such delays. All quoted delivery dates are estimates only. Products ready for</div>
+<div>delivery must be moved to your delivery location within ten (10) days after completion. Products which are not so moved may be transferred to a commercial</div>
+<div>warehouse or storage facility at our sole discretion, and you will be liable for all costs and expenses incurred thereby, e.g., moving and storage fees and insurance. If </div>
+<div>payment for the products and related costs are not paid in full within sixty (60) days, we may, at our sole discretion, retain the products and the deposit as liquidated </div>
+<div>damages. You agree to pay all costs we incur in collecting unpaid accounts, including, but not limited to, collection agency fees and attorneys" fees.</div>
+<div>4. Changes, Cancellations, and Returns. We will not accept changes, cancellations, or returns to an order without our prior written permission. In </div>
+<div>the event we do accept a cancellation or return, you agree to pay a 25% re-stocking charge. Any changes to an order, if accepted by us, are</div>
+<div>subject to a minimum $200.00 (two hundred dollar) fee. Custom or special order merchandise is not subject to cancellation or return. </div>
+<div>5. Customer Claims and Risk of Loss. You shall bear all risk of loss or damage occurring while the merchandise is in transit or storage. It is </div>
+<div>recommended that you inspect all merchandise immediately upon delivery. If loss or damage is found, it is your responsibility to file any necessary </div>
+<div>freight claims with their carrier or storage facility.</div>
+<div>6. Installation. You assume all responsibility for proper installation of the merchandise. We shall not be responsible for damage to the </div>
+<div>merchandise or to the location in which it is displayed and/or used. </div>
+<div>7.</div>
+<div>WARRANTIES; DISCLAIMERS; LIMITATION OF LIABILITY. </div>
+<div>(a) WARRANTY DISCLAIMER. ALL PRODUCTS ARE SOLD "AS IS" AND ON AN "AS AVAILABLE" BASIS. FOR ALL PRODUCTS, WE EXPRESSLY DISCLAIM </div>
+<div>ANY AND ALL REPRESENTATIONS AND WARRANTIES, EXPRESS OR IMPLIED, RELATED TO PRODUCTS, INCLUDING, BUT NOT LIMITED TO, ANY ANY WARRANTY OF</div>
+<div>TITLE, ACCURACY, MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE OR USE, WARRANTY OF NON-INFRINGEMENT, TITLE, QUIET ENJOYMENT OR </div>
+<div>WARRANTY RELATING TO THIRD PARTY SERVICES. You expressly waive any claim that you may have against us or our Affiliates based on any product liability or </div>
+<div>alleged infringement of any patent, copyright, trade secret or other intellectual property rights with respect to any product and also waive any right to</div>
+<div>indemnification from us or our Affiliates against claims made against you by a third party. You acknowledge that our employees are not authorized to make </div>
+<div>any representation or warranty that is not in this Agreement. We do not warrant against fading and oxidizing, variations in tone, color, character, and texture of</div>
+<div>wood and iron finishes, color variations in fabric dye lots or paint, fabric shrinking or stretching, deterioration of dried plants used in artwork, or other normal</div>
+<div>deterioration of elements used in our products. Our merchandise is not intended for outdoor use, except where specifically noted. All of our accessories are for</div>
+<div>decorated purposes only</div>
+<div>.</div>
+<div>(b) LIMITATION OF LIABILITY. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, NONE OF US,OUR AFFILIATES, NOR ANY OF THEIR </div>
+<div>RESPECTIVE OFFICERS, DIRECTORS, SHAREHOLDERS, MEMBERS, PARTNERS, EMPLOYEES, OR AGENTS SHALL BE LIABLE FOR PUNITIVE, CONSEQUENTIAL, </div>
+<div>INCIDENTAL, EXEMPLARY, INDIRECT, OR SPECIAL DAMAGES (INCLUDING DAMAGES FOR LOSS OF PROFITS, REVENUES, BUSINESS, USE, OR OTHER INTANGIBLES),</div>
+<div>WHETHER OR NOT SUCH DAMAGES WERE FORESEEABLE, WHETHER WE HAD BEEN ADVISED OF THE POSSIBILITY OR LIKELIHOOD OF SUCH DAMAGES, OR FOR </div>
+<div>ANY OTHER REASON.</div>
+<div>(c) MAXIMUM LIABILITY. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, OUR TOTAL LIABILITY TO YOU FOR ANY DAMAGES </div>
+<div>(REGARDLESS OF THE FORM OF ACTION, WHETHER CONTRACT, WARRANTY, TORT, PRODUCT LIABILITY, OR OTHERWISE) SHALL NOT EXCEED IN THE AGGREGATE </div>
+<div>THE AMOUNT ACTUALLY PAID BY YOU TO US FOR THE PRODUCT GIVING RISE TO THE CLAIM.</div>
+<div>(d) INDEMNIFICATION. YOU AGREE TO DEFEND AND INDEMNIFY US FROM AND AGAINST ANY AND ALL CLAIMS, DAMAGES, COSTS, AND </div>
+<div>EXPENSES, INCLUDING ATTORNEYS" FEES, ARISING OUT OF OR RELATED TO YOUR US OF PRODUCTS.</div>
+<div>8. Governing Law and Jurisdiction. These Terms are governed by the laws of the State of California, United States, without regard to its choice of </div>
+<div>law principles. Subject to Paragraph 10 below, you consent to the jurisdiction and venue of the state courts in Los Angeles County, California, and </div>
+<div>the federal courts in the Central District of California for all disputes arising out of your purchase of the products.</div>
+<div>9. Arbitration.</div>
+<div>(a) YOU AGREE THAT THE SOLE AND EXCLUSIVE FORUM AND REMEDY FOR ANY AND ALL DISPUTES AND CLAIMS RELATING IN ANY WAY </div>
+<div>TO OR ARISING OUT OF THESE TERMS OR ANY PRODUCTS SHALL BE FINAL AND BINDING ARBITRATION, except that no dispute or claim relating to </div>
+<div>any transaction you enter into with a third party may be arbitrated.</div>
+<div>(b) The arbitration shall be administered by JAMS pursuant to its Streamlined Arbitration Rules and Procedures (the "JAMS Rules.")</div>
+<div>Judgment on the award may be entered in any court having jurisdiction. The arbitration shall be held in Los Angeles, California. Costs and</div>
+<div>fees for such arbitration shall be determined allocated in accordance with such JAMS Rules. If such costs are determined to be excessive in a </div>
+<div>consumer dispute, we will be responsible for paying all arbitration fees and arbitrator compensation in excess of what is deemed reasonable. </div>
+<div>The arbitrator"s award shall be binding and may be entered as a judgment in any court of competent jurisdiction.</div>
+<div>(c) TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, NO ARBITRATION OR CLAIM UNDER THESE TERMS OF USE SHALL BE JOINED TO </div>
+<div>ANY OTHER ARBITRATION OR CLAIM AND NO CLASS ARBITRATION PROCEEDINGS SHALL BE PERMITTED. IN NO EVENT SHALL ANY CLAIM, ACTION </div>
+<div>OR PROCEEDING BY YOU AGAINST OR INVOLVING US BE INSTITUTED MORE THAN ONE (1) YEAR AFTER YOUR CLAIM FIRST ACCRUED OR YOU FIRST</div>
+<div>BECAME AWARE OR REASONABLY SHOULD HAVE BECOME AWARE OF ANY SUCH CLAIM. </div>
+<div>10. Complete Agreement. </div>
+<div>This Agreement constitutes the entire agreement between you and us with respect to the subject matter contained herein. To the extent any </div>
+<div>of the provisions contained in our Privacy Policy and/or Terms of Use (available at www.dennisandleen.com and/or www.formationsusa.com) would </div>
+<div>apply, such provisions are fully incorporated herein by this reference.</div>
+        </div>
       </template>
 </odoo>
