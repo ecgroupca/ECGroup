@@ -11,6 +11,7 @@ class MrpProduction(models.Model):
     sale_order_id = fields.Many2one(
         comodel_name='sale.order', string='Source Sale Order')
 
+    @api.model
     def create(self, values):
         if 'origin' in values:
             # Checking first if this comes from a 'sale.order'
