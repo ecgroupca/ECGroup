@@ -1,0 +1,27 @@
+<odoo>
+    <record id="mrp_routing_form_view" model="ir.ui.view">
+        <field name="name">mrp.routing.form.view</field>
+        <field name="model">mrp.routing</field>
+        <field name="inherit_id" ref="mrp.mrp_routing_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='name']" position="after">
+                <field name="parallel_steps"/>
+            </xpath>
+
+            <xpath expr="//field[@name='operation_ids']" position="replace">
+                <field name="operation_ids" context="{'default_routing_id': id}">
+                    <tree string="Routing Work Centers" editable="bottom">
+                        <field name="company_id" invisible="1"/>
+                        <field name="routing_id" invisible="1"/>
+                        <field name="sequence" widget="handle"/>
+                        <field name="name"/>
+                        <field name="workcenter_id"/>
+                        <field name="required_steps" widget="many2many_tags" attrs="{'column_invisible': [('parent.parallel_steps', '=', False)]}" domain="[('routing_id', '=', routing_id)]"/>
+                        <field name="batch"/>
+                        <field name="time_cycle" widget="float_time" string="Duration (minutes)" sum="Total Duration"/>
+                    </tree>
+                </field>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -36,11 +36,14 @@ class SaleOrder(models.Model):
         )
     sidemark = fields.Char(
         'Sidemark'
-        )
-        
+        )       
     comm_total = fields.Float(
         'Total Commisions', 
         compute="_compute_deps_total",
+        )
+    inv_bal_due = fields.Float(
+        'Balance Due',
+        compute="_compute_bal_due",
         )
     
     @api.depends('order_line')
@@ -61,5 +64,13 @@ class SaleOrder(models.Model):
             sale.comm_total = total_comm        
             sale.deposit_total = total_deps
             
-            
-            
+    def _compute_bal_due(self):
+        for sale in self:
+          amt_res = 0.00
+          amt_inv = 0.00
+          for invoice in sale.invoice_ids:
+            if invoice.state=='posted':
+              amt_res += invoice.amount_residual
+              amt_inv += invoice.amount_total
+          amt_due = (sale.amount_total - amt_inv) + amt_res
+          sale.inv_bal_due = amt_due
