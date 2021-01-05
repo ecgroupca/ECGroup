@@ -9,7 +9,7 @@ class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
     sale_order_id = fields.Many2one(
-        comodel_name='sale.order', string='Source Sale Order')
+        comodel_name='sale.order', readonly=False, string='Source Sale Order')
 
     @api.model
     def create(self, values):

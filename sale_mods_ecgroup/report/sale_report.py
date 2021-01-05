@@ -7,6 +7,14 @@ from odoo import models, fields, api
 
 _logger = logging.getLogger(__name__)
 
+class CRMTeam(models.Model):
+    _inherit = 'crm.team'
+    
+    default_comm_rate = fields.Float(
+        'Default Commissin Rate (%)', 
+        readonly = False,
+        )
+
 class ResPartner(models.Model):
     _inherit = 'res.partner'
     
@@ -18,7 +26,8 @@ class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     comm_rate = fields.Float(
-        'Commissin Rate (%)', 
+        'Commissin Rate (%)',
+        default = order_id.team_id.default_comm_rate,        
         )
 
 class SaleOrder(models.Model):
@@ -27,9 +36,6 @@ class SaleOrder(models.Model):
     deposit_total = fields.Float(
         'Total Deposits', 
         compute="_compute_deps_total",
-        )
-    customer_code = fields.Char(
-        'Customer Code'
         )
     approx_lead_time = fields.Float(
         'Approximate Lead Time'
