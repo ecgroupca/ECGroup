@@ -13,6 +13,9 @@
                     string="Register Deposit"
                 />
             </xpath>
+			<field name="origin" position="after">
+			    <field name="sale_id"/>
+			</field>
         </field>
     </record>
 </odoo>

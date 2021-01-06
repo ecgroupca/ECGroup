@@ -2,10 +2,16 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 import logging
-
 from odoo import models, fields, api
-
 _logger = logging.getLogger(__name__)
+
+class CRMTeam(models.Model):
+    _inherit = 'crm.team'
+    
+    default_comm_rate = fields.Float(
+        'Default Commissin Rate (%)', 
+        readonly = False,
+        )
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
@@ -19,17 +25,21 @@ class SaleOrderLine(models.Model):
 
     comm_rate = fields.Float(
         'Commissin Rate (%)', 
+        #compute="_compute_comm_rate",        
         )
-
+        
+    """@api.depends('order_id')
+    def _compute_comm_rate(self):
+        for line in self:
+            if line.order_id.team_id and line.order_id.team_id.default_comm_rate:
+                line.comm_rate = line.order_id.team_id.default_comm_rate"""
+                
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
 
     deposit_total = fields.Float(
         'Total Deposits', 
         compute="_compute_deps_total",
-        )
-    customer_code = fields.Char(
-        'Customer Code'
         )
     approx_lead_time = fields.Float(
         'Approximate Lead Time'
@@ -45,7 +55,17 @@ class SaleOrder(models.Model):
         'Balance Due',
         compute="_compute_bal_due",
         )
-    
+        
+
+    @api.onchange('team_id')
+    def _onchange_sales_team(self):
+        for sale in self:
+            def_comm_rate = sale.team_id.default_comm_rate
+            if def_comm_rate:
+                for line in sale.order_line:
+                    if line.product_id.type == 'product':
+                        line.comm_rate = def_comm_rate
+                
     @api.depends('order_line')
     def _compute_deps_total(self):
         for sale in self:
@@ -63,7 +83,8 @@ class SaleOrder(models.Model):
                     total_comm += line.comm_rate*line.price_unit*line.product_uom_qty/100
             sale.comm_total = total_comm        
             sale.deposit_total = total_deps
-            
+     
+    @api.depends('order_line')     
     def _compute_bal_due(self):
         for sale in self:
           amt_res = 0.00

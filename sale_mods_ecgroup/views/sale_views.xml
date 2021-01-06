@@ -6,14 +6,14 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <field name="partner_shipping_id" position="after">
-               <field name="customer_code"/>
                <field name="sidemark"/> 
                <field name="client_order_ref"/> 			   
             </field>
 			<field name="payment_term_id" position="after">
 			   <field name="approx_lead_time"/>
 			   <field name="deposit_total"/> 
-			   <field name="comm_total"/> 
+			   <field name="comm_total"/>
+               <field name="inv_bal_due"/>			   
 			</field>
 			<xpath expr="//notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
 				<field name="comm_rate"/>
@@ -21,6 +21,17 @@
 			<xpath expr="//notebook/page/field[@name='order_line']/form/group/group/field[@name='price_unit']" position="after">
 				<field name="comm_rate"/>
 			</xpath>
+        </field>
+    </record>
+	
+    <record id="view_sales_team_mod" model="ir.ui.view">
+        <field name="name">sale.order.mods</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+        <field name="arch" type="xml">
+            <field name="company_id">
+			    <field name="default_comm_rate"/>
+			</field>
         </field>
     </record>
 </odoo>
