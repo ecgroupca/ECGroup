@@ -27,8 +27,13 @@ class SaleOrderLine(models.Model):
 
     comm_rate = fields.Float(
         'Commissin Rate (%)',
-        default = order_id.team_id.default_comm_rate,        
+        default = self.order_id.team_id.default_comm_rate,        
         )
+        
+    @api.onchange('order_id.team_id')
+    def _onchange_sales_team(self):
+        if order_id.team_id:
+            self.comm_rate = self.order_id.team_id.default_comm_rate
 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
