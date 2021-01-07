@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="sale.report_saleorder_document">
+			<t t-call="web.external_layout">
+			<t t-set="doc" t-value="doc.with_context(lang=doc.partner_id.lang)"/>
+			<t>
+				<t t-set="address">
+					<strong>Ship To:</strong>
+					<div t-field="doc.partner_shipping_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+				</t>
+			</t>
+			<t t-set="information_block">
+				  <strong>Sold To:</strong>
+				  <div t-field="doc.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;], &quot;no_marker&quot;: True}"/>
+			</t>
+
+			<div class="page">
+				<div class="oe_structure"/>
+				<div class="row mt32 mb32" id="informations">
+               <div class="col-auto mw-100 mb-2">
+                    <strong>Customer #:</strong>
+                    <p class="m-0" t-field="doc.partner_id.ref"/>
+                </div>
+                <div t-if="doc.client_order_ref" class="col-auto mw-100 mb-2">
+                    <strong>PO #:</strong>
+                    <p class="m-0" t-field="doc.client_order_ref"/>
+                </div>
+                <div t-if="doc.sidemark" class="col-auto mw-100 mb-2" name="expiration_date">
+                    <strong>Sidemark:</strong>
+                    <p class="m-0" t-field="doc.sidemark"/>
+                </div>
+                <div t-if="doc.partner_id.phone" class="col-auto mw-100 mb-2">
+                    <strong>Customer Phone#:</strong>
+                    <p class="m-0" t-field="doc.partner_id.phone"/>
+                </div>
+                  <div t-if="doc.approx_lead_time" class="col-auto mw-100 mb-2">
+                    <strong>Lead Time (Days):</strong>
+                    <p class="m-0" t-field="doc.approx_lead_time"/>
+                </div>  
+                    <div t-if="doc.partner_id and doc.partner_id.ref" class="col-auto mw-100 mb-2">
+                    <strong>Resale #:</strong>
+                    <p class="m-0" t-field="doc.partner_id.ref"/>
+                </div>  
+                <div t-if="doc.payment_term_id" class="col-auto mw-100 mb-2">
+                    <strong>Customer Terms:</strong>
+                    <p class="m-0" t-field="doc.payment_term_id"/>
+                </div>
+				</div>
+
+				<!-- Is there a discount on at least one line? -->
+				<t t-set="display_discount" t-value="any([l.discount for l in doc.order_line])"/>
+
+				<table class="table table-sm o_main_table">
+					<thead>
+						<tr>
+							<th name="th_description" class="text-left">Description</th>
+							<th name="th_quantity" class="text-right">Quantity</th>
+							<th name="th_priceunit" class="text-right">Unit Price</th>
+							<th name="th_discount" t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">
+								<span>Disc.%</span>
+							</th>
+							<th name="th_taxes" class="text-right">Taxes</th>
+							<th name="th_subtotal" class="text-right">
+								<t groups="account.group_show_line_subtotals_tax_excluded">Amount</t>
+								<t groups="account.group_show_line_subtotals_tax_included">Total Price</t>
+							</th>
+						</tr>
+					</thead>
+					<tbody class="sale_tbody">
+
+						<t t-set="current_subtotal" t-value="0"/>
+
+						<t t-foreach="doc.order_line" t-as="line">
+
+							<t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+							<t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+
+							<tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
+								<t t-if="not line.display_type">
+									<td name="td_name"><span t-field="line.name"/></td>
+									<td name="td_quantity" class="text-right">
+										<span t-field="line.product_uom_qty"/>
+										<span t-field="line.product_uom" groups="uom.group_uom"/>
+									</td>
+									<td name="td_priceunit" class="text-right">
+										<span t-field="line.price_unit"/>
+									</td>
+									<td t-if="display_discount" class="text-right" groups="product.group_discount_per_so_line">
+										<span t-field="line.discount"/>
+									</td>
+									<td name="td_taxes" class="text-right">
+										<span t-esc="', '.join(map(lambda x: (x.description or x.name), line.tax_id))"/>
+									</td>
+									<td name="td_subtotal" class="text-right o_price_total">
+										<span t-field="line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+										<span t-field="line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+									</td>
+								</t>
+								<t t-if="line.display_type == 'line_section'">
+									<td name="td_section_line" colspan="99">
+										<span t-field="line.name"/>
+									</td>
+									<t t-set="current_section" t-value="line"/>
+									<t t-set="current_subtotal" t-value="0"/>
+								</t>
+								<t t-if="line.display_type == 'line_note'">
+									<td name="td_note_line" colspan="99">
+										<span t-field="line.name"/>
+									</td>
+								</t>
+							</tr>
+
+							<t t-if="current_section and (line_last or doc.order_line[line_index+1].display_type == 'line_section')">
+								<tr class="is-subtotal text-right">
+									<td name="td_section_subtotal" colspan="99">
+										<strong class="mr16">Subtotal</strong>
+										<span t-esc="current_subtotal" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>
+									</td>
+								</tr>
+							</t>
+						</t>
+					</tbody>
+				</table>
+
+				<div class="clearfix" name="so_total_summary">
+					<div id="total" class="row" name="total">
+						<div t-attf-class="#{'col-4' if report_type != 'html' else 'col-sm-7 col-md-5'} ml-auto">
+							<table class="table table-sm">
+								<tr class="border-black o_subtotal" style="">
+									<td name="td_amount_untaxed_label"><strong>Subtotal</strong></td>
+									<td name="td_amount_untaxed" class="text-right">
+										<span t-field="doc.amount_untaxed"/>
+									</td>
+								</tr>
+								<t t-foreach="doc.amount_by_group" t-as="amount_by_group">
+									<tr style="">
+										<t t-if="amount_by_group[5] == 1 and doc.amount_untaxed == amount_by_group[2]">
+											<td name="td_amount_by_group_label_3">
+												<span t-esc="amount_by_group[0]"/>
+												<span>&amp;nbsp;<span>on</span>&amp;nbsp;<t t-esc="amount_by_group[2]" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/></span>
+											</td>
+											<td name="td_amount_by_group_3" class="text-right o_price_total">
+												<span t-esc="amount_by_group[1]" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>
+											</td>
+										</t>
+										<t t-else="">
+											<td name="td_amount_by_group_label">
+												<span t-esc="amount_by_group[0]"/>
+											</td>
+											<td name="td_amount_by_group" class="text-right o_price_total">
+												<span t-esc="amount_by_group[1]" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>
+											</td>
+										</t>
+									</tr>
+								</t>
+								<tr class="border-black o_total">
+									<td name="td_amount_total_label"><strong>Total</strong></td>
+									<td name="td_amount_total" class="text-right">
+										<span t-field="doc.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>
+									</td>
+								</tr>
+								<tr class="border-black o_subtotal" style="">
+									<td name="td_amount_untaxed_label"><strong>Less Deposits</strong></td>
+									<td name="td_amount_untaxed" class="text-right">
+										- <span t-field="doc.deposit_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>
+									</td>
+								</tr>
+								<tr class="border-black o_total">
+									<td name="td_amount_total_label"><strong>Order Balance</strong></td>
+									<td name="td_amount_total" class="text-right">
+										<span t-esc="doc.amount_total - doc.deposit_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: doc.pricelist_id.currency_id}"/>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<div t-if="doc.signature" class="mt32 ml64 mr4" name="signature">
+					<div class="offset-8">
+						<strong>Signature</strong>
+					</div>
+					<div class="offset-8">
+						<img t-att-src="image_data_uri(doc.signature)" style="max-height: 4cm; max-width: 8cm;"/>
+					</div>
+					<div class="offset-8 text-center">
+						<p t-field="doc.signed_by"/>
+					</div>
+				</div>
+
+				<div class="oe_structure"/>
+
+				<p t-field="doc.note"/>
+				<p t-if="doc.payment_term_id.note">
+					<span t-field="doc.payment_term_id.note"/>
+				</p>
+				<p id="fiscal_position_remark" t-if="doc.fiscal_position_id and doc.fiscal_position_id.sudo().note">
+					<strong>Fiscal Position Remark:</strong>
+					<span t-field="doc.fiscal_position_id.sudo().note"/>
+				</p>
+			</div>
+      <div class="page" style="font-size:9pt;page-break-before:always;">
+        <div style="margin-left:5px;font-size:9pt;">Revised: 01-16-2015</div>
+					<strong style="margin-left:350px;"> TERMS AND CONDITIONS OF SALE</strong>
+<p>1. Scope of Agreement. These Terms and Conditions of Sale ("Terms") 
+are a legally binding agreement between you and Dennis and Leen and/or Formations and govern your purchase of any 
+products from either company. These Terms apply to all merchandise sold to all customers. These terms may not be
+ altered in any manner without our prior consent. Our receipt of a fifty percent (50%) deposit on your order constitutes 
+ your consent and agreement to these Terms.</p>
+<p>2. Binding Agreement. BY PURCHASING ANY PRODUCTS FROM US, YOU UNDERSTAND AND AGREE THAT YOU ARE DEEMED TO HAVE READ, 
+UNDERSTOOD AND AGREED TO ALL OF THE PROVISIONS OF THESE TERMS. IF YOU DO NOT UNDERSTAND OR AGREE TO ANYTHING IN THE 
+IMMEDIATELY PRECEDING SENTENCE OR ANY OTHER PROVISION OF THESE TERMS, YOU SHOULD NOT PURCHASE ANY PRODUCTS FROM US.</p>
+<p>3. Prices, Payment, and Delivery. All orders require a 50% deposit of estimated purchase price plus estimated costs 
+(including sales tax and other charges) before work will commence and payment in full (including adjustments) is required 
+before products will be shipped and title to the products transferred to you. Allprices may be corrected as a result of 
+possible errors or omissions. You acknowledge that changes to designs may affect pricing and delivery schedules. 
+Prices do notinclude freight, packing and handling charge, all of which are your sole responsibility. We are not 
+responsible for delays in shipment beyond our control, including material shortages and labor or transit strikes, 
+and will notify you in the event of such delays. All quoted delivery dates are estimates only. Products ready for 
+delivery must be moved to your delivery location within ten (10) days after completion. Products which are not so 
+moved may be transferred to a commercialwarehouse or storage facility at our sole discretion, and you will be liable 
+for all costs and expenses incurred thereby, e.g., moving and storage fees and insurance. If payment for the products 
+and related costs are not paid in full within sixty (60) days, we may, at our sole discretion, retain the products and the 
+deposit as liquidated damages. You agree to pay all costs we incur in collecting unpaid accounts, including, 
+but not limited to, collection agency fees and attorneys" fees.</p>
+<p>4. Changes, Cancellations, and Returns. 
+We will not accept changes, cancellations, or returns to an order without our prior written permission. In the event we do accept 
+a cancellation or return, you agree to pay a 25% re-stocking charge. Any changes to an order, if accepted by us, are subject to
+ a minimum $200.00 (two hundred dollar) fee. Custom or special order merchandise is not subject to cancellation or return.</p>
+<p>5. Customer Claims and Risk of Loss. You shall bear all risk of loss or damage occurring while the merchandise is in transit or storage. 
+It is recommended that you inspect all merchandise immediately upon delivery. If loss or damage is found, it is your responsibility
+ to file any necessary freight claims with their carrier or storage facility.</p>
+<p>6. Installation. You assume all responsibility for proper installation of the merchandise. We shall not be responsible for damage 
+to the merchandise or to the location in which it is displayed and/or used. </p>
+<p>7.WARRANTIES; DISCLAIMERS; LIMITATION OF LIABILITY. (a) WARRANTY DISCLAIMER. ALL PRODUCTS ARE SOLD "AS IS" AND ON AN "AS AVAILABLE" 
+BASIS. FOR ALL PRODUCTS, WE EXPRESSLY DISCLAIM ANY AND ALL REPRESENTATIONS AND WARRANTIES, EXPRESS OR IMPLIED, RELATED TO PRODUCTS, 
+INCLUDING, BUT NOT LIMITED TO, ANY ANY WARRANTY OFTITLE, ACCURACY, MERCHANTABILITY OR FITNESS FOR A PARTICULAR PURPOSE OR USE, WARRANTY 
+OF NON-INFRINGEMENT, TITLE, QUIET ENJOYMENT OR WARRANTY RELATING TO THIRD PARTY SERVICES. You expressly waive any claim that you may
+ have against us or our Affiliates based on any product liability or alleged infringement of any patent, copyright, trade secret or 
+ other intellectual property rights with respect to any product and also waive any right toindemnification from us or our Affiliates 
+ against claims made against you by a third party. You acknowledge that our employees are not authorized to make any representation 
+ or warranty that is not in this Agreement. We do not warrant against fading and oxidizing, variations in tone, color, character, and
+ texture ofwood and iron finishes, color variations in fabric dye lots or paint, fabric shrinking or stretching, deterioration of 
+ dried plants used in artwork, or other normaldeterioration of elements used in our products. Our merchandise is not intended for 
+ outdoor use, except where specifically noted. All of our accessories are fordecorated purposes only.(b) LIMITATION OF LIABILITY. 
+ TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, NONE OF US,OUR AFFILIATES, NOR ANY OF THEIR RESPECTIVE OFFICERS, DIRECTORS, 
+ SHAREHOLDERS, MEMBERS, PARTNERS, EMPLOYEES, OR AGENTS SHALL BE LIABLE FOR PUNITIVE, CONSEQUENTIAL, INCIDENTAL, EXEMPLARY, 
+ INDIRECT, OR SPECIAL DAMAGES (INCLUDING DAMAGES FOR LOSS OF PROFITS, REVENUES, BUSINESS, USE, OR OTHER INTANGIBLES),WHETHER
+ OR NOT SUCH DAMAGES WERE FORESEEABLE, WHETHER WE HAD BEEN ADVISED OF THE POSSIBILITY OR LIKELIHOOD OF SUCH DAMAGES, OR FOR 
+ ANY OTHER REASON.(c) MAXIMUM LIABILITY. TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, OUR TOTAL LIABILITY TO YOU FOR ANY 
+ DAMAGES (REGARDLESS OF THE FORM OF ACTION, WHETHER CONTRACT, WARRANTY, TORT, PRODUCT LIABILITY, OR OTHERWISE) SHALL NOT EXCEED 
+ IN THE AGGREGATE THE AMOUNT ACTUALLY PAID BY YOU TO US FOR THE PRODUCT GIVING RISE TO THE CLAIM.(d) INDEMNIFICATION. YOU AGREE 
+ TO DEFEND AND INDEMNIFY US FROM AND AGAINST ANY AND ALL CLAIMS, DAMAGES, COSTS, AND EXPENSES, INCLUDING ATTORNEYS" FEES, ARISING 
+ OUT OF OR RELATED TO YOUR US OF PRODUCTS.</p>
+ <p>8. Governing Law and Jurisdiction. These Terms are governed by the laws of the State of
+ California, United States, without regard to its choice of law principles. Subject to Paragraph 10 below, you consent to the jurisdiction 
+ and venue of the state courts in Los Angeles County, California, and the federal courts in the Central District of California for all 
+ disputes arising out of your purchase of the products.</p>
+ <p>9. Arbitration.(a) YOU AGREE THAT THE SOLE AND EXCLUSIVE FORUM AND REMEDY FOR ANY 
+ AND ALL DISPUTES AND CLAIMS RELATING IN ANY WAY TO OR ARISING OUT OF THESE TERMS OR ANY PRODUCTS SHALL BE FINAL AND BINDING ARBITRATION, 
+ except that no dispute or claim relating to any transaction you enter into with a third party may be arbitrated.(b) The 
+ arbitration shall be administered by JAMS pursuant to its Streamlined Arbitration Rules and Procedures (the "JAMS Rules.")
+ Judgment on the award may be entered in any court having jurisdiction. The arbitration shall be held in Los Angeles, California. 
+ Costs andfees for such arbitration shall be determined allocated in accordance with such JAMS Rules. If such costs are determined
+ to be excessive in a consumer dispute, we will be responsible for paying all arbitration fees and arbitrator compensation in excess 
+ of what is deemed reasonable. The arbitrator"s award shall be binding and may be entered as a judgment in any court of competent 
+ jurisdiction.(c) TO THE FULLEST EXTENT PERMITTED BY APPLICABLE LAW, NO ARBITRATION OR CLAIM UNDER THESE TERMS OF USE SHALL BE JOINED
+ TO ANY OTHER ARBITRATION OR CLAIM AND NO CLASS ARBITRATION PROCEEDINGS SHALL BE PERMITTED. IN NO EVENT SHALL ANY CLAIM, ACTION OR 
+ PROCEEDING BY YOU AGAINST OR INVOLVING US BE INSTITUTED MORE THAN ONE (1) YEAR AFTER YOUR CLAIM FIRST ACCRUED OR YOU FIRSTBECAME AWARE 
+ OR REASONABLY SHOULD HAVE BECOME AWARE OF ANY SUCH CLAIM.</p>
+ <p>10. Complete Agreement. This Agreement constitutes the entire agreement between you and us with respect to the subject matter 
+ contained herein. To the extent any of the provisions contained in our Privacy Policy and/or Terms of Use (available at www.dennisandleen.com 
+ and/or www.formationsusa.com) would apply, such provisions are fully incorporated herein by this reference.</p>
+        </div>
+      
+		</t>
+	</template>
+</odoo>

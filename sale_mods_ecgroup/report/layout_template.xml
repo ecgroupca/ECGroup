@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--<template id="external_layout_header" inherit_id="report.external_layout_header">-->
+        <!--<xpath expr="//div[@class='col-xs-3']//img[@t-if='company.logo']" position="attributes">-->
+            <!--<attribute name="style">max-height: 100px;</attribute>-->
+        <!--</xpath>-->
+    <!--</template>-->
+
+    <template id="assets_common" inherit_id="report.assets_common">
+        <xpath expr="//link[last()]" position="after">
+            <style>
+                .border-black td {
+                    border-top: none !important;
+                }
+            </style>
+        </xpath>
+    </template>
+
+    <template id="assets_pdf" inherit_id="report.assets_pdf">
+        <xpath expr="//link[last()]" position="after">
+            <style>
+                .window_envelope_button_custom {
+                    padding-left: 0.375in;
+                    width: 4.0in;
+                    height: 1.0in;
+                    padding-bottom: 0.5in;
+                    padding-top: 2in;
+
+                }
+                .window_envelope_top_custom {
+                    padding-left: 0.375in;
+                    width: 3.5in;
+                    height: 1.1875in;
+                }
+
+                .company_39 td {
+                    border-top: none !important;
+                }
+
+                .company_39 .o_hr, .company_39.o_hr{
+                   background-color: #d5142f;
+                   color: #d5142f;
+                }
+
+                .company_39 th, .company_39 td {
+                   border: none !important;
+                   border-bottom: 1px solid #d5142f !important;
+                }
+
+                .company_38 .o_hr, .company_38.o_hr{
+                   background-color: #465560;
+                   color: #465560;
+                }
+
+                .company_38 th, .company_38 td {
+                   border: none !important;
+                   border-bottom: 1px solid #465560 !important;
+                }
+
+                .company_1 .o_hr, .company_1.o_hr{
+                   background-color: #465560;
+                   color: #465560;
+                }
+
+                .company_1 th, .company_1 td {
+                   border: none !important;
+                   border-bottom: 1px solid #465560 !important;
+                }
+
+                .company_37 .o_hr, .company_37.o_hr{
+                   background-color: #004493;
+                   color: #004493;
+                }
+
+                .company_37 th, .company_37 td {
+                   border: none !important;
+                   border-bottom: 1px solid #004493 !important;
+                }
+
+                .company_3 .o_hr, .company_3.o_hr{
+                   background-color: #ffde16;
+                   color: #ffde16;
+                }
+
+                .company_3 th, .company_3 td {
+                   border: none !important;
+                   border-bottom: 1px solid #ffde16 !important;
+                }
+            </style>
+        </xpath>
+    </template>
+</odoo>
