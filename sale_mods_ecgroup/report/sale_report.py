@@ -46,7 +46,16 @@ class SaleOrder(models.Model):
         )
     sidemark = fields.Char(
         'Sidemark'
-        )       
+        ) 
+    shipper_phone = fields.Char(
+        'Shipper Phone#'
+        ) 
+    etwo_number = fields.Char(
+        'E2 Doc#'
+        )  
+    sales_associate = fields.Char(
+        'Sales Associate'
+        )        
     comm_total = fields.Float(
         'Total Commisions', 
         compute="_compute_deps_total",
@@ -54,8 +63,7 @@ class SaleOrder(models.Model):
     inv_bal_due = fields.Float(
         'Balance Due',
         compute="_compute_bal_due",
-        )
-        
+        )        
 
     @api.onchange('team_id')
     def _onchange_sales_team(self):
