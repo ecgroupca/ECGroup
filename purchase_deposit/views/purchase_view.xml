@@ -14,7 +14,7 @@
                 />
             </xpath>
 			<field name="origin" position="after">
-			    <field name="sale_id"/>
+			    <field name="sale_order_id"/>
 			</field>
         </field>
     </record>

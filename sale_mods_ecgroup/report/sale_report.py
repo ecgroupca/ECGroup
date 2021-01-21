@@ -9,7 +9,7 @@ class CRMTeam(models.Model):
     _inherit = 'crm.team'
     
     default_comm_rate = fields.Float(
-        'Default Commissin Rate (%)', 
+        'Default Commission Rate (%)', 
         readonly = False,
         )
 
@@ -24,10 +24,12 @@ class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     comm_rate = fields.Float(
-        'Commissin Rate (%)', 
+        'Commission Rate', 
         #compute="_compute_comm_rate",        
         )
-        
+    internal_note = fields.Char(
+        'Internal Note'
+        )         
     """@api.depends('order_id')
     def _compute_comm_rate(self):
         for line in self:
@@ -50,6 +52,12 @@ class SaleOrder(models.Model):
     shipper_phone = fields.Char(
         'Shipper Phone#'
         ) 
+    customer_note = fields.Char(
+        'Customer Note',
+        )
+    ship_name = fields.Char(
+        'Ship Name'
+        )     
     etwo_number = fields.Char(
         'E2 Doc#'
         )  

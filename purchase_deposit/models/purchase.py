@@ -17,7 +17,7 @@ class PurchaseOrder(models.Model):
         ]
         return super(PurchaseOrder, self).copy_data(default)
         
-    sale_id = fields.Many2one(
+    sale_order_id = fields.Many2Many(
         comodel_name='sale.order', string='Sale Order')
 
     @api.model
