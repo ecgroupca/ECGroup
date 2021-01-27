@@ -12,6 +12,13 @@ class CRMTeam(models.Model):
         'Default Commission Rate (%)', 
         readonly = False,
         )
+        
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+    
+    comments = fields.Char(
+        'Comments'
+        )
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
