@@ -17,8 +17,7 @@ class PurchaseOrder(models.Model):
         ]
         return super(PurchaseOrder, self).copy_data(default)
         
-    sale_order_id = fields.Many2many(
-        comodel_name='sale.order', string='Sale Order')
+    sale_order_id = fields.Many2many('sale.order', string='Sale Order')
 
     @api.model
     def create(self, values):
