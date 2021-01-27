@@ -17,7 +17,7 @@ class PurchaseOrder(models.Model):
         ]
         return super(PurchaseOrder, self).copy_data(default)
         
-    sale_order_id = fields.Many2Many(
+    sale_order_id = fields.Many2many(
         comodel_name='sale.order', string='Sale Order')
 
     @api.model
@@ -29,7 +29,7 @@ class PurchaseOrder(models.Model):
                     ('name', '=', values['origin'])
                 ], limit=1)
                 if sale_id:
-                    values['sale_id'] = sale_id.id
+                    values['sale_order_id'] = sale_id.id
                     if sale_id.client_order_ref:
                         values['origin'] = sale_id.client_order_ref
                 else:
