@@ -40,9 +40,11 @@ class PurchaseOrder(models.Model):
                     # If so, use the 'sale_id' from the parent production
                     sale_id = procure_id and procure_id.sale_id
                     sale_id = sale_id and sale_id.id or None
+                    values['sale_order_id'] = sale_id
+                    if sale_id.client_order_ref:
+                        values['origin'] = sale_id.client_order_ref
 
         return super(PurchaseOrder, self).create(values)
-
 
 class PurchaseOrderLine(models.Model):
     _inherit = "purchase.order.line"
