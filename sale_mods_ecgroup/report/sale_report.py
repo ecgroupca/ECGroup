@@ -69,7 +69,11 @@ class SaleOrder(models.Model):
         )  
     sales_associate = fields.Char(
         'Sales Associate'
-        )        
+        ) 
+    user_id = fields.Many2one(
+        'res.users',
+        'Responsible',
+    )    
     comm_total = fields.Float(
         'Total Commisions', 
         compute="_compute_deps_total",
@@ -79,7 +83,7 @@ class SaleOrder(models.Model):
         compute="_compute_bal_due",
         )
 
-    @api.onchange('carrier_id')
+    """@api.onchange('carrier_id')
     def _onchange_carrier(self):
         for sale in self:
             #1. get deliveries for this sale
@@ -102,7 +106,7 @@ class SaleOrder(models.Model):
             #1. when user changes, push this value to all deliveries as user_id 
             pickings = self.env['stock.picking'].search([('sale_id','=',sale.id)])            
             for pick in pickings:
-                pick.partner_id = sale.partner_shipping_id
+                pick.partner_id = sale.partner_shipping_id"""
               
     @api.onchange('team_id')
     def _onchange_sales_team(self):
