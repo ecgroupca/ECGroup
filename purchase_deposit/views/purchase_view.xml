@@ -15,7 +15,10 @@
             </xpath>
 			<field name="origin" position="after">
 			    <field name="sale_order_id" widget="many2many_tags"/>
-			</field>
+			</field>			
+			<field name="date_planned" position="replace"/>
+			    <field name="date_planned"/>
+		    </field>
         </field>
     </record>
 </odoo>
