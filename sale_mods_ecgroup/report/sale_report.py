@@ -34,7 +34,7 @@ class SaleOrderLine(models.Model):
     comm_rate = fields.Float(
         'Commission Rate', 
         compute="_compute_comm_rate",   
-        stored=True,        
+        store = True,       
         )
     internal_note = fields.Char(
         'Internal Note'
@@ -50,50 +50,50 @@ class SaleOrder(models.Model):
     deposit_total = fields.Float(
         'Total Deposits', 
         compute="_compute_deps_total",
-        stored=True,
+        store = True,
         )
     approx_lead_time = fields.Float(
         'Approximate Lead Time',
-        stored=True,
+        store = True,
         )
     sidemark = fields.Char(
         'Sidemark',
-        stored=True,
+        store = True,
         ) 
     shipper_phone = fields.Char(
         'Shipper Phone',
-        stored=True,
+        store = True,
         ) 
     customer_note = fields.Char(
         'Customer Note',
-        stored=True,
+        store = True,
         )
     ship_name = fields.Char(
         'Shipper Name',
-        stored=True,
+        store = True,
         )     
     etwo_number = fields.Char(
         'E2 Doc#',
-        stored=True,
+        store = True,
         )  
     sales_associate = fields.Char(
         'Sales Associate',
-        stored=True,
+        store = True,
         ) 
     user_id = fields.Many2one(
         'res.users',
         'Responsible',
-        stored=True,
+        store = True,
     )    
     comm_total = fields.Float(
         'Total Commisions', 
         compute="_compute_deps_total",
-        stored=True,
+        store = True,
         )
     inv_bal_due = fields.Float(
         'Balance Due',
         compute="_compute_bal_due",
-        stored=True,
+        store = True,
         )
 
     """@api.onchange('carrier_id')
