@@ -56,13 +56,13 @@ class SaleOrder(models.Model):
         'Sidemark'
         ) 
     shipper_phone = fields.Char(
-        'Shipper Phone#'
+        'Shipper Phone'
         ) 
     customer_note = fields.Char(
         'Customer Note',
         )
     ship_name = fields.Char(
-        'Ship Name'
+        'Shipper Name'
         )     
     etwo_number = fields.Char(
         'E2 Doc#'
