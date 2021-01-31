@@ -33,16 +33,11 @@ class SaleOrderLine(models.Model):
 
     comm_rate = fields.Float(
         'Commission Rate', 
-        compute="_compute_comm_rate",   
-        store = True,       
+        readonly = False,        
         )
     internal_note = fields.Char(
         'Internal Note'
-        )         
-    @api.depends('order_id')
-    def _compute_comm_rate(self):
-        for line in self:
-            line.comm_rate = line.order_id.team_id and line.order_id.team_id.default_comm_rate or 0.00
+        )        
                 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
