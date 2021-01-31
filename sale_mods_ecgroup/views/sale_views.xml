@@ -12,7 +12,6 @@
 			<field name="payment_term_id" position="after">
 			   <field name="approx_lead_time"/>
 			   <field name="deposit_total"/> 
-			   <field name="comm_total"/>
                <field name="inv_bal_due"/>			   
 			</field>
 			<xpath expr="//notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="after">

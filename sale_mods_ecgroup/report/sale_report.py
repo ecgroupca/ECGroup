@@ -11,6 +11,7 @@ class CRMTeam(models.Model):
     default_comm_rate = fields.Float(
         'Default Commission Rate (%)', 
         readonly = False,
+        stored = True,
         )
         
 class ProductTemplate(models.Model):
@@ -32,7 +33,8 @@ class SaleOrderLine(models.Model):
 
     comm_rate = fields.Float(
         'Commission Rate', 
-        compute="_compute_comm_rate",        
+        compute="_compute_comm_rate",   
+        store = True,       
         )
     internal_note = fields.Char(
         'Internal Note'
@@ -48,39 +50,50 @@ class SaleOrder(models.Model):
     deposit_total = fields.Float(
         'Total Deposits', 
         compute="_compute_deps_total",
+        store = True,
         )
     approx_lead_time = fields.Float(
-        'Approximate Lead Time'
+        'Approximate Lead Time',
+        store = True,
         )
     sidemark = fields.Char(
-        'Sidemark'
+        'Sidemark',
+        store = True,
         ) 
     shipper_phone = fields.Char(
-        'Shipper Phone'
+        'Shipper Phone',
+        store = True,
         ) 
     customer_note = fields.Char(
         'Customer Note',
+        store = True,
         )
     ship_name = fields.Char(
-        'Shipper Name'
+        'Shipper Name',
+        store = True,
         )     
     etwo_number = fields.Char(
-        'E2 Doc#'
+        'E2 Doc#',
+        store = True,
         )  
     sales_associate = fields.Char(
-        'Sales Associate'
+        'Sales Associate',
+        store = True,
         ) 
     user_id = fields.Many2one(
         'res.users',
         'Responsible',
+        store = True,
     )    
     comm_total = fields.Float(
         'Total Commisions', 
         compute="_compute_deps_total",
+        store = True,
         )
     inv_bal_due = fields.Float(
         'Balance Due',
         compute="_compute_bal_due",
+        store = True,
         )
 
     """@api.onchange('carrier_id')
