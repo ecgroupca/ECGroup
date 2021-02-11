@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Reserved Stock Email Template-->
+        <record id="reserved_stock_email_template" model="mail.template">
+			<field name="name">Reserved Stock</field>
+			<field name="model_id" ref="sales_stock_reservation_app.model_stock_reserve"/>
+		</record>
+		
+    </data>
+</odoo>

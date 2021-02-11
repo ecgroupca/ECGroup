@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		
+		<!-- Stock Reserve Wizard View -->
+		<record id="stock_reserve_wizard_view" model="ir.ui.view">
+			<field name="model">stock.reserve</field>
+			<field name="arch" type="xml">
+			<form string="Stock Reserve">
+				<group>
+					<group>
+						<field name="sale_order" readonly="1"/>
+					</group>
+					<group>
+						<field name="notify_user" widget="many2many_tags"  placeholder="Select User to Send Email" style="color:#898687"/>
+					</group>
+					<field name="stock_reserve_line" nolabel ="1">
+						<tree editable="botttom" create="false">
+							<field name="order_line_id" />
+							<field name="product_id" />
+							<field name="product_qty" />
+							<field name="product_uom" class="oe_inline"/>
+							<field name="reserve_qty" />
+						</tree>
+					</field>
+				</group>
+				<footer>
+					<button name="reserve_sales_stock" type="object" string="Reserve" class="btn btn-primary active" icon="fa-pencil-square" />
+					<button string="Cancel" class="btn btn-danger disabled" special="cancel" icon="fa-times"/>
+				</footer> 
+			</form>
+			</field>
+		</record>
+
+		<!-- Stock Reserve Wizard Action -->
+		<record id="stock_reserve_action" model="ir.actions.act_window">
+			<field name="name">Reserve Stock</field>
+			<field name="type">ir.actions.act_window</field>
+			<field name="res_model">stock.reserve</field>
+			<field name="view_mode">form</field>
+			<field name="target">new</field>
+		</record>
+
+		<!-- Configuration -->
+		<record id="stock_reserve_configuration_form_view" model="ir.ui.view">
+		<field name="name">res.config.settings.form.view</field>
+		<field name="model">res.config.settings</field>
+		<field name="inherit_id" ref="stock.res_config_settings_view_form"/>
+		<field name="arch" type="xml">
+			<xpath expr="//div[hasclass('app_settings_block')][@data-key='stock']/div[1]" position="after">
+				<h2>Default Stock Reserve Location</h2>
+             	<div class="row mt16 o_settings_container">
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Source Location</span>
+                            <div class="text-muted">
+                                Select source location to reserve stock.
+                            </div>
+                            <div class="content-group">
+                                <div class="mt16 row">
+                                    <label for="location_id" string="Source Location" class="col-3 col-lg-3 o_light_label"/>
+                                    <field name="location_id" class="oe_inline" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Destination Location</span>
+                            <div class="text-muted">
+                                Select destination location to reserve stock.
+                            </div>
+                            <div class="content-group">
+                                <div class="mt16 row">
+                                    <label for="location_dest_id" string="Destination Location" class="col-3 col-lg-3 o_light_label"/>
+                                    <field name="location_dest_id" class="oe_inline" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+			</xpath>
+		</field>
+	</record>
+
+	</data>   
+</odoo>

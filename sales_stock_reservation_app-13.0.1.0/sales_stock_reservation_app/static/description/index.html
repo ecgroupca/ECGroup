@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sales Stock Reservation in Odoo</title>
+	<style>
+
+   </style>
+
+</head>
+<body>
+	<div>
+		<section class="oe_container lead title_box" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);text-align: center;">
+			<div >
+				<div >
+					<h2 class="oe_slogan title" style="margin-bottom: 10px;padding-top: 10px;    background: -webkit-linear-gradient(#4c59a8, #21bec2);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+						<b> Sales Stock Reservation</b>
+					</h2>
+					<hr style="width: 80%;background: -webkit-gradient(linear, 0 0, 100% 0, from(white), to(white), color-stop(50%, #1c2792));"></hr>
+					<p class="oe_slogan" style="padding: 5px 10px;"> Product stock or inventory items booking or reservation mainly used to lock product stock while making sales order this  app helps user to reserve sales stock and notify by email on stock reservation, also cancel after reserve stock, and can see different view like pivot view, bar graph, line chart, pie chart in sales and warehouse module in Odoo.</p>
+				</div>
+			</div>
+			<hr style="width: 80%;"></hr>
+			<div>
+				<div style="margin: 0px 20px;">
+					<div  class="row">
+						<div class="col-sm border feature-div" style="margin: 0px 10px;box-shadow: 10px 10px 10px #c7c7c7;" >
+							<section style="max-height: 85%;margin: auto;display: contents;">
+								<div style="margin-top: 15px;">
+									<img class="img img-responsive" src="features/vexels.png" style="border-radius: 10%; max-width: 100px;max-height: 100px;    min-height: 100px;margin: auto;" />
+								</div>
+								<h3>
+									<font style="vertical-align: inherit;">
+										Reserve Sales Stock
+									</font>
+								</h3>
+								<p style="margin-bottom: 10px;">
+									<font style="vertical-align: inherit;font-size: 15px;">  User can reserve sale stock based on source and destination location and also cancel reserves sales stock. </font>
+								</p>
+							</section> 
+						</div>
+						<div class="col-sm border feature-div" style="margin: 0px 10px;box-shadow: 10px 10px 10px #c7c7c7;" >
+							<section style="max-height: 85%;margin: auto;display: contents;">
+								<div style="margin-top: 15px;">
+									<img class="img img-responsive" src="features/contact.png" style="border-radius: 10%; max-width: 100px;max-height: 100px;    min-height: 100px;margin: auto;" />
+								</div>
+								<h3>
+									<font style="vertical-align: inherit;">
+										Email Notification on Stock Reservation.
+									</font>
+								</h3>
+								<p style="margin-bottom: 10px;">
+									<font style="vertical-align: inherit;font-size: 15px;"> Users selected in notify user will get email notification on sales stock reservation. </font>
+								</p>
+							</section> 
+						</div>
+						<div class="col-sm border feature-div" style="margin: 0px 10px;box-shadow: 10px 10px 10px #c7c7c7;" >
+							<section style="max-height: 85%;margin: auto;display: contents;">
+								<div style="margin-top: 15px;">
+									<img class="img img-responsive" src="features/759297958b.png" style="border-radius: 10%; max-width: 100px;max-height: 100px;    min-height: 100px;margin: auto;" />
+								</div>
+								<h3>
+									<font style="vertical-align: inherit;">
+										Different Reserved Stock View.
+									</font>
+								</h3>
+								<p style="margin-bottom: 10px;">
+									<font style="vertical-align: inherit;font-size: 15px;">  User can see different reserved stock view like pivot view, bar graph, line chart, and pie chart.</font>
+								</p>
+							</section> 
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div >
+				<div class="oe_slogan oe_spaced text-center">
+					<a class="btn mt8 ml8 button" style="background-color: #13b9af;color: #FFFFFF !important;font-size: 20px;font-weight: bold;border-radius: 7px;min-height: 45px;box-shadow: 5px 8px 10px #0d4a45;    min-width: 300px;margin: 10px 0px;"href="mailto:edgetechnologies.odoo@gmail.com?subject=Request%20Demo%20for%20Sales%20Stock%20Reservation" target="_top"> Request a Demo</a>
+					<a class="btn mt8 ml8 button" style="background-color: #13b9af;color: #FFFFFF !important;font-size: 20px;font-weight: bold;border-radius: 7px;min-height: 45px;box-shadow: 5px 8px 10px #0d4a45;min-width: 300px;margin: 10px 0px;" href="https://youtu.be/ye8IkLcVZpA" target="_blank">  Video Tutorial</a>
+				</div>
+			</div>
+			<hr style="width: 80%;"></hr>
+			<div style="min-height: 20px;"></div>
+		</section>
+
+		<section class="oe_container lead title_box" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);text-align: center;">
+			<div  style="margin-bottom: 40px;">
+				<div >
+					<h2 class="oe_slogan title" style="margin-bottom: 10px;    background: -webkit-linear-gradient(#0e99ac, #4c4ca8);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+						<b> Description</b>
+					</h2>
+					<hr style="width: 80%;height: 1px;background: -webkit-gradient(linear, 0 0, 100% 0, from(#d58383), to(#5d4da6), color-stop(50%, #0b1255));"></hr>
+				</div>
+			</div>
+			
+			<div >
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;">Configuration</h3>
+					<p style="padding: 5px 10px;"> Under Inventory > Configurations > Settings user have to select source location and destination location to reserve stock.</p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="1_config.png"/>
+
+					<br/>
+					<p style="padding: 5px 10px;"> Under Inventory > Configurations > Shipping > User must disable SMS Confirmation.</p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="18_sms_confirmation.png"/>
+
+				</div>
+			</div>
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;">Product Quantity Before Reserve Stock</h3>
+					<p style="padding: 5px 10px;">  User can see product on hand quantity before reserve stock.</p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="2_product_qty.png"/>
+					
+				</div>
+			</div>
+
+
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;">Reserve Stock</h3>
+					<p style="padding: 5px 10px;">  User can reserve stock by clicking on "Reserve Stock" button on sale order which is visible only if "Enable Stock Reservation" is checked.</p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="3_reserve_stock_button.png"/>
+					<br/>
+					<p style="padding: 5px 10px;"> New wizard will open on clicking of "Reserve Stock" button, here user can see default sale order line details and select "Notify User" to get email and enter "Reserve Quantity" to reserve stock. </p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="4_reserve_wizard.png"/>
+				</div>
+			</div>
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<p style="padding: 5px 10px;"> User can view and access created reserved stock from smart button "Reserved Stock" and also see reserves stock history from "Reserved Stock" page in sale order. </p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="5_reserve_stock_smart_button_history.png"/>
+					<br/>
+					<p style="padding: 5px 10px;">  On clicking of smart button reserved stock tree view will open. </p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="6_reserved_tree.png"/>
+				</div>
+			</div>
+
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<p style="padding: 5px 10px;"> User can see form view of reserved stock details with source and destination stock location. </p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="7_reserved_form_location.png"/>
+				</div>
+			</div>
+
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;">Product Quantity After Reserved Stock </h3>
+					<p style="padding: 5px 10px;"> Product on hand quantity will decreased on reservation of stock. </p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="8_product_qty_after.png"/>
+				</div>
+			</div>
+
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;">Reserved Stock Email</h3>
+					<p style="padding: 5px 10px;"> Notify user will get email on stock reservation done.  </p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="9_email.png"/>
+				</div>
+			</div>
+
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;">Cancel Reserved Stock</h3>
+					<p style="padding: 5px 10px;"> User can also cancel reserved stock by clicking on "Cancel Reserved Stock" if in "Reserved" state. </p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="10_cancel_reserved.png"/>
+				</div>
+			</div>
+
+
+
+
+
+
+
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<p style="padding: 5px 10px;"> Reserved stock state will changed from "Reserved" to "Cancelled".  </p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="11_cancelled_reserved.png"/>
+				</div>
+			</div>
+
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;"> Product Qty After Cancel Reserved Stock</h3>
+					<p style="padding: 5px 10px;">  Product on hand quantity will increased on canceling reserved stock.  </p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="12_product_qty_after_cancel.png"/>
+				</div>
+			</div>
+
+
+
+
+
+
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;">  Reserved Stock Menu</h3>
+					<p style="padding: 5px 10px;">  Under Inventory > Reporting > Reserved Stock menu user can see created all reserved stock.</p>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="13_reserved_menu.png"/>
+				</div>
+			</div>
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;"> Stock Pivot View</h3>
+					<br/>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="14_reserved_pivot_view.png"/>
+				</div>
+			</div>
+
+
+
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;"> Reserved Stock Bar Graph</h3>
+					<br/>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="15_reserved_bar_graph.png"/>
+				</div>
+			</div>
+
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;">  Stock Reserved Stock Line Chart </h3>
+					<br/>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="16_reserved_line_chart.png"/>
+				</div>
+			</div>
+
+
+			<div>
+				<div  style="margin-bottom: 40px;">
+					<h3 class="oe_slogan" style="color: #091383;font-weight: initial ;margin: auto;"> Stock Reserved Stock Pie Chart </h3>
+					<br/>
+					<br/>
+					<img class="img-responsive" style="display: block;width: 95%;margin: auto;box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);" src="17_reserved_pie_chart.png"/>
+				</div>
+			</div>
+
+
+
+			<hr style="width: 80%;"></hr>
+			<div style="min-height: 20px;"></div>
+		</section>
+
+		<section class="oe_container lead title_box" style="box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);text-align: center;">
+			<div>
+				<div>
+					<h2 class="oe_slogan title" style="margin-bottom: 10px;    background: -webkit-linear-gradient(#0e99ac, #4c4ca8);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+						<b> Our Services</b>
+					</h2>
+					<hr style="width: 80%;height: 1px;background: -webkit-gradient(linear, 0 0, 100% 0, from(#d58383), to(#5d4da6), color-stop(50%, #0b1255));"></hr>
+				</div>
+			</div>
+			<div class="row">
+				<a style="display: inline-grid;margin: 10px;"  class="col-sm">
+					<img class="img img-responsive" style="max-height: 100px;max-width: 100px;   margin: auto;" src="services/customization.png"/>
+					<span>Customization</span>
+				</a>
+				<a style="display: inline-grid; margin: 10px;" class="col-sm">
+					<img class="img img-responsive" style="max-height: 100px;max-width: 100px;margin: auto;" src="services/integration.png"/>
+					<span>Integration</span>
+				</a>
+				<a style="display: inline-grid;margin: 10px;" class="col-sm">
+					<img class="img img-responsive" style="max-height: 100px;max-width: 100px;margin: auto;" src="services/installation.png"/>
+					<span>Installation</span>
+				</a>
+			</div>
+			<div class="row">
+				<a style="display: inline-grid;margin: 10px;" class="col-sm">
+					<img class="img img-responsive" style="max-height: 100px;max-width: 100px;margin: auto;" src="services/create.gif"/>
+					<span>Create & Update</span>
+				</a>
+				<a style="display: inline-grid;margin: 10px;" class="col-sm">
+					<img class="img img-responsive" style="max-height: 100px;max-width: 100px;margin: auto;" src="services/migration.png"/>
+					<span>Migration</span>
+				</a>
+				<a style="display: inline-grid;margin: 10px;" class="col-sm">
+					<img class="img img-responsive" style="max-height: 100px;max-width: 100px;margin: auto;" src="services/support.png"/>
+					<span>Support</span>
+				</a>
+			</div>
+			<div >
+				<div >
+					<h2 class="oe_slogan title" style="margin-bottom: 10px;    background: -webkit-linear-gradient(#0e99ac, #4c4ca8);-webkit-background-clip: text;-webkit-text-fill-color: transparent;">
+						<b> Get In Touch</b>
+					</h2>
+					<hr style="width: 80%;height: 1px;background: -webkit-gradient(linear, 0 0, 100% 0, from(#d58383), to(#5d4da6), color-stop(50%, #0b1255));"></hr>
+					<p class="oe_slogan" style="margin-bottom: 0px;margin-top: 15px;"> You will get 60 Days free support in case any bugs or issue. </p>
+					<div >
+						<p class="oe_slogan" style="margin: 0px;margin-right: 5px;"> For any query or support contact us without hesitation
+						on</p><a  href="mailto:edgetechnologies.odoo@gmail.com?subject=Support%20Request%20for%20Sales%20Stock%20Reservation" target="_top"> edgetechnologies.odoo@gmail.com</a>
+					</div>
+				</div>
+				<div>
+					<a  href="mailto:edgetechnologies.odoo@gmail.com?subject=Support%20Request%20for%20Sales%20Stock%20Reservation" target="_top"> <i class='fa fa-envelope' style="min-width: 50px;background: #12b9af;padding: 10px;font-size: 30px;color: #ffffff;border-radius: 10px;min-height: 50px;box-shadow: 5px 8px 10px #0d4a45;"></i></a>
+					<a  href="#" target="_blank"> <i class='fa fa-facebook' style="min-width: 50px;background: #12b9af;padding: 10px;font-size: 30px;color: #ffffff;border-radius: 10px;min-height: 50px;box-shadow: 5px 8px 10px #0d4a45;"></i></a>
+					<a  href="#" target="_blank"> <i class='fa fa-linkedin' style="min-width: 50px;background: #12b9af;padding: 10px;font-size: 30px;color: #ffffff;border-radius: 10px;min-height: 50px;box-shadow: 5px 8px 10px #0d4a45;"></i></a>
+					<a  href="https://www.youtube.com/channel/UCrljky1245I7MhRNq_Tp46g" target="_blank"> <i class='fa fa-youtube' style="min-width: 50px;background: #12b9af;padding: 10px;font-size: 30px;color: #ffffff;border-radius: 10px;min-height: 50px;box-shadow: 5px 8px 10px #0d4a45;"></i></a>
+				</div>
+			</div>
+			
+			<hr style="width: 80%;"></hr>
+			
+			<div style="min-height: 20px;"></div>
+		</section>
+		
+	</div>
+</body>
+</html>
