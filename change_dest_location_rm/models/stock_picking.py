@@ -14,8 +14,7 @@ class SaleOrder(models.Model):
 
     custom_dest_location_id = fields.Many2one('stock.location', 'Custom Destination Location', check_company=True,
                                               help="This is the custom destination location when you create a picking "
-                                                   "manually with this operation type. If it is empty, it will use the default location."
-
+                                                   "manually with this operation type. If it is empty, it will use the default location.")
 class Purchase(models.Model):
     _inherit = "purchase.order"
 
