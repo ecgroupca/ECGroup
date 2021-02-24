@@ -14,24 +14,29 @@ class MrpProduction(models.Model):
     sale_order_line_id = fields.Many2one(
         comodel_name='sale.order.line', readonly=False, string='Source Sale Order Line.')    
 
-    desc_from_line = fields.Char(
+    """desc_from_line = fields.Char(
         'Sale Line Description',
         compute = '_get_line_desc'
+    )"""
+    etwo_number = fields.Char(
+        'E2 Doc#',
+        related = 'sale_order_id.etwo_number'
     )
     
-    @api.depends('sale_order_id')     
+    """@api.depends('sale_order_id')     
     def _get_line_desc(self):
         for mrp in self:
             sale_id = mrp.sale_order_id
             #search for the sale line with the product from MRP
-            sale_line = self.env['sale.order.line'].search([
-                ('product_id', '=', mrp.product_id),
-                ('product_uom_qty','=',mrp.product_uom_qty),
-                ]
-            )
-            if sale_line:
-                mrp.sale_order_line_id = sale_line
-                mrp.desc_from_line = sale_line.name
+            if not mrp.sale_order_line_id:
+                sale_line = self.env['sale.order.line'].search([
+                    ('product_id', '=', mrp.product_id),
+                    ('product_uom_qty','=',mrp.product_uom_qty),
+                    ]
+                )
+                if sale_line:
+                    mrp.sale_order_line_id = sale_line
+                    mrp.desc_from_line = sale_line.name"""
 
     
     @api.model

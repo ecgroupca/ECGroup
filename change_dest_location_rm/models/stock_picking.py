@@ -6,11 +6,17 @@ from odoo import api, fields, models, _
 class SaleOrder(models.Model):
     _inherit = "sale.order"
 
-    def _get_destination_location(self):
-        self.ensure_one()
-        if not self.custom_dest_location_id:
-            return super(SaleOrder, self)._get_destination_location()
-        return self.custom_dest_location_id.id
+    @api.onchange('custom_dest_location_id')
+    def _set_delivery_dest(self):
+        for sale in self:
+            import pdb;pdb.set_trace()
+            if sale.custom_dest_location_id:
+                for pick in sale.picking_ids:
+                    pick.location_dest_id = sale.custom_dest_location_id
+                    if pick.x_custom_dest_loc:
+                      pick.location_dest_id = pick.x_custom_dest_loc
+                      for line in pick.move_lines:
+                         line.location_dest_id = pick.x_custom_dest_loc
 
     custom_dest_location_id = fields.Many2one('stock.location', 'Custom Destination Location', check_company=True,
                                               help="This is the custom destination location when you create a picking "

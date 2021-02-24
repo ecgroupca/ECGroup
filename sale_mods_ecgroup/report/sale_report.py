@@ -12,21 +12,21 @@ class CRMTeam(models.Model):
         'Default Commission Rate (%)', 
         readonly = False,
         stored = True,
-        )
+    )
         
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
     
     comments = fields.Char(
         'Comments'
-        )
+    )
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
     
     reseller_id = fields.Char(
         'Reseller ID'
-        )
+    )
     
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
@@ -34,10 +34,10 @@ class SaleOrderLine(models.Model):
     comm_rate = fields.Float(
         'Commission Rate', 
         readonly = False,        
-        )
+    )
     internal_note = fields.Char(
         'Internal Note'
-        )        
+    )        
                 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
@@ -46,35 +46,35 @@ class SaleOrder(models.Model):
         'Total Deposits', 
         compute="_compute_deps_total",
         store = True,
-        )
-    approx_lead_time = fields.Float(
+    )
+    approx_lead_time = fields.Char(
         'Approximate Lead Time',
         store = True,
-        )
+    )
     sidemark = fields.Char(
         'Sidemark',
         store = True,
-        ) 
+    ) 
     shipper_phone = fields.Char(
         'Shipper Phone',
         store = True,
-        ) 
+    ) 
     customer_note = fields.Char(
         'Customer Note',
         store = True,
-        )
+    )
     ship_name = fields.Char(
         'Shipper Name',
         store = True,
-        )     
+    )     
     etwo_number = fields.Char(
         'E2 Doc#',
         store = True,
-        )  
+    )  
     sales_associate = fields.Char(
         'Sales Associate',
         store = True,
-        ) 
+    ) 
     user_id = fields.Many2one(
         'res.users',
         'Responsible',
@@ -84,12 +84,15 @@ class SaleOrder(models.Model):
         'Total Commisions', 
         compute="_compute_deps_total",
         store = True,
-        )
+    )
     inv_bal_due = fields.Float(
         'Balance Due',
         compute="_compute_bal_due",
         store = True,
-        )
+    )
+    taxed_order = fields.Boolean(
+        'Taxable', 
+    )
 
     """@api.onchange('carrier_id')
     def _onchange_carrier(self):
@@ -154,3 +157,16 @@ class SaleOrder(models.Model):
               amt_inv += invoice.amount_total
           amt_due = (sale.amount_total - amt_inv) + amt_res
           sale.inv_bal_due = amt_due
+          
+    @api.onchange('inv_bal_due')
+    def _lock_sales_orders(self):
+        done = True
+        for sale in self:
+            import pdb;pdb.set_trace()
+            if sale.inv_bal_due == 0.00:
+                for line in sale.order_line:
+                    if line.qty_delivered < line.product_uom_qty:
+                        done = False
+                        break
+                if done:
+                    sale.state = 'done'

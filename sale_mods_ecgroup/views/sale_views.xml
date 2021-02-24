@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_sales_order_mods" model="ir.ui.view">
-        <field name="name">sale.order.mods</field>
+    <record id="view_salesorder_form_mod" model="ir.ui.view">
+        <field name="name">sale.order.form.mods</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-            <field name="partner_shipping_id" position="after">
+           <field name="partner_shipping_id" position="after">
                <field name="sidemark"/> 
-               <field name="client_order_ref"/> 			   
+               <field name="client_order_ref"/> 
+               <field name="ship_name"/>
+               <field name="shipper_phone"/>
+               <field name="taxed_order"/>
             </field>
 			<field name="payment_term_id" position="after">
 			   <field name="approx_lead_time"/>
 			   <field name="deposit_total"/> 
-               <field name="inv_bal_due"/>			   
+               <field name="inv_bal_due"/>
+               <field name="sales_associate"/>
+               <field name="etwo_number" string="E2 Sales Order"/>
 			</field>
 			<xpath expr="//notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
 				<field name="comm_rate"/>
@@ -20,7 +25,7 @@
 			<xpath expr="//notebook/page/field[@name='order_line']/form/group/group/field[@name='price_unit']" position="after">
 				<field name="comm_rate"/>
 			</xpath>
-        </field>
+		</field>
     </record>
 	
     <record id="view_salesteam_form_mod" model="ir.ui.view">
@@ -41,7 +46,6 @@
         <field name="arch" type="xml">
             <field name="amount_total" position="after">
 				<field name="deposit_total"/>
-				<field name="comm_total"/>
 				<field name="inv_bal_due"/>
 			</field>
         </field>
@@ -54,9 +58,21 @@
         <field name="arch" type="xml">
             <field name="amount_total" position="after">
 				<field name="deposit_total"/>
-				<field name="comm_total"/>
 				<field name="inv_bal_due"/>
 			</field>
         </field>
     </record>
+	
+    <record id="view_sales_search_filter_mod" model="ir.ui.view">
+        <field name="name">sale.filter.mods</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <field name="name" position="after">
+			    <field name="etwo_number" string="E2 Sale"/>
+			</field>
+        </field>
+    </record>		
+		
+		
 </odoo>

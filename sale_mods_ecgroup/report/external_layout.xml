@@ -1,32 +1,123 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-	    <template id="web.external_layout_standard">
+	<template id="web.external_layout_standard">
 			<div t-attf-class="header o_company_#{company.id}_layout">
 				<div class="row">
 					<div class="col-3 mb4">
-					    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-height:105px;margin:0px;padding:0px;" alt="Logo"/>
+					    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" style="max-width:515px;max-height:135px;margin-top:15px;padding:0px;" alt="Logo"/>
 					</div>
-					<div t-if="doc" style="font-size:10pt;width:auto;margin-left:420px;margin-top:4px;">
-					    <div>Sale Order: <span t-field="doc.name"/></div>
-                        <div>Order Date: <span t-esc="doc.date_order.strftime('%m/%d/%Y')"/></div>
-						<div>Showroom: <span t-field="doc.team_id"/></div>
-                        <div>Salesperson: <span t-field="doc.user_id"/></div>
+					<div t-if="doc" style="width:auto;margin-left:340px;margin-top:15px;">
+					    <div t-if="doc.etwo_number"><span t-if="doc.state != 'draft'"><strong>SALES ORDER:</strong></span>
+					      <strong style="font-size:12pt;">
+					        <span t-if="doc.state=='draft'">QUOTATION:</span>
+					        <span t-field="doc.etwo_number"/>
+					      </strong>
+					    </div>
+					    <div t-if="not doc.etwo_number">
+					      <strong style="font-size:12pt;">
+					        <span t-if="doc.state != 'draft'">SALES ORDER:</span>
+					        <span t-if="doc.state=='draft'">QUOTATION:</span>
+					        <span t-field="doc.name"/>
+					      </strong>
+					    </div>
+              <div style="font-size:10pt;"><strong>ORDER DATE</strong>: 
+                <span t-esc="doc.date_order.strftime('%m/%d/%y')"/>
+              </div>
+						  <div style="font-size:10pt;"><strong>SHOWROOM</strong>: 
+						    <span t-field="doc.team_id"/>
+						  </div>
+              <div style="font-size:10pt;"><strong>SALESPERSON</strong>:
+                <span t-field="doc.sales_associate"/>
+              </div>
 					</div>
 				</div>
 			</div>
-			<div t-attf-class="article o_report_layout_standard o_company_#{company.id}_layout" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
+			<div t-attf-class="article o_report_layout_standard" t-att-data-oe-model="o and o._name" t-att-data-oe-id="o and o.id" t-att-data-oe-lang="o and o.env.context.get('lang')">
 				<t t-call="web.address_layout"/>
 				<t t-raw="0"/>
 			</div>
-
-			<div t-attf-class="footer o_standard_footer o_company_#{company.id}_layout" style="font-size:8px;">
-					<div t-field="company.report_footer" class="text-muted"/>
-					<div t-if="doc" class="text-muted">The Terms and Conditions of Sale, including arbitration of disputes, are printed on the  final pages of this sale order. Please read them carefully. Seller's receipt of
+			<div t-attf-class="footer o_standard_footer">
+					<div t-if="doc" class="text-muted" style="font-size:8px;">The Terms and Conditions of Sale, including arbitration of disputes, are printed on the  final pages of this sale order. Please read them carefully. Seller's receipt of
 	a 50% deposit constitutes Buyer's acknowledgement of this order and agreement to all terms and conditions of Sale. Unless we are notified of any errors in
 	this order within (10) days of the Order Date, this order will stand as final.</div>
-					<div t-if="report_type == 'pdf'" class="text-muted">
+	        <div t-if="trans" class="text-muted">          
+           <table width="100%" style="font-size:10pt;border:solid 1pt #999;color:#555">
+		        <colgroup>
+		          <col width="33%"/>
+            </colgroup>
+				    <tr>
+					  <th></th>
+				    </tr>
+				    <tr>
+				      <td align="left" style="padding:5px;border:solid 1pt #777;"><strong>Date Printed: </strong></td>
+				    </tr>
+				  </table>
+				  <table width="100%" style="margin-top:0px;font-size:9pt;border:solid 1pt #999;color:#222;">
+		        <colgroup>
+		          <col width="100%"/>
+            </colgroup>
+				    <tr>
+					  <th></th>
+					  <th></th>
+				    </tr>
+				    <tr>
+				      <td style="padding:5px;border:solid 1pt #999;">
+				        <p>Disclaimer: Received, subject to the classifications and tariffs agreed to in writing or the applicable transportation contract in effect on the date of the issue of this bill of lading, the property described above, received in apparent good order, except as noted (contents and condition of contents of packages unknown), marked, cosigned, and destined as indicated below, which said ( the carrier being understood throughout this contract as meaning any person or corporation in possession of the property under contract) agrees to carry to its usual place of delivery at said destination, if on its route, otherwise to deliver to another carrier on the route to said destination. it is mutually agreed, as to each carrier of all or any of said property over all or any portion of said route to destination, and as to each party at any time interested in all or any of said property, that every service to be performed hereunder shall be subject to all the terms and conditions of the uniform domestic straight bill of lading set forth (1) in the code of federal regulations, 49 cfr 1035 in effect on the date hereof, if this is a rail or rail-water shipment, or (2) in the applicable motor carrier classification or tariff specifically agreed to in writing or the applicable transportation contract and the applicable terms and conditions of the national motor freight classification 100, if this is a motor carrier shipment. the said terms and conditions are hereby agreed to by the shipper and accepted for itself and its assigns.<br/>
+				          Subject to section 7 of conditions, if this shipment is to be delivered to the consignee without recourse on the consignor, the consignor shall sign the following statement: the carrier shall not make delivery of this shipment without payment of freight and all their lawful charges. Client’s agent (whether professional freight mover or individual) hereby agrees to assume full responsibility for above merchandise, and, further, agrees to insure same for the value stated above.
+				        </p>
+				      </td>
+				    </tr>
+				  </table>
+				  <table width="100%" style="margin-top:0px;font-size:8pt;border:solid 1pt #999;color:#555;">
+		        <colgroup>
+		          <col width="50%"/>
+              <col width="50%"/>
+            </colgroup>
+				    <tr>
+					  <th></th>
+					  <th></th>
+				    </tr>
+				    <tr>
+				      <td style="padding:5px;border:solid 1pt #777;"><strong>Order#: </strong></td>
+				      <td style="padding:5px;border:solid 1pt #777;"><strong>Carrier Name: </strong></td>
+				    </tr>
+					  <tr>
+				      <td style="padding:5px;border:solid 1pt #777;"><strong>Customer: </strong></td>
+				      <td style="padding:5px;border:solid 1pt #777;"><strong>Sidemark: </strong></td>
+				    </tr>
+				  </table>
+           <table width="100%" style="margin-top:0px;font-size:10pt;color:#555;">
+		        <colgroup>
+		          <col width="50%"/>
+            </colgroup>
+				    <tr>
+					  <th></th>
+				    </tr>
+				    <tr>
+				      <td style="padding:5px;"><strong>Per: _________________________</strong></td>
+            </tr>
+				  </table>
+           <table width="100%" style="margin-top:0px;font-size:10pt;color:#555;">
+		        <colgroup>
+		          <col width="50%"/>
+              <col width="15%"/>
+		          <col width="35%"/>
+            </colgroup>
+				    <tr>
+					  <th></th>
+					  <th></th>
+					  <th></th>
+				    </tr>
+				    <tr>
+				      <td style="padding:5px;"><strong>Shipper's Representative: ________________________    </strong></td>
+				      <td style="padding:5px;"><strong>Date: ________</strong></td>
+				      <td style="padding:5px;"><strong>                                                Total # of Pieces: ____________</strong></td>
+				    </tr>
+				  </table>
+				  </div>
+					<div t-if="report_type == 'pdf'" class="text-muted" style="font-size:8px;">
 						Page: <span class="page"/> / <span class="topage"/>
 					</div>
-			</div>
+				</div>
       </template>
-</odoo>
+    </odoo>
