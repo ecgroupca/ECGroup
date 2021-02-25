@@ -16,6 +16,7 @@
 			   <field name="approx_lead_time"/>
 			   <field name="deposit_total"/> 
                <field name="inv_bal_due"/>
+			   <button string="Update bal due" name="action_update_bal_due" type="object"/>
                <field name="sales_associate"/>
                <field name="etwo_number" string="E2 Sales Order"/>
 			</field>

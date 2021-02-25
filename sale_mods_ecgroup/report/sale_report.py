@@ -118,6 +118,17 @@ class SaleOrder(models.Model):
             pickings = self.env['stock.picking'].search([('sale_id','=',sale.id)])            
             for pick in pickings:
                 pick.partner_id = sale.partner_shipping_id"""
+                
+    def action_update_bal_due(self):
+        for sale in self:
+          amt_res = 0.00
+          amt_inv = 0.00
+          for invoice in sale.invoice_ids:
+            if invoice.state=='posted':
+              amt_res += invoice.amount_residual
+              amt_inv += invoice.amount_total
+          amt_due = (sale.amount_total - amt_inv) + amt_res
+          sale.inv_bal_due = amt_due   
               
     @api.onchange('team_id')
     def _onchange_sales_team(self):
@@ -162,7 +173,6 @@ class SaleOrder(models.Model):
     def _lock_sales_orders(self):
         done = True
         for sale in self:
-            import pdb;pdb.set_trace()
             if sale.inv_bal_due == 0.00:
                 for line in sale.order_line:
                     if line.qty_delivered < line.product_uom_qty:
