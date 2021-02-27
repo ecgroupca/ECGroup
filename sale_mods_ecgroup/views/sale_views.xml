@@ -13,7 +13,6 @@
                <field name="taxed_order"/>
             </field>
 			<field name="payment_term_id" position="after">
-			   <field name="approx_lead_time"/>
 			   <field name="deposit_total"/> 
                <field name="inv_bal_due"/>
 			   <button string="Update bal due" name="action_update_bal_due" type="object"/>

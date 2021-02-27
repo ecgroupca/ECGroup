@@ -3,6 +3,7 @@
 
 import logging
 from odoo import models, fields, api
+from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
 
 class CRMTeam(models.Model):
@@ -121,14 +122,41 @@ class SaleOrder(models.Model):
                 
     def action_update_bal_due(self):
         for sale in self:
-          amt_res = 0.00
-          amt_inv = 0.00
-          for invoice in sale.invoice_ids:
-            if invoice.state=='posted':
-              amt_res += invoice.amount_residual
-              amt_inv += invoice.amount_total
-          amt_due = (sale.amount_total - amt_inv) + amt_res
-          sale.inv_bal_due = amt_due   
+            amt_res = 0.00
+            amt_inv = 0.00
+            for invoice in sale.invoice_ids:
+                if invoice.state=='posted':
+                    amt_res += invoice.amount_residual
+                    amt_inv += invoice.amount_total
+            amt_due = (sale.amount_total - amt_inv) + amt_res
+            sale.inv_bal_due = amt_due 
+            total_deps = 0
+            deposit_invs = []
+            company_id = sale.company_id and sale.company_id.id or 1
+            config = self.env['ir.config_parameter']
+            setting = config.search([('key','=','sale.default_deposit_product_id')])
+            setting = setting and setting[0] or None
+            dep_product = setting and setting.value or None
+            if dep_product:            
+                try:
+                    dep_product = int(dep_product)                                 
+                except UserError as error:
+                    raise UserError(error)  
+                sale_dep_lines = self.order_line.search([('product_id','=',dep_product),('order_id','=',sale.id)])
+                for line in sale_dep_lines:
+                    amt_inv = 0.00
+                    amt_res = 0.00
+                    #must find the invoice corresponding with the deposit and sum the amount - residual from the invoice.
+                    for inv_line in line.invoice_lines:
+                        invoice = inv_line.move_id
+                        invoice_id = invoice.id
+                        if invoice_id not in deposit_invs:
+                            deposit_invs.append(invoice_id)
+                            if invoice.state=='posted':
+                                amt_res += invoice.amount_residual
+                                amt_inv += invoice.amount_total
+                                total_deps += (amt_inv - amt_res)                
+                sale.deposit_total = total_deps           
               
     @api.onchange('team_id')
     def _onchange_sales_team(self):
@@ -160,20 +188,20 @@ class SaleOrder(models.Model):
     @api.depends('order_line')     
     def _compute_bal_due(self):
         for sale in self:
-          amt_res = 0.00
-          amt_inv = 0.00
-          for invoice in sale.invoice_ids:
-            if invoice.state=='posted':
-              amt_res += invoice.amount_residual
-              amt_inv += invoice.amount_total
-          amt_due = (sale.amount_total - amt_inv) + amt_res
-          sale.inv_bal_due = amt_due
+            amt_res = 0.00
+            amt_inv = 0.00
+            for invoice in sale.invoice_ids:
+                if invoice.state=='posted':
+                    amt_res += invoice.amount_residual
+                    amt_inv += invoice.amount_total
+            amt_due = (sale.amount_total - amt_inv) + amt_res
+            sale.inv_bal_due = amt_due
           
     @api.onchange('inv_bal_due')
     def _lock_sales_orders(self):
         done = True
         for sale in self:
-            if sale.inv_bal_due == 0.00:
+            if sale.inv_bal_due <= 0.00:
                 for line in sale.order_line:
                     if line.qty_delivered < line.product_uom_qty:
                         done = False
