@@ -23,6 +23,7 @@ class BarcodeSaleLabelsWiz(models.TransientModel):
                     'label_id' : self.id,
                     'product_id' : line.product_id.id, 
                     'qty' : line.product_uom_qty or 1,
+                    'sale_id': order.id,
                 }))
         res.update({
             'product_barcode_ids': barcode_order_lines
@@ -50,6 +51,7 @@ class BarcodeSaleLabelsLine(models.TransientModel):
     _name = "barcode.sale.labels.wiz.line"
     _description = 'Barcode Product Labels Line'
     
-    label_id = fields.Many2one('barcode.sale.labels.wiz', 'Barcode labels')
-    product_id = fields.Many2one('product.product',' Product')
-    qty = fields.Integer('Barcode', default=1)
+    label_id = fields.Many2one('barcode.sale.labels.wiz','Barcode labels')
+    product_id = fields.Many2one('product.product','Product')
+    qty = fields.Integer('Barcode Qty', default=1)
+    sale_id = fields.Many2one('sale.order','Sale Order')

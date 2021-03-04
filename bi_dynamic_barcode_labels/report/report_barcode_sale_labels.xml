@@ -5,57 +5,46 @@
 			<t t-foreach="docs" t-as="doc">
 				<t t-foreach="range(doc.qty)" t-as='l'>
 					<div class="page">
-						<div class="col-4" style="padding:0;">
-							<table style="border-bottom: 0px solid white !important;width: 3in;">
-								<t t-set="barcode_info" t-value="get_barcode_details_info"/>
-								<tr>
-									<th style="text-align: center;">
-										<strong t-field="doc.product_id.name"/>
-									</th>
-								</tr>
-								<t t-if="doc.product_id.attribute_line_ids">
-									<tr>
-										<td style="text-align: center;">
-											<span t-foreach="doc.product_id.product_template_attribute_value_ids" t-as="attribute_value1">
-												<span t-esc="attribute_value1.name+','"/>
-											</span>
-										</td>
-									</tr>
-								</t>
-								<tr>
-									<td style="text-align: center;">
-										<span t-field="doc.product_id.default_code"/>
-									</td>
-								</tr>
-								<t t-if="doc.product_id.barcode">
-									<tr>
-										<td style="text-align: center; vertical-align: middle;" class="col-5">
-											<img alt="Barcode" t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % (barcode_info['barcode_type'], doc.product_id.barcode, barcode_info['barcode_width'], barcode_info['barcode_height'])"/>
-											<br />
-											<span t-field="doc.product_id.barcode"/>
-										</td>
-									</tr>
-								</t>
-								<tr style="line-height:5px">
-									<td style="padding:10px; font-size:15px;text-align:center">
-										<t t-if="barcode_info['barcode_currency_position'] == 'before'">
-											<strong>
-												<span t-esc="barcode_info['barcode_currency_id'].symbol" />
-												<span t-field="doc.product_id.lst_price"/>
-											</strong>
+						<t t-foreach="docs" t-as="barcode">
+										<t t-translation="off">
+											<div style="display: inline-table; height: 10rem; width: 400px;">
+												<table class="table table-bordered">
+												   <div class="col-3 mb4">
+															 <img align="center" t-if="barcode.company_id.logo" t-att-src="image_data_uri(barcode.company_id.logo)" style="max-width:400px;" alt="Logo"/>
+															</div>
+													<tr>
+														<th class="table-active text-left" style="height:4rem;">
+															<div>
+															  Order: <span t-esc="barcode.sale_id.name"/>
+															   |  Date: <span t-esc="barcode.sale_id.date_deadline" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+															</div>
+															<br/>
+															<div>Customer: <span t-esc="barcode.sale_id.partner_id.name"/></div>
+															<div>S/M: <span t-esc="barcode.sale_id.user_id.name"/></div>
+															<div>Item: <span t-esc="barcode.product_id.name"/></div>
+														</th>
+													</tr>
+													<t t-if="barcode.product_id.tracking != 'none'">
+														<tr>
+															<td class="text-center align-middle" style="height: 6rem;">
+																<t t-if="barcode.product_id.barcode">
+																		<img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', barcode.product_id.barcode, 600, 150)" style="width:100%;height:4rem" alt="Barcode"/>
+																		<span t-esc="barcode.product_id.barcode"/>
+																</t>
+																<t t-else="">
+																	<span class="text-muted">No barcode available</span>
+																</t>
+															</td>
+														</tr>
+													</t>
+												</table>
+											</div>
 										</t>
-										<t t-if="barcode_info['barcode_currency_position'] != 'before'">
-											<strong>
-												<span t-field="doc.product_id.lst_price"/>
-												<span t-esc="barcode_info['barcode_currency_id'].symbol" />
-											</strong>
-										</t>
-
-									</td>
-								</tr>
-							</table>
-						</div>
-					</div>
+									<!--/t>
+								</t>
+							</t-->
+						</t>
+					  </div>
 					<div style="page-break-before:always;"/>
 				</t>
 				<div style="page-break-before:always;"/>
