@@ -3,16 +3,16 @@
 
     <!-- Barcode Labels Paperformate Report -->
     <record id="barcode_labels_report_paperformate" model="report.paperformat">
-        <field name="name">Barcode Labels Report Paperformate</field>
+        <field name="name">Barcode Labels Report Paperformat</field>
         <field name="default" eval="True" />
         <field name="format">custom</field>
-        <field name="page_height">50</field>
+        <field name="page_height">70</field>
         <field name="page_width">70</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">4</field>
+        <field name="margin_top">8</field>
         <field name="margin_bottom">4</field>
-        <field name="margin_left">4</field>
-        <field name="margin_right">4</field>
+        <field name="margin_left">1</field>
+        <field name="margin_right">3</field>
         <field name="header_line" eval="False" />
         <field name="header_spacing">0</field>
         <field name="dpi">90</field>
