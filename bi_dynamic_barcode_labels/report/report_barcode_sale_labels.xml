@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<template id="sale_dynamic_barcode_labels">
+		<t t-call="web.basic_layout">
+			<t t-foreach="docs" t-as="barcode">
+				<t t-foreach="range(barcode.qty)" t-as="l">
+					<div class="page">
+							<t t-translation="off">
+								<div style="display: inline-table; height: 10rem; width: 400px;">
+									<table class="table table-bordered">
+									   <div class="col-3 mb4">
+												 <img align="center" t-if="barcode.sale_id.company_id.logo" t-att-src="image_data_uri(barcode.sale_id.company_id.logo)" style="max-height:115px;max-width:400px;" alt="Logo"/>
+												</div>
+										<tr>
+											<th class="table-active text-left" style="height:4rem;">
+												<div>
+												  Order: <span t-esc="barcode.sale_id.name"/>
+												   |  Date: <span t-esc="barcode.sale_id.date_order" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+												</div>
+												<br/>
+												<div>Customer: <span t-esc="barcode.sale_id.partner_id.name"/></div>
+												<div>S/M: <span t-esc="barcode.sale_id.user_id.name"/></div>
+												<div>Item: <span t-esc="barcode.product_id.name"/></div>
+											</th>
+										</tr>
+											<tr>
+												<td class="text-center align-middle" style="height: 6rem;">
+													<t t-if="barcode.product_id.barcode">
+															<img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', barcode.product_id.barcode, 600, 150)" style="width:100%;height:4rem" alt="Barcode"/>
+															<span t-esc="barcode.product_id.barcode"/>
+													</t>
+												</td>
+											</tr>
+									</table>
+								</div>
+							</t>
+					  </div>
+					<div style="page-break-before:always;"/>
+				</t>
+				<div style="page-break-before:always;"/>
+			</t>
+		</t>
+	</template>
+</odoo>

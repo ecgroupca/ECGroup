@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Barcode Labels Paperformate Report -->
+    <record id="barcode_labels_report_paperformate" model="report.paperformat">
+        <field name="name">Barcode Labels Report Paperformat</field>
+        <field name="default" eval="True" />
+        <field name="format">custom</field>
+        <field name="page_height">70</field>
+        <field name="page_width">70</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">8</field>
+        <field name="margin_bottom">4</field>
+        <field name="margin_left">1</field>
+        <field name="margin_right">3</field>
+        <field name="header_line" eval="False" />
+        <field name="header_spacing">0</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Product Variant Report -->
+    <report 
+        id="printed_barcode_labels_id" 
+        model="product.product" 
+        string="Printed Barcode Labels"
+        report_type="qweb-pdf"
+        name="bi_dynamic_barcode_labels.product_barcode_labels" 
+        file="bi_dynamic_barcode_labels.product_barcode_labels"
+        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
+        menu="False"
+    />
+
+    <!-- Product Template Report -->
+    <report 
+        id="printed_product_temp_barcode_labels_id" 
+        model="product.template" 
+        string="Printed Barcode Labels"
+        report_type="qweb-pdf"
+        name="bi_dynamic_barcode_labels.product_temp_barcode_labels" 
+        file="bi_dynamic_barcode_labels.product_temp_barcode_labels"
+        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
+        menu="False"
+    />
+
+    <!-- Sale Order Report -->
+    <report 
+        id="printed_sale_order_barcode_labels_id" 
+        model="sale.order" 
+        string="Printed Barcode Labels"
+        report_type="qweb-pdf"
+        name="bi_dynamic_barcode_labels.sale_dynamic_barcode_labels" 
+        file="bi_dynamic_barcode_labels.sale_dynamic_barcode_labels"
+        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
+        menu="False"
+    />
+
+    <!-- Purchase Order Report -->
+    <report 
+        id="printed_purchase_order_barcode_labels_id" 
+        model="purchase.order" 
+        string="Printed Barcode Labels"
+        report_type="qweb-pdf"
+        name="bi_dynamic_barcode_labels.pur_dynamic_barcode_labels" 
+        file="bi_dynamic_barcode_labels.pur_dynamic_barcode_labels"
+        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
+        menu="False"
+    />
+
+    <!-- Stock Picking Report -->
+    <report 
+        id="printed_stock_picking_barcode_labels_id" 
+        model="stock.picking" 
+        string="Printed Barcode Labels"
+        report_type="qweb-pdf"
+        name="bi_dynamic_barcode_labels.stock_dynamic_barcode_labels" 
+        file="bi_dynamic_barcode_labels.stock_dynamic_barcode_labels"
+        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
+        menu="False"
+    />
+
+</odoo>

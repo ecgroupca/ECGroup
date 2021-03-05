@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+
+        <record id="barcode_labels_config_data" model="barcode.labels.config">
+            <field name="barcode_type">EAN13</field>
+            <field name="barcode_width">120</field>
+            <field name="barcode_height">25</field>
+            <field name="label_width">70</field>
+            <field name="label_height">50</field>
+        </record>
+
+    </data>
+</odoo>
