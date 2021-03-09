@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="view_image_import_wizard_form" model="ir.ui.view">
+        <field name="name">product.image.import.form</field>
+        <field name="model">product.image.import</field>
+        <field name="arch" type="xml">
+            <form string='Product Image Upload'>
+                <sheet>
+                    <group>
+                        <field name="filename" readonly="1" />
+                        <field name="image_file" filename="filename" />
+                    </group>
+                </sheet>
+                <footer>
+                    <button name='confirm_import' string='Confirm' class='oe_highlight' type='object' />
+                    <button special="cancel" string="Close" type="object" class="oe_link oe_inline" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <record model="ir.actions.act_window" id="action_import_image">
+        <field name="name">Product Image Import</field>
+        <field name="res_model">product.image.import</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_image_import_wizard_form" />
+        <field name="target">new</field>
+    </record>
+    <record id="product_image_output_message_view" model="ir.ui.view">
+        <field name="name">output.message.form</field>
+        <field name="model">output.message</field>
+        <field name="arch" type="xml">
+            <form string='Notification Message'>
+                <group>
+                    <field name="is_bounced" invisible="1" />
+                    <h1>
+                        <label for='file' attrs="{'invisible': [('is_bounced', '=', False)]}" string="Bounce file generated..." />
+                        <label for='file' attrs="{'invisible': [('is_bounced', '=', True)]}" string="Successfully completed import process." />
+                        <field name="file" nolabel="1" attrs="{'invisible': [('is_bounced', '=', False)]}" />
+                    </h1>
+                </group>
+                <footer>
+                    <button special="cancel" string="_Close" class="oe_link" />
+                </footer>
+            </form>
+        </field>
+    </record>
+    <menuitem
+        id="menu_import_products_image"
+        name="Import Images"
+        action="action_import_image"
+        parent="stock.menu_product_in_config_stock" />
+</odoo>
