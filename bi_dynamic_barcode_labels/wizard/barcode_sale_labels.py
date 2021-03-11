@@ -10,6 +10,12 @@ class BarcodeSaleLabelsWiz(models.TransientModel):
     _description = 'Barcode Product Labels Wizard'
 
     product_barcode_ids = fields.One2many('barcode.sale.labels.wiz.line', 'label_id', 'Product Barcode')
+    
+    @api.model
+    def create(self,vals):
+        import pdb;pdb.set_trace()
+        res = super(BarcodeSaleLabelsWiz, self).create(vals)
+        return res
 
     @api.model
     def default_get(self, fields):
@@ -54,4 +60,11 @@ class BarcodeSaleLabelsLine(models.TransientModel):
     label_id = fields.Many2one('barcode.sale.labels.wiz','Barcode labels')
     product_id = fields.Many2one('product.product','Product')
     qty = fields.Integer('Barcode Qty', default=1)
-    sale_id = fields.Many2one('sale.order','Sale Order')
+    sale_id = fields.Many2one('sale.order','Sale Order',store=True)
+    label_text = fields.Text('Free Text')
+        
+    @api.model
+    def create(self,vals):
+        import pdb;pdb.set_trace()
+        res = super(BarcodeSaleLabelsLine, self).create(vals)
+        return res

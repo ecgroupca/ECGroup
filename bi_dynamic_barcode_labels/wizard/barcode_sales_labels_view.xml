@@ -10,7 +10,9 @@
                         <separator string="Products To Print" colspan="4"/>
                         <field name="product_barcode_ids" nolabel="1">
                             <tree editable="bottom">
+							    <field name="sale_id"/>
                                 <field name="product_id" />
+								<field name="label_text" />
                                 <field name="qty" />
                             </tree>
                         </field>
