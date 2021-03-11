@@ -33,10 +33,10 @@ class BarcodeSaleLabelsWiz(models.TransientModel):
     def print_barcode_labels(self):
         self.ensure_one()
         [data] = self.read()
-        barcode_config = \
-                    self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
-        if not barcode_config.barcode_currency_id or not barcode_config.barcode_currency_position:
-            raise UserError(_('Barcode Configuration fields are not set in data (Inventory -> Settings -> Barcode Configuration)'))
+        #barcode_config = \
+        #            self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
+        #if not barcode_config.barcode_currency_id or not barcode_config.barcode_currency_position:
+        #    raise UserError(_('Barcode Configuration fields are not set in data (Inventory -> Settings -> Barcode Configuration)'))
         data['barcode_labels'] = data['product_barcode_ids']
         barcode_lines = self.env['barcode.sale.labels.wiz.line'].browse(data['barcode_labels'])
         datas = {
