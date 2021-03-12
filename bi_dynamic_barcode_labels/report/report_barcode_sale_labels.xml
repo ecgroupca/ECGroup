@@ -21,7 +21,7 @@
 												</div>
 												<div>Customer: <span t-esc="barcode.sale_id.partner_id.name"/></div>
 												<div>S/M: <span t-esc="barcode.sale_id.sidemark"/></div>
-												<t t-if="barcode.product_id">
+												<t t-if="barcode.product_id and not barcode.label_text">
 												    <div>Item: <span t-esc="barcode.product_id.default_code"/></div>
 												</t>
 
@@ -29,7 +29,7 @@
 										</tr>
 											<tr>
 												<td class="text-center align-middle">
-													<t t-if="barcode.product_id and barcode.product_id.barcode">
+													<t t-if="not barcode.label_text and barcode.product_id and barcode.product_id.barcode">
 															<img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', barcode.product_id.barcode, 600, 110)" style="max-width:308px;max-height:100px" alt="Barcode"/>
 															<div t-esc="barcode.product_id.barcode"/>
 													</t>
