@@ -6,8 +6,8 @@
             <field name="barcode_type">EAN13</field>
             <field name="barcode_width">120</field>
             <field name="barcode_height">25</field>
-            <field name="label_width">70</field>
-            <field name="label_height">50</field>
+            <field name="label_width">88</field>
+            <field name="label_height">109</field>
         </record>
 
     </data>
