@@ -9,8 +9,16 @@ class CRMTeam(models.Model):
     _inherit = 'crm.team'
     
     default_comm_rate = fields.Float(
-        'Default Commissin Rate (%)', 
+        'Default Commission Rate (%)', 
         readonly = False,
+        stored = True,
+        )
+        
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+    
+    comments = fields.Char(
+        'Comments'
         )
 
 class ResPartner(models.Model):
@@ -24,15 +32,12 @@ class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
 
     comm_rate = fields.Float(
-        'Commissin Rate (%)', 
-        #compute="_compute_comm_rate",        
+        'Commission Rate', 
+        readonly = False,        
         )
-        
-    """@api.depends('order_id')
-    def _compute_comm_rate(self):
-        for line in self:
-            if line.order_id.team_id and line.order_id.team_id.default_comm_rate:
-                line.comm_rate = line.order_id.team_id.default_comm_rate"""
+    internal_note = fields.Char(
+        'Internal Note'
+        )        
                 
 class SaleOrder(models.Model):
     _inherit = 'sale.order'
@@ -40,23 +45,77 @@ class SaleOrder(models.Model):
     deposit_total = fields.Float(
         'Total Deposits', 
         compute="_compute_deps_total",
+        store = True,
         )
     approx_lead_time = fields.Float(
-        'Approximate Lead Time'
+        'Approximate Lead Time',
+        store = True,
         )
     sidemark = fields.Char(
-        'Sidemark'
-        )       
+        'Sidemark',
+        store = True,
+        ) 
+    shipper_phone = fields.Char(
+        'Shipper Phone',
+        store = True,
+        ) 
+    customer_note = fields.Char(
+        'Customer Note',
+        store = True,
+        )
+    ship_name = fields.Char(
+        'Shipper Name',
+        store = True,
+        )     
+    etwo_number = fields.Char(
+        'E2 Doc#',
+        store = True,
+        )  
+    sales_associate = fields.Char(
+        'Sales Associate',
+        store = True,
+        ) 
+    user_id = fields.Many2one(
+        'res.users',
+        'Responsible',
+        store = True,
+    )    
     comm_total = fields.Float(
         'Total Commisions', 
         compute="_compute_deps_total",
+        store = True,
         )
     inv_bal_due = fields.Float(
         'Balance Due',
         compute="_compute_bal_due",
+        store = True,
         )
-        
 
+    """@api.onchange('carrier_id')
+    def _onchange_carrier(self):
+        for sale in self:
+            #1. get deliveries for this sale
+            #2. set the carrier
+            pickings = self.env['stock.picking'].search([('sale_id','=',sale.id)])            
+            for pick in pickings:
+                pick.carrier_id = sale.carrier_id
+                
+    @api.onchange('user_id')
+    def _onchange_user_id(self):
+        for sale in self:
+            #1. when user changes, push this value to all deliveries as user_id 
+            pickings = self.env['stock.picking'].search([('sale_id','=',sale.id)])            
+            for pick in pickings:
+                pick.user_id = sale.user_id
+                
+    @api.onchange('partner_shipping_id')
+    def _onchange_shipping_id(self):
+        for sale in self:
+            #1. when user changes, push this value to all deliveries as user_id 
+            pickings = self.env['stock.picking'].search([('sale_id','=',sale.id)])            
+            for pick in pickings:
+                pick.partner_id = sale.partner_shipping_id"""
+              
     @api.onchange('team_id')
     def _onchange_sales_team(self):
         for sale in self:

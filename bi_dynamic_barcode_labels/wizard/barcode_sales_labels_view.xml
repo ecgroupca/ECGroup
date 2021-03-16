@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_barcode_sale_labels" model="ir.ui.view">
+        <field name="name">Barcode Product Labels</field>
+        <field name="model">barcode.sale.labels.wiz</field>
+        <field name="arch" type="xml">
+            <form string="Barcode Product Labels">
+                <sheet>
+                    <group>
+                        <separator string="Products To Print" colspan="4"/>
+                        <field name="product_barcode_ids" nolabel="1">
+                            <tree editable="bottom">
+							    <field name="sale_id"/>
+                                <field name="product_id"/>
+								<field name="label_text"/>
+                                <field name="qty" />
+                            </tree>
+                        </field>
+                    </group>
+                    <span class="o_form_label" style="font-weight:bold;">More Information about barcode configuration data, please navigate to Inventory -> Settings -> Barcode Configuration</span>
+                </sheet>
+                <footer>
+                    <button name="print_barcode_labels" string="Print" type="object" 
+                        class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window name="Barcode Product Labels"
+        res_model="barcode.sale.labels.wiz"
+        binding_model="sale.order"
+        view_mode="form"
+        target="new"
+        id="action_sale_view_barcode_product_labels"
+    />
+
+</odoo>
