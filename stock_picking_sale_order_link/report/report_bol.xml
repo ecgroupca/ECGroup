@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+  <template id="report_bol">
+	<t t-foreach="docs" t-as="o">
+		<t t-call="stock_picking_sale_order_link.report_bol_document" t-lang="o.partner_id.lang"/>
+	</t>
+  </template>
+  <template id="report_bol_document">
+    <t t-foreach="docs" t-as="trans">
+      <t t-call="web.html_container">
+        <t t-call="web.external_layout">
+          <div class="page" style="font-name:Calibri">
+                    <h2 style="margin-top:10px;">
+                        <span>STRAIGHT BILL OF LADING</span>
+                    </h2>
+		      <table width="100%" style="margin:15px 0;font-size:12pt;">
+		        <colgroup>
+		          <col width="330px"/>
+              <col width="330px"/>
+            </colgroup>
+				    <tr>
+				      <td style="padding:5px;"><strong>Carrier: </strong><span t-field="trans.sale_id.ship_name"/></td>
+				      <td style="padding:5px;"><strong>Shipper: </strong><span t-field="trans.owner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/></td>
+				    </tr>
+				    <tr>
+				      <td style="padding:5px;"><strong>Consignee<br/>Address: </strong>
+				      <span t-field="trans.owner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+				      <div style="margin-top:25px;font-weight: bold;font-size:13pt;">Call at least 24 hours before delivery:</div></td>
+				      <td style="padding:5px;"><strong>Bill of Lading#: </strong><span t-field="trans.origin"/></td>
+				    </tr>
+				  </table>
+
+                    <table class="table table-sm" t-if="trans.state!='done'" name="stock_move_table">
+                        <thead>
+                            <tr>
+                                <th name="th_sm_quantity"><strong>Quantity</strong></th>
+                                <th name="th_sm_product" style="width:120px;"><strong>Item#</strong></th>
+                                <th name="th_sm_desc" style="max-width:120px;"><strong>Item Description</strong></th>
+                                <th name="th_sm_value"><strong>Value</strong></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-set="lines" t-value="trans.move_lines.filtered(lambda x: x.product_uom_qty)"/>
+                            <tr t-foreach="lines" t-as="move">
+                                <td>
+                                    <span t-esc="'%.0f'% move.product_uom_qty"/>
+                                </td>
+                                <td>
+                                    <span t-field="move.product_id.default_code"/>
+                                </td>
+                                <td><span t-field="move.product_id.name"/>
+                                    <p t-if="move.description_picking != move.product_id.name">
+                                        <span t-field="move.description_picking"/>
+                                    </p>
+                                </td>
+                                <td>
+                                    <span t-esc="'%.2f'% (move.sale_line_id.price_unit * move.product_uom_qty)"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <table class="table table-sm mt48" t-if="trans.move_line_ids and trans.state=='done'" name="stock_move_line_table">
+                        <t t-set="has_serial_number" t-value="trans.move_line_ids.mapped('lot_id')"/>
+                        <thead>
+                            <tr>
+                                <th name="th_sml_product"><strong>Product</strong></th>
+                                <th name="lot_serial" t-if="has_serial_number" groups="stock.group_lot_on_delivery_slip">
+                                    Lot/Serial Number
+                                </th>
+                                <th name="th_sml_quantity" class="text-center"><strong>Quantity</strong></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr t-foreach="trans.move_line_ids" t-as="move_line">
+                                <td>
+                                    <span t-field="move_line.product_id"/>
+                                    <p t-if="move_line.move_id.description_picking != move_line.product_id.name">
+                                        <span t-field="move_line.move_id.description_picking"/>
+                                    </p>
+                                </td>
+                                <td t-if="has_serial_number and move_line.lot_name" groups="stock.group_lot_on_delivery_slip">
+                                    <span t-field="move_line.lot_name"/>
+                                </td>
+                                <td t-elif="has_serial_number" groups="stock.group_lot_on_delivery_slip">
+                                    <span t-field="move_line.lot_id.name"/>
+                                </td>
+                                <td class="text-center">
+                                    <span t-field="move_line.qty_done"/>
+                                    <span t-field="move_line.product_uom_id"/>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        <t t-if="trans.backorder_ids and trans.backorder_ids.filtered(lambda x: x.state not in ('done', 'cancel'))">
+                            All items couldn't be shipped, the remaining ones will be shipped as soon as they become available.
+                        </t>
+                        <span t-field="trans.note"/>
+                    </p>
+			</div>
+          </t>
+        </t>
+      </t>
+	  <report id="report_bol_pdf'"
+	
+		string="Bill of Lading"
+		model="stock.picking"
+		report_type="qweb-pdf"
+		name="stock_picking_sale_order_link.report_bol_pdf"
+		file="stock_picking_sale_order_link.report_bol_pdf"
+		menu="True"/>
+  </template>   
+</odoo>
