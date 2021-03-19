@@ -28,5 +28,7 @@
         parent="account.menu_finance_payables"
         sequence="22"
         name="Checkbook Register"
+		action="act_checkbook_register"
+		
     />
 </odoo>
