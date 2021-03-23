@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="report_checkbook_reg">
+	<t t-foreach="docs" t-as="o">
+		<t t-call="qb_checkbook_register.report_checkbook_reg_document" t-lang="o.partner_id.lang"/>
+	</t>
+  </template>
+  <template id="report_bol_document">
+    <t t-foreach="docs" t-as="check">
+      <t t-call="web.html_container">
+        <t t-call="web.external_layout">
+          <div class="page" style="font-name:Calibri">
+			<h2 style="margin-top:10px;">
+				<span>Checkbook Register</span>
+			</h2>
+			  <table width="100%" style="margin:15px 0;font-size:12pt;">
+				<thead>
+					<tr>
+						<th name="th_routing"><span>Routing ID</span></th>
+						<th name="th_account"><span>Account #</span></th>
+						<th name="th_check"><span>Check #</span></th>
+						<th name="th_payment_date"><span>Pmt Date</span></th>
+						<th name="th_name"><span>Name</span></th>
+						<th name="th_bank"><span>Bank</span></th>
+						<th name="th_partner_id"><span>Payee #</span></th>
+						<th name="th_status"><span>Status</span></th>
+						<th name="th_company"><span>Company</span></th>
+					</tr>
+				</thead>
+				<tr>
+				  <td style="padding:5px;"><span t-field="check.routing_number"/></td>
+				  <td style="padding:5px;"><span t-field="check.account_number"/></td>
+				  <td style="padding:5px;"><span t-field="check.check_number"/></td>
+				  <td style="padding:5px;"><span t-field="check.payment_date"/></td>
+				  <td style="padding:5px;"><span t-field="check.name"/></td>
+				  <td style="padding:5px;"><span t-field="check.journal_id.name"/></td>
+				  <td><span t-field="check.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/></td>
+				  <td style="padding:5px;"><span t-field="check.state"/></td>
+				  <td style="padding:5px;"><span t-field="check.company_id.name"/></td>
+				</tr>
+			  </table>
+			</div>
+          </t>
+        </t>
+      </t>
+  </template>
+  <report id="report_checkbook_reg'"	
+	string="Checkbook Register"
+	model="account.payment"
+	report_type="qweb-pdf"
+	name="qb_checkbook_register.report_checkbook_reg"
+	file="qb_checkbook_register.report_checkbook_reg"
+	menu="True"/>		
+</odoo>
