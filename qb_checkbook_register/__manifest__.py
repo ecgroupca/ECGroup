@@ -11,6 +11,7 @@
     "depends": ["account","account_check_printing"],
     "data": [
         "views/account_payment.xml",
+        "report/report_checkbook_register.xml",
     ],
     "installable": True,
     "auto_install": False,
