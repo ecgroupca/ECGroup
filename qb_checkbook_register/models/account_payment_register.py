@@ -12,5 +12,5 @@ class ResBank(models.Model):
 class AccountPayment(models.Model):
     _inherit = "account.payment"
     
-    routing_number = fields.Char(related='journal_id.bank_id.bic')
+    routing_number = fields.Char(related='journal_id.bank_account_id.aba_routing')
     account_number = fields.Char(related='journal_id.bank_acc_number')
