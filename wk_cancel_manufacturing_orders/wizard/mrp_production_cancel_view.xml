@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2015-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : https://store.webkul.com/license.html/ -->
+<odoo>
+    <data>
+        <act_window id="cancel_manufacturing_order_wizard_action"
+                name="Cancel Manufacturing Order"
+                binding_model="mrp.production"
+                res_model="mrp.production.cancel.wizard"
+                binding_views="list,form"
+                view_mode="form"
+                target="new"/>
+
+        <record id="cancel_manufacturing_order_wizard_view" model="ir.ui.view">
+            <field name="name">Cancel Manufacturing Order</field>
+            <field name="model">mrp.production.cancel.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Cancel Order" >
+                    <group>
+                        <field name="reason" required="1" options="{'no_create': True, 'no_open': True}"/>
+                        <field name="comment" required="1"/>
+                    </group>
+                    <footer>
+                        <button string="Confirm" name="cancel_order_button" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancel" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+    </data>
+</odoo>

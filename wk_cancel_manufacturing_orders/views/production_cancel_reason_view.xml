@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2015-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : https://store.webkul.com/license.html/ -->
+<odoo>
+    <data>
+        <record id="production_cancel_reason_tree" model="ir.ui.view">
+            <field name="name">production.cancel.reason.tree</field>
+            <field name="model">production.cancel.reason</field>
+            <field name="type">tree</field>
+            <field name="arch" type="xml">
+                <tree string="Deadline Reasons" editable="bottom">
+                    <field name="sequence"/>
+                    <field name="name"/>
+                    <field name="create_uid" readonly="1"/>
+                    <field name="create_date" readonly="1"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="production_cancel_reason_form" model="ir.ui.view">
+            <field name="name">production.cancel.reason.form</field>
+            <field name="model">production.cancel.reason</field>
+            <field name="type">form</field>
+            <field name="arch" type="xml">
+                <form string="Mrp Production Reasons">
+                    <group>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                        <group>
+                            <field name="sequence"/>
+                        </group>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+        <record id="production_cancel_reason_action" model="ir.actions.act_window">
+            <field name="name">Cancellation Reasons</field>
+            <field name="res_model">production.cancel.reason</field>
+            <field name="view_mode">tree,form</field>
+            <field name="view_id" ref="production_cancel_reason_tree"/>
+        </record>
+
+        <menuitem id="production_cancel_reason_menu" action="production_cancel_reason_action" parent="mrp.menu_mrp_configuration" string="Cancellation Reasons" groups="mrp.group_mrp_manager"/>
+    </data>
+</odoo>
