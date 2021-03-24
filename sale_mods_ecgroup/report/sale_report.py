@@ -19,47 +19,47 @@ class AccountMove(models.Model):
 
     @api.onchange('state')
     def _onchange_state(self):
-        if self.state == 'posted':
-            amt_res = 0.00
-            amt_inv = 0.00
-            sale = None
-            for line in self.invoice_line_ids:
-                sale_line = line.sale_line_ids and line.sale_line_ids[0] or None
-                sale = sale_line.order_id
-            invoice_ids = sale and sale.invoice_ids or []
-            for invoice in invoice_ids:
-                if invoice.state=='posted':
-                    amt_res += invoice.amount_residual
-                    amt_inv += invoice.amount_total
-            amt_due = (record.amount_total - amt_inv) + amt_res
-            record['inv_bal_due'] = amt_due 
-            total_deps = 0
-            deposit_invs = []
-            company_id = record.company_id and record.company_id.id or 1
-            config = env['ir.config_parameter']
-            setting = config.sudo().search([('key','=','sale.default_deposit_product_id')])
-            setting = setting and setting[0] or None
-            dep_product = setting and setting.value or None
-            if dep_product:            
-                try:
-                    dep_product = int(dep_product)                                 
-                except UserError as error:
-                    raise UserError(error)  
-                sale_dep_lines = env['sale.order.line'].sudo().search([('product_id','=',dep_product),('order_id','=',record.id)])
-                for line in sale_dep_lines:
-                    amt_inv = 0.00
-                    amt_res = 0.00
-                    #must find the invoice corresponding with the deposit and sum the amount - residual from the invoice.
-                    for inv_line in line.invoice_lines:
-                        invoice = inv_line.move_id
-                        invoice_id = invoice.id
-                        if invoice_id not in deposit_invs:
-                            deposit_invs.append(invoice_id)
-                            if invoice.state=='posted':
-                                amt_res += invoice.amount_residual
-                                amt_inv += invoice.amount_total
-                                total_deps += (amt_inv - amt_res)                
-                record['deposit_total'] = total_deps
+        #if self.state == 'posted':
+        amt_res = 0.00
+        amt_inv = 0.00
+        sale = None
+        for line in self.invoice_line_ids:
+            sale_line = line.sale_line_ids and line.sale_line_ids[0] or None
+            sale = sale_line.order_id
+        invoice_ids = sale and sale.invoice_ids or []
+        for invoice in invoice_ids:
+            if invoice.state=='posted':
+                amt_res += invoice.amount_residual
+                amt_inv += invoice.amount_total
+        amt_due = (record.amount_total - amt_inv) + amt_res
+        record['inv_bal_due'] = amt_due 
+        total_deps = 0
+        deposit_invs = []
+        company_id = record.company_id and record.company_id.id or 1
+        config = env['ir.config_parameter']
+        setting = config.sudo().search([('key','=','sale.default_deposit_product_id')])
+        setting = setting and setting[0] or None
+        dep_product = setting and setting.value or None
+        if dep_product:            
+            try:
+                dep_product = int(dep_product)                                 
+            except UserError as error:
+                raise UserError(error)  
+            sale_dep_lines = env['sale.order.line'].sudo().search([('product_id','=',dep_product),('order_id','=',record.id)])
+            for line in sale_dep_lines:
+                amt_inv = 0.00
+                amt_res = 0.00
+                #must find the invoice corresponding with the deposit and sum the amount - residual from the invoice.
+                for inv_line in line.invoice_lines:
+                    invoice = inv_line.move_id
+                    invoice_id = invoice.id
+                    if invoice_id not in deposit_invs:
+                        deposit_invs.append(invoice_id)
+                        if invoice.state=='posted':
+                            amt_res += invoice.amount_residual
+                            amt_inv += invoice.amount_total
+                            total_deps += (amt_inv - amt_res)                
+            record['deposit_total'] = total_deps
                 
 
 class CRMTeam(models.Model):
@@ -226,6 +226,14 @@ class SaleOrder(models.Model):
     @api.depends('order_line')
     def _compute_deps_total(self):
         for sale in self:
+            amt_res = 0.00
+            amt_inv = 0.00
+            for invoice in sale.invoice_ids:
+                if invoice.state=='posted':
+                    amt_res += invoice.amount_residual
+                    amt_inv += invoice.amount_total
+            amt_due = (sale.amount_total - amt_inv) + amt_res
+            sale.inv_bal_due = amt_due
             total_deps = 0
             total_comm = 0
             company_id = sale.company_id and sale.company_id.id or 1
@@ -233,15 +241,28 @@ class SaleOrder(models.Model):
             setting = config.search([('key','=','sale.default_deposit_product_id')])
             setting = setting and setting[0] or None
             dep_product = setting and setting.value or None
-            for line in sale.order_line:
-                if dep_product and str(line.product_id.id) == dep_product:
-                    total_deps += abs(line.price_unit)
-                if line.comm_rate:
-                    total_comm += line.comm_rate*line.price_unit*line.product_uom_qty/100
-            sale.comm_total = total_comm        
-            sale.deposit_total = total_deps
+            if dep_product:            
+                try:
+                    dep_product = int(dep_product)                                 
+                except UserError as error:
+                    raise UserError(error)  
+                sale_dep_lines = self.order_line.search([('product_id','=',dep_product),('order_id','=',sale.id)])
+                for line in sale_dep_lines:
+                    amt_inv = 0.00
+                    amt_res = 0.00
+                    #must find the invoice corresponding with the deposit and sum the amount - residual from the invoice.
+                    for inv_line in line.invoice_lines:
+                        invoice = inv_line.move_id
+                        invoice_id = invoice.id
+                        if invoice_id not in deposit_invs:
+                            deposit_invs.append(invoice_id)
+                            if invoice.state=='posted':
+                                amt_res += invoice.amount_residual
+                                amt_inv += invoice.amount_total
+                                total_deps += (amt_inv - amt_res)                
+                sale.deposit_total = total_deps
      
-    @api.depends('order_line')     
+    @api.depends('deposit_total')     
     def _compute_bal_due(self):
         for sale in self:
             amt_res = 0.00
