@@ -23,7 +23,6 @@ class AccountMove(models.Model):
             amt_res = 0.00
             amt_inv = 0.00
             sale = None
-            import pdb;pdb.set_trace()
             for line in self.invoice_line_ids:
                 sale_line = line.sale_line_ids and line.sale_line_ids[0] or None
                 sale = sale_line.order_id
