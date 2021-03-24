@@ -15,28 +15,28 @@
 			  <table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 				<thead>
 					<tr style="padding:5px;border-bottom: solid 2px; border-color:#AAA;">
-						<th name="th_routing"><strong>Routing ID</strong></th>
-						<th name="th_account"><strong>Account #</strong></th>
-						<th name="th_check"><strong>Check #</strong></th>
-						<th name="th_payment_date"><strong>Pmt Date</strong></th>
-						<th name="th_name"><strong>Name</strong></th>
-						<th name="th_journal"><strong>Journal</strong></th>
-						<th name="th_partner_id"><strong>Payee #</strong></th>
-						<th name="th_status"><strong>Status</strong></th>
-						<th name="th_company"><strong>Company</strong></th>
+						<th style="padding:5px;" name="th_routing"><strong>Routing ID</strong></th>
+						<th style="padding:5px;" name="th_account"><strong>Account #</strong></th>
+						<th style="padding:5px;" name="th_check"><strong>Check #</strong></th>
+						<th style="padding:5px;" name="th_payment_date"><strong>Pmt Date</strong></th>
+						<th style="padding:5px;" name="th_name"><strong>Name</strong></th>
+						<th style="padding:5px;" name="th_journal"><strong>Journal</strong></th>
+						<th style="padding:5px;" name="th_partner_id"><strong>Payee #</strong></th>
+						<th style="padding:5px;" name="th_status"><strong>Status</strong></th>
+						<th style="padding:5px;" name="th_company"><strong>Company</strong></th>
 					</tr>
 				</thead>
 			    <t t-foreach="docs" t-as="check">
 					<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
-					  <td><span t-field="check.routing_number"/></td>
-					  <td><span t-field="check.account_number"/></td>
-					  <td><span t-field="check.check_number"/></td>
-					  <td><span t-field="check.payment_date"/></td>
-					  <td><span t-field="check.name"/></td>
-					  <td><span t-field="check.journal_id.name"/></td>
-					  <td><span t-field="check.partner_id"/></td>
-					  <td><span t-field="check.state"/></td>
-					  <td><span t-field="check.company_id.name"/></td>
+					  <td style="padding:5px;"><span t-field="check.routing_number"/></td>
+					  <td style="padding:5px;"><span t-field="check.account_number"/></td>
+					  <td style="padding:5px;"><span t-field="check.check_number"/></td>
+					  <td style="padding:5px;"><span t-field="check.payment_date"/></td>
+					  <td style="padding:5px;"><span t-field="check.name"/></td>
+					  <td style="padding:5px;"><span t-field="check.journal_id.name"/></td>
+					  <td style="padding:5px;"><span t-field="check.partner_id"/></td>
+					  <td style="padding:5px;"><span t-field="check.state"/></td>
+					  <td style="padding:5px;"><span t-field="check.company_id.name"/></td>
 					</tr>
 			    </t>
 			  </table>
