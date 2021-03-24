@@ -22,13 +22,13 @@
         <field name="name">Checkbook Register</field>
         <field name="res_model">account.payment</field>
         <field name="view_mode">tree,form</field>
+		<field name="view_id">view_checkbook_register</field>
     </record>
     <menuitem
         id="menu_checkbook_register"
         parent="account.menu_finance_payables"
         sequence="22"
         name="Checkbook Register"
-		action="act_checkbook_register"
-		
+		action="act_checkbook_register"	
     />
 </odoo>
