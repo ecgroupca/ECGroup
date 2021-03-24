@@ -8,7 +8,7 @@
     "author": "Adam OConnor, Quickbeam ERP",
     "category": "Accounting",
     "license": "AGPL-3",
-    "depends": ["account_check_printing","account_accountant"],
+    "depends": ["account","account_check_printing","l10n_us"],
     "data": [
         "views/account_payment.xml",
         "report/report_checkbook_register.xml",
