@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copyright (c) 2015-Present Webkul Software Pvt. Ltd. (<https://webkul.com/>) -->
+<!-- See LICENSE file for full copyright and licensing details. -->
+<!-- License URL : https://store.webkul.com/license.html/ -->
+<odoo>
+    <data>
+        <record id="mail_template_cancel_manufacturing_order" model="mail.template">
+            <field name="name">User: Cancel Manufacturing Order</field>
+            <field name="model_id" ref="mrp.model_mrp_production"/>
+            <field name="subject">Cancellation of this manufacturing order ${object.name}</field>
+            <field name="email_from">${(user.email_formatted or '') | safe}</field>
+            <field name="body_html" type="html">
+<div style="margin: 0px; padding: 0px;">
+    <p style="margin: 0px; padding: 0px; font-size: 13px;">
+        This manufacturing order ${object.name} has been cancelled by ${object.write_uid.name}.
+        <br/>
+        <b>Reason: </b>
+        % if ctx.get("reason"):
+            ${ctx['reason']}
+        %endif
+        <br/>
+        <b>Comment: </b>
+        % if ctx.get("comment"):
+            ${ctx['comment']}
+        %endif
+    </p>
+</div>
+            </field>
+            <field name="lang">${object.lang}</field>
+            <field name="auto_delete" eval="True"/>
+            <field name="user_signature" eval="False"/>
+        </record>
+    </data>
+</odoo>
