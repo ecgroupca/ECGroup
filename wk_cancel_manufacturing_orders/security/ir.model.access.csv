@@ -1,4 +1,0 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_mrp_production_reasons_user,production.cancel.reason user,model_production_cancel_reason,mrp.group_mrp_user,1,0,0,0
-access_mrp_production_reasons_manager,production.cancel.reason manager,model_production_cancel_reason,mrp.group_mrp_manager,1,1,1,1
-access_mrp_production_reasons_stock_worker,production.cancel.reason stock.worker,model_production_cancel_reason,stock.group_stock_user,1,0,0,0
