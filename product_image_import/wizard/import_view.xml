@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
+	<!-- add css / js -->
+	<template id="qb_assets_backend" name="js_assets_mod" inherit_id="web.assets_backend">
+		<xpath expr="." position="inside">
+			<script 
+				type="text/javascript" 
+				src="/product_image_import/static/src/js/increase_max_upload.js">
+			 </script>
+		</xpath>
+	</template>
     <record id="view_image_import_wizard_form" model="ir.ui.view">
         <field name="name">product.image.import.form</field>
         <field name="model">product.image.import</field>

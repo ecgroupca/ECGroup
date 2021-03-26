@@ -110,9 +110,17 @@ class ProductImageImport(models.TransientModel):
         bounce_imgs = images_data[1]
 
         for data in images_data[0]:
-            product_id = Product.search(
-                [('default_code', '=', data['default_code'])], limit=1)
-            if product_id:
+            prod_code = data['default_code']
+            upper_code = prod_code.upper()
+            upper_code = upper_code and upper_code.split('_')[0] or ''
+            product_id = Product.search([('default_code', '=', upper_code)], limit=1)
+            if not product_id and upper_code:
+                product_id = Product.search(
+                [('default_code', '=', 'DL-' + upper_code)], limit=1)
+            if not product_id and upper_code:
+                product_id = Product.search(
+                [('default_code', '=', 'F-' + upper_code)], limit=1)
+            if product_id and upper_code:
                 image = tools.image_process(data['image'], size=(1024, 1024))
                 product_id.image_1920 = image
             else:
