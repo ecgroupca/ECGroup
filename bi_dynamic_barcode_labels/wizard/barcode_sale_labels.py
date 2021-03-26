@@ -10,7 +10,7 @@ class BarcodeSaleLabelsWiz(models.TransientModel):
     _description = 'Barcode Product Labels Wizard'
 
     product_barcode_ids = fields.One2many('barcode.sale.labels.wiz.line', 'label_id', 'Product Barcode')
-
+    
     @api.model
     def default_get(self, fields):
         res = super(BarcodeSaleLabelsWiz, self).default_get(fields)
@@ -33,10 +33,10 @@ class BarcodeSaleLabelsWiz(models.TransientModel):
     def print_barcode_labels(self):
         self.ensure_one()
         [data] = self.read()
-        barcode_config = \
-                    self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
-        if not barcode_config.barcode_currency_id or not barcode_config.barcode_currency_position:
-            raise UserError(_('Barcode Configuration fields are not set in data (Inventory -> Settings -> Barcode Configuration)'))
+        #barcode_config = \
+        #            self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
+        #if not barcode_config.barcode_currency_id or not barcode_config.barcode_currency_position:
+        #    raise UserError(_('Barcode Configuration fields are not set in data (Inventory -> Settings -> Barcode Configuration)'))
         data['barcode_labels'] = data['product_barcode_ids']
         barcode_lines = self.env['barcode.sale.labels.wiz.line'].browse(data['barcode_labels'])
         datas = {
@@ -54,4 +54,14 @@ class BarcodeSaleLabelsLine(models.TransientModel):
     label_id = fields.Many2one('barcode.sale.labels.wiz','Barcode labels')
     product_id = fields.Many2one('product.product','Product')
     qty = fields.Integer('Barcode Qty', default=1)
-    sale_id = fields.Many2one('sale.order','Sale Order')
+    sale_id = fields.Many2one('sale.order','Sale Order',store=True)
+    label_text = fields.Text('Free Text')
+       
+    @api.model
+    def default_get(self, fields):
+        res = super(BarcodeSaleLabelsLine, self).default_get(fields)
+        active_ids = self._context.get('active_ids')
+        sale_order_ids = self.env['sale.order'].browse(active_ids)
+        sale_id = sale_order_ids and sale_order_ids[0] and sale_order_ids[0].id or False
+        res.update({'sale_id': sale_id})
+        return res
