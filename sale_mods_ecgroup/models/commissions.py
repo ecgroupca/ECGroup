@@ -22,6 +22,16 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
+"""
+TODO: 
+1. access controls  
+2. delivery, sale_stock as dependency, 
+3. Click Pay Commissions on sale and it takes you to new invoice  
+4. Commissions Invoice counter on sale order.  
+5. Restrict only one commissions invoice per sale so if sale.order.has_comm_inv == True, then hide the Pay Commissions button.
+6. Remove button commissions form.
+"""
+
  
 class AccountMoveLine(models.Model):
     _inherit = "account.move.line"
