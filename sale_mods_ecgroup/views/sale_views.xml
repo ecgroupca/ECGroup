@@ -5,14 +5,17 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+            <field name="authorized_transaction_ids" position="after">
+			    <button name='pay_commission' string='Pay Commission' type='object' attrs="{'invisible': [('state', 'in', ['draft','cancel'])]}"/>			    
+            </field>			
             <field name="partner_shipping_id" position="after">
-               <field name="sidemark"/> 
-               <field name="client_order_ref"/> 			   
+                <field name="sidemark"/> 
+                <field name="client_order_ref"/> 			   
             </field>
 			<field name="payment_term_id" position="after">
-			   <field name="approx_lead_time"/>
-			   <field name="deposit_total"/> 
-               <field name="inv_bal_due"/>			   
+			    <field name="approx_lead_time"/>
+			    <field name="deposit_total"/> 
+                <field name="inv_bal_due"/>			   
 			</field>
 			<xpath expr="//notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
 				<field name="comm_rate"/>

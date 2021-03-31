@@ -19,7 +19,10 @@ class ProductTemplate(models.Model):
     
     comments = fields.Char(
         'Comments'
-        )
+    )
+    no_commissions = fields.Boolean(
+        'No Commissions',
+    )
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'

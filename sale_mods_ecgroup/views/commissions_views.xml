@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_commissions_form" model="ir.ui.view">
+        <field name="name">view.commissions.form</field>
+        <field name="model">sale.commission</field>
+        <field name="arch" type="xml">
+            <form string="Commission">
+			    <header>
+			        <button name='pay_commission' string='Pay Commission' class='oe_highlight' type='object'/>
+				</header>
+                <sheet>
+                    <group>
+                        <separator string="" colspan="2"/>
+						    <field name="name"/> 
+							<field name="order_id"/>
+							<field name="order_line"/>
+							<field name="ref"/>
+							<field name="partner_id"/>
+							<field name="comm_rate"/>
+							<field name="product_uom_qty"/>
+							<field name="price_unit"/>
+							<field name="comm_total" sum="Total Comm."/>
+							<field name="state"/>
+							<field name="company_id"/>
+					</group>
+				</sheet>
+			</form>
+		</field>
+    </record>
+    <record id="view_commissions_tree" model="ir.ui.view">
+        <field name="name">view.commissions.tree</field>
+        <field name="model">sale.commission</field>
+        <field name="arch" type="xml">
+		    <tree decoration-info="state == 'draft'" decoration-muted="state in ['paid', 'cancelled']" edit="false">
+			    <field name="name"/> 
+				<field name="order_id"/>
+				<field name="order_line"/>
+				<field name="ref"/>
+				<field name="partner_id"/>
+				<field name="comm_rate"/>
+				<field name="product_uom_qty"/>
+				<field name="price_unit"/>
+				<field name="comm_total" sum="Total Comm."/>
+				<field name="state"/>
+				<field name="company_id"/>
+			</tree>
+		</field>
+    </record>	
+    <record id="act_sale_commission" model="ir.actions.act_window">
+        <field name="name">Commissions</field>
+        <field name="res_model">sale.commission</field>
+        <field name="view_mode">tree,form</field>
+		<field name="view_id" ref="view_commissions_tree"/>
+    </record>
+    <menuitem
+        id="menu_sale_commission"
+        parent="account.menu_finance_payables"
+        sequence="22"
+        name="Commissions"
+		action="act_sale_commission"	
+    />
+</odoo>

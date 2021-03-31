@@ -11,8 +11,9 @@
     'data': [
         'views/sale_views.xml',
         'views/partner_views.xml',
+        'views/commissions_views.xml',
         'report/external_layout.xml',
-        #'report/report_invoice_document.xml',
+        'views/product_views.xml',
         'report/report_saleorder_document.xml',
     ],
     'installable': True,
