@@ -15,10 +15,18 @@
             </xpath>
 			<field name="origin" position="after">
 			    <field name="sale_order_id" widget="many2many_tags"/>
+				<field name="inv_bal_due"/>
+				<button string="Update bal due" name="action_update_bal_due" type="object"/>
 			</field>			
-			<field name="date_planned" position="replace">
-			    <field name="date_planned"/>
-		    </field>
+			<group name="other_info" position="after">
+				<group>
+				  <field name="fob"/>
+				  <label for="po_bullets"/>
+				  <div>
+					<field name="po_bullets" widget="html"/>
+				  </div>
+				</group>							
+		    </group>
         </field>
     </record>
 </odoo>

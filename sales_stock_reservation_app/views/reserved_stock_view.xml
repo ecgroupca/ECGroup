@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+
+		<!-- Inherited Sale Order View -->
+		<record id="sale_stock_reserve_sale_view" model="ir.ui.view">
+			<field name="name">sale.stock.reserve.sale.view</field>
+			<field name="model">sale.order</field>
+			<field name="inherit_id" ref="sale.view_order_form"/>
+			<field name="arch" type="xml">
+				<div class="oe_button_box" name="button_box" position="inside"> 
+					<button class="oe_stat_button" name="reserve_stock_button" type="object" icon="fa-file-text custom" string="Reserved Stock" attrs="{'invisible':[('check_stock','=',False)]}"> 
+					</button>
+				</div>
+				<xpath expr="//form/header/button[@name='action_cancel']" position="after">
+					<button name="%(stock_reserve_action)d" string="Reserve Stock" type="action" class="btn-primary" attrs="{'invisible':['|',('stock_reservation','=',False),('check_stock','=',True)]}"/>
+					<button name="cancel_reserved_stock" type="object" string="Cancel Reserve Stock" class="btn btn-primary danger" attrs="{'invisible':[('check_stock','=',False)]}"/>
+				</xpath>
+				<xpath expr="//field[@name='payment_term_id']" position="after">
+					<field name="stock_reservation"/>
+					<field name="check_stock" invisible="1"/>
+				</xpath>
+				<xpath expr="//form/sheet/notebook" position="inside">
+					<page string="Reserved Stock">
+						<field name="reserved_stock_ids"></field>
+					</page>
+				</xpath>
+			</field>
+		</record>
+		
+		<!-- Reserved Stock Form View -->
+		<record id="reserved_stock_form_view" model="ir.ui.view">
+			<field name="name">reserved.stock.form.view</field>
+			<field name="model">reserved.stock</field>
+			<field name="arch" type="xml">
+				<form string="Reserved Stock" create="false">
+					<header>
+						<field name="state" widget="statusbar" />
+					</header>
+					<sheet>
+						<div class="oe_title">
+							<h1>
+								<field name="name" readonly="1"/>
+							</h1>
+						</div>
+						<group>
+							<group>
+								<field name="user_id" />
+							</group>
+							<group></group>
+							<group>
+								<field name="product_id"/>
+								<field name="product_qty"/>
+								<field name="reserve_qty"/>
+							</group>
+							<group>
+								<field name="reference"/>
+								<field name="sale_order"/>
+								<field name="order_line_id"/>
+							</group>
+						</group>
+						<group string="Stock Location">
+							<group>
+								<field name="location_id"/>
+							</group> 
+							<group>
+								<field name="location_dest_id"/>
+							</group>
+						</group> 
+					</sheet>
+				</form>
+			</field>
+		</record>
+
+		<!-- Reserve Stock Tree View -->
+		<record id="reserved_stock_tree_view" model="ir.ui.view">
+			<field name="name">reserved.stock.tree.view</field>
+			<field name="model">reserved.stock</field>
+			<field name="arch" type="xml">
+				<tree string="Reserved Stock" create="false">
+					<field name="name"/>
+					<field name="order_line_id"/>
+					<field name="product_id"/>
+					<field name="reserve_qty"/>
+					<field name="state"/>
+				</tree>
+			</field>
+		</record>
+
+		<!-- Reserve Stock Pivot View -->
+		<record model="ir.ui.view" id="reserved_stock_pivot_view">
+            <field name="name">reserved.stock.pivot.view</field>
+            <field name="model">reserved.stock</field>
+            <field name="arch" type="xml">
+                <pivot string="Reserved Stock">
+                    <field name="name" type="row"/>
+                    <field name="reserve_qty" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+		<!-- Reserve Stock Graph View -->
+		<record id="reserved_stock_graph_view" model="ir.ui.view">
+			<field name="name">reserved.stock.graph.view</field>
+			<field name="model">reserved.stock</field>
+			<field name="arch" type="xml">
+				<graph string="Reserved Stock">
+					<field name="sale_order"/>
+					<field name="name" type="measure"/>
+					<field name="reserve_qty" type="measure"/>
+				</graph>
+			</field>
+		</record>
+
+		<!-- Reserved Stock Action -->
+        <record id="reserved_stock_action" model="ir.actions.act_window">
+            <field name="name">Reserved Stock</field>
+            <field name="type">ir.actions.act_window</field>
+            <field name="res_model">reserved.stock</field>
+            <field name="view_id" ref="reserved_stock_tree_view"/>
+            <field name="view_mode">tree,form,pivot,graph</field>
+        </record>		
+		
+		<!-- Reserved Stock Reporting Menu -->
+		<menuitem id="reserved_stock_menu" name="Reserved Stock" parent="stock.menu_warehouse_report" sequence="100" action="reserved_stock_action"/>
+
+	</data>   
+</odoo>

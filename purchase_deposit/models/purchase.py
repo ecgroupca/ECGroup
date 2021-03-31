@@ -7,6 +7,53 @@ from odoo import fields, models, api
 
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
+    
+    inv_bal_due = fields.Float(
+        'Balance Due',
+        compute="_compute_bal_due",
+        store = True,
+    )
+    
+    deposit_total = fields.Float(
+        'Total Deposits', 
+        compute="_compute_deps_total",
+        store = True,
+    )
+    
+    po_bullets = fields.Text(
+        'PO Bullets',        
+        store = True,
+    )
+    
+    fob = fields.Char(
+        'FOB',
+        store = True,
+    ) 
+    
+    @api.depends('order_line')     
+    def _compute_bal_due(self):
+        for purchase in self:
+            amt_res = 0.00
+            amt_inv = 0.00
+            for invoice in purchase.invoice_ids:
+                if invoice.state=='posted':
+                    amt_res += invoice.amount_residual
+                    amt_inv += invoice.amount_total
+            amt_due = (purchase.amount_total - amt_inv) + amt_res
+            purchase.inv_bal_due = amt_due
+    
+    @api.onchange('inv_bal_due')
+    def _lock_purchase_orders(self):
+        done = True
+        import pdb;pdb.set_trace()
+        for purchase in self:
+            if purchase.inv_bal_due <= 0.00:
+                for line in purchase.order_line:
+                    if line.qty_delivered < line.product_uom_qty:
+                        done = False
+                        break
+                if done:
+                    purchase.state = 'done'
 
     def copy_data(self, default=None):
         if default is None:

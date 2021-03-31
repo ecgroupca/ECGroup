@@ -76,6 +76,7 @@
 <template id="mrp.report_mrporder">
     <t t-call="web.html_container">
         <t t-foreach="docs" t-as="o">
+          <t t-foreach="o.sale_order_id" t-as="sale">
             <t t-call="web.internal_layout">
                 <div class="page">
                     <div class="oe_structure"/>
@@ -92,25 +93,33 @@
                     <div class="row mt32 mb32">
                         <div class="col-3" t-if="o.origin">
                             <strong>Source Document:</strong><br/>
-                            <span t-field="o.origin"/>
+                            <div t-if="doc.etwo_number">
+							  <span t-field="o.etwo_number"/>
+							</div>
+							<div t-if="not doc.etwo_number">
+							    <span t-field="sale.name"/>
+						    </div>
                         </div>
                         <div class="col-3">
                             <strong>Client Name:</strong><br/>
-                            <span t-field="o.procurement_group_id.sale_id.partner_id.name"/>
+                            <span t-field="sale.partner_id"/>
                         </div>
                         <div class="col-3">
                             <strong>Responsible:</strong><br/>
-                            <span t-field="o.user_id"/>
+                            <span t-field="sale.user_id"/>
                         </div>
                     </div>
                     <div class="row mt32 mb32">
                         <div class="col-3">
                             <strong>Finished Product:</strong><br/>
-                            <span t-field="o.product_id"/>
+                            <span t-field="o.product_id.default_code"/>
                         </div>
                         <div class="col-3">
                             <strong>Product Description:</strong><br/>
-                            <span t-field="o.product_id.description"/>
+                            <t t-if="o.sale_order_line_id"><span t-field="o.sale_order_line_id.name"/></t>
+                            <t t-foreach="o.sale_order_line_id.search([('order_id','=',sale.id),('product_id','=',o.product_id.id)])" t-as="line">
+                              <span t-field="line.name"/>, 
+                            </t>
                         </div>
                         <div class="col-3">
                             <strong>Quantity to Produce:</strong><br/>
@@ -119,7 +128,7 @@
                         </div>
                         <div class="col-3" t-if="o.origin">
                             <strong>Notes:</strong><br/>
-                            <span t-field="o.procurement_group_id.sale_id.note"/>
+                            <span t-field="sale.note"/>
                         </div>
                     </div>
 
@@ -167,7 +176,7 @@
                             <t t-if="o.move_raw_ids">
                                 <tr t-foreach="o.move_raw_ids" t-as="raw_line">
                                     <td>
-                                        <span t-field="raw_line.product_id"/>
+                                      <span t-field="raw_line.product_id.default_code"/>
                                     </td>
                                     <td t-attf-class="{{ 'text-right' if not has_product_barcode else '' }}">
                                         <span t-field="raw_line.product_uom_qty"/>
@@ -185,7 +194,8 @@
                     <div class="oe_structure"/>
                 </div>
             </t>
+          </t>
         </t>
-    </t>
-	</template>
+      </t>
+  </template>
 </odoo>
