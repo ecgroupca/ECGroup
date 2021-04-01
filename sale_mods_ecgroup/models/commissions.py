@@ -168,7 +168,7 @@ class SaleOrder(models.Model):
             # Manage the creation of invoices in sudo because a salesperson must be able to generate an invoice from a
             # sale order without "billing" access rights. However, he should not be able to create an invoice from scratch.
             moves = self.env['account.move'].sudo().with_context(default_type='in_invoice').create(invoice_vals_list)
-            order.has_comm_inv = moves and move[0] and True or False
+            order.has_comm_inv = moves and moves[0] and True or False
             if moves and moves[0]:
                 for line in comm_lines:
                     line.invoice_id = moves and moves[0] or False               

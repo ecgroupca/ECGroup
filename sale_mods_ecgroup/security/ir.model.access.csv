@@ -1,3 +1,2 @@
-id,name,Model,Group,Read Access,Write Access,Create Access,Delete Access
-sales_comm_sale_user,sale.commission.sale.user,Sales Commission,Sales / User: Own Documents Only,,,TRUE,
-sales_comm_accounting_advisor,sales_commissions_accounting_advisor,Sales Commission,Accounting / Advisor,TRUE,TRUE,TRUE,TRUE
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_commissions_account_advisor,access.commissions.account.advisor,model_sale_commission,account.group_account_manager,1,1,1,1
