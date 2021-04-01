@@ -29,7 +29,7 @@
         <field name="name">view.commissions.tree</field>
         <field name="model">sale.commission</field>
         <field name="arch" type="xml">
-		    <tree decoration-info="state == 'draft'" decoration-muted="state in ['paid', 'cancelled']" edit="false">
+		    <tree decoration-info="pmt_state == 'draft'" decoration-muted="pmt_state in ['posted', 'cancelled']" edit="false">
 			    <field name="name"/> 
 				<field name="order_id"/>
 				<field name="order_line"/>
