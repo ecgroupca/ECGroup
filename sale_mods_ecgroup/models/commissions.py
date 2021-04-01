@@ -65,25 +65,15 @@ class SaleOrder(models.Model):
         inv_form = self.env.ref('account.view_move_form', False)
 
         return {
-
-        'name': 'Sales Commission Invoice',
-
-        'type': 'ir.actions.act_window',
-
-        'res_model': 'account.move',
-
-        'view_type': 'form',
-
-        'view_mode': 'tree,form',
-
-        'target': 'self',
-
-        'views': [(inv_form.id, 'form')],
-
-        'view_id': 'inv_form.id',
-
-        'flags': {'action_buttons': True},
-
+            'name': 'Sales Commission Invoice',
+            'type': 'ir.actions.act_window',
+            'res_model': 'account.move',
+            'view_type': 'form',
+            'view_mode': 'tree,form',
+            'target': 'self',
+            'views': [(inv_form.id, 'form')],
+            'view_id': 'inv_form.id',
+            'flags': {'action_buttons': True},
         }
         return {
             'name': _('My Form'),
@@ -153,16 +143,27 @@ class SaleOrder(models.Model):
         for order in self:
 
             invoice_vals = order._prepare_comm_invoice()
-            comm_lines = comm.sudo().search([('order_id','=',order.id),('pmt_id','=',False),('invoice_id','=',False),])
-            
+            comm_lines = comm.sudo().search([('order_id','=',order.id),('pmt_id','=',False),('invoice_id','=',False),])           
             if not comm_lines:
-                raise UserError(_('No commissionable lines found.'))
+                #create new commissions objects because they haven't been created before.
+                for line in order.order_line:
+                    if not line.product_id.no_commissions and line.product_id.type != 'service':
+                        client_po = self.client_order_ref and str(self.client_order_ref) or ''
+                        vals = {
+                            'name': 'Order: ' + order.name  + ' commissions.',
+                            'ref':client_po,
+                            'order_line': line.id,
+                            'state': 'draft',
+                            }
+                        self.env['sale.commission'].create(vals)
 
+                comm_lines = comm.sudo().search([('order_id','=',order.id),('pmt_id','=',False),('invoice_id','=',False),])
+            if not comm_lines:
+                raise UserError(_('Commission records not created.'))               
             invoice_vals['invoice_line_ids'] = [
                 (0, 0, line._prepare_comm_invoice_line())
                 for line in comm_lines
             ]
-
             invoice_vals_list.append(invoice_vals)
             # Manage the creation of invoices in sudo because a salesperson must be able to generate an invoice from a
             # sale order without "billing" access rights. However, he should not be able to create an invoice from scratch.
