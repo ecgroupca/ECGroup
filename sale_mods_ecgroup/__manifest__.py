@@ -7,7 +7,7 @@
     'version': '1.0',
     'author': 'Quickbeam ERP: Adam O\'Connor',
     'license': 'AGPL-3',
-    'depends': ['sale'],
+    'depends': ['sale','sale_stock','delivery'],
     'data': [
         'views/sale_views.xml',
         'views/partner_views.xml',

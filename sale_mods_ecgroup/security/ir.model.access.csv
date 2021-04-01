@@ -1,3 +1,3 @@
-Name,Object,Group,Read Access,Write Access,Create Access,Delete Access
-sales_commissions_sale_user,Sales Commission,Sales / User: Own Documents Only,,,TRUE,
-sales_commissions_accounting_advisor,Sales Commission,Accounting / Advisor,TRUE,TRUE,TRUE,TRUE
+id,name,Model,Group,Read Access,Write Access,Create Access,Delete Access
+sales_comm_sale_user,sale.commission.sale.user,Sales Commission,Sales / User: Own Documents Only,,,TRUE,
+sales_comm_accounting_advisor,sales_commissions_accounting_advisor,Sales Commission,Accounting / Advisor,TRUE,TRUE,TRUE,TRUE

@@ -22,27 +22,27 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
-"""
-TODO: 
-1. access controls  
-2. delivery, sale_stock as dependency, 
-3. Click Pay Commissions on sale and it takes you to new invoice  
-4. Commissions Invoice counter on sale order.  
-5. Restrict only one commissions invoice per sale so if sale.order.has_comm_inv == True, then hide the Pay Commissions button.
-6. Remove button commissions form.
-"""
-
  
-class AccountMoveLine(models.Model):
-    _inherit = "account.move.line"
+class AccountPayment(models.Model):
+    _inherit = "account.payment"
     
-    comm_id = fields.Many2one('sale.commission',
-        'Commission Line'
-    )
- 
- 
+    def post(self):
+        res = super(AccountPayment,self).post()
+        #assign the pmt_id for each commission paid by this one.
+        if res:
+            for pmt in self:
+                for invoice in pmt.invoice_ids:
+                    commisssions = self.env['sale.commission'].search([('invoice_id','=',invoice.id)])
+                    for comm in commissions:
+                        comm.pmt_id = pmt
+        
+        return res
+        
+        
 class SaleOrder(models.Model):
     _inherit = "sale.order"
+    
+    has_comm_inv = fields.Boolean('Commission Invoice Exists')
     
     def action_confirm(self): 
         res = super(SaleOrder,self).action_confirm()
@@ -61,6 +61,38 @@ class SaleOrder(models.Model):
         
     def pay_commission(self):    
         self._create_comm_invoices()
+
+        inv_form = self.env.ref('account.view_move_form', False)
+
+        return {
+
+        'name': 'Sales Commission Invoice',
+
+        'type': 'ir.actions.act_window',
+
+        'res_model': 'account.move',
+
+        'view_type': 'form',
+
+        'view_mode': 'tree,form',
+
+        'target': 'self',
+
+        'views': [(inv_form.id, 'form')],
+
+        'view_id': 'inv_form.id',
+
+        'flags': {'action_buttons': True},
+
+        }
+        return {
+            'name': _('My Form'),
+            'view_type': 'form',
+            'view_mode': 'form',
+            'res_model': 'account.move',
+            'view_id': False,
+            'type': 'ir.actions.act_window',
+        }
             
     def _prepare_comm_invoice(self):
         """
@@ -107,6 +139,8 @@ class SaleOrder(models.Model):
         :param final: if True, refunds will be generated if necessary
         :returns: list of created invoices
         """
+        comm = self.env['sale.commission']
+        inv = self.env['account.move']
         if not self.env['account.move'].check_access_rights('create', False):
             try:
                 self.check_access_rights('write')
@@ -119,8 +153,7 @@ class SaleOrder(models.Model):
         for order in self:
 
             invoice_vals = order._prepare_comm_invoice()
-            comm = self.env['sale.commission']
-            comm_lines = comm.search([('order_id','=',order.id),('state','!=','paid')])
+            comm_lines = comm.sudo().search([('order_id','=',order.id),('pmt_id','=',False),('invoice_id','=',False),])
             
             if not comm_lines:
                 raise UserError(_('No commissionable lines found.'))
@@ -131,12 +164,13 @@ class SaleOrder(models.Model):
             ]
 
             invoice_vals_list.append(invoice_vals)
-
-        if not invoice_vals_list:
-            raise UserError(_('No commissionable lines found.'))
-        # Manage the creation of invoices in sudo because a salesperson must be able to generate an invoice from a
-        # sale order without "billing" access rights. However, he should not be able to create an invoice from scratch.
-        moves = self.env['account.move'].sudo().with_context(default_type='in_invoice').create(invoice_vals_list)
+            # Manage the creation of invoices in sudo because a salesperson must be able to generate an invoice from a
+            # sale order without "billing" access rights. However, he should not be able to create an invoice from scratch.
+            moves = self.env['account.move'].sudo().with_context(default_type='in_invoice').create(invoice_vals_list)
+            order.has_comm_inv = moves and move[0] and True or False
+            if moves and moves[0]:
+                for line in comm_lines:
+                    line.invoice_id = moves and moves[0] or False               
         return moves
     
 
@@ -180,8 +214,17 @@ class SaleCommission(models.Model):
         string='Company',
         related = "order_line.order_id.company_id"
         )
-    invoice_line_id = fields.Many2one('account.move.line',
-        'Invoice Line',
+    invoice_id = fields.Many2one('account.move.line',
+        'Invoice',
+        )
+    invoice_state = fields.Selection('Invoice State',
+        related = 'invoice_id.move_id.state',
+        )
+    pmt_id = fields.Many2one('account.payment',
+        'Payment',
+        )
+    pmt_state = fields.Selection('Payment State',
+        related = 'pmt_id.state',
         )
     
     """ Invoice Date
@@ -226,7 +269,6 @@ class SaleCommission(models.Model):
                 'analytic_account_id': line.order_id.analytic_account_id.id,
                 'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
                 'sale_line_ids': [(4, line.id)],
-                'comm_id': self.id,
                 'product_id': product_id and product_id.id or False,
                 'account_id': account_id and account_id.id or False,
             }
