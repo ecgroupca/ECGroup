@@ -15,6 +15,7 @@
         'report/external_layout.xml',
         'views/product_views.xml',
         'report/report_saleorder_document.xml',
+        'security/ir.model.access.csv',
     ],
     'installable': True,
     'application': True,
