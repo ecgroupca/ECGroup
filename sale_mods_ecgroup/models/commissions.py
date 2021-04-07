@@ -75,14 +75,6 @@ class SaleOrder(models.Model):
             'view_id': 'inv_form.id',
             'flags': {'action_buttons': True},
         }
-        return {
-            'name': _('My Form'),
-            'view_type': 'form',
-            'view_mode': 'form',
-            'res_model': 'account.move',
-            'view_id': False,
-            'type': 'ir.actions.act_window',
-        }
             
     def _prepare_comm_invoice(self):
         """
@@ -117,7 +109,6 @@ class SaleOrder(models.Model):
             'invoice_payment_ref': self.reference,
             'transaction_ids': [(6, 0, self.transaction_ids.ids)],
             'invoice_line_ids': [],
-            'company_id': self.company_id.id,
         }
         return invoice_vals
         
@@ -139,9 +130,9 @@ class SaleOrder(models.Model):
                 return self.env['account.move']
 
         # 1) Create invoices.
-        invoice_vals_list = []
+        
         for order in self:
-
+            invoice_vals_list = []
             invoice_vals = order._prepare_comm_invoice()
             comm_lines = comm.sudo().search([('order_id','=',order.id),('pmt_id','=',False),('invoice_id','=',False),])           
             if not comm_lines:
@@ -260,18 +251,18 @@ class SaleCommission(models.Model):
                 [('name','=','Sales Commissions')]
             )
             product_id = product_id and product_id[0] or False
-            account_id = product_id and product_id.property_account_expense_id or False
+            #account_id = product_id and product_id.property_account_expense_id or False
             res = {
                 'display_type': False,
                 'sequence': line.sequence,
-                'name': 'Commissions for sale: ' + line.order_id.name + ' item:' + line.name,
+                'name': 'Commissions for sale: ' + line.order_id.name + ' | item:' + line.name,
                 'quantity': 1,
                 'price_unit': line.comm_rate*line.price_unit*line.product_uom_qty/100,
                 'analytic_account_id': line.order_id.analytic_account_id.id,
                 'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
                 'sale_line_ids': [(4, line.id)],
                 'product_id': product_id and product_id.id or False,
-                'account_id': account_id and account_id.id or False,
+                #'account_id': account_id and account_id.id or False,
             }
         return res
         
