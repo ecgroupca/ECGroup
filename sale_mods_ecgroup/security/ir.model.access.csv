@@ -1,2 +1,2 @@
-id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_commissions_account_advisor,access.commissions.account.advisor,model_sale_commission,account.group_account_manager,1,1,1,1
+id,name,model_id,,group_id,,perm_create,perm_read,perm_write,perm_unlink
+access_sale_commission,access_sale_commission,Sales Commission,,Sales / Administrator,,TRUE,TRUE,TRUE,TRUE
