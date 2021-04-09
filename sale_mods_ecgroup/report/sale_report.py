@@ -24,6 +24,47 @@ class ProductTemplate(models.Model):
     no_commissions = fields.Boolean(
         'No Commissions',
     )
+    
+    @api.model
+    def name_get(self):
+        res = []
+        product_name = ''
+        for rec in self:
+            name = rec.description and '\n'.join(rec.description.split('\n', 2)[:2]) or rec.name
+            if name:
+                if rec.default_code:
+                    product_name = '[' + rec.default_code + '] ' + name
+                else:
+                    product_name = name
+            elif rec.default_code:
+                product_name = '[' + rec.default_code + ']'  
+            else:
+                product_name = name                     
+            res.append((rec.id, "%s" % product_name))
+        return res
+
+
+class ProductProduct(models.Model):
+    _inherit = 'product.product'
+    
+    @api.model
+    def name_get(self):
+        res = []
+        product_name = ''
+        for rec in self:
+            name = rec.description and '\n'.join(rec.description.split('\n', 2)[:2]) or rec.name
+            if name:
+                if rec.default_code:
+                    product_name = '[' + rec.default_code + '] ' + name
+                else:
+                    product_name = name
+            elif rec.default_code:
+                product_name = '[' + rec.default_code + ']'  
+            else:
+                product_name = name                     
+            res.append((rec.id, "%s" % product_name))
+        return res
+        
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
