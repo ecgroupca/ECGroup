@@ -9,21 +9,28 @@ class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
     sale_order_id = fields.Many2one(
-        comodel_name='sale.order', readonly=False, string='Source Sale Order')
+        comodel_name='sale.order', readonly=False, string='Source Sale Order'
+        )
         
     sale_order_line_id = fields.Many2one(
-        comodel_name='sale.order.line', readonly=False, string='Source Sale Order Line.')    
-
-    """desc_from_line = fields.Char(
+        comodel_name='sale.order.line', readonly=False, string='Source Sale Order Line.'
+        ) 
+    notes = fields.Text(
+        'Notes'
+        )        
+    sale_line_descrip = fields.Text(
+        'Description from sale',
+        )
+    desc_from_line = fields.Char(
         'Sale Line Description',
         compute = '_get_line_desc'
-    )"""
+    )
     etwo_number = fields.Char(
         'E2 Doc#',
         related = 'sale_order_id.etwo_number'
     )
     
-    """@api.depends('sale_order_id')     
+    @api.depends('sale_order_id')     
     def _get_line_desc(self):
         for mrp in self:
             sale_id = mrp.sale_order_id
@@ -36,7 +43,7 @@ class MrpProduction(models.Model):
                 )
                 if sale_line:
                     mrp.sale_order_line_id = sale_line
-                    mrp.desc_from_line = sale_line.name"""
+                    mrp.desc_from_line = sale_line.name
 
     
     @api.model
