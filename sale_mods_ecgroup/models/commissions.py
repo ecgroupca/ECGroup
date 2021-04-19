@@ -25,7 +25,42 @@ from odoo.exceptions import UserError
  
 class AccountPayment(models.Model):
     _inherit = "account.payment"
+
     
+    invoice_line_ids = fields.Many2many(
+        'Invoice Lines', 
+        compute = '_get_related'
+        #related = 'invoice_ids.invoice_line_ids',
+    )
+    
+    
+    sale_line_ids = fields.Many2many(
+        'Sale Lines', 
+        compute = '_get_related'
+        #related = 'invoice_ids.invoice_line_ids',
+    )
+    
+    sale_ids = fields.Many2many(
+        'Sale Lines', 
+        #compute = '_get_related'
+        related = 'sale_line_ids.order_id',
+    )
+    
+    def _get_related(self):
+        for payment in self:
+            #1. loop through invoice_ids from payment
+            for invoice in payment.invoice_ids:
+                
+                #2. search for sale orders that have invoices on the payment list.
+                #sale = self.env['sale.order'].search([('invoice_ids','=',)])
+                #2. loop through the invoice line's sale_line_ids
+                payment.invoice_line_ids = [(6, 0, invoice.invoice_line_ids.ids)]
+                for line in invoice.invoice_line_ids:
+                    #for sale in line.sale_line_ids:
+                    payment.sale_line_ids = [(6, 0, line.sale_line_ids.ids)]   
+                
+            #3. insert the sale order ids using the notation in the commissions code.
+            
     def post(self):
         res = super(AccountPayment,self).post()
         #assign the pmt_id for each commission paid by this one.
