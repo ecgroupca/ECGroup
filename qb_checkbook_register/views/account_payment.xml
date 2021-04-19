@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_checkbook_register" model="ir.ui.view">
+        <field name="name">view.checkbook.register</field>
+        <field name="model">account.payment</field>
+        <field name="arch" type="xml">
+            <tree decoration-info="state == 'draft'" decoration-muted="state in ['reconciled', 'cancelled']" edit="false">
+				<field name="routing_number"/>
+				<field name="account_number"/>
+				<field name="check_number"/>
+				<field name="payment_date"/>
+				<field name="name"/>
+				<field name="journal_id"/>
+				<field name="amount" sum="Amount"/>
+				<field name="partner_id" string="Customer"/>
+				<field name="state"/>
+				<field name="company_id" groups="base.group_multi_company"/>
+			</tree>
+		</field>
+    </record>	
+    <record id="act_checkbook_register" model="ir.actions.act_window">
+        <field name="name">Checkbook Register</field>
+        <field name="res_model">account.payment</field>
+        <field name="view_mode">tree,form</field>
+		<field name="view_id" ref="view_checkbook_register"/>
+		<field name="domain">[('check_number','!=',False)]</field>
+    </record>
+    <menuitem
+        id="menu_checkbook_register"
+        parent="account.menu_finance_payables"
+        sequence="22"
+        name="Checkbook"
+		action="act_checkbook_register"	
+    />
+</odoo>

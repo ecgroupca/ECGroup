@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="res_config_settings_view_form_extended" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.extended</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="stock.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@data-key='stock']/div[hasclass('o_settings_container')][1]" position="after" >
+                <h2>Barcode Configuration</h2>
+                <div class="row mt16 o_settings_container">
+                    <div id="label_configuration1" class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Label Width</span>
+                            <div class="text-muted">
+                                <field name="label_width"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="label_configuration2" class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Label Height</span>
+                            <div class="text-muted">
+                                <field name="label_height"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="currency_configuration1" class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Currency</span>
+                            <div class="text-muted">
+                                <field name="barcode_currency_id"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="currency_configuration2" class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Currency Position</span>
+                            <div class="text-muted">
+                                <field name="barcode_currency_position"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="barcode_type_configuration1" class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Barcode Type</span>
+                            <div class="text-muted">
+                                <field name="barcode_type"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="barcode_type_configuration2" class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane" />
+                    </div>
+                    <div id="barcode_configuration1" class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Barcode Width</span>
+                            <div class="text-muted">
+                                <field name="barcode_width"/>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="barcode_configuration2" class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Barcode Height</span>
+                            <div class="text-muted">
+                                <field name="barcode_height"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
