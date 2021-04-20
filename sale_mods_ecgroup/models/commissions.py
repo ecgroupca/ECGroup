@@ -236,15 +236,15 @@ class SaleCommission(models.Model):
     invoice_id = fields.Many2one('account.move.line',
         'Invoice',
         )
-    #invoice_state = fields.Selection('Invoice State',
-        #related = 'invoice_id.move_id.state',
-        #)
+    invoice_state = fields.Selection('Invoice State',
+        related = 'invoice_id.move_id.state',
+        )
     pmt_id = fields.Many2one('account.payment',
         'Payment',
         )
-    #pmt_state = fields.Selection('Payment State',
-        #related = 'pmt_id.state',
-        #)
+    pmt_state = fields.Selection('Payment State',
+        related = 'pmt_id.state',
+        )
     
     """ Invoice Date
 	    Invoice Total*
