@@ -225,6 +225,7 @@ class SaleOrder(models.Model):
             sale.inv_bal_due = amt_due 
             total_deps = 0
             total_comm = 0
+            deposit_invs = []
             company_id = sale.company_id and sale.company_id.id or 1
             config = self.env['ir.config_parameter']
             setting = config.search([('key','=','sale.default_deposit_product_id')])

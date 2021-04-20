@@ -27,37 +27,22 @@ class AccountPayment(models.Model):
     _inherit = "account.payment"
 
     
-    invoice_line_ids = fields.Many2many(
-        'Invoice Lines', 
+    sale_id = fields.Many2one(
+        'Sale Order', 
         compute = '_get_related'
-        #related = 'invoice_ids.invoice_line_ids',
-    )
-    
-    
-    sale_line_ids = fields.Many2many(
-        'Sale Lines', 
-        compute = '_get_related'
-        #related = 'invoice_ids.invoice_line_ids',
-    )
-    
-    sale_ids = fields.Many2many(
-        'Sale Lines', 
-        #compute = '_get_related'
-        related = 'sale_line_ids.order_id',
     )
     
     def _get_related(self):
         for payment in self:
             #1. loop through invoice_ids from payment
             for invoice in payment.invoice_ids:
-                
+                import sys
+                if sys.__stdin__.isatty():
+                    import pdb; pdb.set_trace()                
                 #2. search for sale orders that have invoices on the payment list.
-                #sale = self.env['sale.order'].search([('invoice_ids','=',)])
+                sale = self.env['sale.order'].search([('invoice_ids','=',invoice.id)])
                 #2. loop through the invoice line's sale_line_ids
-                payment.invoice_line_ids = [(6, 0, invoice.invoice_line_ids.ids)]
-                for line in invoice.invoice_line_ids:
-                    #for sale in line.sale_line_ids:
-                    payment.sale_line_ids = [(6, 0, line.sale_line_ids.ids)]   
+                sale_id = sale and sale[0] and sale[0].id or False
                 
             #3. insert the sale order ids using the notation in the commissions code.
             
@@ -125,7 +110,9 @@ class SaleOrder(models.Model):
             raise UserError(_('Please define an accounting sales journal for the company %s (%s).') % (self.company_id.name, self.company_id.id))
         team =  self.team_id
         team_id = team and team.id or False
-        
+        import sys
+        if sys.__stdin__.isatty():
+            import pdb; pdb.set_trace()
         invoice_vals = {
             'ref': self.client_order_ref or '',
             'type': 'in_invoice',
@@ -179,6 +166,7 @@ class SaleOrder(models.Model):
                             'name': 'Order: ' + order.name  + ' commissions.',
                             'ref':client_po,
                             'order_line': line.id,
+                            'invoice_id': False,
                             'state': 'draft',
                             }
                         self.env['sale.commission'].create(vals)
@@ -196,6 +184,9 @@ class SaleOrder(models.Model):
             moves = self.env['account.move'].sudo().with_context(default_type='in_invoice').create(invoice_vals_list)
             move_id = moves and moves[0] and moves[0].id or None           
             order.has_comm_inv = move_id and True or False
+            import sys
+            if sys.__stdin__.isatty():
+                import pdb; pdb.set_trace()
             if moves and moves[0]:
                 for line in comm_lines:
                     line.invoice_id = moves and moves[0] and moves[0].id or False               
@@ -245,15 +236,15 @@ class SaleCommission(models.Model):
     invoice_id = fields.Many2one('account.move.line',
         'Invoice',
         )
-    invoice_state = fields.Selection('Invoice State',
-        related = 'invoice_id.move_id.state',
-        )
+    #invoice_state = fields.Selection('Invoice State',
+        #related = 'invoice_id.move_id.state',
+        #)
     pmt_id = fields.Many2one('account.payment',
         'Payment',
         )
-    pmt_state = fields.Selection('Payment State',
-        related = 'pmt_id.state',
-        )
+    #pmt_state = fields.Selection('Payment State',
+        #related = 'pmt_id.state',
+        #)
     
     """ Invoice Date
 	    Invoice Total*
@@ -281,13 +272,16 @@ class SaleCommission(models.Model):
         self.ensure_one()
         line = self.order_line
         res = {}
+        import sys
+        if sys.__stdin__.isatty():
+            import pdb; pdb.set_trace()
         if line:
             prod_ob = self.env['product.product']
             product_id = prod_ob.search(
                 [('name','=','Sales Commissions')]
             )
             product_id = product_id and product_id[0] or False
-            #account_id = product_id and product_id.property_account_expense_id or False
+            account_id = product_id and product_id.property_account_expense_id or False
             res = {
                 'display_type': False,
                 'sequence': line.sequence,
@@ -298,7 +292,7 @@ class SaleCommission(models.Model):
                 'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
                 'sale_line_ids': [(4, line.id)],
                 'product_id': product_id and product_id.id or False,
-                #'account_id': account_id and account_id.id or False,
+                'account_id': account_id and account_id.id or False,
             }
         return res
         
