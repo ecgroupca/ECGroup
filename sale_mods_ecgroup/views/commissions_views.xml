@@ -11,6 +11,7 @@
 						    <field name="name"/> 
 							<field name="order_id"/>
 							<field name="order_line"/>
+                            <field name="team_id"/>
 							<field name="ref"/>
 							<field name="partner_id"/>
 							<field name="comm_rate"/>
@@ -18,7 +19,7 @@
 							<field name="price_unit"/>
 							<field name="comm_total" sum="Total Comm."/>
 							<field name="invoice_id"/>
-							<field name="pmt_state"/>
+							<field name="pmt_state" string="Payment Status"/>
 							<field name="company_id"/>
 					</group>
 				</sheet>
@@ -33,6 +34,7 @@
 			    <field name="name"/> 
 				<field name="order_id"/>
 				<field name="order_line"/>
+                <field name="team_id"/>
 				<field name="ref"/>
 				<field name="partner_id"/>
 				<field name="comm_rate"/>
@@ -40,7 +42,7 @@
 				<field name="price_unit"/>
 				<field name="comm_total" sum="Total Comm."/>
 				<field name="invoice_id"/>
-				<field name="pmt_state"/>
+				<field name="pmt_state" string="Payment Status"/>
 				<field name="company_id"/>
 			</tree>
 		</field>

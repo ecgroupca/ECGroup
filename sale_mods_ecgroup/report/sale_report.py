@@ -24,48 +24,7 @@ class ProductTemplate(models.Model):
     )
     no_commissions = fields.Boolean(
         'No Commissions',
-    )
-    
-    @api.model
-    def name_get(self):
-        res = []
-        product_name = ''
-        for rec in self:
-            name = rec.description and '\n'.join(rec.description.split('\n', 2)[:2]) or rec.name
-            if name:
-                if rec.default_code:
-                    product_name = '[' + rec.default_code + '] ' + name
-                else:
-                    product_name = name
-            elif rec.default_code:
-                product_name = '[' + rec.default_code + ']'  
-            else:
-                product_name = name                     
-            res.append((rec.id, "%s" % product_name))
-        return res
-
-
-class ProductProduct(models.Model):
-    _inherit = 'product.product'
-    
-    @api.model
-    def name_get(self):
-        res = []
-        product_name = ''
-        for rec in self:
-            name = rec.description and '\n'.join(rec.description.split('\n', 2)[:2]) or rec.name
-            if name:
-                if rec.default_code:
-                    product_name = '[' + rec.default_code + '] ' + name
-                else:
-                    product_name = name
-            elif rec.default_code:
-                product_name = '[' + rec.default_code + ']'  
-            else:
-                product_name = name                     
-            res.append((rec.id, "%s" % product_name))
-        return res
-        
+    ) 
 
 class ResPartner(models.Model):
     _inherit = 'res.partner'
@@ -133,7 +92,7 @@ class SaleOrder(models.Model):
     )
     inv_bal_due = fields.Float(
         'Balance Due',
-        compute="_compute_bal_due",
+        compute="_compute_deps_total",
         store = True,
     )
     taxed_order = fields.Boolean(
@@ -247,22 +206,9 @@ class SaleOrder(models.Model):
                         if invoice_id not in deposit_invs:
                             deposit_invs.append(invoice_id)
                             if invoice.state=='posted':
-                                amt_res += invoice.amount_residual
-                                amt_inv += invoice.amount_total
-                                total_deps += (amt_inv - amt_res)                
+                                #amt_res += invoice.amount_residual
+                                total_deps += invoice.amount_total                                             
                 sale.deposit_total = total_deps
-     
-    @api.depends('order_line')     
-    def _compute_bal_due(self):
-        for sale in self:
-            amt_res = 0.00
-            amt_inv = 0.00
-            for invoice in sale.invoice_ids:
-                if invoice.state=='posted':
-                    amt_res += invoice.amount_residual
-                    amt_inv += invoice.amount_total
-            amt_due = (sale.amount_total - amt_inv) + amt_res
-            sale.inv_bal_due = amt_due
           
     @api.onchange('inv_bal_due')
     def _lock_sales_orders(self):

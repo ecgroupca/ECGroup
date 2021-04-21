@@ -28,23 +28,29 @@ class AccountPayment(models.Model):
 
     
     sale_id = fields.Many2one(
-        'Sale Order', 
+        'sale.order',
+        string = 'Sale Order', 
         compute = '_get_related'
     )
     
+    @api.depends('invoice_ids')
     def _get_related(self):
         for payment in self:
+            payment.sale_id = False
             #1. loop through invoice_ids from payment
-            for invoice in payment.invoice_ids:
-                import sys
-                if sys.__stdin__.isatty():
-                    import pdb; pdb.set_trace()                
+            for invoice in payment.invoice_ids:              
                 #2. search for sale orders that have invoices on the payment list.
-                sale = self.env['sale.order'].search([('invoice_ids','=',invoice.id)])
-                #2. loop through the invoice line's sale_line_ids
-                sale_id = sale and sale[0] and sale[0].id or False
-                
-            #3. insert the sale order ids using the notation in the commissions code.
+                for line in invoice.invoice_line_ids:
+                    #3. loop through the invoice line's sale_line_ids
+                    for sale_line in line.sale_line_ids:
+                        sale_id = sale_line and sale_line.order_id or False
+                        if sale_id:
+                            payment.sale_id = sale_id
+                            break
+                    if sale_id:
+                        break
+                if sale_id:
+                    break
             
     def post(self):
         res = super(AccountPayment,self).post()
@@ -52,7 +58,7 @@ class AccountPayment(models.Model):
         if res:
             for pmt in self:
                 for invoice in pmt.invoice_ids:
-                    commisssions = self.env['sale.commission'].search([('invoice_id','=',invoice.id)])
+                    commissions = self.env['sale.commission'].search([('invoice_id','=',invoice.id)])
                     for comm in commissions:
                         comm.pmt_id = pmt
         
@@ -68,7 +74,7 @@ class SaleOrder(models.Model):
         res = super(SaleOrder,self).action_confirm()
         #create new commissions object
         for line in self.order_line:
-            if not line.product_id.no_commissions and line.product_id.type != 'service':
+            if line.comm_rate and not line.product_id.no_commissions and line.product_id.type != 'service':
                 client_po = self.client_order_ref and str(self.client_order_ref) or ''
                 vals = {
                     'name': 'Order: ' + self.name  + ' commissions.',
@@ -110,9 +116,6 @@ class SaleOrder(models.Model):
             raise UserError(_('Please define an accounting sales journal for the company %s (%s).') % (self.company_id.name, self.company_id.id))
         team =  self.team_id
         team_id = team and team.id or False
-        import sys
-        if sys.__stdin__.isatty():
-            import pdb; pdb.set_trace()
         invoice_vals = {
             'ref': self.client_order_ref or '',
             'type': 'in_invoice',
@@ -123,7 +126,7 @@ class SaleOrder(models.Model):
             'source_id': self.source_id.id,
             'invoice_user_id': self.user_id and self.user_id.id,
             'team_id': team_id,
-            'partner_id': team and team.user_id and team.user_id.id or False,
+            'partner_id': team and team.user_id and team.user_id.partner_id and team.user_id.partner_id.id or False,
             'invoice_partner_bank_id': self.company_id.partner_id.bank_ids[:1].id,
             'fiscal_position_id': self.fiscal_position_id.id or self.partner_invoice_id.property_account_position_id.id,
             'journal_id': journal.id,  # company comes from the journal
@@ -153,43 +156,49 @@ class SaleOrder(models.Model):
 
         # 1) Create invoices.
         
+        done = False
         for order in self:
-            invoice_vals_list = []
-            invoice_vals = order._prepare_comm_invoice()
-            comm_lines = comm.sudo().search([('order_id','=',order.id),('pmt_id','=',False),('invoice_id','=',False),])           
-            if not comm_lines:
-                #create new commissions objects because they haven't been created before.
+            if order.inv_bal_due <= 0.00:
                 for line in order.order_line:
-                    if not line.product_id.no_commissions and line.product_id.type != 'service':
-                        client_po = self.client_order_ref and str(self.client_order_ref) or ''
-                        vals = {
-                            'name': 'Order: ' + order.name  + ' commissions.',
-                            'ref':client_po,
-                            'order_line': line.id,
-                            'invoice_id': False,
-                            'state': 'draft',
-                            }
-                        self.env['sale.commission'].create(vals)
+                    if line.qty_delivered >= line.product_uom_qty:
+                        done = True
+                        break
+            if done and order.invoice_status not in ['to invoice','no']:
+                invoice_vals_list = []
+                invoice_vals = order._prepare_comm_invoice()
+                comm_lines = comm.sudo().search([('order_id','=',order.id),('pmt_id','=',False),('invoice_id','=',False),])           
+                if not comm_lines:
+                    #create new commissions objects because they haven't been created before.
+                    for line in order.order_line:
+                        if line.comm_rate and not line.product_id.no_commissions and line.product_id.type != 'service':
+                            client_po = self.client_order_ref and str(self.client_order_ref) or ''
+                            vals = {
+                                'name': 'Order: ' + order.name  + ' commissions.',
+                                'ref':client_po,
+                                'order_line': line.id,
+                                'invoice_id': False,
+                                'state': 'draft',
+                                }
+                            self.env['sale.commission'].create(vals)
 
-                comm_lines = comm.sudo().search([('order_id','=',order.id),('pmt_id','=',False),('invoice_id','=',False),])
-            if not comm_lines:
-                raise UserError(_('Commission records not created.'))               
-            invoice_vals['invoice_line_ids'] = [
-                (0, 0, line._prepare_comm_invoice_line())
-                for line in comm_lines
-            ]
-            invoice_vals_list.append(invoice_vals)
-            # Manage the creation of invoices in sudo because a salesperson must be able to generate an invoice from a
-            # sale order without "billing" access rights. However, he should not be able to create an invoice from scratch.
-            moves = self.env['account.move'].sudo().with_context(default_type='in_invoice').create(invoice_vals_list)
-            move_id = moves and moves[0] and moves[0].id or None           
-            order.has_comm_inv = move_id and True or False
-            import sys
-            if sys.__stdin__.isatty():
-                import pdb; pdb.set_trace()
-            if moves and moves[0]:
-                for line in comm_lines:
-                    line.invoice_id = moves and moves[0] and moves[0].id or False               
+                    comm_lines = comm.sudo().search([('order_id','=',order.id),('pmt_id','=',False),('invoice_id','=',False),])
+                if not comm_lines:
+                    raise UserError(_('Commission records not created.'))               
+                invoice_vals['invoice_line_ids'] = [
+                    (0, 0, line._prepare_comm_invoice_line())
+                    for line in comm_lines
+                ]
+                invoice_vals_list.append(invoice_vals)
+                # Manage the creation of invoices in sudo because a salesperson must be able to generate an invoice from a
+                # sale order without "billing" access rights. However, he should not be able to create an invoice from scratch.
+                moves = self.env['account.move'].sudo().with_context(default_type='in_invoice').create(invoice_vals_list)
+                move_id = moves and moves[0] and moves[0].id or None           
+                order.has_comm_inv = move_id and True or False
+                if move_id:
+                    for line in comm_lines:
+                        line.invoice_id = move_id  
+            else:
+                raise UserError(_('The order must be shipped and paid before creating a commissions invoice.'))
         return moves
     
 
@@ -233,11 +242,11 @@ class SaleCommission(models.Model):
         string='Company',
         related = "order_line.order_id.company_id"
         )
-    invoice_id = fields.Many2one('account.move.line',
+    invoice_id = fields.Many2one('account.move',
         'Invoice',
         )
     invoice_state = fields.Selection('Invoice State',
-        related = 'invoice_id.move_id.state',
+        related = 'invoice_id.state',
         )
     pmt_id = fields.Many2one('account.payment',
         'Payment',
@@ -272,9 +281,6 @@ class SaleCommission(models.Model):
         self.ensure_one()
         line = self.order_line
         res = {}
-        import sys
-        if sys.__stdin__.isatty():
-            import pdb; pdb.set_trace()
         if line:
             prod_ob = self.env['product.product']
             product_id = prod_ob.search(
