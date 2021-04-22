@@ -7,7 +7,7 @@
         <field name="arch" type="xml">	    
             <field name="authorized_transaction_ids" position="after">
 			    <field name="has_comm_inv" invisible="1"/>
-			    <button name='pay_commission' string='Pay Commission' type='object' groups="account.group_account_manager" attrs="{'invisible': ['|',('has_comm_inv','=',True),('state', 'in', ['draft','cancel'])]}"/>			    
+			    <button name='pay_commission' string='Pay Commission' type='object' groups="account.group_account_manager" attrs="{'invisible': ['|','|',('has_comm_inv','=',True),('inv_bal_due','>',0),('state', 'in', ['draft','cancel'])]}"/>			    
             </field>			
             <field name="partner_shipping_id" position="after">
                 <field name="sidemark"/> 

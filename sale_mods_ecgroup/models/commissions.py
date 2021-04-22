@@ -36,7 +36,7 @@ class AccountPayment(models.Model):
     @api.depends('invoice_ids')
     def _get_related(self):
         for payment in self:
-            payment.sale_id = False
+            sale_id = False
             #1. loop through invoice_ids from payment
             for invoice in payment.invoice_ids:              
                 #2. search for sale orders that have invoices on the payment list.
@@ -45,12 +45,13 @@ class AccountPayment(models.Model):
                     for sale_line in line.sale_line_ids:
                         sale_id = sale_line and sale_line.order_id or False
                         if sale_id:
-                            payment.sale_id = sale_id
+                            #payment.sale_id = sale_id
                             break
                     if sale_id:
                         break
                 if sale_id:
                     break
+            payment.sale_id = sale_id
             
     def post(self):
         res = super(AccountPayment,self).post()
@@ -68,7 +69,8 @@ class AccountPayment(models.Model):
 class SaleOrder(models.Model):
     _inherit = "sale.order"
     
-    has_comm_inv = fields.Boolean('Commission Invoice Exists')
+    has_comm_inv = fields.Boolean('Commission Invoice Exists',
+                                 copy=False,)
     
     def action_confirm(self): 
         res = super(SaleOrder,self).action_confirm()
@@ -211,6 +213,12 @@ class SaleCommission(models.Model):
         )
     order_id = fields.Many2one('sale.order', 'Sale Order',
         related = 'order_line.order_id'
+        )
+    team_id = fields.Many2one('crm.team', 'Showroom',
+        related = 'order_line.order_id.team_id'
+        )
+    commissions_payee_id = fields.Many2one('res.users', 'Salesperson',
+        related = 'order_line.order_id.team_id.user_id'
         )
     name = fields.Char('Description', index=True)
     ref = fields.Char('Reference')
