@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<report
+			string="Shipping Report"
+			id="action_report_shipping"
+			model="stock.move"
+			report_type="qweb-pdf"
+			name="qb_shipping_reports.report_shipping"
+			file="qb_shipping_reports.report_shipping"
+			print_report_name="'Shipping Report'"
+			menu="True"
+		/>
+	</data>
+</odoo>
