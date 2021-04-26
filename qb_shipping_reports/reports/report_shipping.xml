@@ -6,9 +6,9 @@
 			id="action_report_shipping"
 			model="stock.move"
 			report_type="qweb-pdf"
-			name="shipping_reports.report_shipping"
-			file="shipping_reports.report_shipping"
-			print_report_name="'Shipping Slip'"
+			name="qb_shipping_reports.report_shipping"
+			file="qb_shipping_reports.report_shipping"
+			print_report_name="'Shipping Report'"
 			menu="True"
 		/>
 	</data>
