@@ -69,7 +69,7 @@ class AccountPayment(models.Model):
 class SaleOrder(models.Model):
     _inherit = "sale.order"
     
-    has_comm_inv = fields.Boolean('Commission Invoice Exists',
+    has_comm_inv = fields.Boolean('Has Comm. Invoice',
                                  copy=False,)
     
     def action_confirm(self): 
