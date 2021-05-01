@@ -1,4 +1,4 @@
-from odoo import api, fields, models
+from odoo import api, fields, models, _
 
 
 class StockMove(models.Model):
@@ -11,7 +11,5 @@ class StockMove(models.Model):
     carrier_id = fields.Many2one(related="picking_id.carrier_id")
     product_default_code = fields.Char(related="product_id.default_code")
     bill_of_lading = fields.Char(related="picking_id.sale_id.name")
-    
-    
     
     

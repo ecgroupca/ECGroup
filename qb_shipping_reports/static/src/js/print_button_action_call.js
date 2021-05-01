@@ -1,4 +1,4 @@
-odoo.define('shipping_reports.print_action_button', function (require) {
+odoo.define('qb_shipping_reports.print_action_button', function (require) {
 "use strict";
 
 var core = require('web.core');

@@ -8,7 +8,7 @@ _logger = logging.getLogger(__name__)
 
 class ReportshippingReport(models.AbstractModel):
 
-    _name = 'report.shipping_reports.report_shipping'
+    _name = 'report.qb_shipping_reports.report_shipping'
     _description = 'Shipping report'
     
     @api.model

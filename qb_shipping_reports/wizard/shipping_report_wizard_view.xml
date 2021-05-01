@@ -14,7 +14,7 @@
                 <field name="date_to" attrs="{'invisible': [('print_selected', '=', True)], 'required': [('print_selected', '=', False)]}"/>
             </group>
             <group col="1">
-                <field name="showroom" attrs="{'invisible': [('print_selected', '=', True)]}"/>
+                <field name="showroom" widget="many2many_tags" attrs="{'invisible': [('print_selected', '=', True)]}"/>
                 <field name="stock_move_ids" invisible="1"/>
             </group>
             <group>
@@ -34,10 +34,5 @@
         <field name="view_id" ref="shipping_report_wiz_view"/>
         <field name="target">new</field>
     </record>
-	
-	<!-- <menuitem id="menu_action_commission_report"
-            action="action_commission_report"
-            parent="sale.menu_sale_report"
-            sequence="25"/> -->
 	
 </odoo>

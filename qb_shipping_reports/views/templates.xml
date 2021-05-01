@@ -3,7 +3,7 @@
     <data>
 		<template id="assets_backend_print_btn" name="custom_print_button assets" inherit_id="web.assets_backend">
 		    <xpath expr="." position="inside">
-		        <script type="text/javascript" src="/shipping_reports/static/src/js/print_button_action_call.js"></script>
+		        <script type="text/javascript" src="/qb_shipping_reports/static/src/js/print_button_action_call.js"></script>
 		    </xpath>
 		</template>
 	</data>
