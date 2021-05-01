@@ -3,7 +3,7 @@
     'description': 'EC Group Shipping Reports',
     'sequence': 1,
     'version': '1.0.0',
-    'author': 'Sahil Navadiya <nsahil@quickbeamllc.com>,Adam OConnor <aoconnor@quickbeamllc.com>',
+    'author': 'Adam OConnor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': [
         'sale_management',
