@@ -58,6 +58,6 @@ class ReportshippingReport(models.AbstractModel):
             'data': data['form'] if not docids else data,
             'docs': stock_moves,
             'sm':sm,
-            'date_from':date_from.strftime("%d-%m-%Y") if date_from else False,
-            'date_to':date_to.strftime("%d-%m-%Y") if date_to else False,
+            'date_from':date_from.strftime("%m/%d/%y") if date_from else False,
+            'date_to':date_to.strftime("%m/%d/%y") if date_to else False,
         }
