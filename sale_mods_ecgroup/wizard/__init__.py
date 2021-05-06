@@ -19,4 +19,5 @@
 #    If not, see <http://www.gnu.org/licenses/>.
 #
 #############################################################################
-from . import commissions
+from . import commission_report_wizard
+from . import sale_commission_report

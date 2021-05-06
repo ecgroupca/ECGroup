@@ -4,15 +4,19 @@
         <field name="name">sale.order.mods</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
-        <field name="arch" type="xml">
+        <field name="arch" type="xml">	    
+            <field name="authorized_transaction_ids" position="after">
+			    <field name="has_comm_inv" invisible="1"/>
+			    <button name='pay_commission' string='Pay Commission' type='object' groups="account.group_account_manager" attrs="{'invisible': ['|','|',('has_comm_inv','=',True),('inv_bal_due','>',0),('state', 'in', ['draft','cancel'])]}"/>			    
+            </field>			
             <field name="partner_shipping_id" position="after">
-               <field name="sidemark"/> 
-               <field name="client_order_ref"/> 			   
+                <field name="sidemark"/> 
+                <field name="client_order_ref"/> 			   
             </field>
 			<field name="payment_term_id" position="after">
-			   <field name="approx_lead_time"/>
-			   <field name="deposit_total"/> 
-               <field name="inv_bal_due"/>			   
+			    <field name="approx_lead_time"/>
+			    <field name="deposit_total"/> 
+                <field name="inv_bal_due"/>			   
 			</field>
 			<xpath expr="//notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
 				<field name="comm_rate"/>

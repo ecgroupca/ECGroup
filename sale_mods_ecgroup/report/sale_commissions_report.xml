@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <template id="report_sales_commissions">
+	<t t-foreach="docs" t-as="o">
+		<t t-call="sale_mods_ecgroup.report_sales_commissions_document" t-lang="o.partner_id.lang"/>
+	</t>
+  </template>
+  <template id="report_sales_commissions_document">
+      <t t-call="web.html_container">
+        <t t-call="web.external_layout">
+          <div class="page" style="font-name:Calibri">
+			<h2 style="margin-top:10px;text-align: center;width:100%">
+				Sales Commissions
+			</h2>
+			  <table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
+				<thead>
+					<tr style="padding:5px;border-bottom: solid 2px; border-color:#AAA;">
+						<th style="padding:5px;" name="th_customer"><strong>Customer # / Invoice Number</strong></th>
+						<th style="padding:5px;" name="th_po"><strong>PO#</strong></th>
+						<th style="padding:5px;" name="th_inv_date"><strong>Inv Date</strong></th>
+						<th style="padding:5px;" name="th_comm_rate"><strong>Comm Rate</strong></th>
+						<th style="padding:5px;" name="th_inv_total"><strong>Inv Total</strong></th>
+						<th style="padding:5px;" name="th_subject_comm"><strong>Sales Subject to Commission</strong></th>
+						<th style="padding:5px;" name="th_status"><strong>Non-commission Amount</strong></th>
+						<th style="padding:5px;" name="th_company"><strong>Inv Amount Paid</strong></th>
+                        <th style="padding:5px;" name="th_name"><strong>Comm Payable</strong></th>
+					</tr>
+				</thead>
+			    <t t-foreach="docs" t-as="check">
+					<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
+					  <td style="padding:5px;">
+                          <span t-field="o.partner_id.ref"/>
+                          <br/><br/>
+                          <span t-field="o.order_id.name"/>
+                        </td>
+					  <td style="padding:5px;"><span t-field="o.order_id.client_order_ref"/></td>
+					  <td style="padding:5px;"><span t-field="o.order_id.date_order"/></td>
+					  <td style="padding:5px;"><span t-field="o.comm_rate"/></td>
+					  <td style="padding:5px;"><span t-field="o.order_id.amount_total"/></td>
+					  <td style="padding:5px;"><span t-field="o.subject_comm"/></td>
+					  <td style="padding:5px;"><span t-field="o.non_comm_amount"/></td>
+					  <td style="padding:5px;"><span t-esc="o.amount_total - o.inv_bal_due"/></td>
+					  <td style="padding:5px;"><span t-field="o.comm_payable"/></td>
+					</tr>
+			    </t>
+			  </table>
+			</div>
+          </t>
+        </t>
+  </template>
+  <report id="report_sales_commissions'"	
+	string="Sales Commissions"
+	model="sale.commission"
+	report_type="qweb-pdf"
+	name="sale_mods_ecgroup.report_sales_commissions"
+	file="sale_mods_ecgroup.report_sales_commissions"
+	menu="True"/>		
+</odoo>
