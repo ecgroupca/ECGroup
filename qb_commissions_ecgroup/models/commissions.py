@@ -22,6 +22,10 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
+
+class ProductProduct(models.Model):
+    no_commissions = fields.Boolean('Not eligible for commissions')
+
  
 class AccountPayment(models.Model):
     _inherit = "account.payment"
