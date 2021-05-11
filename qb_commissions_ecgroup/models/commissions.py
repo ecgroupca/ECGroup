@@ -24,6 +24,8 @@ from odoo.exceptions import UserError
 
 
 class ProductProduct(models.Model):
+    _inherit = "product.product"
+    
     no_commissions = fields.Boolean('Not eligible for commissions')
 
  
