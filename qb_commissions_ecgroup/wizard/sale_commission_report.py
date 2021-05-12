@@ -5,7 +5,7 @@ from datetime import datetime
 
 class ReportSaleCommissionReport(models.AbstractModel):
 
-    _name = 'report.sale_mods_ecgroup.report_sale_commission'
+    _name = 'report.qb_commissions_ecgroup.report_sale_commission'
     _description = 'Sale Commission report'
     
     @api.model
