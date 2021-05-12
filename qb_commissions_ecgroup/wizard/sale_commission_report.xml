@@ -13,8 +13,8 @@
 				<t t-foreach="sale_comm" t-as="showroom">
 					<div class="page" style="font-name:Calibri;page-break-before:always;">
 						<h2 style="margin-top:10px;text-align: center;width:100%">Salesperson Commission Report</h2>
-						<p><strong><h5>Salesperson : <t t-esc="showroom"/></h5></strong></p>
-						<span><strong>Date : </strong><t t-esc="date_from"/> <strong>  -  </strong> <t t-esc="date_to"/></span>
+						<p><strong><h5>Showroom: <t t-esc="showroom"/></h5></strong></p>
+                        <span t-if="date_from"><strong>Dates: </strong><t t-esc="date_from[4:5] +'/'+ date_from[:2] +'/'+ date_from[6:]"/> <strong>  to  </strong> <t t-esc="date_to[4:5] +'-'+ date_to[:2] +'-'+ date_to[6:]"/></span>
 						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 							<thead>
 								<tr style="padding:5px;border-bottom: solid 2px; border-color:#AAA;">
@@ -80,7 +80,7 @@
 						    				<t t-set="sales_sub_to_commi" t-value="comm.order_id.amount_total - non_comm_amt"/>
 						    				<t t-set="sales_sub_to_commi_total" t-value="sales_sub_to_commi_total + sales_sub_to_commi"/>
 						    				
-						    				<t t-set="commi_payable" t-value="sales_sub_to_commi * comm_rate"/>
+						    				<t t-set="commi_payable" t-value="sales_sub_to_commi * comm_rate/100"/>
 						    				<t t-set="comm_payable_total" t-value="comm_payable_total + commi_payable"/>
 						    				
 						    				<t t-set="inv_amt_paid" t-value="0.00"/>
@@ -120,7 +120,7 @@
 								</t>
 								<!-- Salesperson total <tr> -->
 				    			<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
-				    				<td colspan="4" align="right"><strong>Salesperson <t t-esc="showroom"/> Totals : </strong></td>
+				    				<td colspan="4" align="right"><strong>Showroom: <t t-esc="showroom"/> Totals : </strong></td>
 				    				<td align="right"><t t-esc="showroom_inv_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
 				    				<td align="right"><t t-esc="showroom_sales_sub_to_commi_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
 				    				<td align="right"><t t-esc="showroom_non_comm_amt_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
