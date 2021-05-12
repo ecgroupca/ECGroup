@@ -63,7 +63,7 @@
 						    				</t> -->
 						    				
 						    				<t t-foreach="comm.order_id.order_line" t-as="line">
-						    					<t t-if="line.product_id.no_commissions">
+						    					<t t-if="line.product_id.no_commissions or line.product_id.type in ['service','consu']'">
 						    						<t t-set="non_comm_amt" t-value="non_comm_amt + line.price_subtotal"/>
 						    					</t>
 						    					<t t-elif="line.product_id.type != 'service' and line.comm_rate > 0.00">
