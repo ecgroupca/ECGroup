@@ -141,8 +141,8 @@
 			id="action_report_sale_commission"
 			model="sale.commission"
 			report_type="qweb-pdf"
-			name="sale_mods_ecgroup.report_sale_commission"
-			file="sale_mods_ecgroup.report_sale_commission"
+			name="qb_commissions_ecgroup.report_sale_commission"
+			file="qb_commissions_ecgroup.report_sale_commission"
 			print_report_name="'Commission Report'"
 			menu="False"
 		/>
