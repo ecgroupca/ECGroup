@@ -5,6 +5,7 @@ class VendorPOReportWizard(models.TransientModel):
     _name = "vendor.po.report.wizard"
     _description = "Vendor PO Report Wizard"
     
+    company_id = fields.Many2one("res.company",string="Company",required=True)
     date_from = fields.Date("Date From", required=False)
     date_to = fields.Date("Date To", required=False)
     partner_ids = fields.Many2many("res.partner",'po_report_vendor_rel_transient', 'vendor_report_id', 'vendor_id', string="Vendor")
