@@ -7,6 +7,7 @@
     'website': 'https://quickbeamllc.com',
     'depends': ['purchase'],
     'data': [
+        'reports/external_layout_open_po.xml',
         'reports/report_template_open_po.xml',
         'reports/report_po.xml',
         'wizard/po_report_wizard_view.xml',

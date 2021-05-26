@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<t t-name="qb_reportpo_ecgroup.external_layout_open_po">
+<t t-name="qb_reportpo_ecgroup.external_layout_open_purchase_orders">
         <t t-if="not o" t-set="o" t-value="doc"/>
 
         <t t-if="not company">
