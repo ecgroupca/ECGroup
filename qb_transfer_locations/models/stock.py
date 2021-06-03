@@ -9,5 +9,14 @@ class StockPicking(models.Model):
 
     _inherit = 'stock.picking'
     
-    location_id = fields.Many2one('stock.picking', readonly=False)
-    location_dest_id = fields.Many2one('stock.picking', readonly=False)
+    location_id = fields.Many2one(readonly=False)
+    location_dest_id = fields.Many2one(readonly=False)
+    
+    
+    @api.onchange('location_id')
+    def _onchange_sales_team(self):
+        for picking in self:
+            for move in picking.move_lines:
+                move.location_id = picking.location_id
+                move.location_dest_id = picking.location_dest_id
+            
