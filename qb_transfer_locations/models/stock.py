@@ -20,6 +20,6 @@ class StockPicking(models.Model):
             for move in picking.move_lines:
                 move.location_id = picking.location_id
                 move.location_dest_id = picking.location_dest_id
-                for move_line in move.move_line_ids:
-                    move_line.location_id = picking.location_id
-                    move_line.location_dest_id = picking.location_dest_id               
+            for move_l in picking.move_line_ids:
+                move_l.location_id = picking.location_id
+                move_l.location_dest_id = picking.location_dest_id                    
