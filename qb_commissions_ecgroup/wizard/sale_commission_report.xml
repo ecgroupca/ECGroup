@@ -63,16 +63,16 @@
 						    				</t> -->
 						    				
 						    				<t t-foreach="comm.order_id.order_line" t-as="line">
-						    					<t t-if="line.product_id.no_commissions or line.product_id.type in ['service','consu']'">
+						    					<t t-if="line.product_id.no_commissions or line.product_id.type in ['service','consu']">
 						    						<t t-set="non_comm_amt" t-value="non_comm_amt + line.price_subtotal"/>
 						    					</t>
-						    					<t t-elif="line.product_id.type != 'service' and line.comm_rate > 0.00">
+						    					<t t-elif="line.product_id.type != 'service' and line.comm_rate &gt; 0.00">
 						    						<t t-set="comm_rate" t-value="comm_rate + line.comm_rate"/>
 						    						<t t-set="comm_rate_product_count" t-value="comm_rate_product_count + 1"/>
 						    					</t>
 						    				</t>
 						    				
-						    				<t t-if="comm_rate_product_count > 1">
+						    				<t t-if="comm_rate_product_count &gt; 1">
 						    					<t t-set="comm_rate" t-value="comm_rate / comm_rate_product_count"/>
 						    				</t>
 						    				
