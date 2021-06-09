@@ -14,7 +14,7 @@ class StockPicking(models.Model):
     location_dest_id = fields.Many2one(readonly=False)
     picking_type_id = fields.Many2one(readonly=False)
     
-    @api.onchange('location_id','location_dest_id','picking_type_id')
+    @api.onchange('location_id','location_dest_id')
     def _onchange_sales_team(self):
         for picking in self:
             for move in picking.move_lines:
@@ -22,4 +22,4 @@ class StockPicking(models.Model):
                 move.location_dest_id = picking.location_dest_id
                 for move_line in move.move_line_ids:
                     move_line.location_id = picking.location_id
-                    move_line.location_dest_id = picking.location_dest_id                   
+                    move_line.location_dest_id = picking.location_dest_id               
