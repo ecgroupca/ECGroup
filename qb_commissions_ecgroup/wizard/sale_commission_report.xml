@@ -18,7 +18,7 @@
 						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 							<thead>
 								<tr style="padding:5px;border-bottom: solid 2px; border-color:#AAA;">
-									<th style="padding:5px;" name="th_customer"><strong>Customer # /<br/> Invoice #</strong></th>
+									<th style="padding:5px;" name="th_customer"><strong>Invoice #</strong></th>
 									<th style="padding:5px;" name="th_po"><strong>PO #</strong></th>
 									<th style="padding:5px;" name="th_inv_date"><strong>Inv Date</strong></th>
 									<th style="padding:5px;text-align:right" name="th_comm_rate"><strong>Comm.<br/>Rate</strong></th>
@@ -63,16 +63,16 @@
 						    				</t> -->
 						    				
 						    				<t t-foreach="comm.order_id.order_line" t-as="line">
-						    					<t t-if="line.product_id.no_commissions or line.product_id.type in ['service','consu']'">
+						    					<t t-if="line.product_id.no_commissions or line.product_id.type in ['service','consu']">
 						    						<t t-set="non_comm_amt" t-value="non_comm_amt + line.price_subtotal"/>
 						    					</t>
-						    					<t t-elif="line.product_id.type != 'service' and line.comm_rate > 0.00">
+						    					<t t-elif="line.product_id.type != 'service' and line.comm_rate &gt; 0.00">
 						    						<t t-set="comm_rate" t-value="comm_rate + line.comm_rate"/>
 						    						<t t-set="comm_rate_product_count" t-value="comm_rate_product_count + 1"/>
 						    					</t>
 						    				</t>
 						    				
-						    				<t t-if="comm_rate_product_count > 1">
+						    				<t t-if="comm_rate_product_count &gt; 1">
 						    					<t t-set="comm_rate" t-value="comm_rate / comm_rate_product_count"/>
 						    				</t>
 						    				
@@ -104,12 +104,12 @@
 					    			</t>
 					    			<!-- Customer total <tr> -->
 					    			<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
-					    				<td colspan="4" align="right"><strong>Customer <t t-esc="sale_comm[showroom][cust]['ref']"/> Totals : </strong></td>
-					    				<td align="right"><t t-esc="inv_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
-					    				<td align="right"><t t-esc="sales_sub_to_commi_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
-					    				<td align="right"><t t-esc="non_comm_amt_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
-					    				<td align="right"><t t-esc="inv_amt_paid_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
-					    				<td align="right"><t t-esc="comm_payable_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
+					    				<td colspan="4" align="left"><strong>Customer <t t-esc="sale_comm[showroom][cust]['ref']"/> Totals : </strong></td>
+					    				<td align="right"><strong><t t-esc="inv_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+					    				<td align="right"><strong><t t-esc="sales_sub_to_commi_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+					    				<td align="right"><strong><t t-esc="non_comm_amt_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+					    				<td align="right"><strong><t t-esc="inv_amt_paid_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+					    				<td align="right"><strong><t t-esc="comm_payable_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 					    				
 					    				<t t-set="showroom_inv_total" t-value="showroom_inv_total + inv_total"/>
 						    			<t t-set="showroom_sales_sub_to_commi_total" t-value="showroom_sales_sub_to_commi_total + sales_sub_to_commi_total"/>
