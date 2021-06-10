@@ -34,7 +34,7 @@ class ProductProduct(models.Model):
     
     no_commissions = fields.Boolean('Not eligible for commissions')
 
- 
+        
 class AccountPayment(models.Model):
     _inherit = "account.payment"
 
@@ -77,12 +77,43 @@ class AccountPayment(models.Model):
         
         return res
         
+class CRMTeam(models.Model):
+    _inherit = 'crm.team'
+    
+    comm_inv_partner = fields.Many2one(
+        'res.partner',
+        string = "Commission Invoice Address",        
+        copy = False,
+        stored = True,
+    )
+    
+    default_comm_rate = fields.Float(
+        'Default Commission Rate (%)', 
+        readonly = False,
+        stored = True,
+    )
         
 class SaleOrder(models.Model):
     _inherit = "sale.order"
     
-    has_comm_inv = fields.Boolean('Commission Invoice Exists',
-                                 copy=False,)
+    comm_inv_paid = fields.Boolean(
+        'Commission Invoice Paid?',
+        copy=False,
+    )
+    
+    comm_inv_id = fields.Many2one(
+        'Commission Invoice',
+        copy=False,
+        readonly=True,
+    )
+
+    @api.depends('comm_inv_id')
+    def _commission_inv_paid(self):
+        for order in self:
+            order.comm_inv_paid = False
+            #if commission invoice is paid, then we mark it so.
+            if order.comm_inv_id and order.comm_inv_id.amount_residual==0.00:
+                order.comm_inv_paid = True
     
     def action_confirm(self): 
         res = super(SaleOrder,self).action_confirm()
@@ -140,7 +171,8 @@ class SaleOrder(models.Model):
             'source_id': self.source_id.id,
             'invoice_user_id': self.user_id and self.user_id.id,
             'team_id': team_id,
-            'partner_id': team and team.user_id and team.user_id.partner_id and team.user_id.partner_id.id or False,
+            #'partner_id': team and team.user_id and team.user_id.partner_id and team.user_id.partner_id.id or False,
+            'partner_id': team and team.comm_inv_partner and team.comm_inv_partner or False,
             'invoice_partner_bank_id': self.company_id.partner_id.bank_ids[:1].id,
             'fiscal_position_id': self.fiscal_position_id.id or self.partner_invoice_id.property_account_position_id.id,
             'journal_id': journal.id,  # company comes from the journal
@@ -172,10 +204,11 @@ class SaleOrder(models.Model):
         
         done = False
         for order in self:
-            if order.inv_bal_due <= 0.00:
+            if order.state not in ['draft','cancel'] and order.inv_bal_due <= 0.00:
+                done = True
                 for line in order.order_line:
-                    if line.qty_delivered >= line.product_uom_qty:
-                        done = True
+                    if line.qty_to_deliver > line.qty_delivered:
+                        done = False
                         break
             if done and order.invoice_status not in ['to invoice','no']:
                 invoice_vals_list = []
@@ -207,7 +240,8 @@ class SaleOrder(models.Model):
                 # sale order without "billing" access rights. However, he should not be able to create an invoice from scratch.
                 moves = self.env['account.move'].sudo().with_context(default_type='in_invoice').create(invoice_vals_list)
                 move_id = moves and moves[0] and moves[0].id or None           
-                order.has_comm_inv = move_id and True or False
+                order.comm_inv_paid = False
+                order.comm_inv_id = move_id
                 if move_id:
                     for line in comm_lines:
                         line.invoice_id = move_id  
@@ -319,6 +353,7 @@ class SaleCommission(models.Model):
                 'sale_line_ids': [(4, line.id)],
                 'product_id': product_id and product_id.id or False,
                 'account_id': account_id and account_id.id or False,
+                'sale_line_ids': [(6, 0, [line.id])],
             }
         return res
         
