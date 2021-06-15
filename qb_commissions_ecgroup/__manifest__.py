@@ -11,6 +11,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/commissions_views.xml',
+        'views/product_views.xml',
         'wizard/commission_report_wizard_view.xml',
         'wizard/sale_commission_report.xml',
     ],
