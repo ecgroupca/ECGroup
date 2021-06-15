@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<report
+			string="Open PO Report"
+			id="action_report_open_po"
+			model="purchase.order"
+			report_type="qweb-pdf"
+			name="qb_reportpo_ecgroup.report_open_po"
+			file="qb_reportpo_ecgroup.report_open_po"
+			print_report_name="'Open Purchase Order'"
+			menu="False"
+		/>
+	</data>
+</odoo>
