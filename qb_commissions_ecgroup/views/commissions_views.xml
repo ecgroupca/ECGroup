@@ -1,16 +1,36 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+
+    <!-- Sale Team Mods Form -->
+		
+    <record id="view_salesteam_form_mod" model="ir.ui.view">
+        <field name="name">salesteam.mods</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+        <field name="arch" type="xml">
+            <field name="company_id" position="after">
+			    <field name="default_comm_rate"/>
+				<field name="comm_inv_partner"/>
+			</field>
+        </field>
+    </record>
+	
 	<!-- Sale Mods Form -->
     <record id="view_sales_order_mods" model="ir.ui.view">
         <field name="name">sale.order.mods</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-		<field name="authorized_transaction_ids" position="after">
-			<button name='pay_commission' string='Pay Commission' type='object' groups="account.group_account_manager" attrs="{'invisible': ['|',('inv_bal_due','>',0),('state', 'in', ['draft','cancel'])]}"/>			    
+			<field name="authorized_transaction_ids" position="after">
+				<button name='pay_commission' string='Pay Commission' type='object' groups="account.group_account_manager" attrs="{'invisible': ['|',('inv_bal_due','>',0),('state', 'in', ['draft','cancel'])]}"/>			    
+			</field>
+			<field name="payment_term_id" position="after">
+				<field name="comm_inv_paid"/>
+				<field name="comm_inv_id"/>
+			</field>
 		</field>
-        </field>
     </record>
+	
 	<!-- Commissions Form -->
     <record id="view_commissions_form" model="ir.ui.view">
         <field name="name">view.commissions.form</field>
