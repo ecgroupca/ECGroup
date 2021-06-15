@@ -6,16 +6,7 @@ from odoo import models, fields, api
 from odoo.exceptions import UserError
 _logger = logging.getLogger(__name__)
         
-
-class CRMTeam(models.Model):
-    _inherit = 'crm.team'
-    
-    default_comm_rate = fields.Float(
-        'Default Commission Rate (%)', 
-        readonly = False,
-        stored = True,
-    )
-        
+ 
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
     
