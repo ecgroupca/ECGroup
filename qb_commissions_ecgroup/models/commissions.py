@@ -335,10 +335,11 @@ class SaleCommission(models.Model):
         self.ensure_one()
         line = self.order_line
         res = {}
-        if line:
+        company_id = self.company_id and self.company_id.id or None
+        if line and company_id:
             prod_ob = self.env['product.product']
             product_id = prod_ob.search(
-                [('name','=','Sales Commissions')]
+                [('name','=','Sales Commissions'),('company_id','=',company_id)]
             )
             product_id = product_id and product_id[0] or False
             account_id = product_id and product_id.property_account_expense_id or False
