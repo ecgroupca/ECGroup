@@ -102,7 +102,8 @@ class SaleOrder(models.Model):
     )
     
     comm_inv_id = fields.Many2one(
-        'Commission Invoice',
+        'account.move',
+        string='Commission Invoice',
         copy=False,
         readonly=True,
     )
