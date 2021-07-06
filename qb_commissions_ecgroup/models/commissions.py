@@ -164,7 +164,7 @@ class SaleOrder(models.Model):
         team =  self.team_id
         team_id = team and team.id or False
         invoice_vals = {
-            'ref': self.name + ' - ' + self.client_order_ref,
+            'ref': str(self.name) + ' - ' + str(self.client_order_ref),
             'type': 'in_invoice',
             'narration': self.note,
             'currency_id': self.pricelist_id.currency_id.id,
