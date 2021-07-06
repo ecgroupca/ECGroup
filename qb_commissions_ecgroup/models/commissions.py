@@ -106,6 +106,7 @@ class SaleOrder(models.Model):
         string='Commission Invoice',
         copy=False,
         readonly=True,
+        ondelete='cascade'
     )
 
     @api.depends('comm_inv_id')
@@ -163,7 +164,7 @@ class SaleOrder(models.Model):
         team =  self.team_id
         team_id = team and team.id or False
         invoice_vals = {
-            'ref': self.client_order_ref or '',
+            'ref': self.name + ' - ' + self.client_order_ref,
             'type': 'in_invoice',
             'narration': self.note,
             'currency_id': self.pricelist_id.currency_id.id,
