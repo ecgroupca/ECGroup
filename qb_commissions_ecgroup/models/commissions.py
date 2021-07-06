@@ -102,9 +102,11 @@ class SaleOrder(models.Model):
     )
     
     comm_inv_id = fields.Many2one(
-        'Commission Invoice',
+        'account.move',
+        string='Commission Invoice',
         copy=False,
         readonly=True,
+        ondelete='cascade'
     )
 
     @api.depends('comm_inv_id')
@@ -162,7 +164,7 @@ class SaleOrder(models.Model):
         team =  self.team_id
         team_id = team and team.id or False
         invoice_vals = {
-            'ref': self.client_order_ref or '',
+            'ref': self.name + ' - ' + self.client_order_ref,
             'type': 'in_invoice',
             'narration': self.note,
             'currency_id': self.pricelist_id.currency_id.id,
@@ -335,10 +337,11 @@ class SaleCommission(models.Model):
         self.ensure_one()
         line = self.order_line
         res = {}
-        if line:
+        company_id = self.company_id and self.company_id.id or None
+        if line and company_id:
             prod_ob = self.env['product.product']
             product_id = prod_ob.search(
-                [('name','=','Sales Commissions')]
+                [('name','=','Sales Commissions'),('company_id','=',company_id)]
             )
             product_id = product_id and product_id[0] or False
             account_id = product_id and product_id.property_account_expense_id or False
