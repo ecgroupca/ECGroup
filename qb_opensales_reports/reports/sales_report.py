@@ -24,7 +24,7 @@ class OpenSalesReport(models.AbstractModel):
             selected_sales = data['form'].get('sale_ids', False)            
             if not print_selected:
                 #domain_search = [('date','>=',date_from.strftime("%m/%d/%Y 00:00:00")),('date','<=',date_to.strftime("%m/%d/%Y 23:59:59"))]
-                domain_search = [('date_order','>=',date_from.strftime("%Y-%m-%d 00:00:00")),('date_order','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
+                domain_search = ['|',('open_production','!=',False),('open_shipment','!=',False),('date_order','>=',date_from.strftime("%Y-%m-%d 00:00:00")),('date_order','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
                 if showroom:
                     domain_search.append(('sale_id.team_id','in',showroom))
             else:

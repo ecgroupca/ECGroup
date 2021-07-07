@@ -1,12 +1,12 @@
 <templates>
-	<t t-name="qb_shipping_reports.custom_print_button">
-        <button t-if="widget.modelName=='stock.move'" type="button" class="btn btn-secondary print_button_ex">
+	<t t-name="qb_opensales_reports.custom_print_button">
+        <button t-if="widget.modelName=='sale.order'" type="button" class="btn btn-secondary print_button_ex">
             Print
         </button>
     </t>
     <t t-extend="ListView.buttons">
         <t t-jquery="button.o_list_button_add" t-operation="after">
-           <t t-call="qb_shipping_reports.custom_print_button"/>
+           <t t-call="qb_opensales_reports.custom_print_button"/>
         </t>
     </t>
 	
