@@ -1,2 +1,2 @@
 #from . import sale_order
-from . import shipping_report
+from . import sales_report

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<report
+			string="Sales Report"
+			id="action_report_sales"
+			model="sale.order"
+			report_type="qweb-pdf"
+			name="qb_opensales_reports.report_sales"
+			file="qb_opensales_reports.report_sales"
+			print_report_name="'Open Sales Report'"
+			menu="True"
+		/>
+	</data>
+</odoo>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+	<record id="opensales_report_tree" model="ir.ui.view">
+		<field name="name">opensales_report_tree_view</field>
+		<field name="model">sale.order</field>
+		<field name="arch" type="xml">
+			<tree string="Open Sales Reports" default_order='id desc'>			
+				<field name="date_order" string="Order Date"/> 
+				<field name="name" string="Order #"/>
+				<field name="client_order_ref" string="Client PO" />
+				<field name="partner_id" string="Client" />
+				<field name="amount_total" string="Total"/>
+				<field name="deposit_total" string="Deposits"/>
+				<field name="inv_bal_due" string="Balanace"/>
+				<field name="state" string="Status"/>
+			</tree>
+		</field>
+	</record>
+	
+	<record id="action_opensales_report_all" model="ir.actions.act_window">
+		<field name="name">Open Sales Report</field>
+		<field name="res_model">sale.order</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="view_mode">tree,kanban,form</field>
+        <field name="domain"></field>
+        <field name="context">{'display_default_code': False}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Create a new Sale Order
+            </p><p>
+                Sale orders allow you to sell, receive revenues, schedule procurement and production and deliver.
+            </p>
+        </field>
+    </record>
+    <record model="ir.actions.act_window.view" id="action_shipping_report_all_tree">
+            <field name="sequence" eval="1"/>
+            <field name="view_mode">tree</field>
+            <field name="view_id" ref="opensales_report_tree"/>
+            <field name="act_window_id" ref="action_opensales_report_all"/>
+        </record>
+	
+	<menuitem id="menu_sales_reports" name="Sales Report" sequence="6"
+              parent="sale.menu_sale_report" action="action_opensales_report_all" />
+</odoo>

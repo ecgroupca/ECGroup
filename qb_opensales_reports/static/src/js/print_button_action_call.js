@@ -1,4 +1,4 @@
-odoo.define('qb_shipping_reports.print_action_button', function (require) {
+odoo.define('qb_opensales_reports.print_action_button', function (require) {
 "use strict";
 
 var core = require('web.core');
@@ -20,12 +20,12 @@ ListController.include({
 		var selected_rec_ids = self.getSelectedIds() || []; 
         //var user = session.uid;
 		self.do_action({
-            name: 'Shipping Report',
+            name: 'Open Sales Report',
             type: 'ir.actions.act_window',
-            res_model: 'shipping.report.wizard',
+            res_model: 'sales.report.wizard',
             target: 'new',
             views: [[false, 'form']],
-            context: {'is_modal': true, 'default_stock_move_ids': selected_rec_ids},
+            context: {'is_modal': true, 'default_sale_ids': selected_rec_ids},
         });
 	},
 	
