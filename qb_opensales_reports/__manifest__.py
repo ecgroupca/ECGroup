@@ -10,6 +10,7 @@
         'stock',
         'delivery',
         'sale_mods_ecgroup',
+        'sale_mrp_link',
     ],
     'data': [
         'views/templates.xml',
