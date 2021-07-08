@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data>
-		<template id="assets_backend_print_btn" name="custom_print_button assets" inherit_id="web.assets_backend">
+		<template id="assets_sales_backend_print_btn" name="sales_print_button assets" inherit_id="web.assets_backend">
 		    <xpath expr="." position="inside">
-		        <script type="text/javascript" src="/qb_sales_reports/static/src/js/print_button_action_call.js"></script>
+		        <script type="text/javascript" src="/qb_opensales_reports/static/src/js/print_button_action_call.js"></script>
 		    </xpath>
 		</template>
 	</data>
