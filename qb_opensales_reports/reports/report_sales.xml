@@ -2,7 +2,7 @@
 <odoo>
 	<data>
 		<report
-			string="Sales Report"
+			string="Open Sales Report"
 			id="action_report_sales"
 			model="sale.order"
 			report_type="qweb-pdf"

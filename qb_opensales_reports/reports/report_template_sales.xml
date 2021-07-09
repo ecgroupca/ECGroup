@@ -38,40 +38,6 @@
 						</table>
 					</div>
 				</t>
-				<!-- <div class="page">
-					<h2>
-						<span>Shipping Report</span>
-					</h2>
-					<table class="table table-sm">
-						<thead>
-							<tr>
-								<th><strong>Shipped</strong></th>
-								<th><strong>Order #</strong></th>
-								<th><strong>Sidemark</strong></th>
-								<th><strong>Client</strong></th>
-								<th><strong>Carrier</strong></th>
-								<th><strong>Item #</strong></th>
-								<th><strong>Item Description</strong></th>
-								<th><strong>Bill of Lading</strong></th>
-							</tr>
-                        </thead>
-                        <tbody>
-                        	<t t-foreach="docs" t-as="o">
-                        		<tr>
-                        			<td><span t-field="o.shipped_date"/></td>
-                        			<td><span t-field="o.sale_id.name"/></td>
-                        			<td><span t-field="o.sale_id.sidemark"/></td>
-                        			<td><span t-field="o.client_id.name"/></td>
-                        			<td><span t-field="o.carrier_id.name"/></td>
-                        			<td><span t-field="o.product_id.default_code"/></td>
-                        			<td><span t-field="o.product_id.name"/></td>
-                        			<td><span t-field="o.bill_of_lading"/></td>
-                        		</tr>
-                        	</t>
-                        </tbody>
-					</table>
-				</div>
-				-->
 			</t>
 		</t>
     </template>
