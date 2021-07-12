@@ -3,7 +3,7 @@
 	<data>
 		<report
 			string="Open Sales Report"
-			id="action_report_sales"
+			id="action_report_opensales"
 			model="sale.order"
 			report_type="qweb-pdf"
 			name="qb_opensales_reports.report_sales"

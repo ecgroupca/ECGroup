@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
         <form string="Report Sales">
             <group col="2">
-            	<field name="print_selected"/>
+            	<field name="print_selected" invisible="1"/>
             </group>
             <group col="4">
                 <field name="date_from" attrs="{'invisible': [('print_selected', '=', True)], 'required': [('print_selected', '=', False)]}"/>
@@ -27,12 +27,16 @@
         </field>
     </record>
 
-    <record id="action_report_sales" model="ir.actions.act_window">
+    <record id="action_report_open_sales" model="ir.actions.act_window">
         <field name="name">Open Sales Report</field>
         <field name="res_model">sales.report.wizard</field>
         <field name="view_mode">form</field>
         <field name="view_id" ref="sales_report_wiz_view"/>
         <field name="target">new</field>
     </record>
-	
+
+	<menuitem id="menu_action_sales_report"
+            action="action_report_open_sales"
+            parent="sale.menu_sale_report"
+            sequence="25"/>	
 </odoo>

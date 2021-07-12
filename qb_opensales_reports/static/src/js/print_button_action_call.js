@@ -1,4 +1,4 @@
-odoo.define('qb_opensales_reports.print_action_button', function (require) {
+odoo.define('qb_opensales_reports.sales_print_button', function (require) {
 "use strict";
 
 var core = require('web.core');
@@ -11,7 +11,7 @@ ListController.include({
    renderButtons: function($node) {
    this._super.apply(this, arguments);
        if (this.$buttons) {
-         this.$buttons.find('.print_button_ex').click(this.proxy('action_def')) ;
+         this.$buttons.find('.sales_print_button').click(this.proxy('action_def')) ;
        }
    },
 
