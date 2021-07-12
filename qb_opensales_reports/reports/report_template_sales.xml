@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<template id="report_open_sales">
+		<t t-call="web.html_container">
+			<t t-call="web.external_layout">
+				<t t-foreach="sm" t-as="showroom">
+					<div class="page" style="font-name:Calibri;page-break-before:always;">
+						<h2 style="margin-top:10px;text-align: center;width:100%">Open Sales Report</h2>
+						<p><strong><h5>Showroom : <t t-esc="showroom.replace('_',' ')"/></h5></strong></p>
+                          <span t-if="date_from"><strong>Dates: </strong><t t-esc="date_from[4:5] +'/'+ date_from[:2] +'/'+ date_from[6:]"/> <strong>  to  </strong> <t t-esc="date_to[4:5] +'/'+ date_to[:2] +'/'+ date_to[6:]"/></span>
+						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
+							<thead>
+								<tr>
+									<th><strong>Order No.</strong></th>
+									<th><strong>Date</strong></th>
+									<th><strong>Client PO</strong></th>
+									<th><strong>Client</strong></th>
+									<th><strong>Total</strong></th>
+									<th><strong>Deposits</strong></th>
+									<th><strong>Balance</strong></th>
+									<th><strong>Status</strong></th>
+								</tr>							
+							</thead>
+							<tbody>
+								<t t-foreach="sm.get(showroom)" t-as="o">
+	                        		<tr>
+	                        			<td><span t-field="o.name"/></td>
+	                        			<td><span t-field="o.date_order"/></td>
+	                        			<td><span t-field="o.client_order_ref"/></td>
+	                        			<td><span t-field="o.partner_id.name"/></td>
+	                        			<td><span t-field="o.amount_total"/></td>
+	                        			<td><span t-field="o.deposit_total"/></td>
+										<td><span t-field="o.inv_bal_due"/></td>
+	                        			<td>
+											<t t-if ="o.received">Received,</t>
+											<t t-if ="o.open_production">Open Production,</t>
+											<t t-if ="o.open_shipment">Open Shipment</t>
+											<t t-if ="o.received">Needs Drawing,</t>
+											<t t-if ="o.received">Needs Sample Approval,</t>
+										</td>
+	                        		</tr>
+	                        	</t>
+							</tbody>
+						</table>
+					</div>
+				</t>
+			</t>
+		</t>
+    </template>
+		<report
+			string="Open Sales Report"
+			id="action_report_opensales"
+			model="sale.order"
+			report_type="qweb-pdf"
+			name="qb_opensales_reports.report_open_sales"
+			file="qb_opensales_reports.report_open_sales"
+			print_report_name="'Open Sales'"
+			menu="False"
+		/>
+</odoo>
