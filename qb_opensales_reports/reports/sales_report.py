@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-
 from odoo import api, fields, models, _
 from datetime import datetime
 from odoo.exceptions import UserError
@@ -33,7 +32,7 @@ class OpenSalesReport(models.AbstractModel):
                 domain_search = ['|',('open_production','!=',False),('open_shipment','!=',False)]
                 domain_search += date_domain
                 if showroom:
-                    domain_search.append(('sale_id.team_id','in',showroom))
+                    domain_search.append(('team_id','in',showroom))
             else:
                 date_from = date_to = False
                 if not selected_sales:
@@ -42,6 +41,7 @@ class OpenSalesReport(models.AbstractModel):
         else :
             date_from = date_to = False
             domain_search = [('id','in',docids)]       
+        
         sale_orders = sale_obj.search(domain_search)      
         sales = {}
         for sale in sale_orders:
@@ -52,7 +52,8 @@ class OpenSalesReport(models.AbstractModel):
                 sales[team_name].append(sale)
             else:
                 sales.update({team_name:[sale]})      
-        _logger.info("\nFinal : %s\n"%(sales))        
+        
+        #_logger.info("\nFinal : %s\n"%(sales))        
         return {
             'doc_ids': sale_orders.ids,
             'doc_model': 'sale.order',
