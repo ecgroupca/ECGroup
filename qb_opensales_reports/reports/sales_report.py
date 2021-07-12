@@ -14,20 +14,19 @@ class OpenSalesReport(models.AbstractModel):
     def _get_report_values(self, docids, data=None):
         domain_search = []
         date_from = date_to = fields.Date.today()
-        print_selected = True 
         sale_obj = self.env['sale.order']        
         if not docids:
             print_selected = data['form'].get('print_selected') 
             date_from = fields.Date.from_string(data['form'].get('date_from')) or fields.Date.today()
             date_to = fields.Date.from_string(data['form'].get('date_to')) or fields.Date.today()
             showroom = data['form'].get('showroom', False)
-            selected_sales = data['form'].get('sale_ids', False)  
-            #compute open shipments/production for the orders in docids 
-                        
+            company_id = data['form'].get('company_id', False)
+            selected_sales = data['form'].get('sale_ids', False)
             if not print_selected:
                 #domain_search = [('date','>=',date_from.strftime("%m/%d/%Y 00:00:00")),('date','<=',date_to.strftime("%m/%d/%Y 23:59:59"))]
-                date_domain = [('state','not in',['draft','cancel','sent']),('date_order','>=',date_from.strftime("%Y-%m-%d 00:00:00")),('date_order','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
+                date_domain = [('company_id','=',company_id),('state','not in',['draft','cancel','sent']),('date_order','>=',date_from.strftime("%Y-%m-%d 00:00:00")),('date_order','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
                 sales_from_to = sale_obj.search(date_domain)
+                #compute open shipments/production for the orders in docids 
                 sales_from_to._compute_open_shipments()               
                 domain_search = ['|',('open_production','!=',False),('open_shipment','!=',False)]
                 domain_search += date_domain
