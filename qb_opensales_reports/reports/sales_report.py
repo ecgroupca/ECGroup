@@ -21,6 +21,7 @@ class OpenSalesReport(models.AbstractModel):
             date_to = fields.Date.from_string(data['form'].get('date_to')) or fields.Date.today()
             showroom = data['form'].get('showroom', False)
             company_id = data['form'].get('company_id', False)
+            company_id = company_id and company_id[0] or None
             selected_sales = data['form'].get('sale_ids', False)
             if not print_selected:
                 #domain_search = [('date','>=',date_from.strftime("%m/%d/%Y 00:00:00")),('date','<=',date_to.strftime("%m/%d/%Y 23:59:59"))]
