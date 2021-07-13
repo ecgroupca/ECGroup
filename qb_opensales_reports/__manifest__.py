@@ -13,13 +13,10 @@
         'sale_mrp_link',
     ],
     'data': [
-        #'views/templates.xml',
         'views/sales_report_view.xml',
         'reports/report_template_sales.xml',
-        #'reports/report_sales.xml',
         'wizard/sales_report_wizard_view.xml',
     ],
-    #'qweb': ['static/src/xml/print_button.xml'],
     'application': True,
     'installable': True,
 }
