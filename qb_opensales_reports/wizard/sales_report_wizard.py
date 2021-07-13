@@ -5,7 +5,7 @@ class SalesReportWizard(models.TransientModel):
     _name = "sales.report.wizard"
     _description = "Sales Report Wizard"
     
-    company_id = fields.Many2one("res.company",string="Company")
+    company_id = fields.Many2one("res.company",string="Company",required=True)
     date_from = fields.Date("Date From", required=False)
     date_to = fields.Date("Date To", required=False)
     showroom = fields.Many2many("crm.team",'sales_crm_rel_transient', 'sales_report_id', 'crm_team_id', string="Showroom")
