@@ -2,6 +2,9 @@
 <odoo>
 	<template id="report_open_sales">
 		<t t-call="web.html_container">
+		  <t t-if="docs">
+		  <t t-value="docs[0]" t-set="sale"/>
+		  <t t-foreach="sale" t-as="o">
 			<t t-call="web.external_layout">
 				<t t-foreach="sm" t-as="showroom">
 					<div class="page" style="font-name:Calibri;page-break-before:always;">
@@ -32,11 +35,10 @@
 	                        			<td><span t-field="o.deposit_total"/></td>
 										<td><span t-field="o.inv_bal_due"/></td>
 	                        			<td>
-											<t t-if ="o.received">Received,</t>
-											<t t-if ="o.open_production">Open Production,</t>
-											<t t-if ="o.open_shipment">Open Shipment</t>
-											<t t-if ="o.received">Needs Drawing,</t>
-											<t t-if ="o.received">Needs Sample Approval,</t>
+											<t t-if="o.open_production">Open Production,</t>
+											<t t-if="o.open_shipment">Open Shipment</t>
+											<t t-if="o.needs_drawing">Needs Drawing,</t>
+											<t t-if="o.needs_sample_approval">Needs Sample Approval</t>
 										</td>
 	                        		</tr>
 	                        	</t>
@@ -45,8 +47,10 @@
 					</div>
 				</t>
 			</t>
+			</t>
 		</t>
-    </template>
+		</t>
+	</template>
 		<report
 			string="Open Sales Report"
 			id="action_report_opensales"
