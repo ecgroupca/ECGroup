@@ -1,0 +1,10 @@
+    <record id="view_sales_order_shipped" model="ir.ui.view">
+        <field name="name">sale.order.shipped</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+		    <field name="commitment_date" position="after">
+			    <field name="shipped_date">
+			</field>
+        </field>
+    </record>
