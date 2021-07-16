@@ -4,7 +4,7 @@
         <field name="inherit_id" ref="sale.view_order_tree"/>
         <field name="arch" type="xml">
 		    <field name="commitment_date" position="after">
-			    <field name="shipped_date">
+			    <field name="shipped_date"/>
 			</field>
         </field>
     </record>
