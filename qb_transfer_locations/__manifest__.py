@@ -6,7 +6,7 @@
     'author': 'Adam O\'Connor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': ['stock'],
-    #'data': ['views/inv_valuation_by_prod_categ.xml',],
+    'data': ['views/sale.xml',],
     'qweb': [],
     'application': True,
     'installable': True,
