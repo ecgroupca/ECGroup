@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from odoo import models, fields, api
+import datetime
 
          
 class SaleOrder(models.Model):
@@ -14,8 +15,12 @@ class SaleOrder(models.Model):
     @api.depends('picking_ids')
     def _get_shipped_date(self):
         for sale in self:
-            ship_dates = []
+            all_ship_dates = []
             for pick in sale.picking_ids:
-                ship_dates.append(pick.date_done)  
-            sale.trans_shipped_date = max(ship_dates)                
+                all_ship_dates.append(pick.date_done)    
+            ship_dates = [d for d in all_ship_dates if isinstance(d, datetime.date)]  
+            if ship_dates:            
+                sale.trans_shipped_date = max(ship_dates)  
+            else:
+                sale.trans_shipped_date = False 
         
