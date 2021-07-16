@@ -5,7 +5,7 @@
     'version': '1.0.0',
     'author': 'Adam O\'Connor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
-    'depends': ['stock'],
+    'depends': ['stock','sale','sale_management'],
     'data': ['views/sale.xml',],
     'qweb': [],
     'application': True,
