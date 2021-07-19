@@ -31,7 +31,7 @@
 	                        			<td><span t-field="o.carrier_id.name"/></td>
 	                        			<td><span t-field="o.product_id.default_code"/></td>
 	                        			<td><span t-field="o.product_id.name"/></td>
-	                        			<td><span t-field="o.bill_of_lading"/></td>
+	                        			<td><span t-field="o.picking_id.name"/></td>
 	                        		</tr>
 	                        	</t>
 							</tbody>

@@ -22,8 +22,11 @@ class ReportshippingReport(models.AbstractModel):
             date_from = fields.Date.from_string(data['form'].get('date_from')) or fields.Date.today()
             date_to = fields.Date.from_string(data['form'].get('date_to')) or fields.Date.today()
             showroom = data['form'].get('showroom', False)
+            company_id = data['form'].get('company_id', False)
+            company_id = company_id and company_id[0] or None
             selected_moves = data['form'].get('stock_move_ids', False)
-            
+            if company_id:
+                domain_search.append(('company_id','=',company_id))               
             if not print_selected:
                 #domain_search = [('date','>=',date_from.strftime("%m/%d/%Y 00:00:00")),('date','<=',date_to.strftime("%m/%d/%Y 23:59:59"))]
                 domain_search = [('shipped_date','>=',date_from.strftime("%Y-%m-%d 00:00:00")),('shipped_date','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
@@ -43,15 +46,11 @@ class ReportshippingReport(models.AbstractModel):
         for line in stock_moves:
             team_name = 'No_Name'
             if line.sale_id and line.sale_id.team_id:
-                team_name = line.sale_id.team_id.name.replace(" ","_")
-            
+                team_name = line.sale_id.team_id.name.replace(" ","_")           
             if team_name in sm:
                 sm[team_name].append(line)
             else:
                 sm.update({team_name:[line]})
-        
-        #_logger.info("\nFinal : %s\n"%(sm))
-        
         return {
             'doc_ids': stock_moves.ids,
             'doc_model': 'stock.move',

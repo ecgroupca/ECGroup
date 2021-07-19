@@ -10,6 +10,7 @@ class SaleOrder(models.Model):
     trans_shipped_date = fields.Datetime(
         'Shipped Date',
         compute = '_get_shipped_date',
+        store=True,
         )
         
     @api.depends('picking_ids')
