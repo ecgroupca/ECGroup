@@ -12,7 +12,6 @@ class StockPicking(models.Model):
     
     location_id = fields.Many2one(readonly=False)
     location_dest_id = fields.Many2one(readonly=False)
-    picking_type_id = fields.Many2one(readonly=False)
     
     @api.onchange('location_id','location_dest_id')
     def _onchange_sales_team(self):

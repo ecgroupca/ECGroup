@@ -18,7 +18,7 @@
 						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 							<thead>
 								<tr style="padding:5px;border-bottom: solid 2px; border-color:#AAA;">
-									<th style="padding:5px;" name="th_customer"><strong>Customer # /<br/> Invoice #</strong></th>
+									<th style="padding:5px;" name="th_customer"><strong>Invoice #</strong></th>
 									<th style="padding:5px;" name="th_po"><strong>PO #</strong></th>
 									<th style="padding:5px;" name="th_inv_date"><strong>Inv Date</strong></th>
 									<th style="padding:5px;text-align:right" name="th_comm_rate"><strong>Comm.<br/>Rate</strong></th>
