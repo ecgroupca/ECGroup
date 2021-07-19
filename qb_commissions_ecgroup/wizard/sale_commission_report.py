@@ -13,12 +13,14 @@ class ReportSaleCommissionReport(models.AbstractModel):
         date_from = fields.Date.from_string(data['form'].get('date_from')) or fields.Date.today()
         date_to = fields.Date.from_string(data['form'].get('date_to')) or fields.Date.today()
         showroom = data['form'].get('showroom', False)
-        
+        company_id = data['form'].get('company_id', False)
+        company_id = company_id and company_id[0] or None
         domain_search = [('create_date','>=',date_from),('create_date','<=',date_to)]
         if showroom:
             domain_search.append(('team_id','in',showroom))
-        sale_commissions = self.env['sale.commission'].search(domain_search)
-        
+        if company_id:
+            domain_search.append(('company_id','=',company_id))
+        sale_commissions = self.env['sale.commission'].search(domain_search)       
         sale_comm = {}
         for commission in sale_commissions:
             customer_key = 'c_%s'%(commission.partner_id.id)
