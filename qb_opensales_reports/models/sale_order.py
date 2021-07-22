@@ -16,13 +16,14 @@ class SaleOrder(models.Model):
             sale.open_shipment = False
             sale.received = False
             #1. mark the order as received if it has been confirmed.
-            if sale.state not in ['draft','cancel','sent'] and sale.deposit_total > 0:
+            if sale.state not in ['draft','cancel','sent']:
                 sale.received = True
             #2. open_shipment if there are any undelivered items on the SO.
             for line in sale.order_line:
                 if line.qty_delivered < line.product_uom_qty:
-                    sale.open_shipment = True
-                    break 
+                    if line.product_id.type != 'service' and 'Finish Sample' not in line.name and line.product_id.default_code not in ['F-FS04','F-FS01','MISC']:
+                        sale.open_shipment = True
+                        break
                 else:
                     sale.open_shipment = False
             #3. open production if there are any mrp.prods that are not done.
