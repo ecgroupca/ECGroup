@@ -26,6 +26,7 @@
 							</thead>
 							<tbody>
 								<t t-foreach="sm.get(showroom)" t-as="o">
+								  <t t-if="o.open_shipment">
 	                        		<tr>
 	                        			<td><span t-field="o.name"/></td>
 	                        			<td><span t-field="o.date_order"/></td>
@@ -41,7 +42,8 @@
 											<t t-if="o.needs_sample_approval">Needs Sample Approval</t>
 										</td>
 	                        		</tr>
-	                        	</t>
+	               </t>
+	             </t>
 							</tbody>
 						</table>
 					</div>
@@ -49,8 +51,9 @@
 			</t>
 			</t>
 		</t>
-		</t>
-	</template>
+    </t>
+		
+    </template>
 		<report
 			string="Open Sales Report"
 			id="action_report_opensales"
