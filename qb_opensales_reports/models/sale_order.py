@@ -21,9 +21,11 @@ class SaleOrder(models.Model):
             #2. open_shipment if there are any undelivered items on the SO.
             for line in sale.order_line:
                 if line.qty_delivered < line.product_uom_qty:
-                    if line.product_id.type != 'service' and 'Finish Sample' not in line.name and line.product_id.default_code not in ['F-FS04','F-FS01','MISC']:
-                        sale.open_shipment = True
-                        break
+                    if line.product_id.type != 'service' and 'Finish Sample' not in line.name:
+                        if line.product_id.default_code not in ['F-FS04','F-FS01','MISC','F-CD05CH','F-CD09CH','F-CD13CH']:
+                            if line.product_id.default_code not in ['F-CD14CH','F-CD18CH','F-CD19CH','F-CD40','F-CD41','DL-CD40']:
+                                sale.open_shipment = True
+                                break
                 else:
                     sale.open_shipment = False
             #3. open production if there are any mrp.prods that are not done.
