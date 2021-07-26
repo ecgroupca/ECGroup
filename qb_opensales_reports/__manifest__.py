@@ -11,6 +11,7 @@
         'delivery',
         'sale_mods_ecgroup',
         'sale_mrp_link',
+        'sale_stock',
     ],
     'data': [
         'views/sales_report_view.xml',
