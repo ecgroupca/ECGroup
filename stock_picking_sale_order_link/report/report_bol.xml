@@ -101,6 +101,7 @@
           </t>
         </t>
       </t>
+  </template> 
 	  <report id="report_bol_pdf'"
 	
 		string="Bill of Lading"
@@ -108,6 +109,5 @@
 		report_type="qweb-pdf"
 		name="stock_picking_sale_order_link.report_bol_pdf"
 		file="stock_picking_sale_order_link.report_bol_pdf"
-		menu="True"/>
-  </template>   
+		menu="True"/>  
 </odoo>
