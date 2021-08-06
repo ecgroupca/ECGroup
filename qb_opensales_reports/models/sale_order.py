@@ -35,6 +35,39 @@ class SaleOrder(models.Model):
                     break
                 else:
                     sale.open_production = False
+                    
+                    
+class SaleOrderLine(models.Model):
+    _inherit = "sale.order.line"
+    
+    
+    @api.depends('move_ids.state', 'move_ids.scrapped', 'move_ids.product_uom_qty', 'move_ids.product_uom')
+    def _compute_qty_delivered(self):
+        super(SaleOrderLine, self)._compute_qty_delivered()
+        # TODO: do this in SQL
+        for line in self:
+            #if line.qty_delivered != line.product_uom_qty:
+            qty = 0.0
+            picking_ids = line.order_id.picking_ids
+            domain = [('picking_id','in',picking_ids.ids),('product_id','=',line.product_id.id)]
+            domain.append(('picking_id.state','!=','cancel'))
+            domain.append(('state','=','done'))
+            domain.append(('picking_id.picking_type_code','=','incoming'))
+            in_moves = self.env['stock.move'].search(domain)
+            #remove the 'IN' part of the domain and add the 'OUT' for 'out moves'
+            domain.remove(('picking_id.picking_type_code','=','incoming'))
+            domain.append(('picking_id.picking_type_code','=','outgoing'))
+            out_moves = self.env['stock.move'].search(domain)
+            #for pick in line.order_id.picking_ids:
+            #    if pick.picking_type_code == 'OUT':
+            for move in out_moves:
+                qty += move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom, rounding_method='HALF-UP')                   
+            for move in in_moves:
+                qty -= move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom, rounding_method='HALF-UP')
+            line.qty_delivered = qty
+                    
+                        
+                
             
         
          
