@@ -106,7 +106,6 @@ class SaleOrder(models.Model):
         string='Commission Invoice',
         copy=False,
         readonly=True,
-        ondelete='cascade'
     )
 
     @api.depends('comm_inv_id')
