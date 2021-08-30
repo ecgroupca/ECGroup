@@ -6,6 +6,19 @@
         <field name="inherit_id" ref="product.product_template_form_view"/>
         <field name="arch" type="xml">
 		    <field name="purchase_ok" position="after">
+			    <group name="reservations">
+			      <field name="bypass_reservation"/>
+				</group>
+			</field>
+        </field>
+    </record>
+  	<!-- Add to Operations (stock moves) list view on Transfers -->
+ 	<record id="view_stock_move_picking_inherit" model="ir.ui.view">
+        <field name="name">stock.move.picking.inherit</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock.view_picking_form"/>
+        <field name="arch" type="xml">
+		    <field name="display_assign_serial" position="before">
 			    <field name="bypass_reservation"/>
 			</field>
         </field>
