@@ -6,7 +6,11 @@
     'author': 'Adam O\'Connor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': ['stock','mrp','sale','sale_management'],
-    'data': ['views/sale.xml','views/mrp_views.xml'],
+    'data': [
+        'views/sale.xml',
+        'views/mrp_views.xml',
+        'views/stock_views.xml'
+    ],
     'qweb': [],
     'application': True,
     'installable': True,
