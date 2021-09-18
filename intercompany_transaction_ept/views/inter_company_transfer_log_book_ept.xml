@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+	<!-- Search View of Log Book. -->
+	<record id="inter_company_transfer_log_book_search_view"
+		model="ir.ui.view">
+		<field name="name">Inter Company Transfer Log Search View</field>
+		<field name="model">inter.company.transfer.log.book.ept</field>
+		<field name="type">search</field>
+		<field name="arch" type="xml">
+			<search string="Inter Company Transfer LOG">
+				<field name="name" string="Name"
+					filter_domain="[('name','ilike',self)]" />
+				<field name="ict_log_date" />
+				<field name="ict_process" />
+				<field name="operation"></field>
+				<group expand="0" string="Group By">
+					<filter string="Process" domain="[]" name="ict_process"
+						context="{'group_by':'ict_process'}" />
+					<filter string="Operation" domain="[]" name="operation"
+						context="{'group_by':'operation'}" />
+				</group>
+			</search>
+		</field>
+	</record>
+
+	<!-- Tree View of Log Book. -->
+	<record id="inter_company_transfer_log_book_tree_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.log.book.tree.view</field>
+		<field name="model">inter.company.transfer.log.book.ept</field>
+		<field name="arch" type="xml">
+			<tree default_order="name desc" create="false">
+				<field name="name"></field>
+				<field name="ict_process"></field>
+				<field name="operation"></field>
+				<field name="ict_log_date"></field>
+				<field name="inter_company_transfer_id" />
+			</tree>
+		</field>
+	</record>
+
+	<!-- Form View of Log Book -->
+	<record id="inter_company_transfer_log_book_form_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transferlog.book.form.view</field>
+		<field name="model">inter.company.transfer.log.book.ept</field>
+		<field name="arch" type="xml">
+			<form string="Inter Company Transfer Log" create="false"
+				edit="false">
+				<sheet>
+					<group>
+						<group>
+							<field name="name"></field>
+							<field name="ict_log_date"></field>
+						</group>
+						<group>
+							<field name="ict_process"></field>
+							<field name="operation"></field>
+							<field name="inter_company_transfer_id" readonly="1" />
+						</group>
+						<group colspan="4" string="Log Lines">
+							<field name="ict_log_line_ids" nolabel="1">
+								<tree>
+									<field name="ict_log_type"></field>
+									<field name="ict_message"></field>
+								</tree>
+							</field>
+						</group>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+	<!-- Action of Log Book. -->
+	<record id="inter_company_transfer_process_log_action"
+		model="ir.actions.act_window">
+		<field name="name">Operation Log</field>
+		<field name="res_model">inter.company.transfer.log.book.ept</field>
+		<field name="view_mode">tree,form</field>
+	</record>
+
+	<!-- Menu for Log Books. -->
+	<menuitem id="inter_company_transfer_log_ept_menu"
+		action="inter_company_transfer_process_log_action"
+		parent="inter_company_transfer_ept_main_menu" name="ICT Logs" sequence='5' />
+
+	<!-- Tree View of Log Book Line -->
+	<record id="inter_company_transfer_log_line_tree_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.log.line.tree.view
+		</field>
+		<field name="model">inter.company.transfer.log.line.ept</field>
+		<field name="arch" type="xml">
+			<tree decoration-success="ict_log_type=='info'"
+				decoration-danger="ict_log_type=='error'"
+				default_order="ict_log_id desc" create="false">
+				<field name="ict_log_id"></field>
+				<field name="ict_log_type"></field>
+				<field name="ict_message"></field>
+			</tree>
+		</field>
+	</record>
+
+	<!-- Form View of Log Book Line -->
+	<record id="inter_company_transfer_log_line_form_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.log.line.form.view
+		</field>
+		<field name="model">inter.company.transfer.log.line.ept</field>
+		<field name="arch" type="xml">
+			<form string="Log Line" create="false" edit="false">
+				<sheet>
+					<group>
+						<group>
+							<field name="ict_log_type"></field>
+							<field name="ict_log_id"></field>
+						</group>
+						<group>
+							<field name="ict_message"></field>
+						</group>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+</odoo>
