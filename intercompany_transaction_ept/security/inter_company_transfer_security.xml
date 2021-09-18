@@ -19,8 +19,8 @@
 				eval="[(4, ref('base.user_root')), (4, ref('base.user_admin'))]" />
 			<field name="implied_ids"
 				eval="[(4,ref('sales_team.group_sale_salesman_all_leads')),(4, ref('purchase.group_purchase_user')),(4, ref('stock.group_stock_user'))]" />
-			<field name="menu_access"
-				eval="[(4, ref('inter_company_transfer_ept_main_menu')),(4, ref('inter_company_transfer_ept_child_menu'))]" />
+			<!--field name="menu_access"
+				eval="[(4, ref('inter_company_transfer_ept_main_menu')),(4, ref('inter_company_transfer_ept_child_menu'))]" /-->
 		</record>
 
 		<record id="inter_company_transfer_manager_group"
@@ -33,7 +33,7 @@
 			<field name="implied_ids"
 				eval="[(4, ref('sales_team.group_sale_manager')),(4, ref('purchase.group_purchase_user')),(4, ref('stock.group_stock_manager')),(4,ref('intercompany_transaction_ept.inter_company_transfer_user_group'))]" />
 			<field name="menu_access"
-				eval="[(4, ref('inter_company_transfer_ept_main_menu')),(4, ref('inter_company_transfer_ept_child_menu')),(4, ref('internal_inter_company_transfer_config_ept_menu'))]" />
+				eval="[(4, ref('inter_company_transfer_ept_main_menu')),(4, ref('internal_inter_company_transfer_config_ept_menu'))]" />
 		</record>
 
 	</data>
