@@ -36,7 +36,23 @@ class StockPicking(models.Model):
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    bypass_reservation = fields.Boolean('Bypass Reservation')                
+    bypass_reservation = fields.Boolean('Bypass Reservation')    
+
+class StockMoveLine(models.Model):
+    _inherit = 'stock.move.line'
+
+    bypass_reservation = fields.Boolean(
+        'Bypass Reservation',
+        compute = '_compute_bypass',
+        readonly = False,
+        store=True,
+        )
+        
+    @api.depends('move_id')
+    def _compute_bypass(self):
+        for move_line in self:
+            move = move_line.move_id          
+            move_line.bypass_reservation = move and move.bypass_reservation or False
 
 class StockMove(models.Model):
     _inherit = 'stock.move'
