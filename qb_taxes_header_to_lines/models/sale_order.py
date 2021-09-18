@@ -10,5 +10,6 @@ class SaleOrder(models.Model):
         for sale in self:
             header_taxes = sale.taxes and sale.taxes.ids or []
             if header_taxes:
-                for line in sale.order_line:
-                    line.tax_id = [(6, 0, header_taxes)]
+                for line in sale.order_line: 
+                    if line.product_id.type != 'service':
+                        line.tax_id = [(6, 0, header_taxes)]
