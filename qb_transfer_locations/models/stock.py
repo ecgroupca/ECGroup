@@ -36,7 +36,15 @@ class StockPicking(models.Model):
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    bypass_reservation = fields.Boolean('Bypass Reservation')    
+    bypass_reservation = fields.Boolean('Bypass Reservation') 
+
+class MRPProductProduceLine(models.TransientModel):
+    _inherit = 'mrp.product.produce.line'
+
+    bypass_reservation = fields.Boolean(
+        'Bypass Reservation',
+        related = 'move_id.bypass_reservation'
+        )    
 
 class StockMoveLine(models.Model):
     _inherit = 'stock.move.line'
