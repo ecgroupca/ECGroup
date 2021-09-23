@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<template id="report_wip">
+		<t t-call="web.html_container">
+			<t t-call="web.external_layout">
+				<t t-foreach="wc" t-as="workcenter">
+					<div class="page" style="font-name:Calibri;page-break-before:always;">
+						<h2 style="margin-top:10px;text-align: center;width:100%">WIP Report</h2>
+						<p><strong><h5>Workcenter : <t t-esc="workcenter.replace('_',' ')"/></h5></strong></p>
+						<span t-if="date_from"><strong>MRP Orders : </strong></span>
+						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
+							<thead>
+								<tr>
+									<th><strong>MO</strong></th>
+									<th><strong>Workorder</strong></th>
+									<th><strong>Date Planned</strong></th>
+									<th><strong>Product</strong></th>
+									<th><strong>Sale</strong></th>
+									<!--th><strong>Component</strong></th-->
+									<th><strong>Routing</strong></th>
+									<th><strong>Reserved</strong></th>
+									<th><strong>Qty</strong></th>
+									<th><strong>Status</strong></th>
+									<th><strong>Company</strong></th>
+									<th><strong>Next Workorder</strong></th>
+									<th><strong>Responsible</strong></th>
+								</tr>							
+							</thead>
+							<tbody>
+								<t t-foreach="wc.get(workcenter)" t-as="mo">
+	                        		<tr>
+	                        			<td><span t-field="mo.production_id.name"/></td>
+										<td><span t-field="mo.name"/></td>
+	                        			<td><span t-field="mo.production_id.date_planned_start"/></td>
+	                        			<td><span t-field="mo.production_id.product_id.default_code"/></td>
+	                        			<td><span t-field="mo.production_id.sale_order_id.name"/></td>
+	                        			<td><span t-field="mo.production_id.routing_id.name"/></td>
+	                        			<td><span t-field="mo.production_id.reservation_state"/></td>
+	                        			<td><span t-field="mo.production_id.product_qty"/></td>
+	                        			<td><span t-field="mo.production_id.state"/></td>
+	                        			<td><span t-field="mo.production_id.company_id.name"/></td>
+	                        			<td><span t-field="mo.next_workorder_id.name"/></td>
+	                        			<td><span t-field="mo.production_id.user_id.name"/></td>
+	                        		</tr>
+	                        	</t>
+							</tbody>
+						</table>
+					</div>
+				</t>
+				<!-- <div class="page">
+					<h2>
+						<span>Shipping Report</span>
+					</h2>
+					<table class="table table-sm">
+						<thead>
+							<tr>
+								<th><strong>Shipped</strong></th>
+								<th><strong>Order #</strong></th>
+								<th><strong>Sidemark</strong></th>
+								<th><strong>Client</strong></th>
+								<th><strong>Carrier</strong></th>
+								<th><strong>Item #</strong></th>
+								<th><strong>Item Description</strong></th>
+								<th><strong>Bill of Lading</strong></th>
+							</tr>
+                        </thead>
+                        <tbody>
+                        	<t t-foreach="docs" t-as="o">
+                        		<tr>
+                        			<td><span t-field="o.shipped_date"/></td>
+                        			<td><span t-field="o.sale_id.name"/></td>
+                        			<td><span t-field="o.sale_id.sidemark"/></td>
+                        			<td><span t-field="o.client_id.name"/></td>
+                        			<td><span t-field="o.carrier_id.name"/></td>
+                        			<td><span t-field="o.product_id.default_code"/></td>
+                        			<td><span t-field="o.product_id.name"/></td>
+                        			<td><span t-field="o.bill_of_lading"/></td>
+                        		</tr>
+                        	</t>
+                        </tbody>
+					</table>
+				</div>
+				-->
+			</t>
+		</t>
+    </template>
+</odoo>

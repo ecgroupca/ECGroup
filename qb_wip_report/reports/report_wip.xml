@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<report
+			string="WIP Report"
+			id="action_wip_report"
+			model="mrp.production"
+			report_type="qweb-pdf"
+			name="qb_wip_report.report_wip"
+			file="qb_wip_report.report_wip"
+			print_report_name="'WIP Report'"
+			menu="True"
+		/>
+	</data>
+</odoo>
