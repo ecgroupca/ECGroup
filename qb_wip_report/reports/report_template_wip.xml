@@ -16,7 +16,6 @@
 									<th><strong>Date Planned</strong></th>
 									<th><strong>Product</strong></th>
 									<th><strong>Sale</strong></th>
-									<!--th><strong>Component</strong></th-->
 									<th><strong>Routing</strong></th>
 									<th><strong>Reserved</strong></th>
 									<th><strong>Qty</strong></th>
@@ -39,7 +38,7 @@
 	                        			<td><span t-field="mo.production_id.product_qty"/></td>
 	                        			<td><span t-field="mo.production_id.state"/></td>
 	                        			<td><span t-field="mo.production_id.company_id.name"/></td>
-	                        			<td><span t-field="mo.next_workorder_id.name"/></td>
+	                        			<td><span t-field="mo.next_work_order_id.name"/></td>
 	                        			<td><span t-field="mo.production_id.user_id.name"/></td>
 	                        		</tr>
 	                        	</t>
