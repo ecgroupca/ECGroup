@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<report
+			string="Unbilled Closed Sales Report"
+			id="action_report_unbilled_sales"
+			model="sale.order"
+			report_type="qweb-pdf"
+			name="qb_unbilled_closed_sales.report_closed_unbilled_sales"
+			file="qb_unbilled_closed_sales.report_closed_unbilled_sales"
+			print_report_name="'Unbilled Closed Sales Report'"
+			menu="True"
+		/>
+	</data>
+</odoo>
