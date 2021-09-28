@@ -9,6 +9,7 @@
         'sale_management',
         'stock',
         'sale_mrp_link',
+        'qb_transfer_locations',
     ],
     'data': [
         'reports/report_sales.xml',
