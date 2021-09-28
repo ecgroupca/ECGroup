@@ -8,31 +8,39 @@
 			<t t-call="web.external_layout">
 				<t t-foreach="sm" t-as="showroom">
 					<div class="page" style="font-name:Calibri;page-break-before:always;">
-						<h2 style="margin-top:10px;text-align: center;width:100%">Open Unbilled Closed Sales Report</h2>
+						<h2 style="margin-top:10px;text-align: center;width:100%">Unbilled, Shipped Sales Report</h2>
 						<p><strong><h5>Showroom : <t t-esc="showroom.replace('_',' ')"/></h5></strong></p>
                           <span t-if="date_from"><strong>Dates: </strong><t t-esc="date_from[4:5] +'/'+ date_from[:2] +'/'+ date_from[6:]"/> <strong>  to  </strong> <t t-esc="date_to[4:5] +'/'+ date_to[:2] +'/'+ date_to[6:]"/></span>
 						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 							<thead>
 								<tr>
-									<th><strong>Order No.</strong></th>
+									<th><strong>Order</strong></th>
+									<th><strong>Ref</strong></th>
 									<th><strong>Date</strong></th>
-									<th><strong>Client PO</strong></th>
+									<th><strong>Shipped</strong></th>
 									<th><strong>Client</strong></th>
+									<th><strong>Responsible</strong></th>
+									<th><strong>Company</strong></th>							
 									<th><strong>Total</strong></th>
 									<th><strong>Deposits</strong></th>
 									<th><strong>Balance</strong></th>
+									<th><strong>Inv Status</strong></th>
 								</tr>							
 							</thead>
 							<tbody>
 								<t t-foreach="sm.get(showroom)" t-as="o">
 	                        		<tr>
 	                        			<td><span t-field="o.name"/></td>
+										<td><span t-field="o.client_order_ref"/></td>
 	                        			<td><span t-field="o.date_order"/></td>
-	                        			<td><span t-field="o.client_order_ref"/></td>
-	                        			<td><span t-field="o.partner_id.name"/></td>
+										<td><span t-field="o.trans_shipped_date"/></td>
+										<td><span t-field="o.partner_id.name"/></td>
+	                        			<td><span t-field="o.user_id.name"/></td>
+	                        			<td><span t-field="o.company_id.name"/></td>
 	                        			<td><span t-field="o.amount_total"/></td>
 	                        			<td><span t-field="o.deposit_total"/></td>
 										<td><span t-field="o.inv_bal_due"/></td>
+										<td><span t-field="o.invoice_status"/></td>
 	                        		</tr>
 	                            </t>
 							</tbody>
