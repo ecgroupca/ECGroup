@@ -29,11 +29,12 @@
 							</thead>
 							<tbody>
 								<t t-foreach="sm.get(showroom)" t-as="o">
+								  		  <t t-if="o.amount_total">
 	                        		<tr>
 	                        			<td><span t-field="o.name"/></td>
 										<td><span t-field="o.client_order_ref"/></td>
-	                        			<td><span t-field="o.date_order"/></td>
-										<td><span t-field="o.trans_shipped_date"/></td>
+	                        			<td><span t-esc="o.date_order and o.date_order.strftime('%m-%d-%Y') or ''"/></td>
+										<td><span t-esc="o.trans_shipped_date and o.trans_shipped_date.strftime('%m-%d-%Y') or ''"/></td>
 										<td><span t-field="o.partner_id.name"/></td>
 	                        			<td><span t-field="o.user_id.name"/></td>
 	                        			<td><span t-field="o.company_id.name"/></td>
@@ -43,6 +44,7 @@
 										<td><span t-field="o.invoice_status"/></td>
 	                        		</tr>
 	                            </t>
+	                        </t>
 							</tbody>
 						</table>
 					</div>
@@ -51,16 +53,9 @@
 			</t>
 		</t>
     </t>
+		</t>
+		
+    </t>
 		
     </template>
-		<report
-			string="Open Sales Report"
-			id="action_report_opensales"
-			model="sale.order"
-			report_type="qweb-pdf"
-			name="qb_opensales_reports.report_open_sales"
-			file="qb_opensales_reports.report_open_sales"
-			print_report_name="'Open Sales'"
-			menu="False"
-		/>
 </odoo>
