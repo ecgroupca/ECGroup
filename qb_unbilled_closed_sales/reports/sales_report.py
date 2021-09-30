@@ -21,7 +21,7 @@ class UnbilledSalesReport(models.AbstractModel):
             showroom = data['form'].get('showroom', False)
             company_id = data['form'].get('company_id', False)
             company_id = company_id and company_id[0] or None        
-            domain = [('company_id','=',company_id),('state','not in',['draft','cancel','sent'])]
+            domain = [('amount_total','>',0),('company_id','=',company_id),('state','not in',['draft','cancel','sent'])]
             domain += [('invoice_status','=','to invoice'),('trans_shipped_date','!=',False)]
             if date_from and date_to:
                 domain.append(('date_order','>=',date_from.strftime("%Y-%m-%d 00:00:00")))

@@ -33,7 +33,7 @@ class StockPicking(models.Model):
                 move_l.location_id = picking.location_id
                 move_l.location_dest_id = picking.location_dest_id   
       
-class ProductTemplate(models.Model):
+"""class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     bypass_reservation = fields.Boolean('Bypass Reservation') 
@@ -78,11 +78,11 @@ class StockMove(models.Model):
             move.bypass_reservation = move.product_id and move.product_id.bypass_reservation or False
         
     def _action_assign(self):
-        """ Reserve stock moves by creating their stock move lines. A stock move is
+        """""" Reserve stock moves by creating their stock move lines. A stock move is
         considered reserved once the sum of `product_qty` for all its move lines is
         equal to its `product_qty`. If it is less, the stock move is considered
         partially available.
-        """
+        """"""
         assigned_moves = self.env['stock.move']
         partially_available_moves = self.env['stock.move']
         # Read the `reserved_availability` field of the moves out of the loop to prevent unwanted
@@ -210,4 +210,4 @@ class StockMove(models.Model):
             self.env['stock.move.line'].create(move_line_vals_list)
             partially_available_moves.write({'state': 'partially_available'})
             assigned_moves.write({'state': 'assigned'})
-            self.mapped('picking_id')._check_entire_pack()
+            self.mapped('picking_id')._check_entire_pack()"""

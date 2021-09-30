@@ -16,7 +16,7 @@
         </field>
     </record>
 	
-    <!-- mrp.mrp_product_produce_line_form - add bypass_reservation field for user to see quickly -->		
+    <!-- mrp.mrp_product_produce_line_form - add bypass_reservation field for user to see quickly 		
     <record id="view_mrp_product_produce_mod" model="ir.ui.view">
         <field name="name">mrp.product.produce.mod</field>
         <field name="model">mrp.product.produce.line</field>
@@ -37,5 +37,5 @@
                 <field name="bypass_reservation"/>
 			</field>
         </field>
-    </record>
+    </record>-->
 </odoo>
