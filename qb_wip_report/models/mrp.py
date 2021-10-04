@@ -4,8 +4,8 @@ class MRPWorkorder(models.Model):
     _inherit = "mrp.workorder"
     
     next_wo_id = fields.Many2one(
-        'Next Workorder',
         'mrp.workorder',
+        string = 'Next Workorder',
         compute = '_get_next_wo',
         )
         
