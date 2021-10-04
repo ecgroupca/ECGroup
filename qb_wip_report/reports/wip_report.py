@@ -18,7 +18,7 @@ class ReportWIPReport(models.AbstractModel):
             
             workcenter_ids = data['form'].get('workcenter_id', False)
             user_id = data['form'].get('user_id', False)
-            domain = [('state','=','progress'),('production_id.state','not in',['draft','cancel','done','confirmed'])]              
+            domain = [('state','not in',['done','cancel']),('production_id.state','not in',['draft','cancel','done','confirmed'])]              
             if workcenter_ids:
                 domain.append(('workcenter_id','in',workcenter_ids))
             if user_id:
