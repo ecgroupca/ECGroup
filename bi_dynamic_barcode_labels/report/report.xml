@@ -22,7 +22,7 @@
     <report 
         id="printed_barcode_labels_id" 
         model="product.product" 
-        string="Printed Barcode Labels"
+        string="External Product Labels"
         report_type="qweb-pdf"
         name="bi_dynamic_barcode_labels.product_barcode_labels" 
         file="bi_dynamic_barcode_labels.product_barcode_labels"
@@ -34,7 +34,7 @@
     <report 
         id="printed_product_temp_barcode_labels_id" 
         model="product.template" 
-        string="Printed Barcode Labels"
+        string="External Product Labels"
         report_type="qweb-pdf"
         name="bi_dynamic_barcode_labels.product_temp_barcode_labels" 
         file="bi_dynamic_barcode_labels.product_temp_barcode_labels"
@@ -46,7 +46,7 @@
     <report 
         id="printed_sale_order_barcode_labels_id" 
         model="sale.order" 
-        string="Printed Barcode Labels"
+        string="External Product Labels"
         report_type="qweb-pdf"
         name="bi_dynamic_barcode_labels.sale_dynamic_barcode_labels" 
         file="bi_dynamic_barcode_labels.sale_dynamic_barcode_labels"
@@ -58,7 +58,7 @@
     <report 
         id="printed_purchase_order_barcode_labels_id" 
         model="purchase.order" 
-        string="Printed Barcode Labels"
+        string="External Product Labels"
         report_type="qweb-pdf"
         name="bi_dynamic_barcode_labels.pur_dynamic_barcode_labels" 
         file="bi_dynamic_barcode_labels.pur_dynamic_barcode_labels"
@@ -70,12 +70,25 @@
     <report 
         id="printed_stock_picking_barcode_labels_id" 
         model="stock.picking" 
-        string="Printed Barcode Labels"
+        string="External Product Labels"
         report_type="qweb-pdf"
         name="bi_dynamic_barcode_labels.stock_dynamic_barcode_labels" 
         file="bi_dynamic_barcode_labels.stock_dynamic_barcode_labels"
         paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
         menu="False"
     />
+	
+    <!-- Sale Order Report -->
+    <report 
+        id="printed_mrp_order_barcode_labels_id" 
+        model="mrp.production" 
+        string="External Product Labels"
+        report_type="qweb-pdf"
+        name="bi_dynamic_barcode_labels.mrp_dynamic_barcode_labels" 
+        file="bi_dynamic_barcode_labels.mrp_dynamic_barcode_labels"
+        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
+        menu="False"
+    />
+
 
 </odoo>

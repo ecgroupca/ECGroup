@@ -3,7 +3,7 @@
     <template id="stock_dynamic_barcode_labels">
         <t t-call="web.basic_layout">
             <t t-foreach="docs" t-as="barcode">
-                <t t-foreach="range(barcode.qty)" t-as='l'>
+                <t t-foreach="range(barcode.qty)" t-as="l">
                     <div class="page">
 						<t t-translation="off">
 							<div style="display: inline-table; height: 288px; width:454px;">
@@ -58,5 +58,6 @@
                 <div style="page-break-before:always;"/>
             </t>
         </t>
+
     </template>
 </odoo>
