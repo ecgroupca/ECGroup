@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="mrp_dynamic_barcode_labels">
+				<t t-call="web.basic_layout">
+					<t t-foreach="docs" t-as="barcode">
+						<t t-foreach="range(barcode.qty)" t-as="l">
+							<div class="page">
+									<t t-translation="off">
+										<div style="display: inline-table; height: 288px; width:454px;">
+											<table class="table table-bordered">
+											  <tr>
+												<td class="text-center align-middle">
+												  <img align="center" t-if="barcode.sale_id.company_id.logo" t-att-src="image_data_uri(barcode.sale_id.company_id.logo)" style="max-width:444px;max-height:73px;" alt="Logo"/>
+												</td>
+											  </tr>
+												<tr>
+													<th class="table-active text-left">
+														<div>
+														  Sale: <span t-esc="barcode.sale_id.name"/>
+														   |  Date: <span t-esc="barcode.sale_id.date_order" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+														</div>
+														<div>Customer: <span t-esc="barcode.sale_id.partner_id.name"/></div>
+														<div>S/M: <span t-esc="barcode.sale_id.sidemark"/></div>
+														<t t-if="request.env['sale.order.line'].search([('order_id','=',barcode.sale_id.id),('product_id','=',barcode.product_id.id)])">
+														  <t t-foreach="request.env['sale.order.line'].search([('order_id','=',barcode.sale_id.id),('product_id','=',barcode.product_id.id),('product_uom_qty','=',barcode.production_id.product_qty)])" t-as="line">
+															<div>Item: 
+															  <span t-field="line.name"/>
+															</div>
+														  </t>
+														</t>
+													  <t t-else="barcode.product_id.name">
+  													  <div>Item: 
+  														<span t-esc="'\n'.join(barcode.product_id.name.split('\n', 2)[:2])"/>
+  													  </div>
+													  </t>
+												  <!-- new execution of just SKU by Geoff Sep 24 -->
+												  <div>SKU: 
+													<span t-esc="barcode.product_id.barcode"/>
+												  </div>
+												  <t t-if="barcode.label_text">
+  												  <div>Notes: 
+  													<span t-esc="barcode.label_text"/>
+  												  </div>
+												  </t>
+													</th>
+												</tr>
+												<!--
+													<tr>
+														<td class="text-center align-middle">
+															<t t-if="not barcode.label_text and barcode.product_id and barcode.product_id.barcode">
+																	<img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', barcode.product_id.barcode, 600, 110)" style="max-width:288px;max-height:100px" alt="Barcode"/>
+																	<div t-esc="barcode.product_id.barcode"/>
+															</t>
+															<t t-else="">
+																<div t-esc="barcode.label_text"/>
+															</t>
+														</td>
+													</tr>
+													-->
+											</table>
+										</div>
+									</t>
+							  </div>
+							<div style="page-break-before:always;"/>
+						</t>
+						<div style="page-break-before:always;"/>
+					</t>
+				</t>
+
+    </template>
+</odoo>
