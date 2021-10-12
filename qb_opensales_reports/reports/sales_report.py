@@ -22,6 +22,8 @@ class OpenSalesReport(models.AbstractModel):
             showroom = data['form'].get('showroom', False)
             company_id = data['form'].get('company_id', False)
             company_id = company_id and company_id[0] or None
+            responsible_id = data['form'].get('responsible_id', False)
+            responsible_id = responsible_id and responsible_id[0] or None
             selected_sales = data['form'].get('sale_ids', False)
             if not print_selected:
                 #domain_search = [('date','>=',date_from.strftime("%m/%d/%Y 00:00:00")),('date','<=',date_to.strftime("%m/%d/%Y 23:59:59"))]
@@ -33,6 +35,8 @@ class OpenSalesReport(models.AbstractModel):
                 domain_search += date_domain
                 if showroom:
                     domain_search.append(('team_id','in',showroom))
+                if responsible_id:
+                    domain_search.append(('user_id','=',responsible_id))
             else:
                 date_from = date_to = False
                 if not selected_sales:

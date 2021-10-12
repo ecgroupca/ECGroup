@@ -5,8 +5,8 @@ class MRPWorkorder(models.Model):
     
     next_wo_id = fields.Many2one(
         'mrp.workorder',
-        string = 'Next Workorder',
         compute = '_get_next_wo',
+        string = 'Next Workorder',
         )
         
     @api.depends('production_id')

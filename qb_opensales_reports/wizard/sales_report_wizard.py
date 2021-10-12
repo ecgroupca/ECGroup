@@ -11,13 +11,14 @@ class SalesReportWizard(models.TransientModel):
     showroom = fields.Many2many("crm.team",'sales_crm_rel_transient', 'sales_report_id', 'crm_team_id', string="Showroom")
     sale_ids = fields.Many2many("sale.order",'sales_report_rel_transient', 'sales_report_id', 'sale_order_id', string="Sales")
     print_selected = fields.Boolean("Print Selected?")
+    responsible_id = fields.Many2one("res.users",string="Responsible")
     
     def print_report(self):
         self.ensure_one()
         data = {}
         data['ids'] = self.env.context.get('active_ids', [])
         data['model'] = self.env.context.get('active_model', 'ir.ui.menu')
-        data['form'] = self.read(['company_id','date_from', 'date_to', 'showroom','sale_ids','print_selected'])[0]
+        data['form'] = self.read(['responsible_id','company_id','date_from', 'date_to', 'showroom','sale_ids','print_selected'])[0]
         #used_context = self._build_contexts(data)
         #data['form']['used_context'] = dict(used_context, lang=get_lang(self.env).code)
         #return self.with_context(discard_logo_check=True)._print_report(data)
