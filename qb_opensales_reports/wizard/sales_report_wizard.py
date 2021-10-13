@@ -1,6 +1,7 @@
 from odoo import api, fields, models
 from odoo.tools.misc import get_lang
 
+            
 class SalesReportWizard(models.TransientModel):
     _name = "sales.report.wizard"
     _description = "Sales Report Wizard"
@@ -11,6 +12,7 @@ class SalesReportWizard(models.TransientModel):
     showroom = fields.Many2many("crm.team",'sales_crm_rel_transient', 'sales_report_id', 'crm_team_id', string="Showroom")
     sale_ids = fields.Many2many("sale.order",'sales_report_rel_transient', 'sales_report_id', 'sale_order_id', string="Sales")
     print_selected = fields.Boolean("Print Selected?")
+    print_excel = fields.Boolean("Print in Excel")
     responsible_id = fields.Many2one("res.users",string="Responsible")
     
     def print_report(self):
@@ -22,4 +24,9 @@ class SalesReportWizard(models.TransientModel):
         #used_context = self._build_contexts(data)
         #data['form']['used_context'] = dict(used_context, lang=get_lang(self.env).code)
         #return self.with_context(discard_logo_check=True)._print_report(data)
-        return self.env.ref('qb_opensales_reports.action_report_opensales').report_action(self, data=data)
+        print_excel = self.read(['print_excel'])[0]
+        print_excel = 'print_excel' in print_excel and print_excel['print_excel'] or False
+        if print_excel:
+            return self.env.ref('qb_opensales_reports.action_report_opensales_xlsx').report_action(self, data=data)        
+        else:
+            return self.env.ref('qb_opensales_reports.action_report_opensales').report_action(self, data=data)
