@@ -7,6 +7,9 @@
         <field name="arch" type="xml">
         <form string="WIP Report">
             <group col="1">
+                <field name="print_excel"/>
+            </group>
+            <group col="1">
                 <field name="workcenter_id" widget="many2many_tags"/>
             </group>
             <group col="1">
@@ -34,4 +37,5 @@
             action="action_report_wip"
             parent="mrp.menu_mrp_reporting"
             sequence="25"/>
+
 </odoo>
