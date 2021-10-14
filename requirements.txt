@@ -1,1 +1,1 @@
-urllib==3.10.0
+urllib.parse
