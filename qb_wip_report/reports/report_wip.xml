@@ -11,15 +11,5 @@
 			print_report_name="'WIP Report'"
 			menu="True"
 		/>
-		<report
-			id="action_wip_report_xlsx"
-			model="mrp.production"
-			string="Print to Excel"
-			report_type="xlsx"
-			name="qb_wip_report.wip_report_xlsx"
-			file="qb_wip_report.wip_report_xlsx"
-			attachment_use="False"
-			print_report_name="'WIP Report Excel'"
-		/>
 	</data>
 </odoo>
