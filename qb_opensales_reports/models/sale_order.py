@@ -5,7 +5,7 @@ class SaleOrder(models.Model):
     
     received = fields.Boolean("Received", compute="_compute_open_shipments")
     open_shipment = fields.Boolean("Open Shipments",compute="_compute_open_shipments")
-    open_production = fields.Boolean("Open Shipments",compute="_compute_open_shipments")
+    open_production = fields.Boolean("Open Production",compute="_compute_open_shipments")
     needs_drawing = fields.Boolean("Needs Drawing")
     needs_sample_approval = fields.Boolean("Needs Sample Approval")
     
