@@ -9,6 +9,7 @@
         'sale_management',
         'stock',
         'delivery',
+        'report_xlsx',
     ],
     'data': [
         #'views/templates.xml',
