@@ -33,7 +33,7 @@ class StockPicking(models.Model):
                 move_l.location_id = picking.location_id
                 move_l.location_dest_id = picking.location_dest_id   
       
-"""class ProductTemplate(models.Model):
+class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
     bypass_reservation = fields.Boolean('Bypass Reservation') 
@@ -78,11 +78,11 @@ class StockMove(models.Model):
             move.bypass_reservation = move.product_id and move.product_id.bypass_reservation or False
         
     def _action_assign(self):
-        """""" Reserve stock moves by creating their stock move lines. A stock move is
+        """ Reserve stock moves by creating their stock move lines. A stock move is
         considered reserved once the sum of `product_qty` for all its move lines is
         equal to its `product_qty`. If it is less, the stock move is considered
         partially available.
-        """"""
+        """
         assigned_moves = self.env['stock.move']
         partially_available_moves = self.env['stock.move']
         # Read the `reserved_availability` field of the moves out of the loop to prevent unwanted
@@ -91,10 +91,10 @@ class StockMove(models.Model):
         roundings = {move: move.product_id.uom_id.rounding for move in self}
         move_line_vals_list = []
         for move in self.filtered(lambda m: m.state in ['confirmed', 'waiting', 'partially_available']):
-            if not move.bypass_reservation or (move.bypass_reservation and move._should_bypass_reservation()):               
-                rounding = roundings[move]
-                missing_reserved_uom_quantity = move.product_uom_qty - reserved_availability[move]
-                missing_reserved_quantity = move.product_uom._compute_quantity(missing_reserved_uom_quantity, move.product_id.uom_id, rounding_method='HALF-UP')
+            rounding = roundings[move]
+            missing_reserved_uom_quantity = move.product_uom_qty - reserved_availability[move]
+            missing_reserved_quantity = move.product_uom._compute_quantity(missing_reserved_uom_quantity, move.product_id.uom_id, rounding_method='HALF-UP')
+            if not move.bypass_reservation:
                 if move._should_bypass_reservation():
                     # create the move line(s) but do not impact quants
                     if move.product_id.tracking == 'serial' and (move.picking_type_id.use_create_lots or move.picking_type_id.use_existing_lots):
@@ -207,7 +207,7 @@ class StockMove(models.Model):
                 if move.product_id.tracking == 'serial':
                     move.next_serial_count = move.product_uom_qty
 
-            self.env['stock.move.line'].create(move_line_vals_list)
-            partially_available_moves.write({'state': 'partially_available'})
-            assigned_moves.write({'state': 'assigned'})
-            self.mapped('picking_id')._check_entire_pack()"""
+        self.env['stock.move.line'].create(move_line_vals_list)
+        partially_available_moves.write({'state': 'partially_available'})
+        assigned_moves.write({'state': 'assigned'})
+        self.mapped('picking_id')._check_entire_pack()

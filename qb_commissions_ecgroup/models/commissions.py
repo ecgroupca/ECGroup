@@ -106,7 +106,7 @@ class SaleOrder(models.Model):
             if header_rate:
                 for line in sale.order_line:
                     if line.product_id and not line.product_id.no_commissions: 
-                        if not line.product_id.type == 'service':
+                        if line.product_id.type not in ['service','consu']:
                             line.comm_rate = header_rate
     
     comm_total = fields.Float(
@@ -139,7 +139,7 @@ class SaleOrder(models.Model):
             for line in sale.order_line:
                 line_comm = 0
                 if line.comm_rate and line.price_unit and line.product_uom_qty:
-                    if line.product_id and not line.product_id.no_commissions and line.product_id.type != 'service':
+                    if line.product_id and not line.product_id.no_commissions and line.product_id.type not in ['service','consu']:
                         line_comm = line.comm_rate*line.price_unit*line.product_uom_qty/100
                         total_comm += line_comm
                     else:
@@ -158,7 +158,7 @@ class SaleOrder(models.Model):
         res = super(SaleOrder,self).action_confirm()
         #create new commissions object
         for line in self.order_line:
-            if line.comm_rate and not line.product_id.no_commissions and line.product_id.type != 'service':
+            if line.comm_rate and not line.product_id.no_commissions and line.product_id.type not in ['service','consu']:
                 client_po = self.client_order_ref and str(self.client_order_ref) or ''
                 vals = {
                     'name': 'Order: ' + self.name  + ' commissions.',
@@ -256,7 +256,7 @@ class SaleOrder(models.Model):
                 if not comm_lines:
                     #create new commissions objects because they haven't been created before.
                     for line in order.order_line:
-                        if line.comm_rate and not line.product_id.no_commissions and line.product_id.type != 'service':
+                        if line.comm_rate and not line.product_id.no_commissions and line.product_id.type not in ['service','consu']:
                             client_po = self.client_order_ref and str(self.client_order_ref) or ''
                             vals = {
                                 'name': 'Order: ' + order.name  + ' commissions.',
