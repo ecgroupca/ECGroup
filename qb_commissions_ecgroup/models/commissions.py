@@ -93,8 +93,27 @@ class CRMTeam(models.Model):
         stored = True,
     )
         
+        
 class SaleOrder(models.Model):
     _inherit = "sale.order"
+    
+    comm_rate = fields.Float(string="Commission Rate")
+    
+    @api.onchange('comm_rate')
+    def _onchange_comm_rate(self):   
+        for sale in self:
+            header_rate = sale.comm_rate
+            if header_rate:
+                for line in sale.order_line:
+                    if line.product_id and not line.product_id.no_commissions: 
+                        if not line.product_id.type == 'service':
+                            line.comm_rate = header_rate
+    
+    comm_total = fields.Float(
+        'Total Commisions', 
+        compute="_compute_comm_total",
+        store = True,
+        )
     
     comm_inv_paid = fields.Boolean(
         'Commission Invoice Paid?',
@@ -107,7 +126,26 @@ class SaleOrder(models.Model):
         copy=False,
         readonly=True,
     )
-
+    
+    #1. compute the total commission for an order
+    #2. base the report on sale order (lines) instead of these comm objects
+    #3. base the comm_inv_paid on the comm_inv_id
+    #4. report on amount of commissions paid for a given order that has 
+    #   non-zero comm rate on at least one line
+    @api.depends('order_line')
+    def _compute_comm_total(self):
+        for sale in self:
+            total_comm = 0
+            for line in sale.order_line:
+                line_comm = 0
+                if line.comm_rate and line.price_unit and line.product_uom_qty:
+                    if line.product_id and not line.product_id.no_commissions and line.product_id.type != 'service':
+                        line_comm = line.comm_rate*line.price_unit*line.product_uom_qty/100
+                        total_comm += line_comm
+                    else:
+                        line.comm_rate = 0
+            sale.comm_total = total_comm  
+            
     @api.depends('comm_inv_id')
     def _commission_inv_paid(self):
         for order in self:

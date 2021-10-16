@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
 
-    <!-- Sale Team Mods Form -->
-		
+    <!-- Sale Team Mods Form -->		
     <record id="view_salesteam_form_mod" model="ir.ui.view">
         <field name="name">salesteam.mods</field>
         <field name="model">crm.team</field>
@@ -21,12 +20,11 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-			<field name="authorized_transaction_ids" position="after">
-				<button name='pay_commission' string='Pay Commission' type='object' groups="account.group_account_manager" attrs="{'invisible': ['|',('inv_bal_due','>',0),('state', 'in', ['draft','cancel'])]}"/>			    
-			</field>
 			<field name="payment_term_id" position="after">
 				<field name="comm_inv_paid"/>
 				<field name="comm_inv_id"/>
+				<field name="comm_total"/>
+				<field name="comm_rate"/>
 			</field>
 		</field>
     </record>
