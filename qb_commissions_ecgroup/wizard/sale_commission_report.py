@@ -40,6 +40,6 @@ class ReportSaleCommissionReport(models.AbstractModel):
             'data': data['form'],
             'docs': comm_sales,
             'sale_comm':sale_comm,
-            'date_from':date_from.strftime("%d-%m-%Y"),
-            'date_to':date_to.strftime("%d-%m-%Y"),
+            'date_from':date_from.strftime("%m-%d-%Y"),
+            'date_to':date_to.strftime("%m-%d-%Y"),
         }
