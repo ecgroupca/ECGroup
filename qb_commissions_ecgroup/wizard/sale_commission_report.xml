@@ -14,7 +14,7 @@
 					<div class="page" style="font-name:Calibri;page-break-before:always;">
 						<h2 style="margin-top:10px;text-align: center;width:100%">Salesperson Commission Report</h2>
 						<p><strong><h5>Showroom: <t t-esc="showroom"/></h5></strong></p>
-                        <span t-if="date_from"><strong>Dates: </strong><t t-esc="date_from[4:5] +'/'+ date_from[:2] +'/'+ date_from[6:]"/> <strong>  to  </strong> <t t-esc="date_to[4:5] +'/'+ date_to[:2] +'/'+ date_to[6:]"/></span>
+                        <span t-if="date_from"><strong>Dates: </strong><t t-esc="date_from"/> <strong>  to  </strong> <t t-esc="date_to"/></span>
 						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 							<thead>
 								<tr style="padding:5px;border-bottom: solid 2px; border-color:#AAA;">
@@ -50,23 +50,23 @@
 					    			
 					    			<t t-set="is_previous" t-value="s0"/>
 					    			<t t-foreach="sale_comm[showroom][cust]['data']" t-as="comm">
-					    				<t t-if="comm.order_id and is_previous != comm.order_id.name">
-					    					<t t-set="is_previous" t-value="comm.order_id.name"/>
+					    				<t t-if="comm and is_previous != comm.name">
+					    					<t t-set="is_previous" t-value="comm.name"/>
 						    				
-						    				<t t-set="inv_total" t-value="inv_total + comm.order_id.amount_total"/>
+						    				<t t-set="inv_total" t-value="inv_total + comm.amount_total"/>
 						    				
 						    				<t t-set="non_comm_amt" t-value="0.00"/>
 						    				<t t-set="comm_rate" t-value="0.00"/>
 						    				<t t-set="comm_rate_product_count" t-value="0"/>
-						    				<!-- <t t-foreach="comm.order_id.order_line.filtered(lambda l: l.product_id.no_commissions)" t-as="line">
+						    				<!-- <t t-foreach="comm.order_line.filtered(lambda l: l.product_id.no_commissions)" t-as="line">
 						    					<t t-set="non_comm_amt" t-value="non_comm_amt + line.price_subtotal"/>
 						    				</t> -->
 						    				
-						    				<t t-foreach="comm.order_id.order_line" t-as="line">
+						    				<t t-foreach="comm.order_line" t-as="line">
 						    					<t t-if="line.product_id.no_commissions or line.product_id.type in ['service','consu']">
 						    						<t t-set="non_comm_amt" t-value="non_comm_amt + line.price_subtotal"/>
 						    					</t>
-						    					<t t-elif="line.product_id.type != 'service' and line.comm_rate &gt; 0.00">
+						    					<t t-if="not line.product_id.no_commissions and line.product_id.type not in ['service','consu'] and line.comm_rate &gt; 0.00">
 						    						<t t-set="comm_rate" t-value="comm_rate + line.comm_rate"/>
 						    						<t t-set="comm_rate_product_count" t-value="comm_rate_product_count + 1"/>
 						    					</t>
@@ -77,24 +77,24 @@
 						    				</t>
 						    				
 						    				<t t-set="non_comm_amt_total" t-value="non_comm_amt_total + non_comm_amt"/>
-						    				<t t-set="sales_sub_to_commi" t-value="comm.order_id.amount_total - non_comm_amt"/>
+						    				<t t-set="sales_sub_to_commi" t-value="comm.amount_total - non_comm_amt"/>
 						    				<t t-set="sales_sub_to_commi_total" t-value="sales_sub_to_commi_total + sales_sub_to_commi"/>
 						    				
 						    				<t t-set="commi_payable" t-value="sales_sub_to_commi * comm_rate/100"/>
 						    				<t t-set="comm_payable_total" t-value="comm_payable_total + commi_payable"/>
 						    				
 						    				<t t-set="inv_amt_paid" t-value="0.00"/>
-						    				<t t-if="comm.invoice_id">
-						    					<t t-set="inv_amt_paid" t-value="comm.invoice_id.amount_total - comm.invoice_id.amount_residual"/>
+						    				<t t-if="comm.comm_inv_id">
+						    					<t t-set="inv_amt_paid" t-value="comm.comm_inv_id.amount_total - comm.comm_inv_id.amount_residual"/>
 						    				</t>
 						    				<t t-set="inv_amt_paid_total" t-value="inv_amt_paid_total + inv_amt_paid"/>
 						    				
 							    			<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
-							    				<td><span t-field="comm.invoice_id" t-if="comm.invoice_id"/></td>
-							    				<td><span t-field="comm.order_id.client_order_ref"/></td>
-							    				<td><span t-field="comm.invoice_id.invoice_date" t-if="comm.invoice_id"/></td>
+							    				<td><span t-field="comm.comm_inv_id" t-if="comm.comm_inv_id"/></td>
+							    				<td><span t-field="comm.client_order_ref"/></td>
+							    				<td><span t-field="comm.comm_inv_id.invoice_date" t-if="comm.comm_inv_id"/></td>
 							    				<td align="right"><t t-esc="comm_rate"/> %</td>
-							    				<td align="right"><span t-field="comm.order_id.amount_total"/></td>
+							    				<td align="right"><span t-field="comm.amount_total"/></td>
 							    				<td align="right"><t t-esc="sales_sub_to_commi" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: comm.company_id.currency_id}"/></td>
 							    				<td align="right"><t t-esc="non_comm_amt" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: comm.company_id.currency_id}"/></td>
 							    				<td align="right"><t t-esc="inv_amt_paid" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: comm.company_id.currency_id}"/></td>
