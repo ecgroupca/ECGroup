@@ -13,12 +13,13 @@ class ReportSaleCommissionReport(models.AbstractModel):
         date_from = fields.Date.from_string(data['form'].get('date_from')) or fields.Date.today()
         date_to = fields.Date.from_string(data['form'].get('date_to')) or fields.Date.today()
         showroom = data['form'].get('showroom', False)
-        
-        domain_search = [('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        remove_paid = data['form'].get('remove_paid', False)       
+        domain_search = [('invoice_status','!=','to invoice'),('inv_bal_due','=',0),('open_shipments','!=',True),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
         if showroom:
             domain_search.append(('team_id','in',showroom))
-        comm_sales = self.env['sale.order'].search(domain_search)
-        
+        if remove_paid:
+            domain_search.append(('comm_inv_id.amount_residual','=',0),('comm_inv_id.amount_total','>',0))
+        comm_sales = self.env['sale.order'].search(domain_search)     
         sale_comm = {}
         for commission in comm_sales:
             customer_key = 'c_%s'%(commission.partner_id.id)

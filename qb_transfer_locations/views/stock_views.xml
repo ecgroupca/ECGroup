@@ -19,6 +19,9 @@
 		    <field name="display_assign_serial" position="before">
 			  <field name="bypass_reservation"/>
 			</field>
+		    <field name="origin" position="after">
+			  <field name="bypass_reservation"/>
+			</field>
         </field>
     </record>
   </odoo>

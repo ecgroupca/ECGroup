@@ -92,13 +92,40 @@ class CRMTeam(models.Model):
         readonly = False,
         stored = True,
     )
+
+
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    @api.model
+    def create(self, vals):
+        if 'order_id' in vals:
+            def_comm_rate = self.env['sale.order'].browse(vals['order_id'])
+            def_comm_rate = def_comm_rate and def_comm_rate.team_id
+            def_comm_rate = def_comm_rate and def_comm_rate.default_comm_rate
+            vals['comm_rate'] = def_comm_rate
+        return super(SaleOrderLine, self).create(vals)
+            
         
         
 class SaleOrder(models.Model):
     _inherit = "sale.order"
     
-    comm_rate = fields.Float(string="Commission Rate")
-    
+    comm_rate = fields.Float(
+        string="Commission Rate",
+        store = True,
+        )
+        
+    """@api.depends('team_id')     
+    def _compute_comm_rate(self):
+        for sale in self:
+            sale.comm_rate = sale.team_id and sale.team_id.default_comm_rate or 0.00  
+            header_rate = sale.comm_rate
+            for line in sale.order_line:
+                if line.product_id and not line.product_id.no_commissions: 
+                    if line.product_id.type not in ['service','consu']:
+                        line.comm_rate = header_rate"""
+            
     @api.onchange('comm_rate')
     def _onchange_comm_rate(self):   
         for sale in self:
@@ -108,6 +135,16 @@ class SaleOrder(models.Model):
                     if line.product_id and not line.product_id.no_commissions: 
                         if line.product_id.type not in ['service','consu']:
                             line.comm_rate = header_rate
+                            
+    @api.onchange('team_id')
+    def _onchange_sales_team(self):
+        for sale in self:
+            def_comm_rate = sale.team_id.default_comm_rate
+            sale.comm_rate = def_comm_rate
+            for line in sale.order_line:
+                if line.product_id and not line.product_id.no_commissions: 
+                    if line.product_id.type not in ['service','consu']:
+                        line.comm_rate = def_comm_rate
     
     comm_total = fields.Float(
         'Total Commisions', 
@@ -157,16 +194,24 @@ class SaleOrder(models.Model):
     def action_confirm(self): 
         res = super(SaleOrder,self).action_confirm()
         #create new commissions object
-        for line in self.order_line:
-            if line.comm_rate and not line.product_id.no_commissions and line.product_id.type not in ['service','consu']:
-                client_po = self.client_order_ref and str(self.client_order_ref) or ''
-                vals = {
-                    'name': 'Order: ' + self.name  + ' commissions.',
-                    'ref':client_po,
-                    'order_line': line.id,
-                    'state': 'draft',
-                    }
-                self.env['sale.commission'].create(vals)
+        #set the commissions rate for each line to the default from the showroom
+        for sale in self:
+            def_comm_rate = sale.team_id.default_comm_rate
+            sale.comm_rate = def_comm_rate
+            for line in sale.order_line:
+                if line.product_id and not line.product_id.no_commissions: 
+                    if line.product_id.type not in ['service','consu']:
+                        line.comm_rate = def_comm_rate
+            for line in sale.order_line:
+                if line.comm_rate and not line.product_id.no_commissions and line.product_id.type not in ['service','consu']:
+                    client_po = self.client_order_ref and str(self.client_order_ref) or ''
+                    vals = {
+                        'name': 'Order: ' + self.name  + ' commissions.',
+                        'ref':client_po,
+                        'order_line': line.id,
+                        'state': 'draft',
+                        }
+                    self.env['sale.commission'].create(vals)
         return res
         
     def pay_commission(self):    
