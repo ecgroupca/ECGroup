@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
-
+from odoo.exceptions import UserError
 from odoo import api, fields, models, _
 from datetime import datetime
+
 
 class ReportSaleCommissionReport(models.AbstractModel):
 
@@ -12,16 +13,17 @@ class ReportSaleCommissionReport(models.AbstractModel):
     def _get_report_values(self, docids, data=None):
         date_from = fields.Date.from_string(data['form'].get('date_from')) or fields.Date.today()
         date_to = fields.Date.from_string(data['form'].get('date_to')) or fields.Date.today()
+        if date_to < date_from:
+            raise UserError(_('Your date from is greater than date to.'))
         showroom = data['form'].get('showroom', False)
         remove_paid = data['form'].get('remove_paid', False)   
-        #create the domain for sales eligible for commissions       
-        domain_search = [('invoice_status','!=','to invoice'),('inv_bal_due','=',0),('open_shipment','=',False),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        #create the domain for sales eligible for commissions  
+        domain_search = [('inv_bal_due','<=',0),('open_shipment','=',False),('invoice_status','!=','to invoice'),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
         if showroom:
-            domain_search.append(('team_id','in',showroom))
-        comm_sales = self.env['sale.order'].search(domain_search)  
-        if remove_paid and comm_sales:
-            domain_search =['|',('comm_inv_id','=',False),('comm_inv_id','!=',False),('comm_inv_id.amount_residual','>',0),('comm_inv_id.amount_total','>',0)]
-            comm_sales.search(domain_search)     
+            domain_search.append(('team_id','in',showroom)) 
+        if remove_paid:
+            domain_search.append(('comm_inv_paid','!=',True))  
+        comm_sales = self.env['sale.order'].search(domain_search)             
         sale_comm = {}
         for commission in comm_sales:
             customer_key = 'c_%s'%(commission.partner_id.id)
