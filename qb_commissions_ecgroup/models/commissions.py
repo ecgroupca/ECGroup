@@ -214,9 +214,9 @@ class SaleOrder(models.Model):
                     self.env['sale.commission'].create(vals)
         return res
         
-    def pay_commission(self):    
-        self._create_comm_invoices()
-
+    def pay_commission(self): 
+    
+        move = self._create_comm_invoices()
         inv_form = self.env.ref('account.view_move_form', False)
 
         return {
@@ -229,6 +229,8 @@ class SaleOrder(models.Model):
             'views': [(inv_form.id, 'form')],
             'view_id': 'inv_form.id',
             'flags': {'action_buttons': True},
+            'context': self._context,
+            'res_id': move and move.id or False,
         }
             
     def _prepare_comm_invoice(self):
