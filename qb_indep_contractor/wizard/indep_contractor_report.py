@@ -16,9 +16,10 @@ class ReportIndepContractor(models.AbstractModel):
         if date_to < date_from:
             raise UserError(_('Your date from is greater than date to.'))
         vendor_id = data['form'].get('vendor_id', False)
-        #search on res.parter where id is the vendor_id 
-        import pdb;pdb.set_trace()        
-        domain_search = [('id','=',vendor_id),('create_date','>=',date_from),('create_date','<=',date_to)]
+        #search on res.parter where id is the vendor_id      
+        domain_search = [('needs_ten_ninety_nine','=',True),('create_date','>=',date_from),('create_date','<=',date_to)]
+        if vendor_id:
+            domain_search.append(('id','=',vendor_id)
         indep_cons = self.env['res.partner'].search(domain_search)
         return {
             'doc_ids': indep_cons.ids,

@@ -12,7 +12,7 @@
     'version': '1.0',
     'author': 'Quickbeam ERP: Adam O\'Connor',
     'license': 'AGPL-3',
-    'depends': ['crm'],
+    'depends': ['crm','account','purchase'],
     'data': [
         #'security/ir.model.access.csv',
         'views/partner_views.xml',
