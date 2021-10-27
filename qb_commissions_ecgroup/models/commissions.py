@@ -307,7 +307,7 @@ class SaleOrder(models.Model):
             if order.state not in ['draft','cancel'] and order.inv_bal_due <= 0.00:
                 done = True
                 for line in order.order_line:
-                    if line.qty_to_deliver > line.qty_delivered:
+                    if line.type == 'product' and line.qty_to_deliver > line.qty_delivered:
                         done = False
                         break
             if done and order.invoice_status not in ['to invoice','no']:

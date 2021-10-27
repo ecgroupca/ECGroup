@@ -9,11 +9,11 @@ class CommissionReportWizard(models.TransientModel):
     date_to = fields.Date("Date To", required=True)
     remove_paid = fields.Boolean("Remove Paid Commissions")
     showroom = fields.Many2many("crm.team",
-        'commission_crm_rel_transient',
-        'commission_report_id',
-        'crm_team_id',
-        string="Showroom"
-        )
+       'commission_crm_rel_transient', 
+       'commission_report_id', 
+       'crm_team_id',
+       string="Showroom"
+       )
     
     def print_report(self):
         self.ensure_one()
