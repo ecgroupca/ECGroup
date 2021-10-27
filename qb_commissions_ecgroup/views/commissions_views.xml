@@ -21,7 +21,7 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
 			<field name="authorized_transaction_ids" position="after">
-				<button name='pay_commission' string='Bill Commissions' type='object' groups="account.group_account_manager" attrs="{'invisible': ['|',('inv_bal_due','>',0),('state', 'in', ['draft','cancel'])]}"/>			    
+				<button name='pay_commission' class="btn-primary" string='Bill Commissions' type='object' groups="account.group_account_manager" attrs="{'invisible': ['|','|',('comm_inv_id','!=',False),('inv_bal_due','>',0),('state', 'in', ['draft','cancel'])]}"/>			    
 			</field>
 			<field name="payment_term_id" position="after">
 				<field name="comm_inv_paid"/>

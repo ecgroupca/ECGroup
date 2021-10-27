@@ -72,6 +72,9 @@ class AccountPayment(models.Model):
             for pmt in self:
                 for invoice in pmt.invoice_ids:
                     commissions = self.env['sale.commission'].search([('invoice_id','=',invoice.id)])
+                    comm_sale = self.env['sale.order'].search([('comm_inv_id','=',invoice.id)])
+                    if invoice_id.amount_residual == 0:
+                        comm_sale.comm_inv_paid = True
                     for comm in commissions:
                         comm.pmt_id = pmt
         
@@ -155,6 +158,7 @@ class SaleOrder(models.Model):
     comm_inv_paid = fields.Boolean(
         'Commission Invoice Paid?',
         copy=False,
+        readonly=True,
     )
     
     comm_inv_id = fields.Many2one(
