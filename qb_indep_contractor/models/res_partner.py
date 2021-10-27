@@ -1,18 +1,19 @@
 from odoo import api, fields, models
+import datetime
 
 class ResPartner(models.Model):
     _inherit = "res.partner"
     
     needs_ten_ninety_nine = fields.Boolean("Needs 1099")
     total_paid_current_year = fields.Float(string='Total Paid Current Year', 
-        computed = '_get_billing_total_paid',
+        compute = '_get_billing_total_paid',
         )         
     billing_address_id = fields.Many2one('res.partner',
-        computed = '_get_billing_total_paid',
+        compute = '_get_billing_total_paid',
         string='Billing Address'
         ) 
-            
-    @api.depends('date_from','date_to')
+       
+    @api.depends('needs_ten_ninety_nine')
     def _get_billing_total_paid(self):
         for indep in self:
             indep.total_paid_current_year = 0
