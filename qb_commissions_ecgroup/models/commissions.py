@@ -3,7 +3,7 @@
 #
 #    Quickbeam ERP.
 #
-#    Copyright (C) 2020-TODAY, Quickbeam, LLC.
+#    Copyright (C) 2021-TODAY, Quickbeam, LLC.
 #    Author: Adam O'Connor <aoconnor@quickbeamllc.com>
 #
 #    You can modify it under the terms of the GNU AFFERO
@@ -70,10 +70,20 @@ class AccountPayment(models.Model):
         #assign the pmt_id for each commission paid by this one.
         if res:
             for pmt in self:
+                amt_due = 0
+                amt_res = 0
+                amt_inv = 0
+                sale = pmt.sale_id                 
+                if sale:                
+                    for invoice in sale.invoice_ids:
+                        if invoice.state=='posted':
+                            amt_res += invoice.amount_residual
+                            amt_inv += invoice.amount_total
+                    sale.inv_bal_due = (sale.amount_total - amt_inv) + amt_res                    
                 for invoice in pmt.invoice_ids:
                     commissions = self.env['sale.commission'].search([('invoice_id','=',invoice.id)])
                     comm_sale = self.env['sale.order'].search([('comm_inv_id','=',invoice.id)])
-                    if invoice_id.amount_residual == 0:
+                    if invoice.amount_residual == 0:
                         comm_sale.comm_inv_paid = True
                     for comm in commissions:
                         comm.pmt_id = pmt
