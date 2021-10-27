@@ -20,10 +20,11 @@ class ResPartner(models.Model):
             now = datetime.datetime.now()
             date = now.date()
             year = date.strftime("%Y")
-            indep.billing_address_id = self.env['res.partner'].address_get(['invoice'])['invoice']
+            bill_address = self.env['res.partner'].address_get(['invoice'])['invoice']
+            indep.billing_address_id = bill_address and bill_address.id or None
             if indep.billing_address_id:
                 #search for all paid vendor bills for this billing address_get
-                bills = self.env['account.move'].search([('date','>=',year + '-01-01 00:00:00'),('date','<=',year + '-12-31 23:59:59'),('partner_id','=',indep.billing_address_id)])
+                bills = self.env['account.move'].search([('type','=''in_invoice'),('date','>=',year + '-01-01 00:00:00'),('date','<=',year + '-12-31 23:59:59'),('partner_id','=',indep.billing_address_id.id)])
                 total_paid = 0
                 for bill in bills:
                     if bill.state == 'posted':
