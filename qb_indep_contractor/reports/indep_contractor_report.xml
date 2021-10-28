@@ -2,25 +2,22 @@
 <odoo>
 
 		<report
-			string="Independent Contractor Report"
+			string="Contractor Report"
 			id="action_report_indep_contractor"
 			model="res.partner"
 			report_type="qweb-pdf"
 			name="qb_indep_contractor.report_indep_contractor"
 			file="qb_indep_contractor.report_indep_contractor"
 			print_report_name="'Contractor Report'"
-			menu="False"
+			menu="True"
 		/>
 	
 	<template id="report_indep_contractor">
 		<t t-call="web.html_container">
 			<t t-call="web.external_layout">
 				<t t-if="docs">
-				<t t-value="docs[0]" t-set="vendor"/>
-				<t t-foreach="vendor" t-as="o">
+				<h2 style="margin-top:10px;text-align: center;width:100%">Vendor 1099 Report</h2>
 					<div class="page" style="font-name:Calibri;page-break-before:always;">
-						<h2 style="margin-top:10px;text-align: center;width:100%">Vendor 1099 Report</h2>
-                        <span t-if="date_from"><strong>Dates: </strong><t t-esc="date_from"/> <strong>  to  </strong> <t t-esc="date_to"/></span>
 						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 							<thead>
 								<tr style="padding:5px;border-bottom: solid 2px; border-color:#AAA;">
@@ -31,18 +28,19 @@
 								</tr>
 							</thead>
 							<tbody>	
+							  <t t-foreach="docs" t-as="vendor">
                                 <tr style="padding:5px;border-bottom: solid 2px; border-color:#AAA;">				    		
 								    <td style="padding:5px;" name="td_vendor"><span t-field="vendor.name"/></td>
 									<td style="padding:5px;" name="td_billing"><span t-field="vendor.billing_address_id"/></td>
 									<td style="padding:5px;" name="td_tax_id"><span t-field="vendor.vat"/></td>
-									<td style="padding:5px;" name="td_paid"><span t-field="vendor.total_paid"/></td>
+									<td style="padding:5px;" name="td_paid"><span t-field="vendor.total_paid_current_year"/></td>
                                 </tr>
+						      </t>
 							</tbody>
 						</table>
 					</div>
-				</t>
-				</t>
 		      </t>
 			</t>
+		</t>
 	</template>
 </odoo>
