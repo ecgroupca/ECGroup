@@ -307,10 +307,10 @@ class SaleOrder(models.Model):
             if order.state not in ['draft','cancel'] and order.inv_bal_due <= 0.00:
                 done = True
                 for line in order.order_line:
-                    if line.product_id.type == 'product' and line.qty_to_deliver > line.qty_delivered:
+                    if line.product_id.type == 'product' and line.product_uom_qty > line.qty_delivered:
                         done = False
                         break
-            if done and order.invoice_status not in ['to invoice','no']:
+            if done:
                 invoice_vals_list = []
                 invoice_vals = order._prepare_comm_invoice()
                 comm_lines = comm.sudo().search([('order_id','=',order.id),('pmt_id','=',False),('invoice_id','=',False),])           
