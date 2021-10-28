@@ -17,7 +17,7 @@
 			<t t-call="web.external_layout">
 				<t t-if="docs">
 				<h2 style="margin-top:10px;text-align: center;width:100%">Vendor 1099 Report</h2>
-					<div class="page" style="font-name:Calibri;page-break-before:always;">
+					<div class="page" style="font-name:Calibri;page-break-after:always;">
 						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 							<thead>
 								<tr style="padding:5px;border-bottom: solid 2px; border-color:#AAA;">
