@@ -22,6 +22,16 @@ class StockPicking(models.Model):
     
     location_id = fields.Many2one(readonly=False)
     location_dest_id = fields.Many2one(readonly=False)
+    bypass_reservation = fields.Boolean(
+        'Bypass Reservations',
+        )
+        
+    @api.onchange('bypass_reservation')
+    def _onchange_bypass_res(self):   
+        for picking in self:
+            header_bypass = picking.bypass_reservation
+            for move in picking.move_lines:
+                move.bypass_reservation = header_bypass
     
     @api.onchange('location_id','location_dest_id')
     def _onchange_locations(self):

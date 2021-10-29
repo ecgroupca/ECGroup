@@ -18,6 +18,7 @@
 						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 							<thead>
 								<tr style="padding:5px;border-bottom: solid 2px; border-color:#AAA;">
+								    <th style="padding:5px;" name="th_customer"><strong>Order #</strong></th>
 									<th style="padding:5px;" name="th_customer"><strong>Invoice #</strong></th>
 									<th style="padding:5px;" name="th_po"><strong>PO #</strong></th>
 									<th style="padding:5px;" name="th_inv_date"><strong>Inv Date</strong></th>
@@ -57,6 +58,8 @@
 						    				
 						    				<t t-set="non_comm_amt" t-value="0.00"/>
 						    				<t t-set="comm_rate" t-value="0.00"/>
+											<t t-set="comm_subtotal" t-value="0.00"/>
+											<t t-set="comm_amt_total" t-value="0.00"/>
 						    				<t t-set="comm_rate_product_count" t-value="0"/>
 						    				<!-- <t t-foreach="comm.order_line.filtered(lambda l: l.product_id.no_commissions)" t-as="line">
 						    					<t t-set="non_comm_amt" t-value="non_comm_amt + line.price_subtotal"/>
@@ -68,6 +71,8 @@
 						    					</t>
 						    					<t t-if="not line.product_id.no_commissions and line.product_id.type not in ['service','consu'] and line.comm_rate &gt; 0.00">
 						    						<t t-set="comm_rate" t-value="comm_rate + line.comm_rate"/>
+													<t t-set="comm_amt_total" t-value="comm_amt_total + line.price_subtotal"/>
+													<t t-set="comm_subtotal" t-value="comm_subtotal + line.comm_rate*line.price_subtotal/100"/>
 						    						<t t-set="comm_rate_product_count" t-value="comm_rate_product_count + 1"/>
 						    					</t>
 						    				</t>
@@ -77,10 +82,10 @@
 						    				</t>
 						    				
 						    				<t t-set="non_comm_amt_total" t-value="non_comm_amt_total + non_comm_amt"/>
-						    				<t t-set="sales_sub_to_commi" t-value="comm.amount_total - non_comm_amt"/>
+						    				<t t-set="sales_sub_to_commi" t-value="comm_amt_total"/>
 						    				<t t-set="sales_sub_to_commi_total" t-value="sales_sub_to_commi_total + sales_sub_to_commi"/>
 						    				
-						    				<t t-set="commi_payable" t-value="sales_sub_to_commi * comm_rate/100"/>
+						    				<t t-set="commi_payable" t-value="comm_subtotal"/>
 						    				<t t-set="comm_payable_total" t-value="comm_payable_total + commi_payable"/>
 						    				
 						    				<t t-set="inv_amt_paid" t-value="0.00"/>
@@ -90,6 +95,7 @@
 						    				<t t-set="inv_amt_paid_total" t-value="inv_amt_paid_total + inv_amt_paid"/>
 						    				
 							    			<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
+											    <td><span t-field="comm.name"/></td>
 							    				<td><span t-field="comm.comm_inv_id" t-if="comm.comm_inv_id"/></td>
 							    				<td><span t-field="comm.client_order_ref"/></td>
 							    				<td><span t-field="comm.comm_inv_id.invoice_date" t-if="comm.comm_inv_id"/></td>
@@ -105,6 +111,7 @@
 					    			<!-- Customer total <tr> -->
 					    			<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
 					    				<td colspan="4" align="center"><strong>Customer <t t-esc="sale_comm[showroom][cust]['ref']"/> Totals : </strong></td>
+										<td align="right"><span>      </span></td>
 					    				<td align="right"><strong><t t-esc="inv_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 					    				<td align="right"><strong><t t-esc="sales_sub_to_commi_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 					    				<td align="right"><strong><t t-esc="non_comm_amt_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
@@ -121,7 +128,8 @@
 								<!-- Salesperson total <tr> -->
 				    			<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
 				    				<td colspan="4" align="center"><strong>Showroom: <t t-esc="showroom"/> Totals : </strong></td>
-				    				<td align="right"><strong><t t-esc="showroom_inv_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+				    				<td align="right"><span>      </span></td>
+									<td align="right"><strong><t t-esc="showroom_inv_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 				    				<td align="right"><strong><t t-esc="showroom_sales_sub_to_commi_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 				    				<td align="right"><strong><t t-esc="showroom_non_comm_amt_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 				    				<td align="right"><strong><t t-esc="showroom_inv_amt_paid_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
