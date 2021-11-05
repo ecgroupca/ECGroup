@@ -168,7 +168,8 @@ class SaleOrder(models.Model):
     comm_inv_paid = fields.Boolean(
         'Commission Invoice Paid?',
         copy=False,
-        readonly=True,
+        readonly=False,
+        store=True,
     )
     
     comm_inv_id = fields.Many2one(
