@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_sales_order_taxes_header" model="ir.ui.view">
+        <field name="name">sale.order.header</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <field name="sale_order_template_id" position="before">
+               <field name="taxes" widget="many2many_tags"/>		   
+            </field>
+		</field>
+	</record>
+</odoo>

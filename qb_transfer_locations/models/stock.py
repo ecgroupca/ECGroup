@@ -22,6 +22,16 @@ class StockPicking(models.Model):
     
     location_id = fields.Many2one(readonly=False)
     location_dest_id = fields.Many2one(readonly=False)
+    bypass_reservation = fields.Boolean(
+        'Bypass Reservations',
+        )
+        
+    @api.onchange('bypass_reservation')
+    def _onchange_bypass_res(self):   
+        for picking in self:
+            header_bypass = picking.bypass_reservation
+            for move in picking.move_lines:
+                move.bypass_reservation = header_bypass
     
     @api.onchange('location_id','location_dest_id')
     def _onchange_locations(self):
@@ -36,7 +46,31 @@ class StockPicking(models.Model):
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
 
-    bypass_reservation = fields.Boolean('Bypass Reservation')                
+    bypass_reservation = fields.Boolean('Bypass Reservation') 
+
+class MRPProductProduceLine(models.TransientModel):
+    _inherit = 'mrp.product.produce.line'
+
+    bypass_reservation = fields.Boolean(
+        'Bypass Reservation',
+        related = 'move_id.bypass_reservation'
+        )    
+
+class StockMoveLine(models.Model):
+    _inherit = 'stock.move.line'
+
+    bypass_reservation = fields.Boolean(
+        'Bypass Reservation',
+        compute = '_compute_bypass',
+        readonly = False,
+        store=True,
+        )
+        
+    @api.depends('move_id')
+    def _compute_bypass(self):
+        for move_line in self:
+            move = move_line.move_id          
+            move_line.bypass_reservation = move and move.bypass_reservation or False
 
 class StockMove(models.Model):
     _inherit = 'stock.move'
@@ -67,10 +101,10 @@ class StockMove(models.Model):
         roundings = {move: move.product_id.uom_id.rounding for move in self}
         move_line_vals_list = []
         for move in self.filtered(lambda m: m.state in ['confirmed', 'waiting', 'partially_available']):
-            if not move.bypass_reservation or (move.bypass_reservation and move._should_bypass_reservation()):               
-                rounding = roundings[move]
-                missing_reserved_uom_quantity = move.product_uom_qty - reserved_availability[move]
-                missing_reserved_quantity = move.product_uom._compute_quantity(missing_reserved_uom_quantity, move.product_id.uom_id, rounding_method='HALF-UP')
+            rounding = roundings[move]
+            missing_reserved_uom_quantity = move.product_uom_qty - reserved_availability[move]
+            missing_reserved_quantity = move.product_uom._compute_quantity(missing_reserved_uom_quantity, move.product_id.uom_id, rounding_method='HALF-UP')
+            if not move.bypass_reservation:
                 if move._should_bypass_reservation():
                     # create the move line(s) but do not impact quants
                     if move.product_id.tracking == 'serial' and (move.picking_type_id.use_create_lots or move.picking_type_id.use_existing_lots):
@@ -183,7 +217,7 @@ class StockMove(models.Model):
                 if move.product_id.tracking == 'serial':
                     move.next_serial_count = move.product_uom_qty
 
-            self.env['stock.move.line'].create(move_line_vals_list)
-            partially_available_moves.write({'state': 'partially_available'})
-            assigned_moves.write({'state': 'assigned'})
-            self.mapped('picking_id')._check_entire_pack()
+        self.env['stock.move.line'].create(move_line_vals_list)
+        partially_available_moves.write({'state': 'partially_available'})
+        assigned_moves.write({'state': 'assigned'})
+        self.mapped('picking_id')._check_entire_pack()

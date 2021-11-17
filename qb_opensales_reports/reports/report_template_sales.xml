@@ -21,6 +21,7 @@
 									<th><strong>Total</strong></th>
 									<th><strong>Deposits</strong></th>
 									<th><strong>Balance</strong></th>
+									<th><strong>Responsible</strong></th>
 									<th><strong>Status</strong></th>
 								</tr>							
 							</thead>
@@ -35,6 +36,7 @@
 	                        			<td><span t-field="o.amount_total"/></td>
 	                        			<td><span t-field="o.deposit_total"/></td>
 										<td><span t-field="o.inv_bal_due"/></td>
+										<td><span t-field="o.user_id"/></td>
 	                        			<td>
 											<t t-if="o.open_production">Open Production,</t>
 											<t t-if="o.open_shipment">Open Shipment</t>

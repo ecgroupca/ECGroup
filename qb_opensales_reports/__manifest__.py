@@ -12,9 +12,11 @@
         'sale_mods_ecgroup',
         'sale_mrp_link',
         'sale_stock',
+        'report_xlsx',
     ],
     'data': [
-        'views/sales_report_view.xml',
+        #'views/sales_report_view.xml',
+        'reports/report_sales.xml',
         'reports/report_template_sales.xml',
         'wizard/sales_report_wizard_view.xml',
     ],

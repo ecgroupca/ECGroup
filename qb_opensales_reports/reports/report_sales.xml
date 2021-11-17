@@ -2,14 +2,14 @@
 <odoo>
 	<data>
 		<report
-			string="Open Sales Report"
-			id="action_report_opensales"
+			id="action_report_opensales_xlsx"
 			model="sale.order"
-			report_type="qweb-pdf"
-			name="qb_opensales_reports.report_sales"
-			file="qb_opensales_reports.report_sales"
-			print_report_name="'Open Sales Report'"
-			menu="True"
+			string="Print to Excel"
+			report_type="xlsx"
+			name="qb_opensales_reports.report_opensales_xlsx"
+			file="qb_opensales_reports.report_opensales_xlsx"
+			attachment_use="False"
+			print_report_name="'Open Sales Excel'"
 		/>
 	</data>
 </odoo>

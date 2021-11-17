@@ -1,51 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<template id="sale_dynamic_barcode_labels">
-		<t t-call="web.basic_layout">
-			<t t-foreach="docs" t-as="barcode">
-				<t t-foreach="range(barcode.qty)" t-as="l">
-					<div class="page">
-							<t t-translation="off">
-								<div style="display: inline-table; height: 288px; width:454px;">
-									<table class="table table-bordered">
-									  <tr>
-									    <td class="text-center align-middle">
-									      <img align="center" t-if="barcode.sale_id.company_id.logo" t-att-src="image_data_uri(barcode.sale_id.company_id.logo)" style="max-width:454px;max-height:75px;" alt="Logo"/>
-									    </td>
-									  </tr>
-										<tr>
-											<th class="table-active text-left">
-												<div>
-												  Order: <span t-esc="barcode.sale_id.name"/>
-												   |  Date: <span t-esc="barcode.sale_id.date_order" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
-												</div>
-												<div>Customer: <span t-esc="barcode.sale_id.partner_id.name"/></div>
-												<div>S/M: <span t-esc="barcode.sale_id.sidemark"/></div>
-												<t t-if="barcode.product_id and not barcode.label_text">
-												    <div>Item: <span t-esc="barcode.product_id.default_code"/></div>
-												</t>
-
-											</th>
-										</tr>
-											<tr>
+		<t t-name="bi_dynamic_barcode_labels.sale_dynamic_barcode_labels">
+				<t t-call="web.basic_layout">
+					<t t-foreach="docs" t-as="barcode">
+						<t t-foreach="range(barcode.qty)" t-as="l">
+							<div class="page">
+									<t t-translation="off">
+										<div style="display: inline-table; height: 288px; width:454px;">
+											<table class="table table-bordered">
+											  <tr>
 												<td class="text-center align-middle">
-													<t t-if="not barcode.label_text and barcode.product_id and barcode.product_id.barcode">
-															<img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', barcode.product_id.barcode, 600, 110)" style="max-width:308px;max-height:100px" alt="Barcode"/>
-															<div t-esc="barcode.product_id.barcode"/>
-													</t>
-													<t t-else="">
-													    <div t-esc="barcode.label_text"/>
-												    </t>
+												  <img align="center" t-if="barcode.sale_id.company_id.logo" t-att-src="image_data_uri(barcode.sale_id.company_id.logo)" style="max-width:454px;max-height:75px;" alt="Logo"/>
 												</td>
-											</tr>
-									</table>
-								</div>
-							</t>
-					  </div>
-					<div style="page-break-before:always;"/>
+											  </tr>
+												<tr>
+													<th class="table-active text-left">
+														<div>
+														  Order: <span t-esc="barcode.sale_id.name"/>
+														   |  Date: <span t-esc="barcode.sale_id.date_order" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+														</div>
+														<div>Customer: <span t-esc="barcode.sale_id.partner_id.name"/></div>
+														<div>S/M: <span t-esc="barcode.sale_id.sidemark"/></div>
+														<t t-if="barcode.product_id">
+														  <t t-if="barcode.product_id.description">
+													  <div>Item: 
+														<span t-esc="'\n'.join(barcode.product_id.description.split('\n', 2)[:2])"/>
+													  </div>
+													</t>
+														  <t t-else="barcode.product_id.name">
+													  <div>Item: 
+														<span t-esc="'\n'.join(barcode.product_id.name.split('\n', 2)[:2])"/>
+													  </div>
+													</t>
+											   </t>
+													</th>
+												</tr>
+													<tr>
+														<td class="text-center align-middle">
+															<t t-if="not barcode.label_text and barcode.product_id and barcode.product_id.barcode">
+																	<img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', barcode.product_id.barcode, 600, 110)" style="max-width:288px;max-height:100px" alt="Barcode"/>
+																	<div t-esc="barcode.product_id.barcode"/>
+															</t>
+															<t t-else="">
+																<div t-esc="barcode.label_text"/>
+															</t>
+														</td>
+													</tr>
+											</table>
+										</div>
+									</t>
+							  </div>
+							<div style="page-break-before:always;"/>
+						</t>
+						<div style="page-break-before:always;"/>
+					</t>
 				</t>
-				<div style="page-break-before:always;"/>
-			</t>
-		</t>
+			</t>   
 	</template>
 </odoo>

@@ -5,7 +5,7 @@ class SaleOrder(models.Model):
     
     received = fields.Boolean("Received", compute="_compute_open_shipments")
     open_shipment = fields.Boolean("Open Shipments",compute="_compute_open_shipments")
-    open_production = fields.Boolean("Open Shipments",compute="_compute_open_shipments")
+    open_production = fields.Boolean("Open Production",compute="_compute_open_shipments")
     needs_drawing = fields.Boolean("Needs Drawing")
     needs_sample_approval = fields.Boolean("Needs Sample Approval")
     
@@ -64,6 +64,7 @@ class SaleOrderLine(models.Model):
                 qty += move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom, rounding_method='HALF-UP')                   
             for move in in_moves:
                 qty -= move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom, rounding_method='HALF-UP')
+            #line.qty_delivered = qty <= line.product_uom_qty and qty or line.product_uom_qty
             line.qty_delivered = qty
                     
                         

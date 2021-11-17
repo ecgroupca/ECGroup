@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+	<record id="import_export_product_list_ept_form_view"
+		model="ir.ui.view">
+		<field name="name">import.export.product.list.view.form</field>
+		<field name="model">import.export.products.ept</field>
+		<field name="arch" type="xml">
+			<form string="Import Export Product List">
+				<group>
+					<group>
+						<field name="report_type" />
+					</group>
+					<group>
+						<field name="update_existing" />
+						<!--Updated by Udit on 18th December 2019-->
+						<field name="update_existing_by" attrs="{'invisible':[('update_existing', '=', False)], 'required':[('update_existing', '!=', False)]}"/>
+					</group>
+					<group>
+						<field name="file" filename="file_name" />
+						<field name="file_name" invisible="1" />
+					</group>
+					<group>
+						<!--Updated by Udit on 18th December 2019-->
+						<field name="file_delimiter"
+							attrs="{'invisible':[('report_type','=','xls')],'required':[('report_type','=','csv')]}" />
+					</group>
+				</group>
+				<group>
+					<div class="alert alert-info" role="alert">
+						<a
+							href="/inter_company_transfer_ept/static/demo_data/importproductlist.csv"
+							target="_blank">
+							<strong>Download Sample product list CSV file</strong>
+						</a>
+					</div>
+					<div class="alert alert-info" role="alert">
+						<a
+							href="/inter_company_transfer_ept/static/demo_data/importproductlist.xls"
+							target="_blank">
+							<strong>Download Sample product list Excel file</strong>
+						</a>
+					</div>
+				</group>
+				<footer>
+					<button name="import_product_list" type="object"
+						string="Import Product List" class="oe_highlight" />
+					<button name="export_product_list" class="oe_highlight"
+						string="Export Product List" type="object" />
+					<button string="_Cancel" class="oe_link" special="cancel" />
+				</footer>
+			</form>
+		</field>
+	</record>
+
+</odoo>

@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+	<!-- Form View added by Maulik Barad on Date 26-Sep-2019. -->
+	<record id="inter_company_transfer_config_ept_form_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.config.ept.form.view</field>
+		<field name="model">inter.company.transfer.config.ept</field>
+		<field name="arch" type="xml">
+			<form string="Inter Company Transfer Configuration" create="0">
+				<sheet>
+					<group string="ICT Configuration">
+						<field name="sequence_id" invisible="1" />
+						<field name="auto_confirm_orders" />
+						<field name="auto_create_invoices" />
+						<field name="auto_validate_invoices"
+							attrs="{'invisible':[('auto_create_invoices','=',False)]}" />
+					</group>
+					<group string="Reverse ICT Configuration">
+						<field name="refund_method" required="True" widget='radio' />
+						<field name="description" />
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
+
+	<!-- Tree View added by Maulik Barad on Date 26-Sep-2019. -->
+	<record id="inter_company_transfer_config_ept_tree_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.config.ept.tree.view</field>
+		<field name="model">inter.company.transfer.config.ept</field>
+		<field name="arch" type="xml">
+			<tree string="Inter Company Transfer Configuration" create="0">
+				<field name="sequence_id" />
+				<field name="auto_confirm_orders" />
+				<field name="auto_create_invoices" />
+				<field name="auto_validate_invoices"
+					attrs="{'invisible':[('auto_create_invoices','=',False)]}" />
+			</tree>
+		</field>
+	</record>
+
+	<!-- Action added by Maulik Barad on Date 26-Sep-2019. -->
+	<record id="inter_company_transfer_config_ept_action"
+		model="ir.actions.act_window">
+		<field name="name">ICT Configuration</field>
+		<field name="res_model">inter.company.transfer.config.ept</field>
+		<field name="view_mode">tree,form</field>
+	</record>
+
+	<!-- Menu added by Maulik Barad on Date 26-Sep-2019. -->
+	<menuitem id="internal_inter_company_transfer_config_ept_menu"
+		action="inter_company_transfer_config_ept_action"
+		parent="intercompany_transaction_ept.inter_company_transfer_ept_main_menu"
+		sequence='4' />
+
+</odoo>

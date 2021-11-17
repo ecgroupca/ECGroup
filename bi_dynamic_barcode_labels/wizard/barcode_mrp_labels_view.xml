@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_barcode_mrp_labels" model="ir.ui.view">
+        <field name="name">Print External Labels</field>
+        <field name="model">barcode.mrp.labels.wiz</field>
+        <field name="arch" type="xml">
+            <form string="External Product Labels">
+                <sheet>
+                    <group>
+                        <separator string="Product Labels to Print" colspan="4"/>
+                        <field name="product_barcode_ids" nolabel="1">
+                            <tree editable="bottom">
+							    <field name="sale_id" style="max-width:15%;"/>
+                                <field name="product_id" style="max-width:40px;"/>
+								<field name="label_text" style="width:50%;"/>
+                                <field name="qty" style="max-width:10%;"/>
+                            </tree>
+                        </field>
+                    </group>
+                    <span class="o_form_label" style="font-weight:bold;">More Information about barcode configuration data, please navigate to Inventory -> Settings -> Barcode Configuration</span>
+                </sheet>
+                <footer>
+                    <button name="print_barcode_labels" string="Print" type="object" 
+                        class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <act_window name="External Product Labels"
+        res_model="barcode.mrp.labels.wiz"
+        binding_model="mrp.production"
+        view_mode="form"
+        target="new"
+        id="action_mrp_view_barcode_product_labels"
+    />
+
+</odoo>

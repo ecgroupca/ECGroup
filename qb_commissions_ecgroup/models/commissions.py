@@ -3,7 +3,7 @@
 #
 #    Quickbeam ERP.
 #
-#    Copyright (C) 2020-TODAY, Quickbeam, LLC.
+#    Copyright (C) 2021-TODAY, Quickbeam, LLC.
 #    Author: Adam O'Connor <aoconnor@quickbeamllc.com>
 #
 #    You can modify it under the terms of the GNU AFFERO
@@ -70,8 +70,21 @@ class AccountPayment(models.Model):
         #assign the pmt_id for each commission paid by this one.
         if res:
             for pmt in self:
+                amt_due = 0
+                amt_res = 0
+                amt_inv = 0
+                sale = pmt.sale_id                 
+                if sale:                
+                    for invoice in sale.invoice_ids:
+                        if invoice.state=='posted':
+                            amt_res += invoice.amount_residual
+                            amt_inv += invoice.amount_total
+                    sale.inv_bal_due = (sale.amount_total - amt_inv) + amt_res                    
                 for invoice in pmt.invoice_ids:
                     commissions = self.env['sale.commission'].search([('invoice_id','=',invoice.id)])
+                    comm_sale = self.env['sale.order'].search([('comm_inv_id','=',invoice.id)])
+                    if invoice.amount_residual == 0:
+                        comm_sale.comm_inv_paid = True
                     for comm in commissions:
                         comm.pmt_id = pmt
         
@@ -92,13 +105,71 @@ class CRMTeam(models.Model):
         readonly = False,
         stored = True,
     )
+
+
+class SaleOrderLine(models.Model):
+    _inherit = 'sale.order.line'
+
+    @api.model
+    def create(self, vals):
+        if 'order_id' in vals:
+            def_comm_rate = self.env['sale.order'].browse(vals['order_id'])
+            def_comm_rate = def_comm_rate and def_comm_rate.team_id
+            def_comm_rate = def_comm_rate and def_comm_rate.default_comm_rate
+            vals['comm_rate'] = def_comm_rate
+        return super(SaleOrderLine, self).create(vals)
+            
+        
         
 class SaleOrder(models.Model):
     _inherit = "sale.order"
     
+    comm_rate = fields.Float(
+        string="Commission Rate",
+        store = True,
+        )
+        
+    """@api.depends('team_id')     
+    def _compute_comm_rate(self):
+        for sale in self:
+            sale.comm_rate = sale.team_id and sale.team_id.default_comm_rate or 0.00  
+            header_rate = sale.comm_rate
+            for line in sale.order_line:
+                if line.product_id and not line.product_id.no_commissions: 
+                    if line.product_id.type not in ['service','consu']:
+                        line.comm_rate = header_rate"""
+            
+    @api.onchange('comm_rate')
+    def _onchange_comm_rate(self):   
+        for sale in self:
+            header_rate = sale.comm_rate
+            if header_rate:
+                for line in sale.order_line:
+                    if line.product_id and not line.product_id.no_commissions: 
+                        if line.product_id.type not in ['service','consu']:
+                            line.comm_rate = header_rate
+                            
+    @api.onchange('team_id')
+    def _onchange_sales_team(self):
+        for sale in self:
+            def_comm_rate = sale.team_id.default_comm_rate
+            sale.comm_rate = def_comm_rate
+            for line in sale.order_line:
+                if line.product_id and not line.product_id.no_commissions: 
+                    if line.product_id.type not in ['service','consu']:
+                        line.comm_rate = def_comm_rate
+    
+    comm_total = fields.Float(
+        'Total Commisions', 
+        compute="_compute_comm_total",
+        store = True,
+        )
+    
     comm_inv_paid = fields.Boolean(
         'Commission Invoice Paid?',
         copy=False,
+        readonly=False,
+        store=True,
     )
     
     comm_inv_id = fields.Many2one(
@@ -107,7 +178,26 @@ class SaleOrder(models.Model):
         copy=False,
         readonly=True,
     )
-
+    
+    #1. compute the total commission for an order
+    #2. base the report on sale order (lines) instead of these comm objects
+    #3. base the comm_inv_paid on the comm_inv_id
+    #4. report on amount of commissions paid for a given order that has 
+    #   non-zero comm rate on at least one line
+    @api.depends('order_line')
+    def _compute_comm_total(self):
+        for sale in self:
+            total_comm = 0
+            for line in sale.order_line:
+                line_comm = 0
+                if line.comm_rate and line.price_unit and line.product_uom_qty:
+                    if line.product_id and not line.product_id.no_commissions and line.product_id.type not in ['service','consu']:
+                        line_comm = line.comm_rate*line.price_unit*line.product_uom_qty/100
+                        total_comm += line_comm
+                    else:
+                        line.comm_rate = 0
+            sale.comm_total = total_comm  
+            
     @api.depends('comm_inv_id')
     def _commission_inv_paid(self):
         for order in self:
@@ -119,21 +209,29 @@ class SaleOrder(models.Model):
     def action_confirm(self): 
         res = super(SaleOrder,self).action_confirm()
         #create new commissions object
-        for line in self.order_line:
-            if line.comm_rate and not line.product_id.no_commissions and line.product_id.type != 'service':
-                client_po = self.client_order_ref and str(self.client_order_ref) or ''
-                vals = {
-                    'name': 'Order: ' + self.name  + ' commissions.',
-                    'ref':client_po,
-                    'order_line': line.id,
-                    'state': 'draft',
-                    }
-                self.env['sale.commission'].create(vals)
+        #set the commissions rate for each line to the default from the showroom
+        for sale in self:
+            def_comm_rate = sale.team_id.default_comm_rate
+            sale.comm_rate = def_comm_rate
+            for line in sale.order_line:
+                if line.product_id and not line.product_id.no_commissions: 
+                    if line.product_id.type not in ['service','consu']:
+                        line.comm_rate = def_comm_rate
+            for line in sale.order_line:
+                if line.comm_rate and not line.product_id.no_commissions and line.product_id.type not in ['service','consu']:
+                    client_po = self.client_order_ref and str(self.client_order_ref) or ''
+                    vals = {
+                        'name': 'Order: ' + self.name  + ' commissions.',
+                        'ref':client_po,
+                        'order_line': line.id,
+                        'state': 'draft',
+                        }
+                    self.env['sale.commission'].create(vals)
         return res
         
-    def pay_commission(self):    
-        self._create_comm_invoices()
-
+    def pay_commission(self): 
+    
+        move = self._create_comm_invoices()
         inv_form = self.env.ref('account.view_move_form', False)
 
         return {
@@ -146,6 +244,8 @@ class SaleOrder(models.Model):
             'views': [(inv_form.id, 'form')],
             'view_id': 'inv_form.id',
             'flags': {'action_buttons': True},
+            'context': self._context,
+            'res_id': move and move.id or False,
         }
             
     def _prepare_comm_invoice(self):
@@ -208,17 +308,17 @@ class SaleOrder(models.Model):
             if order.state not in ['draft','cancel'] and order.inv_bal_due <= 0.00:
                 done = True
                 for line in order.order_line:
-                    if line.qty_to_deliver > line.qty_delivered:
+                    if line.product_id.type == 'product' and line.product_uom_qty > line.qty_delivered:
                         done = False
                         break
-            if done and order.invoice_status not in ['to invoice','no']:
+            if done:
                 invoice_vals_list = []
                 invoice_vals = order._prepare_comm_invoice()
                 comm_lines = comm.sudo().search([('order_id','=',order.id),('pmt_id','=',False),('invoice_id','=',False),])           
                 if not comm_lines:
                     #create new commissions objects because they haven't been created before.
                     for line in order.order_line:
-                        if line.comm_rate and not line.product_id.no_commissions and line.product_id.type != 'service':
+                        if line.comm_rate and not line.product_id.no_commissions and line.product_id.type not in ['service','consu']:
                             client_po = self.client_order_ref and str(self.client_order_ref) or ''
                             vals = {
                                 'name': 'Order: ' + order.name  + ' commissions.',
