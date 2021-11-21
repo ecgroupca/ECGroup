@@ -8,11 +8,15 @@
     'depends': [
         'sale_management',
         'stock',
+        'qb_transfer_locations',
+        'sale_mods_ecgroup',
+        'qb_opensales_reports',
     ],
     'data': [
         'reports/report_sales.xml',
         'reports/report_template_sales.xml',
         'wizard/sales_report_wizard_view.xml',
+        
     ],
     'application': True,
     'installable': True,
