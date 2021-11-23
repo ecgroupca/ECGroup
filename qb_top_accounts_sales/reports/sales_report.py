@@ -4,6 +4,136 @@ from datetime import datetime
 from odoo.exceptions import UserError
 import logging
 _logger = logging.getLogger(__name__)
+import io
+import base64
+
+class TopAccountsXlsx(models.AbstractModel):
+
+    _name = 'report.qb_top_accounts_sales.report_top_accounts_xlsx'
+    _description = 'Top Sales Accounts Report Xlsx'
+    _inherit = 'report.report_xlsx.abstract'
+    
+    
+    def generate_xlsx_report(self, workbook, data, report):
+        date_from = date_to = fields.Date.today()
+        group_showrooms = data['form'].get('group_showrooms',False)
+        partner_obj = self.env['res.partner']
+        showroom_obj = self.env['crm.team']        
+        where_clause = ' WHERE' 
+        showrooms = {}
+        partners = partner_obj
+        top_clients = data['form'].get('top_clients',False)
+        company_id = data['form'].get('company_id', False)
+        company_id = company_id and company_id[0] or None  
+        if company_id:
+            where_clause += " SO.COMPANY_ID ='%s' AND"%(company_id)
+        date_from = fields.Date.from_string(data['form'].get('date_from'))
+        date_to = fields.Date.from_string(data['form'].get('date_to'))       
+        if date_from and date_to:
+            date_from_display = date_from.strftime("%m-%d-%Y")
+            date_to_display = date_to.strftime("%m-%d-%Y")
+            if date_to < date_from:
+                raise UserError(_('Your date from is greater than date to.')) 
+            where_clause += " SO.DATE_ORDER >= '%s' AND SO.DATE_ORDER <= '%s' AND"%(date_from,date_to) 
+        sheet = workbook.add_worksheet('Top Sales Accounts')
+        bold = workbook.add_format({'bold': True})
+        title = workbook.add_format({'bold': True,'font_size': 20})
+        i,j = 0,0 
+        if company_id:
+            logo = self.env['res.company'].browse(company_id).logo_web
+            logo = io.BytesIO(base64.b64decode(logo))
+            sheet.insert_image('H1', "logo.png", {'image_data': logo,}) 
+            j = 1           
+        sheet.write(1, 1, 'Top Sales Accounts', title)   
+        if date_to and date_from:
+            sheet.write(2, j+2, 'Date From: ' + date_from_display, bold)      
+            sheet.write(2, j+3, 'Date To: ' + date_to_display, bold)       
+        if group_showrooms:                
+            query = """SELECT SUM(SO.AMOUNT_TOTAL),SO.TEAM_ID,P.ID FROM SALE_ORDER SO 
+                LEFT JOIN RES_PARTNER P ON P.ID = SO.PARTNER_ID
+                LEFT JOIN CRM_TEAM CT ON CT.ID = SO.TEAM_ID
+                %s
+                SO.STATE IN ('done','sale')
+                AND SO.AMOUNT_TOTAL > 0
+                AND CT.ACTIVE = 't'
+                GROUP BY SO.TEAM_ID,P.ID ORDER BY 1 DESC
+                """%(where_clause)
+            self.env.cr.execute(query)
+            sm_client_sums = self.env.cr.fetchall()
+            for client in sm_client_sums:
+                team_id = 0
+                if client[1]:
+                    partner = partner_obj.browse(client[2])
+                    partners += partner
+                    team_id = client[1]                
+                if team_id in showrooms and len(showrooms[team_id]) < top_clients:
+                    showrooms[team_id].append(partner)
+                elif team_id not in showrooms:
+                    showrooms.update({team_id:[partner]}) 
+            for team_id in showrooms.keys():
+                j+=2               
+                showroom = showroom_obj.browse(team_id) or 'Not found'            
+                sheet.write(i+j+4, 1, 'Showroom: ' + showroom.name, bold)
+                sheet.write(i+j+5, 0, 'Client', bold)
+                sheet.write(i+j+5, 1, 'Total', bold)
+                sheet.write(i+j+5, 2, 'Street', bold)
+                sheet.write(i+j+5, 3, 'Street 2', bold)
+                sheet.write(i+j+5, 4, 'City', bold)
+                sheet.write(i+j+5, 5, 'State', bold)
+                sheet.write(i+j+5, 6, 'Zip Code', bold)
+                sheet.write(i+j+5, 7, 'Country', bold)
+                
+                for cust in showrooms[team_id]: 
+                    i+=1  
+                    amount_total = 0.00
+                    for sale in cust.sale_order_ids:
+                        if sale.state in ['sale','done'] and sale.team_id == showroom:
+                            amount_total += sale.amount_total             
+                    sheet.write(j+i+5, 0, cust.name, bold)
+                    sheet.write(j+i+5, 1, "% 12.2f" %amount_total)
+                    sheet.write(j+i+5, 2, cust.street)
+                    sheet.write(j+i+5, 3, cust.street2)
+                    sheet.write(j+i+5, 4, cust.city)
+                    sheet.write(j+i+5, 5, cust.state_id.name)
+                    sheet.write(j+i+5, 6, cust.zip)
+                    sheet.write(j+i+5, 7, cust.country_id.name)
+                    i+=1
+        else:
+            query = """SELECT SUM(SO.AMOUNT_TOTAL),P.ID FROM SALE_ORDER SO 
+                LEFT JOIN RES_PARTNER P ON P.ID = SO.PARTNER_ID
+                %s
+                SO.STATE IN ('done','sale')
+                AND SO.AMOUNT_TOTAL > 0
+                GROUP BY P.ID ORDER BY 1 DESC
+                """%(where_clause)
+            self.env.cr.execute(query)
+            client_sums = self.env.cr.fetchall() 
+            sheet.write(i+j+5, 0, 'Client', bold)
+            sheet.write(i+j+5, 1, 'Street', bold)
+            sheet.write(i+j+5, 2, 'Street 2', bold)
+            sheet.write(i+j+5, 3, 'City', bold)
+            sheet.write(i+j+5, 4, 'State', bold)
+            sheet.write(i+j+5, 5, 'Zip Code', bold)
+            sheet.write(i+j+5, 6, 'Country', bold)           
+            for client in client_sums:
+                if len(partners) >= top_clients:
+                    break
+                partner = partner_obj.browse(client[1])
+                #partners += partner                                          
+                i+=1  
+                amount_total = 0.00
+                for sale in partner.sale_order_ids:
+                    if sale.state in ['sale','done']:
+                        amount_total += sale.amount_total             
+                sheet.write(j+i+5, 0, partner.name, bold)
+                sheet.write(j+i+5, 1, "% 12.2f" %amount_total)
+                sheet.write(j+i+5, 2, partner.street)
+                sheet.write(j+i+5, 3, partner.street2)
+                sheet.write(j+i+5, 4, partner.city)
+                sheet.write(j+i+5, 5, partner.state_id.name)
+                sheet.write(j+i+5, 6, partner.zip)
+                sheet.write(j+i+5, 7, partner.country_id.name)
+                i+=1
 
 class TopAccountsReport(models.AbstractModel):
 

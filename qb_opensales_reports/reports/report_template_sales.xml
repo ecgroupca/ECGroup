@@ -66,4 +66,14 @@
 			print_report_name="'Open Sales'"
 			menu="False"
 		/>
+		<report
+			id="action_report_opensales_xlsx"
+			model="sale.order"
+			string="Print to Excel"
+			report_type="xlsx"
+			name="qb_opensales_reports.report_opensales_xlsx"
+			file="qb_opensales_reports.report_opensales_xlsx"
+			attachment_use="False"
+			print_report_name="'Open Sales Excel'"
+		/>
 </odoo>
