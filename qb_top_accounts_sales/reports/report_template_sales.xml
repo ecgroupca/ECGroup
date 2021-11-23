@@ -10,7 +10,7 @@
 					<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 						<thead>
 							<tr>
-								<th><strong>Name</strong></th>
+								<th><strong>Client</strong></th>
 								<th><strong>Amount</strong></th>
 								<th><strong>Street</strong></th>
 								<th><strong>Street 2</strong></th>
@@ -68,7 +68,7 @@
 										<td>
 											<t t-set="showroom_partner_total" t-value="0.00"/>
 											<t t-foreach="p.sale_order_ids" t-as="sale">
-												<t t-if="sale.state in ['sale','done'] and sale.team_id.name == showroom">
+												<t t-if="sale.state in ['sale','done']">
 												   <span t-set="showroom_partner_total" t-value="showroom_partner_total + sale.amount_total"/>
 												</t>
 											</t>
@@ -90,4 +90,14 @@
 		</t>
     </t>
     </template>
+		<report
+			id="action_report_top_accounts_xlsx"
+			model="sale.order"
+			string="Print to Excel"
+			report_type="xlsx"
+			name="qb_top_accounts_sales.report_top_accounts_xlsx"
+			file="qb_top_accounts_sales.report_top_accounts_xlsx"
+			attachment_use="False"
+			print_report_name="'Top Accounts xlsx'"
+		/>
 </odoo>

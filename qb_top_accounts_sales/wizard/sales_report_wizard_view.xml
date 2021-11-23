@@ -16,6 +16,7 @@
             </group>
 			<group col="4">
 			    <field name="group_showrooms"/>
+				<field name="print_excel"/>
             </group>
             <footer>
                 <button name="print_report" string="Print" type="object" default_focus="1" class="oe_highlight"/>
