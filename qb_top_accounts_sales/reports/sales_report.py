@@ -120,9 +120,11 @@ class TopAccountsXlsx(models.AbstractModel):
             sheet.write(i+j+9, 4, 'City', bold)
             sheet.write(i+j+9, 5, 'State', bold)
             sheet.write(i+j+9, 6, 'Zip Code', bold)
-            sheet.write(i+j+9, 7, 'Country', bold)           
+            sheet.write(i+j+9, 7, 'Country', bold)    
+            client_count = 0            
             for client in client_sums:
-                if len(partners) >= top_clients:
+                client_count += 1
+                if client_count > top_clients:
                     break
                 partner = partner_obj.browse(client[1])
                 #partners += partner                                          
