@@ -40,7 +40,7 @@ class TopAccountsXlsx(models.AbstractModel):
         title = workbook.add_format({'bold': True,'font_size': 20})
         i,j = 0,0 
         if company_id:
-            logo = self.env['res.company'].browse(company_id).logo_web
+            logo = self.env['res.company'].browse(company_id).logo
             logo = io.BytesIO(base64.b64decode(logo))
             sheet.insert_image('A1', "logo.png", {'image_data': logo,}) 
             j = 1           
