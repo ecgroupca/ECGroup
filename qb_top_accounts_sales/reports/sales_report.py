@@ -46,7 +46,7 @@ class TopAccountsXlsx(models.AbstractModel):
             j = 1           
         sheet.write(8, 1, 'Top Sales Accounts', title)   
         if date_to and date_from:
-            sheet.write(9, j+1, 'Date From: ' + date_from_display, bold)      
+            sheet.write(9, j, 'Date From: ' + date_from_display, bold)      
             sheet.write(9, j+3, 'Date To: ' + date_to_display, bold)       
         if group_showrooms:                
             query = """SELECT SUM(SO.AMOUNT_TOTAL),SO.TEAM_ID,P.ID FROM SALE_ORDER SO 
@@ -82,7 +82,6 @@ class TopAccountsXlsx(models.AbstractModel):
                 sheet.write(i+j+8, 5, 'State', bold)
                 sheet.write(i+j+8, 6, 'Zip Code', bold)
                 sheet.write(i+j+8, 7, 'Country', bold)
-                sheet.write(i+j+8, 8, 'Company', bold)
                 
                 for cust in showrooms[team_id]: 
                     i+=1  
@@ -103,7 +102,6 @@ class TopAccountsXlsx(models.AbstractModel):
                     sheet.write(j+i+8, 5, cust.state_id and cust.state_id.name or '')
                     sheet.write(j+i+8, 6, cust.zip or '')
                     sheet.write(j+i+8, 7, cust.country_id and cust.country_id.name or '')
-                    sheet.write(j+i+8, 8, cust.country_id and cust.country_id.name or '')
                     i+=1
         else:
             query = """SELECT SUM(SO.AMOUNT_TOTAL),P.ID FROM SALE_ORDER SO 
@@ -116,12 +114,13 @@ class TopAccountsXlsx(models.AbstractModel):
             self.env.cr.execute(query)
             client_sums = self.env.cr.fetchall() 
             sheet.write(i+j+9, 0, 'Client', bold)
-            sheet.write(i+j+9, 1, 'Street', bold)
-            sheet.write(i+j+9, 2, 'Street 2', bold)
-            sheet.write(i+j+9, 3, 'City', bold)
-            sheet.write(i+j+9, 4, 'State', bold)
-            sheet.write(i+j+9, 5, 'Zip Code', bold)
-            sheet.write(i+j+9, 6, 'Country', bold)           
+            sheet.write(i+j+9, 1, 'Total', bold)
+            sheet.write(i+j+9, 2, 'Street', bold)
+            sheet.write(i+j+9, 3, 'Street 2', bold)
+            sheet.write(i+j+9, 4, 'City', bold)
+            sheet.write(i+j+9, 5, 'State', bold)
+            sheet.write(i+j+9, 6, 'Zip Code', bold)
+            sheet.write(i+j+9, 7, 'Country', bold)           
             for client in client_sums:
                 if len(partners) >= top_clients:
                     break
@@ -130,7 +129,7 @@ class TopAccountsXlsx(models.AbstractModel):
                 i+=1  
                 amount_total = 0.00
                 for sale in partner.sale_order_ids:
-                    conditions = sale.state in ['sale','done'] and sale.team_id == showroom
+                    conditions = sale.state in ['sale','done']
                     if company_id:
                         conditions = conditions and sale.company_id.id == company_id
                     if date_from and date_to:
