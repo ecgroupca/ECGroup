@@ -42,7 +42,7 @@ class TopAccountsXlsx(models.AbstractModel):
         if company_id:
             logo = self.env['res.company'].browse(company_id).logo
             logo = io.BytesIO(base64.b64decode(logo))
-            sheet.insert_image('A1', "logo.png", {'image_data': logo,}) 
+            sheet.insert_image('A1', "logo.png", {'image_data':logo,'x_scale': 0.25, 'y_scale': 0.25}) 
             j = 1           
         sheet.write(8, 1, 'Top Sales Accounts', title)   
         if date_to and date_from:
