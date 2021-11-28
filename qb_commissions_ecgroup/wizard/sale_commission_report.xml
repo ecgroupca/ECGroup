@@ -142,8 +142,6 @@
 			</t>
 		</t>
 	</template>
-
-	<data>
 		<report
 			string="Commission Report"
 			id="action_report_sale_commission"
@@ -154,5 +152,14 @@
 			print_report_name="'Commission Report'"
 			menu="False"
 		/>
-	</data>
+		<report
+			id="action_report_sale_commission_xlsx"
+			model="sale.order"
+			string="Print Commissions in Excel"
+			report_type="xlsx"
+			name="qb_commissions_ecgroup.report_sale_commission_xlsx"
+			file="qb_commissions_ecgroup.report_sale_commission_xlsx"
+			attachment_use="False"
+			print_report_name="'Sale Commissions'"
+		/>
 </odoo>
