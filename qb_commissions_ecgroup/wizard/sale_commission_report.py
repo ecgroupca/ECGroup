@@ -65,19 +65,18 @@ class CommissionsReportXlsx(models.AbstractModel):
                 customer_key = 'c_%s'%(commission.partner_id.id)
                 if commission.team_id:
                     team_id = commission.team_id.id           
-                if team_id in showrooms:
-                    if customer_key in showrooms[team_id]:
-                        showrooms[team_id][customer_key]['data'].append(commission)
+                if team_id in sale_comm:
+                    if customer_key in sale_comm[team_id]:
+                        sale_comm[team_id][customer_key]['data'].append(commission)
                     else:
-                        showrooms[team_id].update({customer_key:{'name':commission.partner_id.name,'ref':commission.partner_id.ref ,'id':commission.partner_id.id,'data':[commission]}})
+                        sale_comm[team_id].update({customer_key:{'name':commission.partner_id.name,'ref':commission.partner_id.ref ,'id':commission.partner_id.id,'data':[commission]}})
                 else:
-                    showrooms.update({team_id:{customer_key:{'name':commission.partner_id.name,'ref':commission.partner_id.ref,'id':commission.partner_id.id,'data':[commission]}}})     
+                    sale_comm.update({team_id:{customer_key:{'name':commission.partner_id.name,'ref':commission.partner_id.ref,'id':commission.partner_id.id,'data':[commission]}}})     
             i,j = 0,0
             sheet = workbook.add_worksheet('Commission Report')
             sheet.write(8, 1, 'Sales Commission Report', title) 
-            for team_id in showrooms.keys():
-                j+=2               
-                showroom = showroom_obj.browse(team_id) or 'Not found'   				
+            for showroom in sale_comm:
+                j+=2                 				
                 import pdb;pdb.set_trace()                
                 sheet.write(i+j+7, 1, 'Showroom: ' + showroom.name, bold)
                 sheet.write(i+j+8, 0, 'Order #', bold)
@@ -100,41 +99,55 @@ class CommissionsReportXlsx(models.AbstractModel):
 				non_comm_amt_total = 0.00
 				inv_amt_paid_total = 0.00
 				comm_payable_total = 0.00
-                sheet.write(i+j+9, 1, sale_comm[showroom][cust]['ref'], bold)
-                sheet.write(i+j+9, 3, sale_comm[showroom][cust]['name'], bold)	
+                
+                for cust in sale_comm.get(showroom):
+                    sheet.write(i+j+9, 1, sale_comm[showroom][cust]['ref'], bold)
+                    sheet.write(i+j+9, 3, sale_comm[showroom][cust]['name'], bold)	
 
-				is_previous = s0
-				for comm in sale_comm[showroom][cust]['data']:
-					    				<t t-if="comm and is_previous != comm.name">
-					    					<t t-set="is_previous" t-value="comm.name"/>
-						    				
-						    				<t t-set="inv_total" t-value="inv_total + comm.amount_total"/>
-						    				
-						    				<t t-set="non_comm_amt" t-value="0.00"/>
-						    				<t t-set="comm_rate" t-value="0.00"/>
-											<t t-set="comm_subtotal" t-value="0.00"/>
-											<t t-set="comm_amt_total" t-value="0.00"/>
-						    				<t t-set="comm_rate_product_count" t-value="0"/>                
-                for cust in showrooms[team_id]:
-                    i+=1  
-                    amount_total = 0.00
-                    for sale in cust.sale_order_ids:
-                        conditions = sale.state in ['sale','done'] and sale.team_id == showroom
-                        if company_id:
-                            conditions = conditions and sale.company_id.id == company_id
-                        if date_from and date_to:
-                            conditions = conditions and sale.date_order <= date_to and sale.date_order >= date_from
-                        if conditions:
-                            amount_total += sale.amount_total             
-                    sheet.write(j+i+8, 0, cust.name or '', bold)
-                    sheet.write(j+i+8, 1, "% 12.2f" %amount_total)
-                    sheet.write(j+i+8, 2, cust.street or '')
-                    sheet.write(j+i+8, 3, cust.street2 or '')
-                    sheet.write(j+i+8, 4, cust.city or '')
-                    sheet.write(j+i+8, 5, cust.state_id and cust.state_id.name or '')
-                    sheet.write(j+i+8, 6, cust.zip or '')
-                    sheet.write(j+i+8, 7, cust.country_id and cust.country_id.name or '')
-                    i+=1
+                    is_previous = s0
+                    for comm in sale_comm[showroom][cust]['data']:
+                        if is_previous != comm.name:
+                            is_previous = "comm.name
+                            inv_total = inv_total + comm.amount_total
+                            non_comm_amt = 0.00
+                            comm_rate = 0.00
+                            comm_subtotal = 0.00
+                            comm_amt_total = 0.00
+                            comm_rate_product_count = 0
+
+                            for line in comm.order_line:
+                                if line.product_id.no_commissions or line.product_id.type in ['service','consu']:
+                                    non_comm_amt = non_comm_amt + line.price_subtotal
+                                elif not line.product_id.no_commissions: 
+                                    if line.product_id.type not in ['service','consu'] and line.comm_rate > 0.00:
+                                        comm_rate = comm_rate + line.comm_rate
+                                        comm_amt_total = comm_amt_total + line.price_subtotal
+                                        comm_subtotal = comm_subtotal + line.comm_rate*line.price_subtotal/100
+                                        comm_rate_product_count = comm_rate_product_count + 1 
+                                        
+                                        if comm_rate_product_count > 1:
+                                            comm_rate = comm_rate/comm_rate_product_count
+                                        non_comm_amt_total = non_comm_amt_total + non_comm_amt
+                                        sales_sub_to_commi = comm_amt_total
+                                        sales_sub_to_commi_total = sales_sub_to_commi_total + sales_sub_to_commi
+                                        commi_payable = comm_subtotal
+                                        comm_payable_total = comm_payable_total + commi_payable
+                                        inv_amt_paid = 0.00
+                                        
+                                        if comm.comm_inv_id:
+                                            inv_amt_paid = comm.comm_inv_id.amount_total - comm.comm_inv_id.amount_residual
+                                        inv_amt_paid_total = inv_amt_paid_total + inv_amt_paid 		    			                                    
+                        sheet.write(j+i+8, 0, comm.name or '')
+                        sheet.write(j+i+8, 1, comm.comm_inv_id.name or '')
+                        sheet.write(j+i+8, 2, comm.client_order_ref or '')
+                        sheet.write(j+i+8, 3, comm.comm_inv_id and comm.comm_inv_id.invoice_date or '')
+                        sheet.write(j+i+8, 4, comm_rate or '')
+                        sheet.write(j+i+8, 5, '% 12.2f' %comm.amount_total)
+                        sheet.write(j+i+8, 6, '$' + sales_sub_to_commi)
+                        sheet.write(j+i+8, 7, '$' + non_comm_amt)
+                        sheet.write(j+i+8, 8, '$' + inv_amt_paid)
+                        sheet.write(j+i+8, 9, '$' + commi_payable)
+                        i+=1
                     
 
 class ReportSaleCommissionReport(models.AbstractModel):
