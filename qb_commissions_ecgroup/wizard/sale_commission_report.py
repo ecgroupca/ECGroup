@@ -77,7 +77,7 @@ class CommissionsReportXlsx(models.AbstractModel):
             sheet.write(8, 1, 'Sales Commission Report', title) 
             for showroom in sale_comm:
                 j+=2                 				
-                import pdb;pdb.set_trace()                
+                #import pdb;pdb.set_trace()                
                 sheet.write(i+j+7, 1, 'Showroom: ' + showroom.name, bold)
                 sheet.write(i+j+8, 0, 'Order #', bold)
                 sheet.write(i+j+8, 1, 'Invoice #', bold)
@@ -101,9 +101,9 @@ class CommissionsReportXlsx(models.AbstractModel):
 				comm_payable_total = 0.00
                 
                 for cust in sale_comm.get(showroom):
-                    sheet.write(i+j+9, 1, sale_comm[showroom][cust]['ref'], bold)
-                    sheet.write(i+j+9, 3, sale_comm[showroom][cust]['name'], bold)	
-
+                    import pdb;pdb.set_trace() 
+                    sheet.write(i+j+9, 1, cust['ref'], bold)
+                    sheet.write(i+j+9, 3, cust['name'], bold)
                     is_previous = s0
                     for comm in sale_comm[showroom][cust]['data']:
                         if is_previous != comm.name:
@@ -148,6 +148,30 @@ class CommissionsReportXlsx(models.AbstractModel):
                         sheet.write(j+i+8, 8, '$' + inv_amt_paid)
                         sheet.write(j+i+8, 9, '$' + commi_payable)
                         i+=1
+                        
+                        #Customer totals
+                        sheet.write(j+i+8, 0, "Customer: " + sale_comm[showroom][cust]['ref'] + "Totals :"
+                        sheet.write(j+i+8, 1,"    ")
+                        sheet.write(j+i+8, 2, '$' + inv_total)
+                        sheet.write(j+i+8, 3, '$' + sales_sub_to_commi_total)
+                        sheet.write(j+i+8, 4, '$' + non_comm_amt_total)
+                        sheet.write(j+i+8, 5, '$' + inv_amt_paid_total)
+                        sheet.write(j+i+8, 6, '$' + comm_payable_total)
+                                            
+                        showroom_inv_total = showroom_inv_total + inv_total
+                        showroom_sales_sub_to_commi_total = showroom_sales_sub_to_commi_total + sales_sub_to_commi_total
+                        showroom_non_comm_amt_total = showroom_non_comm_amt_total + non_comm_amt_total
+                        showroom_inv_amt_paid_total = showroom_inv_amt_paid_total + inv_amt_paid_total
+                        showroom_comm_payable_total = showroom_comm_payable_total + comm_payable_total	
+                        i+=2
+                        
+                    sheet.write(j+i+8, 0, "Showroom: "  + showroom + "Totals :"
+                    sheet.write(j+i+8, 1,"    ")
+                    sheet.write(j+i+8, 2, '$' + showroom_inv_total)
+                    sheet.write(j+i+8, 3, '$' + showroom_sales_sub_to_commi_total)
+                    sheet.write(j+i+8, 4, '$' + showroom_non_comm_amt_total)
+                    sheet.write(j+i+8, 5, '$' + showroom_inv_amt_paid_total)
+                    sheet.write(j+i+8, 6, '$' + showroom_comm_payable_total)
                     
 
 class ReportSaleCommissionReport(models.AbstractModel):
