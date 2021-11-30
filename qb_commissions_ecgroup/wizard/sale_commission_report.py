@@ -16,13 +16,16 @@ class CommissionsReportXlsx(models.AbstractModel):
         print_excel = data['form'].get('print_excel',False)
         date_from = fields.Date.from_string(data['form'].get('date_from')) or fields.Date.today()
         date_to = fields.Date.from_string(data['form'].get('date_to')) or fields.Date.today()
-        if date_to < date_from:
-            raise UserError(_('Your date from is greater than date to.'))
+        if date_from and date_to:
+            date_from_display = date_from.strftime("%m-%d-%Y")
+            date_to_display = date_to.strftime("%m-%d-%Y")
+            if date_to < date_from:
+                raise UserError(_('Your date from is greater than date to.')) 
         showroom = data['form'].get('showroom', False)
         remove_paid = data['form'].get('remove_paid', False)   
         #create the domain for sales eligible for commissions  
-        #domain_search = [('inv_bal_due','<=',0),('open_shipment','=',False),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
-        domain_search = [('comm_total','>',0)]
+        domain_search = [('inv_bal_due','<=',0),('open_shipment','=',False),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        #domain_search = [('comm_total','>',0)]
         if showroom:
             domain_search.append(('team_id','in',showroom)) 
         if remove_paid:
@@ -46,8 +49,11 @@ class CommissionsReportXlsx(models.AbstractModel):
                            
             for team_id in sale_comm.keys():                             
                 showroom = showroom_obj.browse(team_id) or 'Not found'                        
-                sheet = workbook.add_worksheet(showroom.name)            
-                sheet.write(1, 2, showroom.name, title)
+                sheet = workbook.add_worksheet(showroom.name)              
+                sheet.write(0, 1, 'Commissions for ' + showroom.name, title)
+                sheet.write(1, 1, date_from_display, subtitle) 
+                sheet.write(1, 3, ' - ', subtitle) 
+                sheet.write(1, 4,  date_to_display, subtitle) 
                 sheet.write(3, 0, 'Order #', bold)
                 sheet.write(3, 1, 'PO #', bold)
                 sheet.write(3, 2, 'Client', bold)               
@@ -56,28 +62,26 @@ class CommissionsReportXlsx(models.AbstractModel):
                 sheet.write(3, 5, 'Total Sale', bold)
                 sheet.write(3, 6, 'Commission', bold)
                 showroom_amt_total = 0.00
-                showroom_comm_payable_total = 0.00
-                place_star = False
+                showroom_comm_payable_total = 0.00                                
                 i=4
-                for sale in sale_comm[team_id]:  
+                for sale in sale_comm[team_id]: 
+                    sales_sub_to_comm = 0.00                
                     comm_rate = 0.00
-                    comm_rate_product_count = 0
-                    comm_subtotal = 0
+                    comm_subtotal = 0.00
+                    place_star = False
                     for line in sale.order_line:
                         if not line.product_id.no_commissions: 
-                            if line.product_id.type not in ['service','consu'] and line.comm_rate > 0.00:
-                                comm_rate = comm_rate + line.comm_rate
-                                comm_rate_product_count = comm_rate_product_count + 1 
-                                comm_subtotal = comm_subtotal + line.comm_rate*line.price_subtotal/100                                
-                                if comm_rate_product_count > 1:
-                                    comm_rate = comm_rate/comm_rate_product_count
+                            if line.product_id.type not in ['service','consu'] and line.comm_rate > 0.00: 
+                                comm_subtotal += line.comm_rate*line.price_subtotal/100
+                                sales_sub_to_comm += line.price_subtotal          
+                    if sales_sub_to_comm:
+                        comm_rate = (comm_subtotal/sales_sub_to_comm)*100                        
                     if comm_rate < 25.00:
-                        place_star = True
-                        
+                        place_star = True                 
                     sheet.write(i, 0, sale.name or '', bold)              
                     sheet.write(i, 1, sale.client_order_ref or '')
                     sheet.write(i, 2, sale.partner_id.name or '')
-                    sheet.write(i, 3, '$' + str("% 12.2f" %comm_rate))
+                    sheet.write(i, 3, str('% 12.2f' %comm_rate) or 0.00)
                     sheet.write(i, 4, place_star and '*' or '')                   
                     sheet.write(i, 5, '$' + str("% 12.2f" %sale.amount_total))
                     sheet.write(i, 6, '$' + str("% 12.2f" %comm_subtotal))
@@ -105,12 +109,15 @@ class CommissionsReportXlsx(models.AbstractModel):
                     sale_comm.update({team_id:{customer_key:{'name':commission.partner_id.name,'ref':commission.partner_id.ref,'id':commission.partner_id.id,'data':[commission]}}})     
             i,j = 0,0
             sheet = workbook.add_worksheet('Commission Report')
-            sheet.write(1, 1, 'Sales Commission Report', title) 
+            sheet.write(0, 1, 'Sales Commission Report', title) 
+            sheet.write(1, 1, date_from_display, subtitle) 
+            sheet.write(1, 3, ' - ', subtitle) 
+            sheet.write(1, 4,  date_to_display, subtitle) 
             for showroom in sale_comm:
-                j+=2               
+                j+=3              
                 showroom_name = showroom_obj.browse(showroom)
                 showroom_name = showroom_name and showroom_name.name or 'Not found'                
-                sheet.write(i+j+1, 1, 'Showroom: ' + showroom_name, subtitle)
+                sheet.write(i+j+1, 2, 'Showroom: ' + showroom_name, subtitle)
                 sheet.write(i+j+2, 0, 'Order #', bold)
                 sheet.write(i+j+2, 1, 'Invoice #', bold)
                 sheet.write(i+j+2, 2, 'PO #', bold)
@@ -143,28 +150,23 @@ class CommissionsReportXlsx(models.AbstractModel):
                             is_previous = comm.name
                             inv_total += comm.amount_total
                             non_comm_amt = 0.00
-                            comm_rate = 0.00
                             comm_subtotal = 0.00
                             comm_amt_total = 0.00
-                            comm_rate_product_count = 0
 
                             for line in comm.order_line:
                                 if line.product_id.no_commissions or line.product_id.type in ['service','consu']:
                                     non_comm_amt = non_comm_amt + line.price_subtotal
                                 elif not line.product_id.no_commissions: 
                                     if line.product_id.type not in ['service','consu'] and line.comm_rate > 0.00:
-                                        comm_rate = comm_rate + line.comm_rate
-                                        comm_amt_total = comm_amt_total + line.price_subtotal
-                                        comm_subtotal = comm_subtotal + line.comm_rate*line.price_subtotal/100
-                                        comm_rate_product_count = comm_rate_product_count + 1 
-                                         
-                            if comm_rate_product_count > 1:
-                                comm_rate = comm_rate/comm_rate_product_count
+                                        comm_amt_total += line.price_subtotal
+                                        comm_subtotal += line.comm_rate*line.price_subtotal/100
+                                      
                             non_comm_amt_total = non_comm_amt_total + non_comm_amt
                             sales_sub_to_commi = comm_amt_total
-                            sales_sub_to_commi_total = sales_sub_to_commi_total + sales_sub_to_commi
+                            sales_sub_to_commi_total += sales_sub_to_commi
                             commi_payable = comm_subtotal
                             comm_payable_total = comm_payable_total + commi_payable
+                            comm_rate = (commi_payable/sales_sub_to_commi)*100
                             inv_amt_paid = 0.00
                             
                             if comm.comm_inv_id:
@@ -174,7 +176,7 @@ class CommissionsReportXlsx(models.AbstractModel):
                         sheet.write(j+i+3, 1, comm.comm_inv_id and comm.comm_inv_id.name or '')
                         sheet.write(j+i+3, 2, comm.client_order_ref or '')
                         sheet.write(j+i+3, 3, comm.comm_inv_id and comm.comm_inv_id.invoice_date or '')
-                        sheet.write(j+i+3, 4, '$' + str('% 12.2f' %comm_rate) or 0)
+                        sheet.write(j+i+3, 4, str('% 12.2f' %comm_rate) or 0.00)
                         sheet.write(j+i+3, 5, '$' + str('% 12.2f' %comm.amount_total))
                         sheet.write(j+i+3, 6, '$' + str('% 12.2f' %sales_sub_to_commi))
                         sheet.write(j+i+3, 7, '$' + str('% 12.2f' %non_comm_amt))
@@ -218,7 +220,9 @@ class ReportSaleCommissionReport(models.AbstractModel):
         showroom = data['form'].get('showroom', False)
         remove_paid = data['form'].get('remove_paid', False)   
         #create the domain for sales eligible for commissions  
-        domain_search = [('inv_bal_due','<=',0),('open_shipment','=',False),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        #domain_search = [('inv_bal_due','<=',0),('open_shipment','=',False),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        domain_search = [('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        
         if showroom:
             domain_search.append(('team_id','in',showroom)) 
         if remove_paid:
