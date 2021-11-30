@@ -24,8 +24,8 @@ class CommissionsReportXlsx(models.AbstractModel):
         showroom = data['form'].get('showroom', False)
         remove_paid = data['form'].get('remove_paid', False)   
         #create the domain for sales eligible for commissions  
-        domain_search = [('inv_bal_due','<=',0),('open_shipment','=',False),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
-        #domain_search = [('comm_total','>',0)]
+        #domain_search = [('inv_bal_due','<=',0),('open_shipment','=',False),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        domain_search = [('comm_total','>',0)]
         if showroom:
             domain_search.append(('team_id','in',showroom)) 
         if remove_paid:
@@ -90,8 +90,8 @@ class CommissionsReportXlsx(models.AbstractModel):
                     showroom_amt_total += sale.amount_total
                     showroom_comm_payable_total += comm_subtotal
                 sheet.write(i, 3, showroom.name + ' Total:',bold)
-                sheet.write(i, 5, '$' + str("% 12.2f" %showroom_amt_total),bold)
-                sheet.write(i, 6, '$' + str("% 12.2f" %showroom_comm_payable_total),bold)
+                sheet.write(i, 5, '$' + str("%12.2f" %showroom_amt_total),bold)
+                sheet.write(i, 6, '$' + str("%12.2f" %showroom_comm_payable_total),bold)
                 if place_star:
                     sheet.write(i+1, 2,'*Reduced Commission due to split or discount applied')
 
@@ -167,15 +167,16 @@ class CommissionsReportXlsx(models.AbstractModel):
                             commi_payable = comm_subtotal
                             comm_payable_total = comm_payable_total + commi_payable
                             comm_rate = (commi_payable/sales_sub_to_commi)*100
-                            inv_amt_paid = 0.00
-                            
+                            inv_amt_paid = 0.00                          
                             if comm.comm_inv_id:
                                 inv_amt_paid = comm.comm_inv_id.amount_total - comm.comm_inv_id.amount_residual
-                            inv_amt_paid_total = inv_amt_paid_total + inv_amt_paid 	                                        
+                                commi_payable = commi_payable - inv_amt_paid
+                            inv_amt_paid_total = inv_amt_paid_total + inv_amt_paid
+                            comm_payable_total = comm_payable_total - inv_amt_paid_total                           
                         sheet.write(j+i+3, 0, comm.name or '')
                         sheet.write(j+i+3, 1, comm.comm_inv_id and comm.comm_inv_id.name or '')
                         sheet.write(j+i+3, 2, comm.client_order_ref or '')
-                        sheet.write(j+i+3, 3, comm.comm_inv_id and comm.comm_inv_id.invoice_date or '')
+                        sheet.write(j+i+3, 3, comm.comm_inv_id and comm.comm_inv_id.invoice_date.strftime("%m/%d/%Y, %H:%M:%S") or '')
                         sheet.write(j+i+3, 4, str('% 12.2f' %comm_rate) or 0.00)
                         sheet.write(j+i+3, 5, '$' + str('% 12.2f' %comm.amount_total))
                         sheet.write(j+i+3, 6, '$' + str('% 12.2f' %sales_sub_to_commi))
@@ -202,7 +203,7 @@ class CommissionsReportXlsx(models.AbstractModel):
                 sheet.write(j+i+3, 6, '$' + str('% 12.2f' %showroom_sales_sub_to_commi_total), bold)
                 sheet.write(j+i+3, 7, '$' + str('% 12.2f' %showroom_non_comm_amt_total), bold)
                 sheet.write(j+i+3, 8, '$' + str('% 12.2f' %showroom_inv_amt_paid_total), bold)
-                sheet.write(j+i+3, 9, '$' + str('% 12.2f' %showroom_comm_payable_total), bold)
+                sheet.write(j+i+3, 9, '$' + str('% 12.2f' %(showroom_comm_payable_total - showroom_inv_amt_paid_total)), bold)
                 i+=1
                     
 
