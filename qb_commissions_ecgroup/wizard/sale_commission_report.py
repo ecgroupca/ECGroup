@@ -135,6 +135,7 @@ class CommissionsReportXlsx(models.AbstractModel):
                 showroom_comm_payable_total = 0.00
                 
                 for cust in sale_comm.get(showroom):
+                    i+=1
                     sheet.write(i+j+3, 0, sale_comm[showroom][cust]['ref'] or '', bold_cust)
                     sheet.write(i+j+3, 1, sale_comm[showroom][cust]['name'] or 'No name', bold_cust)
                     inv_total = 0.00
@@ -197,7 +198,8 @@ class CommissionsReportXlsx(models.AbstractModel):
                     showroom_non_comm_amt_total = showroom_non_comm_amt_total + non_comm_amt_total
                     showroom_inv_amt_paid_total = showroom_inv_amt_paid_total + inv_amt_paid_total
                     showroom_comm_payable_total = showroom_comm_payable_total + comm_payable_total	
-                i+=2                  
+                    i+=1
+                i+=1                  
                 sheet.write(j+i+3, 1, "Showroom \'"  + showroom_name + "\' Totals:", bold)
                 sheet.write(j+i+3, 5, '$' + str('% 12.2f' %showroom_inv_total), bold)
                 sheet.write(j+i+3, 6, '$' + str('% 12.2f' %showroom_sales_sub_to_commi_total), bold)
