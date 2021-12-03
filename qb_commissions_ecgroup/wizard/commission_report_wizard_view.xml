@@ -8,13 +8,16 @@
         <form string="Report Commission">
 		    <group col="4">
 			    <field name="remove_paid"/>
+			    <field name="showroom" widget="many2many_tags"/>
 			</group>
             <group col="4">
                 <field name="date_from"/>
                 <field name="date_to"/>
-                <field name="showroom" widget="many2many_tags"/>
+                
             </group>
-            <group>
+            <group col="4">
+				<field name="print_excel"/>
+				<field name="print_excel_std"/>
             </group>
             <footer>
                 <button name="print_report" string="Print" type="object" default_focus="1" class="oe_highlight"/>
