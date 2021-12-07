@@ -167,7 +167,7 @@ class CommissionsReportXlsx(models.AbstractModel):
                             sales_sub_to_commi_total += sales_sub_to_commi
                             commi_payable = comm_subtotal
                             comm_payable_total = comm_payable_total + commi_payable
-                            comm_rate = (commi_payable/sales_sub_to_commi)*100
+                            comm_rate = sales_sub_to_commi and (commi_payable/sales_sub_to_commi)*100 or 0.00
                             inv_amt_paid = 0.00                          
                             if comm.comm_inv_id:
                                 inv_amt_paid = comm.comm_inv_id.amount_total - comm.comm_inv_id.amount_residual
