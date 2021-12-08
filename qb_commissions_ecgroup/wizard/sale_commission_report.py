@@ -74,8 +74,7 @@ class CommissionsReportXlsx(models.AbstractModel):
                             if line.product_id.type not in ['service','consu'] and line.comm_rate > 0.00: 
                                 comm_subtotal += line.comm_rate*line.price_subtotal/100
                                 sales_sub_to_comm += line.price_subtotal          
-                    if sales_sub_to_comm:
-                        comm_rate = (comm_subtotal/sales_sub_to_comm)*100                        
+                    comm_rate = sales_sub_to_comm and (comm_subtotal/sales_sub_to_comm)*100 or 0.00                    
                     if comm_rate < 25.00:
                         place_star = True                 
                     sheet.write(i, 0, sale.name or '', bold)              
@@ -167,7 +166,7 @@ class CommissionsReportXlsx(models.AbstractModel):
                             sales_sub_to_commi_total += sales_sub_to_commi
                             commi_payable = comm_subtotal
                             comm_payable_total = comm_payable_total + commi_payable
-                            comm_rate = (commi_payable/sales_sub_to_commi)*100
+                            comm_rate = sales_sub_to_commi and (commi_payable/sales_sub_to_commi)*100 or 0.00
                             inv_amt_paid = 0.00                          
                             if comm.comm_inv_id:
                                 inv_amt_paid = comm.comm_inv_id.amount_total - comm.comm_inv_id.amount_residual
