@@ -7,7 +7,7 @@
 					<div class="page" style="font-name:Calibri;page-break-before:always;">
 						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 							<tr>
-								<td><strong>Open Purchase Report Report</strong></td>
+								<td><strong>Open Purchases</strong></td>
 								<td rowspan="3"><h6>PLEASE REVIEW AND REPLY<br/>WITH ESTIMATED COMPLETION DATE</h6></td>
 								<td rowspan="3" align="center">Please complete and fax to:<br/>310-818-5548<br/>Attn. Anita</td>
 							</tr>
@@ -15,7 +15,7 @@
 								<td><strong>Vendor : <span t-if="sm[vendor]['ref']"><t t-esc="sm[vendor]['ref']"/> - </span><t t-esc="sm[vendor]['name']"/></strong></td>
 							</tr>
 							<tr>
-								<td><span t-if="date_from"><strong>Opend Orders : </strong><t t-esc="date_from"/> <strong>  -  </strong> <t t-esc="date_to"/></span></td>
+								<td><span t-if="date_from"><strong>Open Orders : </strong><t t-esc="date_from"/> <strong>  -  </strong> <t t-esc="date_to"/></span></td>
 							</tr>
 						</table>
 						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
