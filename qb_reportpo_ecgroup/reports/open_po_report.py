@@ -21,7 +21,7 @@ class ReportOpenPOReport(models.AbstractModel):
         if partner_ids:
             domain_search.append(('partner_id','in',partner_ids))
         
-        po_ids = self.env['purchase.order'].search(domain_search,order="id desc")
+        po_ids = self.env['purchase.order'].search(domain_search,order="date_order asc")
         
         sm = {}
         for po in po_ids:
