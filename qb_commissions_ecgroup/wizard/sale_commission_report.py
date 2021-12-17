@@ -24,8 +24,8 @@ class CommissionsReportXlsx(models.AbstractModel):
         showroom = data['form'].get('showroom', False)
         remove_paid = data['form'].get('remove_paid', False)   
         #create the domain for sales eligible for commissions  
-        #domain_search = [('inv_bal_due','<=',0),('open_shipment','=',False),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
-        domain_search = [('comm_total','>',0)]
+        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        #domain_search = [('comm_total','>',0)]
         if showroom:
             domain_search.append(('team_id','in',showroom)) 
         if remove_paid:
@@ -222,8 +222,8 @@ class ReportSaleCommissionReport(models.AbstractModel):
         showroom = data['form'].get('showroom', False)
         remove_paid = data['form'].get('remove_paid', False)   
         #create the domain for sales eligible for commissions  
-        #domain_search = [('inv_bal_due','<=',0),('open_shipment','=',False),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
-        domain_search = [('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        #domain_search = [('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
         
         if showroom:
             domain_search.append(('team_id','in',showroom)) 
