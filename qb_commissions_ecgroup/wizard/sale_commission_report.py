@@ -24,7 +24,7 @@ class CommissionsReportXlsx(models.AbstractModel):
         showroom = data['form'].get('showroom', False)
         remove_paid = data['form'].get('remove_paid', False)   
         #create the domain for sales eligible for commissions  
-        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('date_order','>=',date_from),('date_order','<=',date_to)]
         #domain_search = [('comm_total','>',0)]
         if showroom:
             domain_search.append(('team_id','in',showroom)) 
@@ -172,7 +172,8 @@ class CommissionsReportXlsx(models.AbstractModel):
                                 inv_amt_paid = comm.comm_inv_id.amount_total - comm.comm_inv_id.amount_residual
                                 commi_payable = commi_payable - inv_amt_paid
                             inv_amt_paid_total = inv_amt_paid_total + inv_amt_paid
-                            comm_payable_total = comm_payable_total - inv_amt_paid_total                           
+                            if comm_payable_total != 0:
+                                comm_payable_total = comm_payable_total - inv_amt_paid_total                           
                         sheet.write(j+i+3, 0, comm.name or '')
                         sheet.write(j+i+3, 1, comm.comm_inv_id and comm.comm_inv_id.name or '')
                         sheet.write(j+i+3, 2, comm.client_order_ref or '')
@@ -198,13 +199,15 @@ class CommissionsReportXlsx(models.AbstractModel):
                     showroom_inv_amt_paid_total = showroom_inv_amt_paid_total + inv_amt_paid_total
                     showroom_comm_payable_total = showroom_comm_payable_total + comm_payable_total	
                     i+=1
-                i+=1                  
+                i+=1 
+                if showroom_comm_payable_total != 0:
+                    showroom_comm_payable_total - showroom_inv_amt_paid_total                
                 sheet.write(j+i+3, 1, "Showroom \'"  + showroom_name + "\' Totals:", bold)
                 sheet.write(j+i+3, 5, '$' + str('% 12.2f' %showroom_inv_total), bold)
                 sheet.write(j+i+3, 6, '$' + str('% 12.2f' %showroom_sales_sub_to_commi_total), bold)
                 sheet.write(j+i+3, 7, '$' + str('% 12.2f' %showroom_non_comm_amt_total), bold)
                 sheet.write(j+i+3, 8, '$' + str('% 12.2f' %showroom_inv_amt_paid_total), bold)
-                sheet.write(j+i+3, 9, '$' + str('% 12.2f' %(showroom_comm_payable_total - showroom_inv_amt_paid_total)), bold)
+                sheet.write(j+i+3, 9, '$' + str('% 12.2f' %showroom_comm_payable_total), bold)
                 i+=1
                     
 
@@ -222,7 +225,7 @@ class ReportSaleCommissionReport(models.AbstractModel):
         showroom = data['form'].get('showroom', False)
         remove_paid = data['form'].get('remove_paid', False)   
         #create the domain for sales eligible for commissions  
-        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
+        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('date_order','>=',date_from),('date_order','<=',date_to)]
         #domain_search = [('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
         
         if showroom:
