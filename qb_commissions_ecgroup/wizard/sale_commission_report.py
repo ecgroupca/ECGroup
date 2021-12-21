@@ -34,7 +34,7 @@ class CommissionsReportXlsx(models.AbstractModel):
         domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),]
         domain_search.append(('fully_shipped_date','<=',date_to))
         domain_search.append(('fully_paid_date','<=',date_to))
-        domain_search.append('|',('fully_paid_date','>=',date_from),('fully_shipped_date','>=',date_from))
+        domain_search += ['|',('fully_paid_date','>=',date_from),('fully_shipped_date','>=',date_from)]
         if showroom:
             domain_search.append(('team_id','in',showroom)) 
         if remove_paid:
@@ -237,7 +237,7 @@ class ReportSaleCommissionReport(models.AbstractModel):
         domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),]
         domain_search.append(('fully_shipped_date','<=',date_to))
         domain_search.append(('fully_paid_date','<=',date_to))
-        domain_search.append('|',('fully_paid_date','>=',date_from),('fully_shipped_date','>=',date_from))       
+        domain_search += ['|',('fully_paid_date','>=',date_from),('fully_shipped_date','>=',date_from)]    
         if showroom:
             domain_search.append(('team_id','in',showroom)) 
         if remove_paid:
