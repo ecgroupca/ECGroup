@@ -36,7 +36,8 @@ class ProductProduct(models.Model):
     
 
 class StockPicking(models.Model):
- 
+    _inherit = "stock.picking"
+    
     def action_done(self):
         res = super(StockPicking, self).action_done()
         if res:        
