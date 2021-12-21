@@ -22,6 +22,19 @@
 from odoo import api, fields, models, _
 from odoo.exceptions import UserError
 
+
+class ProductTemplate(models.Model):
+    _inherit = "product.template"
+    
+    no_commissions = fields.Boolean('Not eligible for commissions')
+    
+
+class ProductProduct(models.Model):
+    _inherit = "product.product"
+    
+    no_commissions = fields.Boolean('Not eligible for commissions')
+    
+
 class StockPicking(models.Model):
  
     def action_done(self):
@@ -36,3 +49,4 @@ class StockPicking(models.Model):
                             done = False
                             break
                     sale.fully_shipped_date = done and pick.date_done or False
+        return res
