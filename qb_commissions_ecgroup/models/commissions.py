@@ -79,7 +79,9 @@ class AccountPayment(models.Model):
                         if invoice.state=='posted':
                             amt_res += invoice.amount_residual
                             amt_inv += invoice.amount_total
-                    sale.inv_bal_due = (sale.amount_total - amt_inv) + amt_res                    
+                    sale.inv_bal_due = (sale.amount_total - amt_inv) + amt_res
+                    if sale.inv_bal_due == 0:
+                        sale.fully_paid_date = pmt.payment_date                    
                 for invoice in pmt.invoice_ids:
                     commissions = self.env['sale.commission'].search([('invoice_id','=',invoice.id)])
                     comm_sale = self.env['sale.order'].search([('comm_inv_id','=',invoice.id)])
@@ -127,6 +129,14 @@ class SaleOrder(models.Model):
     comm_rate = fields.Float(
         string="Commission Rate",
         store = True,
+        )
+        
+    fully_paid_date =  = fields.Datetime(
+        'Fully Paid Date',
+        )
+        
+    fully_shipped_date =  = fields.Datetime(
+        'Fully Shipped Date',
         )
         
     """@api.depends('team_id')     
