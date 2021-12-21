@@ -24,8 +24,17 @@ class CommissionsReportXlsx(models.AbstractModel):
         showroom = data['form'].get('showroom', False)
         remove_paid = data['form'].get('remove_paid', False)   
         #create the domain for sales eligible for commissions  
-        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('date_order','>=',date_from),('date_order','<=',date_to)]
-        #domain_search = [('comm_total','>',0)]
+        #    - Both shipped and paid have to be satisfied for that month to be considered for that month.  
+        #+ No need for from/to - need a month to select.  
+	    #- On main report excel version, we are to have one showroom per worksheet.
+        #if an order was shipped in Dec but not fully paid until Jan, then it was a Jan order.
+        #If an order was paid in Dec but not shipped until Jan, then Jan.
+        #paid or shipped must be greater than date_from
+        #both paid and shipped must be less than date_to
+        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),]
+        domain_search.append(('fully_shipped_date','<=',date_to))
+        domain_search.append(('fully_paid_date','<=',date_to))
+        domain_search.append('|',('fully_paid_date','>=',date_from),('fully_shipped_date','>=',date_from))
         if showroom:
             domain_search.append(('team_id','in',showroom)) 
         if remove_paid:
@@ -225,9 +234,10 @@ class ReportSaleCommissionReport(models.AbstractModel):
         showroom = data['form'].get('showroom', False)
         remove_paid = data['form'].get('remove_paid', False)   
         #create the domain for sales eligible for commissions  
-        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('date_order','>=',date_from),('date_order','<=',date_to)]
-        #domain_search = [('comm_total','>',0),('create_date','>=',date_from),('create_date','<=',date_to)]
-        
+        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),]
+        domain_search.append(('fully_shipped_date','<=',date_to))
+        domain_search.append(('fully_paid_date','<=',date_to))
+        domain_search.append('|',('fully_paid_date','>=',date_from),('fully_shipped_date','>=',date_from))       
         if showroom:
             domain_search.append(('team_id','in',showroom)) 
         if remove_paid:
