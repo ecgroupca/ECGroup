@@ -43,14 +43,34 @@ class SaleOrder(models.Model):
         store = True,
         )
         
-    fully_paid_date = fields.Datetime(
+    fully_paid_date = fields.Date(
         'Fully Paid Date',
         )
         
     fully_shipped_date = fields.Datetime(
         'Fully Shipped Date',
         )
-        
+   
+    comm_total = fields.Float(
+        'Total Commisions', 
+        compute="_compute_comm_total",
+        store = True,
+        )
+    
+    comm_inv_paid = fields.Boolean(
+        'Commission Invoice Paid?',
+        copy=False,
+        readonly=False,
+        store=True,
+    )
+    
+    comm_inv_id = fields.Many2one(
+        'account.move',
+        string='Commission Invoice',
+        copy=False,
+        readonly=True,
+    )     
+    
     """@api.depends('team_id')     
     def _compute_comm_rate(self):
         for sale in self:
@@ -80,26 +100,6 @@ class SaleOrder(models.Model):
                 if line.product_id and not line.product_id.no_commissions: 
                     if line.product_id.type not in ['service','consu']:
                         line.comm_rate = def_comm_rate
-    
-    comm_total = fields.Float(
-        'Total Commisions', 
-        compute="_compute_comm_total",
-        store = True,
-        )
-    
-    comm_inv_paid = fields.Boolean(
-        'Commission Invoice Paid?',
-        copy=False,
-        readonly=False,
-        store=True,
-    )
-    
-    comm_inv_id = fields.Many2one(
-        'account.move',
-        string='Commission Invoice',
-        copy=False,
-        readonly=True,
-    )
     
     #1. compute the total commission for an order
     #2. base the report on sale order (lines) instead of these comm objects
