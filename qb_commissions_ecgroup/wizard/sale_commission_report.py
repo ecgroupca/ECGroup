@@ -31,7 +31,8 @@ class CommissionsReportXlsx(models.AbstractModel):
         #If an order was paid in Dec but not shipped until Jan, then Jan.
         #paid or shipped must be greater than date_from
         #both paid and shipped must be less than date_to
-        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),]
+        #domain_search = [('comm_total','>',0)]
+        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0)]
         domain_search.append(('fully_shipped_date','<=',date_to))
         domain_search.append(('fully_paid_date','<=',date_to))
         domain_search += ['|',('fully_paid_date','>=',date_from),('fully_shipped_date','>=',date_from)]
@@ -115,17 +116,16 @@ class CommissionsReportXlsx(models.AbstractModel):
                         sale_comm[team_id].update({customer_key:{'name':commission.partner_id.name,'ref':commission.partner_id.ref ,'id':commission.partner_id.id,'data':[commission]}})
                 else:
                     sale_comm.update({team_id:{customer_key:{'name':commission.partner_id.name,'ref':commission.partner_id.ref,'id':commission.partner_id.id,'data':[commission]}}})     
-            i,j = 0,0
-            sheet = workbook.add_worksheet('Commission Report')
-            sheet.write(0, 1, 'Sales Commission Report', title) 
-            sheet.write(1, 1, date_from_display, subtitle) 
-            sheet.write(1, 3, ' - ', subtitle) 
-            sheet.write(1, 4,  date_to_display, subtitle) 
+            
             for showroom in sale_comm:
-                j+=3              
+                i,j = 0,3
                 showroom_name = showroom_obj.browse(showroom)
-                showroom_name = showroom_name and showroom_name.name or 'Not found'                
-                sheet.write(i+j+1, 2, 'Showroom: ' + showroom_name, subtitle)
+                showroom_name = showroom_name and showroom_name.name or 'Not found'                     
+                sheet = workbook.add_worksheet(showroom_name)              
+                sheet.write(0, 1, 'Commissions for ' + showroom_name, title)
+                sheet.write(1, 1, date_from_display, subtitle) 
+                sheet.write(1, 3, ' - ', subtitle) 
+                sheet.write(1, 4,  date_to_display, subtitle)                            
                 sheet.write(i+j+2, 0, 'Order #', bold)
                 sheet.write(i+j+2, 1, 'Invoice #', bold)
                 sheet.write(i+j+2, 2, 'PO #', bold)
