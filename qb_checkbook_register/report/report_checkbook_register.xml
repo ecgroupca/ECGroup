@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-  <template id="report_checkbook_reg">
+  <!--template id="report_checkbook_reg">
 	<t t-foreach="docs" t-as="o">
 		<t t-call="qb_checkbook_register.report_checkbook_reg_document" t-lang="o.partner_id.lang"/>
 	</t>
-  </template>
-  <template id="report_checkbook_reg_document">
+  </template-->
+  <template id="report_checkbook_reg">
       <t t-call="web.html_container">
         <t t-call="web.external_layout">
           <div class="page" style="font-name:Calibri">
@@ -15,36 +15,50 @@
 			  <table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
 				<thead>
 					<tr style="padding:5px;border-bottom: solid 2px; border-color:#AAA;">
-						<th style="padding:5px;" name="th_routing"><strong>Routing ID</strong></th>
-						<th style="padding:5px;" name="th_account"><strong>Account #</strong></th>
+						<!--th style="padding:5px;" name="th_routing"><strong>Routing ID</strong></th>
+						<th style="padding:5px;" name="th_account"><strong>Account #</strong></th-->
 						<th style="padding:5px;" name="th_check"><strong>Check #</strong></th>
 						<th style="padding:5px;" name="th_payment_date"><strong>Pmt Date</strong></th>
 						<th style="padding:5px;" name="th_name"><strong>Name</strong></th>
 						<th style="padding:5px;" name="th_journal"><strong>Journal</strong></th>
 						<th style="padding:5px;" name="th_partner_id"><strong>Payee #</strong></th>
-						<th style="padding:5px;" name="th_status"><strong>Status</strong></th>
-						<th style="padding:5px;" name="th_company"><strong>Company</strong></th>
+						<th style="padding:5px;" name="th_subtotal"><strong>Subtotal</strong></th>
+						<!--th style="padding:5px;" name="th_status"><strong>Status</strong></th>
+						<th style="padding:5px;" name="th_company"><strong>Company</strong></th-->
 					</tr>
 				</thead>
+				<t t-set="bottom_total" t-value="0.00"/>
 			    <t t-foreach="docs" t-as="check">
+				    <t t-set="bottom_total" t-value="bottom_total + check.amount"/>
 					<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
-					  <td style="padding:5px;"><span t-field="check.routing_number"/></td>
-					  <td style="padding:5px;"><span t-field="check.account_number"/></td>
+					  <!--td style="padding:5px;"><span t-field="check.routing_number"/></td>
+					  <td style="padding:5px;"><span t-field="check.account_number"/></td-->
 					  <td style="padding:5px;"><span t-field="check.check_number"/></td>
 					  <td style="padding:5px;"><span t-field="check.payment_date"/></td>
 					  <td style="padding:5px;"><span t-field="check.name"/></td>
 					  <td style="padding:5px;"><span t-field="check.journal_id.name"/></td>
 					  <td style="padding:5px;"><span t-field="check.partner_id"/></td>
-					  <td style="padding:5px;"><span t-field="check.state"/></td>
-					  <td style="padding:5px;"><span t-field="check.company_id.name"/></td>
+					  <td style="padding:5px;"><span t-esc="bottom_total"/></td>
+					  <!--td style="padding:5px;"><span t-field="check.state"/></td>
+					  <td style="padding:5px;"><span t-field="check.company_id.name"/></td-->
 					</tr>
 			    </t>
+				<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
+				  <td colspan="4">
+				  </td>
+				  <td>
+				    <strong>TOTAL: </strong>
+				  </td>
+				  <td>
+				    <strong><span t-esc="bottom_total"/></strong>
+				  </td>
+				</tr>
 			  </table>
 			</div>
           </t>
         </t>
   </template>
-  <report id="report_checkbook_reg'"	
+  <report id="report_checkbook_reg"	
 	string="Checkbook Register"
 	model="account.payment"
 	report_type="qweb-pdf"
