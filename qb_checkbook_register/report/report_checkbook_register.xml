@@ -22,7 +22,7 @@
 						<th style="padding:5px;" name="th_name"><strong>Name</strong></th>
 						<th style="padding:5px;" name="th_journal"><strong>Journal</strong></th>
 						<th style="padding:5px;" name="th_partner_id"><strong>Payee #</strong></th>
-						<th style="padding:5px;" name="th_subtotal"><strong>Subtotal</strong></th>
+						<th style="padding:5px;" name="th_subtotal"><strong>Amount</strong></th>
 						<!--th style="padding:5px;" name="th_status"><strong>Status</strong></th>
 						<th style="padding:5px;" name="th_company"><strong>Company</strong></th-->
 					</tr>
@@ -38,7 +38,7 @@
 					  <td style="padding:5px;"><span t-field="check.name"/></td>
 					  <td style="padding:5px;"><span t-field="check.journal_id.name"/></td>
 					  <td style="padding:5px;"><span t-field="check.partner_id"/></td>
-					  <td style="padding:5px;"><span t-esc="bottom_total"/></td>
+					  <td style="padding:5px;"><span t-esc="check.amount"/></td>
 					  <!--td style="padding:5px;"><span t-field="check.state"/></td>
 					  <td style="padding:5px;"><span t-field="check.company_id.name"/></td-->
 					</tr>

@@ -49,7 +49,7 @@ class ReportCheckbookRegisterXlsx(models.AbstractModel):
         sheet.write(4, 2, 'Name', bold_cust)
         sheet.write(4, 3, 'Journal', bold_cust)
         sheet.write(4, 4, 'Payee #', bold_cust)
-        sheet.write(4, 5, 'Subtotal', bold_cust)
+        sheet.write(4, 5, 'Amount', bold_cust)
                         
         for check in checks:  
             subtotal += check.amount        
@@ -58,7 +58,7 @@ class ReportCheckbookRegisterXlsx(models.AbstractModel):
             sheet.write(i+j+5, 2, check.name)
             sheet.write(i+j+5, 3, check.journal_id.name)
             sheet.write(i+j+5, 4, check.partner_id.name)
-            sheet.write(i+j+5, 5, subtotal)
+            sheet.write(i+j+5, 5, check.amount)
             i += 1
             j += 1
         sheet.write(i+j+5, 4, 'TOTAL: ', bold_cust)
