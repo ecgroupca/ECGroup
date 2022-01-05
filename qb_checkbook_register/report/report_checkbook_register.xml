@@ -64,5 +64,12 @@
 	report_type="qweb-pdf"
 	name="qb_checkbook_register.report_checkbook_reg"
 	file="qb_checkbook_register.report_checkbook_reg"
-	menu="True"/>		
+	menu="True"/>	
+  <report id="report_checkbook_reg_xlsx"	
+	string="Checkbook Register Xlsx"
+	model="account.payment"
+	report_type="xlsx"
+	name="qb_checkbook_register.report_checkbook_reg_xlsx"
+	file="qb_checkbook_register.report_checkbook_reg_xlsx"
+	menu="True"/>	
 </odoo>
