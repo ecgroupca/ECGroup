@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="checkbook_report_wiz_view" model="ir.ui.view">
+        <field name="name">Checkbook Report</field>
+        <field name="model">checkbook.report.wizard</field>
+        <field name="arch" type="xml">
+        <form string="Checkbook Report">
+            <group col="2">
+				<field name="print_excel"/>
+            </group>
+            <group col="4">
+                <field name="date_from"/>
+                <field name="date_to"/>
+            </group>
+            <group col="4">
+			    <field name="company_id"/>
+            </group>
+            <group>
+            </group>
+            <footer>
+                <button name="print_report" string="Print" type="object" default_focus="1" class="oe_highlight"/>
+                <button string="Cancel" class="btn btn-secondary" special="cancel" />
+            </footer>
+        </form>
+        </field>
+    </record>
+	<report
+		string="Checkbook Report"
+		id="action_report_checkbook_reg"
+		model="account.payment"
+		report_type="qweb-pdf"
+		name="qb_checkbook_register.report_checkbook_reg"
+		file="qb_checkbook_register.report_checkbook_reg"
+		print_report_name="'Checkbook Report'"
+		menu="False"
+	/>
+    <record id="act_checkbook_register" model="ir.actions.act_window">
+        <field name="name">Checkbook Register</field>
+        <field name="res_model">checkbook.report.wizard</field>
+        <field name="view_mode">form</field>
+		<field name="view_id" ref="checkbook_report_wiz_view"/>
+	    <field name="target">new</field>
+    </record>
+    <menuitem
+        id="menu_checkbook_register"
+        parent="account.menu_finance_payables"
+        sequence="22"
+        name="Checkbook"
+		action="act_checkbook_register"	
+    />
+</odoo>
