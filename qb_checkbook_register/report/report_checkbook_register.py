@@ -29,7 +29,7 @@ class ReportCheckbookRegisterXlsx(models.AbstractModel):
         date_domain = [('company_id','=',company_id)]
         date_domain += [('payment_date','>=',date_from.strftime("%Y-%m-%d 00:00:00"))]
         date_domain += [('payment_date','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
-        date_domain += [('state','not in',['draft','sent','cancelled'])]
+        date_domain += [('state','not in',['draft','cancelled'])]
         date_domain += [('payment_method_id.name','=','Checks')]
         bold_cust = workbook.add_format({'bold': True,'underline': 1})
         bold = workbook.add_format({'bold': True,'font_size': 13})
