@@ -87,7 +87,7 @@ class CheckbookRegisterReport(models.AbstractModel):
         date_domain = [('company_id','=',company_id)]
         date_domain += [('payment_date','>=',date_from.strftime("%Y-%m-%d 00:00:00"))]
         date_domain += [('payment_date','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
-        date_domain += [('state','not in',['draft','sent','cancelled'])]
+        date_domain += [('state','not in',['draft','cancelled'])]
         date_domain += [('payment_method_id.name','=','Checks')]
         checks = check_obj.search(date_domain)                     
         return {
