@@ -213,6 +213,7 @@ class Rma(models.Model):
     )
     can_be_returned = fields.Boolean(compute="_compute_can_be_returned",)
     can_be_replaced = fields.Boolean(compute="_compute_can_be_replaced",)
+    can_be_repaired = fields.Boolean(compute="_compute_can_be_repaired",)
     can_be_locked = fields.Boolean(compute="_compute_can_be_locked",)
     remaining_qty = fields.Float(
         string="Remaining delivered qty",
@@ -345,6 +346,20 @@ class Rma(models.Model):
                 "received",
                 "waiting_replacement",
                 "replaced",
+            ]
+            
+    @api.depends("state")
+    def _compute_can_be_repaired(self):
+        """ Compute 'can_be_repaired'. This field controls the visibility
+        of 'Repair' button in the rma form
+        view and determinates if an rma can be replaced.
+        This field is used in:
+        rma._compute_can_be_split
+        rma._ensure_can_be_replaced.
+        """
+        for r in self:
+            r.can_be_repaired = r.state in [
+                "received",
             ]
 
     @api.depends("product_uom_qty", "state", "remaining_qty", "remaining_qty_to_done")
@@ -593,6 +608,24 @@ class Rma(models.Model):
             .read()[0]
         )
         action["name"] = "Replace product(s)"
+        action["context"] = dict(self.env.context)
+        action["context"].update(
+            active_id=self.id, active_ids=self.ids, rma_delivery_type="replace",
+        )
+        return action
+        
+    def action_repair(self):
+        """Invoked when 'Repair' button in rma form view is clicked."""
+        self.ensure_one()
+        self._ensure_can_be_replaced()
+        # Force active_id to avoid issues when coming from smart buttons
+        # in other models
+        action = (
+            self.env.ref("rma.rma_production_wizard_action")
+            .with_context(active_id=self.id)
+            .read()[0]
+        )
+        action["name"] = "Repair product(s)"
         action["context"] = dict(self.env.context)
         action["context"].update(
             active_id=self.id, active_ids=self.ids, rma_delivery_type="replace",
@@ -990,6 +1023,31 @@ class Rma(models.Model):
         move_form.product_uom_qty = quantity or self.product_uom_qty
         move_form.product_uom = uom or self.product_uom
         move_form.date_expected = scheduled_date
+        
+    # Repair business methods
+    def create_repair(self, scheduled_date, warehouse, product, qty, uom):
+        """Intended to be invoked by the production wizard"""
+        self.ensure_one()
+        #prepare vals for mrp.production create() method.
+        vals = {
+            'date_planned_start': scheduled_date,
+            'product_id': product.id,
+            'product_qty': qty,
+            'product_uom_id': uom.id,
+            'origin': 'RMA',
+            'company_id': product.company_id.id,
+            }
+        res = self.env['mrp.production'].create(vals)
+        self.message_post(
+            body=_(
+                "Repair created for:<br/>"
+                'Product <a href="#" data-oe-model="product.product" '
+                'data-oe-id="%d">%s</a><br/>'
+                "Quantity %f %s<br/>"
+                "This repair created a production order."
+            )
+            % (product.id, product.display_name, qty, uom.name)
+            )
 
     # Replacing business methods
     def create_replace(self, scheduled_date, warehouse, product, qty, uom):

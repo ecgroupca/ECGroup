@@ -149,6 +149,13 @@
                     />
                     <button
                         type="object"
+                        string="Repair"
+                        name="action_repair"
+                        attrs="{'invisible': [('can_be_repaired', '=', False)]}"
+                        class="btn-primary"
+                    />
+                    <button
+                        type="object"
                         string="Return to customer"
                         name="action_return"
                         attrs="{'invisible': [('can_be_returned', '=', False)]}"
@@ -306,6 +313,7 @@
                     <field name="can_be_refunded" invisible="1" />
                     <field name="can_be_returned" invisible="1" />
                     <field name="can_be_replaced" invisible="1" />
+					<field name="can_be_repaired" invisible="1" />
                     <field name="can_be_split" invisible="1" />
                     <field name="can_be_locked" invisible="1" />
                     <field name="commercial_partner_id" invisible="1" />
