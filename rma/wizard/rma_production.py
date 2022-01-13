@@ -13,6 +13,12 @@ class RmaProductionWizard(models.TransientModel):
     product_id = fields.Many2one(
         comodel_name="product.product", string="Product to Repair",
     )
+    company_id = fields.Many2one(
+        comodel_name="res.company", string="Company",
+    )
+    mrp_bom_id = fields.Many2one(
+        comodel_name="mrp.bom", string="BoM for repair"
+    )
     product_uom_qty = fields.Float(
         string="Product qty", digits="Product Unit of Measure",
     )
@@ -41,8 +47,15 @@ class RmaProductionWizard(models.TransientModel):
         )
         delivery_type = self.env.context.get("rma_delivery_type")
         product_id = False
-        if len(rma) == 1 and delivery_type == "return":
-            product_id = rma.product_id.id
+        mrp_bom_id = False
+        if len(rma) == 1 and rma.product_id:
+            product = rma.product_id
+            product_id = product and product.id or False
+            mrp_bom_id = (
+                self.env['mrp.bom']
+               .search([('product_tmpl_id','=',product.product_tmpl_id.id)], limit=1)
+               .id
+            )
         product_uom_qty = 0.0
         if len(rma) == 1 and rma.remaining_qty > 0.0:
             product_uom_qty = rma.remaining_qty
@@ -51,6 +64,7 @@ class RmaProductionWizard(models.TransientModel):
             warehouse_id=warehouse_id,
             product_id=product_id,
             product_uom_qty=product_uom_qty,
+            mrp_bom_id=mrp_bom_id,
         )
         return res
 
@@ -69,11 +83,11 @@ class RmaProductionWizard(models.TransientModel):
         self.ensure_one()
         rma_ids = self.env.context.get("active_ids")
         rma = self.env["rma"].browse(rma_ids)
-        if self.type == "replace":
-            rma.create_repair(
-                self.scheduled_date,
-                self.warehouse_id,
-                self.product_id,
-                self.product_uom_qty,
-                self.product_uom,
-            )
+        rma.create_repair(
+            self.scheduled_date,
+            self.warehouse_id,
+            self.product_id,
+            self.product_uom_qty,
+            self.product_uom,
+            self.company_id,
+        )

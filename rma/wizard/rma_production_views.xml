@@ -12,10 +12,8 @@
                         <field name="scheduled_date" />
                     </group>
                     <group>
-                        <field
-                            name="product_id"
-                            attrs="{'invisible': ['|', ('type', '!=', 'replace'), ('rma_count', '>', 1)], 'required': [('type', '=', 'replace'), ('rma_count', '=', 1)]}"
-                        />
+                        <field name="product_id" required="1"/>
+						<field name="company_id" required="1"/>
                         <label
                             for="product_uom_qty"
                             attrs="{'invisible': [('rma_count', '>', 1)]}"
@@ -37,7 +35,6 @@
                     </group>
                 </group>
                 <field name="rma_count" invisible="1" />
-                <field name="type" invisible="1" />
                 <footer>
                     <button
                         name="action_repair"

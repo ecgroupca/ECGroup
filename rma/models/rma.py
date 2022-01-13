@@ -1024,18 +1024,18 @@ class Rma(models.Model):
         move_form.product_uom = uom or self.product_uom
         move_form.date_expected = scheduled_date
         
-    # Repair business methods
-    def create_repair(self, scheduled_date, warehouse, product, qty, uom):
+   # Repair business methods
+    def create_repair(self, scheduled_date, warehouse, product, qty, uom, company):
         """Intended to be invoked by the production wizard"""
         self.ensure_one()
         #prepare vals for mrp.production create() method.
         vals = {
             'date_planned_start': scheduled_date,
-            'product_id': product.id,
+            'product_id': product and product.id or False,
             'product_qty': qty,
-            'product_uom_id': uom.id,
+            'product_uom_id': uom and uom.id or False,
             'origin': 'RMA',
-            'company_id': product.company_id.id,
+            'company_id': company and company.id or False,
             }
         res = self.env['mrp.production'].create(vals)
         self.message_post(
