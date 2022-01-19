@@ -1042,11 +1042,12 @@ class Rma(models.Model):
             body=_(
                 "Repair created for:<br/>"
                 'Product <a href="#" data-oe-model="product.product" '
-                'data-oe-id="%d">%s</a><br/>'
+                    'data-oe-id="%d">%s</a> (Production order <a href="#" '
+                    'data-oe-model="mrp.production" data-oe-id="%d">%s</a>) '
                 "Quantity %f %s<br/>"
                 "This repair created a production order."
             )
-            % (product.id, product.display_name, qty, uom.name)
+            % (product.id, product.display_name, res, res.name,)
             )
 
     # Replacing business methods
