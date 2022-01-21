@@ -22,7 +22,7 @@ class ReportOpenPOReport(models.AbstractModel):
         if partner_ids:
             domain_search.append(('partner_id','in',partner_ids))
         if company_id:
-            domain_search.append(('company_id','in',company_id))        
+            domain_search.append(('company_id','=',company_id))        
         po_ids = self.env['purchase.order'].search(domain_search,order="date_order asc")
         
         sm = {}
