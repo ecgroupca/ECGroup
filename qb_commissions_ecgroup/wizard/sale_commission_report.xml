@@ -91,9 +91,10 @@
 						    				<t t-set="inv_amt_paid" t-value="0.00"/>
 						    				<t t-if="comm.comm_inv_id">
 						    					<t t-set="inv_amt_paid" t-value="comm.comm_inv_id.amount_total - comm.comm_inv_id.amount_residual"/>
-						    				</t>
+						    				    <t t-set="commi_payable" t-value="commi_payable - inv_amt_paid"/>
+											</t>
 						    				<t t-set="inv_amt_paid_total" t-value="inv_amt_paid_total + inv_amt_paid"/>
-						    				
+						    				<t t-set="comm_payable_total" t-value="comm_payable_total - inv_amt_paid_total"/>
 							    			<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
 											    <td><span t-field="comm.name"/></td>
 							    				<td><span t-field="comm.comm_inv_id" t-if="comm.comm_inv_id"/></td>
@@ -133,7 +134,7 @@
 				    				<td align="right"><strong><t t-esc="showroom_sales_sub_to_commi_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 				    				<td align="right"><strong><t t-esc="showroom_non_comm_amt_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 				    				<td align="right"><strong><t t-esc="showroom_inv_amt_paid_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
-				    				<td align="right"><strong><t t-esc="showroom_comm_payable_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+				    				<td align="right"><strong><t t-esc="showroom_comm_payable_total - showroom_inv_amt_paid_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 				    			</tr>
 							</tbody>
 						</table>
@@ -142,8 +143,6 @@
 			</t>
 		</t>
 	</template>
-
-	<data>
 		<report
 			string="Commission Report"
 			id="action_report_sale_commission"
@@ -154,5 +153,14 @@
 			print_report_name="'Commission Report'"
 			menu="False"
 		/>
-	</data>
+		<report
+			id="action_report_sale_commission_xlsx"
+			model="sale.order"
+			string="Print Commissions in Excel"
+			report_type="xlsx"
+			name="qb_commissions_ecgroup.report_sale_commission_xlsx"
+			file="qb_commissions_ecgroup.report_sale_commission_xlsx"
+			attachment_use="False"
+			print_report_name="'Sale Commissions'"
+		/>
 </odoo>

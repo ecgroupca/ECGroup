@@ -5,18 +5,18 @@
 		<t t-call="web.external_layout">
 <!--			<link rel='stylesheet' href="/journal_entries_print/static/src/css/report_css.css"/>-->
             <t t-foreach="docs" t-as="o">
-                <div class="page" style="font-size:15px;">
+                <div class="page" style="font-size:15px;margin-top:10px;">
                 <div>
 					        <h3>
-							    <span t-field="o.name"/>
+							    Journal Entry: <span t-field="o.name"/>
 							</h3>
 				</div>
-					<br></br>
+					<br/>
                 	<div class="row">
 	            			<table width="100%" class="table-bordered">
 							   
 	            				<tr>
-	            					<td>Journal: <span t-field="o.journal_id.name" />
+	            					<td>Journal: <span t-field="o.journal_id.name"/>
 	            					</td>
 	            					<td>
 	            						Date: <span t-field="o.date"/>
@@ -35,60 +35,61 @@
                 	<div class="row">
                     <style>
                     .tblbordr {
-                        text-align: center;
-                        border: 2px solid black;
+                        text-align: left;
+                        border: 1px dotted black;
+                        padding: 3px;
                     }
                     </style>
-						<br></br>
-                		<table width="100%" class="border-collapse:separate;">
-                			<thead >
-                				<tr >
-                					<th>Account</th>
-                					<th>Date</th>
-                					<th>Partner</th>
-                					<th>Lable</th>
-                					<th>Analytic Account</th>
-                					<th>Debit</th>
-                					<th>Credit</th>
+						<br/>
+                		<table width="100%" class="tblbordr">
+                			<thead>
+                				<tr class="tblbordr">
+                					<th class="tblbordr">Account</th>
+                					<th class="tblbordr">Date</th>
+                					<th class="tblbordr">Partner</th>
+                					<th class="tblbordr">Label</th>
+                					<th class="tblbordr">Analytic Account</th>
+                					<th class="tblbordr">Debit</th>
+                					<th class="tblbordr">Credit</th>
                 				</tr>
                 			</thead>
                 			<tbody>
                 				 <t t-foreach="o.line_ids" t-as="line">
-                				 	<tr>
-                				 		<td>
-                				 			<span t-field="line.account_id.name"/>
+                				 	<tr class="tblbordr">
+                				 		<td class="tblbordr">
+                				 			<span t-field="line.account_id.code"/> <span t-field="line.account_id.name"/>
                 				 		</td>
-                				 		<td>
+                				 		<td class="tblbordr">
                 				 			<span t-field="line.date"/>
                 				 		</td>
-                				 		<td>
+                				 		<td class="tblbordr">
                 				 			<span t-field="line.partner_id.name"/>
                 				 		</td>
-                				 		<td>
-                				 			<span t-field="line.name"/>
+                				 		<td class="tblbordr">
+                				 			<span style="max-width:20%" t-field="line.name"/>
                 				 		</td>
-                				 		<td>
+                				 		<td class="tblbordr">
                 				 			<span t-field="line.analytic_account_id.name"/>
                 				 		</td>
-                				 		<td>
-                				 			<span t-field="line.debit"/>
+                				 		<td class="tblbordr">
+                				 			<span t-field="line.debit" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
                 				 			
                 				 		</td>
-                				 		<td>
-                				 			<span t-field="line.credit"/>
+                				 		<td class="tblbordr">
+                				 			<span t-field="line.credit" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
                 				 			
                 				 		</td>
                 				 	</tr>
                 				 </t>
                 			</tbody>
 							<tfooter>
-                				<tr>
-                					<td colspan="5"></td>
-                					<td>
-                						<span t-esc="o.total_debit_credit().get('dr_total')"/>
+                				<tr class="tblbordr">
+                					<td colspan="5"/>
+                					<td class="tblbordr">
+                						<span t-esc="o.total_debit_credit().get('dr_total')" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
                 					</td>
-                					<td>
-                						<span t-esc="o.total_debit_credit().get('cr_total')"/>
+                					<td class="tblbordr">
+                						<span t-esc="o.total_debit_credit().get('cr_total')" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
                 					</td>
                 				</tr>
                 			</tfooter>
