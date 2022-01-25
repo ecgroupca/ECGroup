@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<report
+			string="Top Accounts Sales Report"
+			id="action_report_top_sales"
+			model="sale.order"
+			report_type="qweb-pdf"
+			name="qb_top_accounts_sales.report_top_accounts_sales"
+			file="qb_top_accounts_sales.report_top_accounts_sales"
+			print_report_name="'Top Accounts Sales Report'"
+			menu="True"
+		/>
+	</data>
+</odoo>

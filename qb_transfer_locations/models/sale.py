@@ -17,10 +17,9 @@ class SaleOrder(models.Model):
         for sale in self:
             all_ship_dates = []
             for pick in sale.picking_ids:
-                all_ship_dates.append(pick.date_done)    
+                all_ship_dates.append(pick.x_bol_date or pick.date_done)    
             ship_dates = [d for d in all_ship_dates if isinstance(d, datetime.date)]  
             if ship_dates:            
                 sale.trans_shipped_date = max(ship_dates)  
             else:
-                sale.trans_shipped_date = False 
-        
+                sale.trans_shipped_date = False

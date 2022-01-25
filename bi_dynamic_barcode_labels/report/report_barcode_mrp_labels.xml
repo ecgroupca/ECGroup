@@ -16,9 +16,9 @@
 												<tr>
 													<th class="table-active text-left">
 														<div>
+														  <t t-if="barcode.sale_id">
 														  Sale: <span t-esc="barcode.sale_id.name"/>
 														   |  Date: <span t-esc="barcode.sale_id.date_order" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
-														</div>
 														<div>Customer: <span t-esc="barcode.sale_id.partner_id.name"/></div>
 														<div>S/M: <span t-esc="barcode.sale_id.sidemark"/></div>
 														<t t-if="request.env['sale.order.line'].search([('order_id','=',barcode.sale_id.id),('product_id','=',barcode.product_id.id)])">
@@ -28,11 +28,15 @@
 															</div>
 														  </t>
 														</t>
-													  <t t-else="barcode.product_id.name">
+														  </t>
+														  <t t-else="">
+														  Group: <span t-esc="barcode.production_id.x_studio_group_name"/>
+														   |  Date: <span t-esc="barcode.production_id.create_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
   													  <div>Item: 
   														<span t-esc="'\n'.join(barcode.product_id.name.split('\n', 2)[:2])"/>
   													  </div>
-													  </t>
+														  </t>
+														</div>
 												  <!-- new execution of just SKU by Geoff Sep 24 -->
 												  <div>SKU: 
 													<span t-esc="barcode.product_id.barcode"/>
@@ -44,7 +48,6 @@
 												  </t>
 													</th>
 												</tr>
-												<!--
 													<tr>
 														<td class="text-center align-middle">
 															<t t-if="not barcode.label_text and barcode.product_id and barcode.product_id.barcode">
@@ -56,7 +59,6 @@
 															</t>
 														</td>
 													</tr>
-													-->
 											</table>
 										</div>
 									</t>
@@ -67,5 +69,7 @@
 					</t>
 				</t>
 
-    </template>
+    </t>
+
+
 </odoo>
