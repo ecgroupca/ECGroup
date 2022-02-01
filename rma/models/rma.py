@@ -93,6 +93,7 @@ class Rma(models.Model):
         "    ('partner_id', 'child_of', commercial_partner_id),"
         "]",
         readonly=True,
+        required=True,
         states={"draft": [("readonly", False)]},
     )
     move_id = fields.Many2one(
@@ -107,6 +108,9 @@ class Rma(models.Model):
     )
     product_id = fields.Many2one(
         comodel_name="product.product", domain=[("type", "in", ["consu", "product"])],
+    )
+    mrp_prod_id = fields.Many2one(
+        comodel_name="mrp.production",
     )
     product_uom_qty = fields.Float(
         string="Quantity",
@@ -213,6 +217,7 @@ class Rma(models.Model):
     )
     can_be_returned = fields.Boolean(compute="_compute_can_be_returned",)
     can_be_replaced = fields.Boolean(compute="_compute_can_be_replaced",)
+    can_be_repaired = fields.Boolean(compute="_compute_can_be_repaired",)
     can_be_locked = fields.Boolean(compute="_compute_can_be_locked",)
     remaining_qty = fields.Float(
         string="Remaining delivered qty",
@@ -315,7 +320,7 @@ class Rma(models.Model):
         an rma can be refunded. It is used in rma.action_refund method.
         """
         for record in self:
-            record.can_be_refunded = record.state == "received"
+            record.can_be_refunded = record.state == "received" and not record.refund_id
 
     @api.depends("remaining_qty", "state")
     def _compute_can_be_returned(self):
@@ -346,7 +351,20 @@ class Rma(models.Model):
                 "waiting_replacement",
                 "replaced",
             ]
-
+     
+    @api.depends("state")
+    def _compute_can_be_repaired(self):
+        """ Compute 'can_be_repaired'. This field controls the visibility
+        of 'Repair' button in the rma form
+        view and determinates if an rma can be replaced.
+        This field is used in:
+        rma._compute_can_be_split
+        rma._ensure_can_be_replaced.
+        """
+        for r in self:
+            r.can_be_repaired = r.state in [
+                "received",
+            ]
     @api.depends("product_uom_qty", "state", "remaining_qty", "remaining_qty_to_done")
     def _compute_can_be_split(self):
         """ Compute 'can_be_split'. This field controls the
@@ -598,6 +616,24 @@ class Rma(models.Model):
             active_id=self.id, active_ids=self.ids, rma_delivery_type="replace",
         )
         return action
+      
+    def action_repair(self):
+        """Invoked when 'Repair' button in rma form view is clicked."""
+        self.ensure_one()
+        self._ensure_can_be_replaced()
+        # Force active_id to avoid issues when coming from smart buttons
+        # in other models
+        action = (
+            self.env.ref("rma.rma_production_wizard_action")
+            .with_context(active_id=self.id)
+            .read()[0]
+        )
+        action["name"] = "Repair product(s)"
+        action["context"] = dict(self.env.context)
+        action["context"].update(
+            active_id=self.id, active_ids=self.ids, rma_delivery_type="replace",
+        )
+        return action
 
     def action_return(self):
         """Invoked when 'Return to customer' button in rma form
@@ -659,6 +695,24 @@ class Rma(models.Model):
             "target": "self",
             "url": self.get_portal_url(),
         }
+
+    def action_view_repair(self):
+        """Invoked when 'Receipt' smart button in rma form view is clicked."""
+        self.ensure_one()
+        # Force active_id to avoid issues when coming from smart buttons
+        # in other models
+        action = (
+            self.env.ref("mrp.action_mrp_production_form")
+            .with_context(active_id=self.id)
+            .read()[0]
+        )
+        action.update(
+            res_id=self.mrp_prod_id.id,
+            view_mode="form",
+            view_id=False,
+            views=False,
+        )
+        return action
 
     def action_view_receipt(self):
         """Invoked when 'Receipt' smart button in rma form view is clicked."""
@@ -990,6 +1044,66 @@ class Rma(models.Model):
         move_form.product_uom_qty = quantity or self.product_uom_qty
         move_form.product_uom = uom or self.product_uom
         move_form.date_expected = scheduled_date
+
+   # Repair business methods
+    def create_repair(self, scheduled_date, product, qty, uom, company, mrp_bom_id, rma_move_id):
+        """Intended to be invoked by the production wizard"""
+        self.ensure_one()
+        #prepare vals for mrp.production create() method.
+        vals = {
+            'date_planned_start': scheduled_date,
+            'product_id': product and product.id or False,
+            'product_qty': qty,
+            'bom_id': mrp_bom_id and mrp_bom_id.id or False,
+            'product_uom_id': uom and uom.id or False,
+            'origin': 'RMA',
+            'company_id': company and company.id or False,
+            }
+        mrp_prod = self.env['mrp.production'].create(vals)
+        self.mrp_prod_id = mrp_prod
+        src_loc_id = rma_move_id and rma_move_id.location_id and rma_move_id.location_id.id
+        #create the bom line with the main product as the component with the serial number.
+        vals = {
+            'product_id': product and product.id or False,
+            'product_uom_qty': qty,
+            'raw_material_production_id': mrp_prod.id,
+            'name': product and product.name,
+            'product_uom': uom and uom.id or False,
+            'location_id': src_loc_id,
+            'location_dest_id': mrp_prod.location_dest_id and mrp_prod.location_dest_id.id,
+            }
+
+        res = self.env['stock.move'].create(vals)
+        mrp_prod.action_confirm()
+        mrp_prod.action_assign()
+        move_line_ids = rma_move_id.move_line_nosuggest_ids
+        if not move_line_ids:
+             move_line_ids = rma_move_id.move_line_ids_without_package
+        for move_line in move_line_ids:
+            #create a new move line for the consumption moves with their corresponding lot#s
+            vals = {
+                'company_id': company and company.id or False,
+                'product_id': product and product.id or False,
+                'product_uom_qty': qty,
+                'date': scheduled_date,
+                'lot_id': move_line.lot_id and move_line.lot_id.id or False,
+                'product_uom_id': uom and uom.id or False,
+                'location_id': src_loc_id,
+                'location_dest_id': mrp_prod.location_dest_id and mrp_prod.location_dest_id.id,           
+            }
+             
+            res = self.env['stock.move.line'].create(vals)
+        """self.message_post(
+            body=_(
+                "Repair created for:<br/>"
+                'Product <a href="#" data-oe-model="product.product" '
+                    'data-oe-id="%d">%s</a> (Production order <a href="#" '
+                    'data-oe-model="mrp.production" data-oe-id="%d">%s</a>) '
+                "Quantity %f %s<br/>"
+                "This repair created a production order."
+            )
+            % (product.id, product.display_name, res, res.name,)
+            )"""
 
     # Replacing business methods
     def create_replace(self, scheduled_date, warehouse, product, qty, uom):
