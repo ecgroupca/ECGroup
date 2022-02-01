@@ -321,7 +321,6 @@ class Rma(models.Model):
         """
         for record in self:
             record.can_be_refunded = record.state == "received" and not record.refund_id
-            
 
     @api.depends("remaining_qty", "state")
     def _compute_can_be_returned(self):
@@ -352,7 +351,7 @@ class Rma(models.Model):
                 "waiting_replacement",
                 "replaced",
             ]
-            
+     
     @api.depends("state")
     def _compute_can_be_repaired(self):
         """ Compute 'can_be_repaired'. This field controls the visibility
@@ -366,7 +365,6 @@ class Rma(models.Model):
             r.can_be_repaired = r.state in [
                 "received",
             ]
-
     @api.depends("product_uom_qty", "state", "remaining_qty", "remaining_qty_to_done")
     def _compute_can_be_split(self):
         """ Compute 'can_be_split'. This field controls the
@@ -618,7 +616,7 @@ class Rma(models.Model):
             active_id=self.id, active_ids=self.ids, rma_delivery_type="replace",
         )
         return action
-        
+      
     def action_repair(self):
         """Invoked when 'Repair' button in rma form view is clicked."""
         self.ensure_one()
@@ -697,7 +695,7 @@ class Rma(models.Model):
             "target": "self",
             "url": self.get_portal_url(),
         }
-        
+
     def action_view_repair(self):
         """Invoked when 'Receipt' smart button in rma form view is clicked."""
         self.ensure_one()
@@ -1046,7 +1044,7 @@ class Rma(models.Model):
         move_form.product_uom_qty = quantity or self.product_uom_qty
         move_form.product_uom = uom or self.product_uom
         move_form.date_expected = scheduled_date
-        
+
    # Repair business methods
     def create_repair(self, scheduled_date, product, qty, uom, company, mrp_bom_id, rma_move_id):
         """Intended to be invoked by the production wizard"""
