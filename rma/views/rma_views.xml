@@ -138,7 +138,6 @@
                         string="To Refund"
                         name="action_refund"
                         attrs="{'invisible': ['|','|',('refund_id', '!=', False),('can_be_refunded', '=', False),('mrp_prod_id', '!=', False)]}"
-                        attrs="{'invisible': [('can_be_refunded', '=', False)]}"
                         class="btn-primary"
                     />
                     <button
@@ -324,7 +323,7 @@
                     <field name="can_be_refunded" invisible="1" />
                     <field name="can_be_returned" invisible="1" />
                     <field name="can_be_replaced" invisible="1" />
-					          <field name="can_be_repaired" invisible="1" />
+					<field name="can_be_repaired" invisible="1" />
                     <field name="can_be_split" invisible="1" />
                     <field name="can_be_locked" invisible="1" />
                     <field name="commercial_partner_id" invisible="1" />
