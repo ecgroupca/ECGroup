@@ -19,14 +19,15 @@ class RmaProductionWizard(models.TransientModel):
     mrp_bom_id = fields.Many2one(
         comodel_name="mrp.bom", string="BoM for repair"
     )
+    rma_move_id = fields.Many2one(
+        comodel_name="stock.move", string="Move for repair",
+        readonly = True,
+    )
     product_uom_qty = fields.Float(
         string="Product qty", digits="Product Unit of Measure",
     )
     product_uom = fields.Many2one(comodel_name="uom.uom", string="Unit of measure")
     scheduled_date = fields.Datetime(required=True, default=fields.Datetime.now())
-    warehouse_id = fields.Many2one(
-        comodel_name="stock.warehouse", string="Warehouse", required=True,
-    )
 
     @api.constrains("product_uom_qty")
     def _check_product_uom_qty(self):
@@ -40,14 +41,12 @@ class RmaProductionWizard(models.TransientModel):
         res = super().default_get(fields_list)
         rma_ids = self.env.context.get("active_ids")
         rma = self.env["rma"].browse(rma_ids)
-        warehouse_id = (
-            self.env["stock.warehouse"]
-            .search([("company_id", "=", rma[0].company_id.id)], limit=1)
-            .id
-        )
         delivery_type = self.env.context.get("rma_delivery_type")
         product_id = False
         mrp_bom_id = False
+        company_id = False
+        rma_move_id = rma.move_id and rma.move_id.id or False
+        company_id = rma.move_id and rma.move_id.company_id and rma.move_id.company_id.id or False
         if len(rma) == 1 and rma.product_id:
             product = rma.product_id
             product_id = product and product.id or False
@@ -61,10 +60,11 @@ class RmaProductionWizard(models.TransientModel):
             product_uom_qty = rma.remaining_qty
         res.update(
             rma_count=len(rma),
-            warehouse_id=warehouse_id,
             product_id=product_id,
             product_uom_qty=product_uom_qty,
             mrp_bom_id=mrp_bom_id,
+            company_id=company_id,
+            rma_move_id=rma_move_id,                        
         )
         return res
 
@@ -85,9 +85,10 @@ class RmaProductionWizard(models.TransientModel):
         rma = self.env["rma"].browse(rma_ids)
         rma.create_repair(
             self.scheduled_date,
-            self.warehouse_id,
             self.product_id,
             self.product_uom_qty,
             self.product_uom,
             self.company_id,
+            self.mrp_bom_id,
+            self.rma_move_id,
         )
