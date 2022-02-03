@@ -62,7 +62,8 @@ class Rma(models.Model):
     )
     company_id = fields.Many2one(
         comodel_name="res.company",
-        default=lambda self: self.env.company,
+        #default=lambda self: self.picking_id.company_id or self.product_id.company_id,
+        compute = "_compute_company",
         states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
     )
     partner_id = fields.Many2one(
@@ -93,7 +94,6 @@ class Rma(models.Model):
         "    ('partner_id', 'child_of', commercial_partner_id),"
         "]",
         readonly=True,
-        required=True,
         states={"draft": [("readonly", False)]},
     )
     move_id = fields.Many2one(
@@ -234,7 +234,14 @@ class Rma(models.Model):
     origin_split_rma_id = fields.Many2one(
         comodel_name="rma", string="Extracted from", readonly=True, copy=False,
     )
-
+    def _compute_company(self):
+        for rma in self:
+            rma.company_id = self.env.company
+            if rma.picking_id:
+                rma.company_id = rma.picking_id.company_id
+            elif rma.product_id:
+                rma.product_id = rma.product_id.company_id
+    
     def _compute_delivery_picking_count(self):
         # It is enough to count the moves to know how many pickings
         # there are because there will be a unique move linked to the
@@ -623,9 +630,86 @@ class Rma(models.Model):
         """Invoked when 'Repair' button in rma form view is clicked."""
         self.ensure_one()
         self._ensure_can_be_replaced()
+        #prepare vals for mrp.production create() method.
+        rma = self
+        if rma.move_id:
+            product = rma.move_id.product_id
+        else:
+            product = rma.product_id
+        mrp_bom_id = (
+            self.env['mrp.bom']
+           .search([('product_tmpl_id','=',product.product_tmpl_id.id)], limit=1)
+        )
+        company = rma.company_id
+        if not company:
+            if rma.move_id:
+                company = rma.move_id.company_id
+        vals = {
+            'date_planned_start': rma.date,
+            'product_id': product and product.id or False,
+            'product_qty': rma.product_uom_qty,
+            'bom_id': mrp_bom_id and mrp_bom_id.id or False,
+            'product_uom_id': rma.product_uom and rma.product_uom.id or False,
+            'origin': 'RMA: ' + rma.name,
+            'x_repair_order': True,
+            'company_id': company and company.id or False,
+            }
+        mrp_prod = self.env['mrp.production'].create(vals)
+        rma.mrp_prod_id = mrp_prod
+        production_loc = product.property_stock_production
+        if not production_loc:
+            production_loc = (
+            self.env['stock.location']
+           .search([('company_id','=',company.id),('usage','=','production')], limit=1)
+           .id
+        )
+        src_loc_id = rma.move_id and rma.move_id.location_id and rma.move_id.location_id.id
+        #create the bom line with the main product as the component with the serial number.
+        vals = {
+            'product_id': product and product.id or False,
+            'product_uom_qty': rma.product_uom_qty,
+            'raw_material_production_id': mrp_prod.id,
+            'name': product and product.name,
+            'product_uom': rma.product_uom and rma.product_uom.id or False,
+            'location_id': src_loc_id,
+            'location_dest_id': production_loc and production_loc.id or False,
+            }
+
+        res = self.env['stock.move'].create(vals)
+        mrp_prod.action_confirm()
+        mrp_prod.action_assign()
+        move_line_ids = rma.move_id.move_line_nosuggest_ids
+        if not move_line_ids:
+             move_line_ids = rma.move_id.move_line_ids_without_package
+        for move_line in move_line_ids:
+            #create a new move line for the consumption moves with their corresponding lot#s
+            vals = {
+                'company_id': company and company.id or False,
+                'product_id': product and product.id or False,
+                'product_uom_qty': rma.product_uom_qty,
+                'date': rma.date,
+                'lot_id': move_line.lot_id and move_line.lot_id.id or False,
+                'product_uom_id': rma.product_uom and rma.product_uom.id or False,
+                'location_id': src_loc_id,
+                'location_dest_id': production_loc and production_loc.id or False,         
+            }
+             
+            res = self.env['stock.move.line'].create(vals)
+        """self.message_post(
+            body=_(
+                "Repair created for:<br/>"
+                'Product <a href="#" data-oe-model="product.product" '
+                    'data-oe-id="%d">%s</a> (Production order <a href="#" '
+                    'data-oe-model="mrp.production" data-oe-id="%d">%s</a>) '
+                "Quantity %f %s<br/>"
+                "This repair created a production order."
+            )
+            % (product.id, product.display_name, res, res.name,)
+            )"""
+
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
-        action = (
+        """action = (
             self.env.ref("rma.rma_production_wizard_action")
             .with_context(active_id=self.id)
             .read()[0]
@@ -635,7 +719,7 @@ class Rma(models.Model):
         action["context"].update(
             active_id=self.id, active_ids=self.ids, rma_delivery_type="replace",
         )
-        return action
+        return action"""
 
     def action_return(self):
         """Invoked when 'Return to customer' button in rma form
