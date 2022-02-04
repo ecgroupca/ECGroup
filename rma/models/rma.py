@@ -169,7 +169,7 @@ class Rma(models.Model):
         states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
     )
     finished_location_id = fields.Many2one(
-        string="Return From Location"
+        string="Return From Location",
         comodel_name="stock.location",
         readonly=True,
         states={"draft": [("readonly", False)]},
