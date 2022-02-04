@@ -664,7 +664,7 @@ class Rma(models.Model):
             'origin': 'RMA: ' + rma.name,
             'x_repair_order': True,
             'company_id': company and company.id or False,
-            'location_dest_id': rma.finished_location_id,
+            'location_dest_id': rma.finished_location_id and rma.finished_location_id.id,
             }
         mrp_prod = self.env['mrp.production'].create(vals)
         rma.mrp_prod_id = mrp_prod
