@@ -240,7 +240,7 @@ class Rma(models.Model):
             if rma.picking_id:
                 rma.company_id = rma.picking_id.company_id
             elif rma.product_id:
-                rma.product_id = rma.product_id.company_id
+                rma.company_id = rma.product_id.company_id
     
     def _compute_delivery_picking_count(self):
         # It is enough to count the moves to know how many pickings
