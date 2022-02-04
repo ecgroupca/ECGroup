@@ -168,9 +168,17 @@ class Rma(models.Model):
     description = fields.Html(
         states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
     )
+    finished_location_id = fields.Many2one(
+        string="Return From Location"
+        comodel_name="stock.location",
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+    )
     # Reception fields
     location_id = fields.Many2one(
+        string="Receive Into Location",
         comodel_name="stock.location",
+        domain=_domain_location_id,
         readonly=True,
         states={"draft": [("readonly", False)]},
     )
@@ -643,6 +651,10 @@ class Rma(models.Model):
         if not company:
             if rma.move_id:
                 company = rma.move_id.company_id
+                
+        #add a finished good location to the RMA form and use it for finished good location on repair order
+        #and as the source location on the return to customer.
+        
         vals = {
             'date_planned_start': rma.date,
             'product_id': product and product.id or False,
@@ -652,6 +664,7 @@ class Rma(models.Model):
             'origin': 'RMA: ' + rma.name,
             'x_repair_order': True,
             'company_id': company and company.id or False,
+            'location_dest_id': rma.finished_location_id,
             }
         mrp_prod = self.env['mrp.production'].create(vals)
         rma.mrp_prod_id = mrp_prod
