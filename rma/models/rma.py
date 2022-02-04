@@ -678,9 +678,9 @@ class Rma(models.Model):
         res = self.env['stock.move'].create(vals)
         mrp_prod.action_confirm()
         mrp_prod.action_assign()
-        move_line_ids = rma.move_id.move_line_nosuggest_ids
+        move_line_ids = rma.move_id and rma.move_id.move_line_nosuggest_ids
         if not move_line_ids:
-             move_line_ids = rma.move_id.move_line_ids_without_package
+             move_line_ids = rma.move_id and rma.move_id.move_line_ids_without_package or []
         for move_line in move_line_ids:
             #create a new move line for the consumption moves with their corresponding lot#s
             vals = {
