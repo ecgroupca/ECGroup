@@ -171,7 +171,6 @@ class Rma(models.Model):
     # Reception fields
     location_id = fields.Many2one(
         comodel_name="stock.location",
-        domain=_domain_location_id,
         readonly=True,
         states={"draft": [("readonly", False)]},
     )
@@ -663,7 +662,8 @@ class Rma(models.Model):
            .search([('company_id','=',company.id),('usage','=','production')], limit=1)
            .id
         )
-        src_loc_id = rma.move_id and rma.move_id.location_id and rma.move_id.location_id.id
+        #src_loc_id = rma.move_id and rma.move_id.location_id and rma.move_id.location_id.id
+        src_loc_id = rma.location_id and rma.location_id.id
         #create the bom line with the main product as the component with the serial number.
         vals = {
             'product_id': product and product.id or False,
