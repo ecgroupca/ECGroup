@@ -1111,6 +1111,7 @@ class Rma(models.Model):
                 move_vals.update(
                     picking_id=picking.id,
                     rma_id=rma.id,
+                    location_id = rma.finished_location_id and rma.finished_location_id.id,
                     move_orig_ids=[(4, rma.reception_move_id.id)],
                     company_id=picking.company_id.id,
                 )
@@ -1140,7 +1141,6 @@ class Rma(models.Model):
         self, move_form, scheduled_date, quantity=None, uom=None
     ):
         move_form.product_id = self.product_id
-        move_form.location_id = self.finished_location_id and self.finished_location_id.id
         move_form.product_uom_qty = quantity or self.product_uom_qty
         move_form.product_uom = uom or self.product_uom
         move_form.date_expected = scheduled_date
