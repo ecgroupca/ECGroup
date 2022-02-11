@@ -563,10 +563,11 @@ class Rma(models.Model):
         self.ensure_one()
         self._ensure_required_fields()
         if self.state == "draft":
-            if self.picking_id:
+            reception_move = self._create_receptions_from_product()
+            """if self.picking_id:
                 reception_move = self._create_receptions_from_picking()
             else:
-                reception_move = self._create_receptions_from_product()
+                reception_move = self._create_receptions_from_product()"""
             self.write({"reception_move_id": reception_move.id, "state": "confirmed"})
             if self.partner_id not in self.message_partner_ids:
                 self.message_subscribe([self.partner_id.id])
@@ -1002,7 +1003,9 @@ class Rma(models.Model):
         return picking.move_lines
 
     def _prepare_picking(self, picking_form):
-        picking_form.origin = self.name
+        return_origin = self.picking_id and '(Return of ' + self.picking_id.name + ')' or ''
+        picking_form.origin = self.name + return_origin
+        picking_form.sale_id = self.picking_id and self.picking_id.sale_id or False
         picking_form.partner_id = self.partner_id
         picking_form.location_dest_id = self.location_id
         with picking_form.move_ids_without_package.new() as move_form:
