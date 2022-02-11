@@ -648,6 +648,10 @@ class Rma(models.Model):
             self.env['mrp.bom']
            .search([('product_tmpl_id','=',product.product_tmpl_id.id)], limit=1)
         )
+        if not mrp_bom_id:
+            raise ValidationError(
+                _("Item to repair must have BoM.")
+            )            
         company = rma.company_id
         if not company:
             if rma.move_id:
@@ -1005,7 +1009,9 @@ class Rma(models.Model):
     def _prepare_picking(self, picking_form):
         return_origin = self.picking_id and '(Return of ' + self.picking_id.name + ')' or ''
         picking_form.origin = self.name + return_origin
-        picking_form.sale_id = self.picking_id and self.picking_id.sale_id or False
+        sale_id = self.picking_id and self.picking_id.sale_id or False
+        if sale_id:
+            picking_form.sale_id = sale_id
         picking_form.partner_id = self.partner_id
         picking_form.location_dest_id = self.location_id
         with picking_form.move_ids_without_package.new() as move_form:
