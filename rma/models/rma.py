@@ -91,7 +91,7 @@ class Rma(models.Model):
         domain="["
         "    ('state', '=', 'done'),"
         "    ('picking_type_id.code', '=', 'outgoing'),"
-        "    ('partner_id', 'child_of', commercial_partner_id),"
+        "    ('sale_id.partner_id', '=', partner_id),"
         "]",
         readonly=True,
         states={"draft": [("readonly", False)]},
