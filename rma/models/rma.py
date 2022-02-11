@@ -62,7 +62,8 @@ class Rma(models.Model):
     )
     company_id = fields.Many2one(
         comodel_name="res.company",
-        default=lambda self: self.env.company,
+        #default=lambda self: self.picking_id.company_id or self.product_id.company_id,
+        compute = "_compute_company",
         states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
     )
     partner_id = fields.Many2one(
@@ -90,7 +91,7 @@ class Rma(models.Model):
         domain="["
         "    ('state', '=', 'done'),"
         "    ('picking_type_id.code', '=', 'outgoing'),"
-        "    ('partner_id', 'child_of', commercial_partner_id),"
+        "    ('sale_id.partner_id', '=', partner_id),"
         "]",
         readonly=True,
         states={"draft": [("readonly", False)]},
@@ -107,6 +108,9 @@ class Rma(models.Model):
     )
     product_id = fields.Many2one(
         comodel_name="product.product", domain=[("type", "in", ["consu", "product"])],
+    )
+    mrp_prod_id = fields.Many2one(
+        comodel_name="mrp.production",
     )
     product_uom_qty = fields.Float(
         string="Quantity",
@@ -164,8 +168,15 @@ class Rma(models.Model):
     description = fields.Html(
         states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
     )
+    finished_location_id = fields.Many2one(
+        string="Return From Location",
+        comodel_name="stock.location",
+        readonly=True,
+        states={"draft": [("readonly", False)]},
+    )
     # Reception fields
     location_id = fields.Many2one(
+        string="Receive Into Location",
         comodel_name="stock.location",
         domain=_domain_location_id,
         readonly=True,
@@ -213,6 +224,7 @@ class Rma(models.Model):
     )
     can_be_returned = fields.Boolean(compute="_compute_can_be_returned",)
     can_be_replaced = fields.Boolean(compute="_compute_can_be_replaced",)
+    can_be_repaired = fields.Boolean(compute="_compute_can_be_repaired",)
     can_be_locked = fields.Boolean(compute="_compute_can_be_locked",)
     remaining_qty = fields.Float(
         string="Remaining delivered qty",
@@ -229,7 +241,14 @@ class Rma(models.Model):
     origin_split_rma_id = fields.Many2one(
         comodel_name="rma", string="Extracted from", readonly=True, copy=False,
     )
-
+    def _compute_company(self):
+        for rma in self:
+            rma.company_id = self.env.company
+            if rma.picking_id:
+                rma.company_id = rma.picking_id.company_id
+            elif rma.product_id:
+                rma.company_id = rma.product_id.company_id
+    
     def _compute_delivery_picking_count(self):
         # It is enough to count the moves to know how many pickings
         # there are because there will be a unique move linked to the
@@ -315,7 +334,8 @@ class Rma(models.Model):
         an rma can be refunded. It is used in rma.action_refund method.
         """
         for record in self:
-            record.can_be_refunded = record.state == "received"
+            record.can_be_refunded = record.state == "received" and not record.refund_id
+            
 
     @api.depends("remaining_qty", "state")
     def _compute_can_be_returned(self):
@@ -345,6 +365,20 @@ class Rma(models.Model):
                 "received",
                 "waiting_replacement",
                 "replaced",
+            ]
+            
+    @api.depends("state")
+    def _compute_can_be_repaired(self):
+        """ Compute 'can_be_repaired'. This field controls the visibility
+        of 'Repair' button in the rma form
+        view and determinates if an rma can be replaced.
+        This field is used in:
+        rma._compute_can_be_split
+        rma._ensure_can_be_replaced.
+        """
+        for r in self:
+            r.can_be_repaired = r.state in [
+                "received",
             ]
 
     @api.depends("product_uom_qty", "state", "remaining_qty", "remaining_qty_to_done")
@@ -529,10 +563,11 @@ class Rma(models.Model):
         self.ensure_one()
         self._ensure_required_fields()
         if self.state == "draft":
-            if self.picking_id:
+            reception_move = self._create_receptions_from_product()
+            """if self.picking_id:
                 reception_move = self._create_receptions_from_picking()
             else:
-                reception_move = self._create_receptions_from_product()
+                reception_move = self._create_receptions_from_product()"""
             self.write({"reception_move_id": reception_move.id, "state": "confirmed"})
             if self.partner_id not in self.message_partner_ids:
                 self.message_subscribe([self.partner_id.id])
@@ -598,6 +633,107 @@ class Rma(models.Model):
             active_id=self.id, active_ids=self.ids, rma_delivery_type="replace",
         )
         return action
+        
+    def action_repair(self):
+        """Invoked when 'Repair' button in rma form view is clicked."""
+        self.ensure_one()
+        self._ensure_can_be_replaced()
+        #prepare vals for mrp.production create() method.
+        rma = self
+        if rma.move_id:
+            product = rma.move_id.product_id
+        else:
+            product = rma.product_id
+        mrp_bom_id = (
+            self.env['mrp.bom']
+           .search([('product_tmpl_id','=',product.product_tmpl_id.id)], limit=1)
+        )
+        company = rma.company_id
+        if not company:
+            if rma.move_id:
+                company = rma.move_id.company_id
+                
+        #add a finished good location to the RMA form and use it for finished good location on repair order
+        #and as the source location on the return to customer.
+        
+        vals = {
+            'date_planned_start': rma.date,
+            'product_id': product and product.id or False,
+            'product_qty': rma.product_uom_qty,
+            'bom_id': mrp_bom_id and mrp_bom_id.id or False,
+            'product_uom_id': rma.product_uom and rma.product_uom.id or False,
+            'origin': 'RMA: ' + rma.name,
+            'x_repair_order': True,
+            'company_id': company and company.id or False,
+            'location_dest_id': rma.finished_location_id and rma.finished_location_id.id,
+            }
+        mrp_prod = self.env['mrp.production'].create(vals)
+        rma.mrp_prod_id = mrp_prod
+        production_loc = product.property_stock_production
+        if not production_loc:
+            production_loc = (
+            self.env['stock.location']
+           .search([('company_id','=',company.id),('usage','=','production')], limit=1)
+           .id
+        )
+        #src_loc_id = rma.move_id and rma.move_id.location_id and rma.move_id.location_id.id
+        src_loc_id = rma.location_id and rma.location_id.id
+        #create the bom line with the main product as the component with the serial number.
+        vals = {
+            'product_id': product and product.id or False,
+            'product_uom_qty': rma.product_uom_qty,
+            'raw_material_production_id': mrp_prod.id,
+            'name': product and product.name,
+            'product_uom': rma.product_uom and rma.product_uom.id or False,
+            'location_id': src_loc_id,
+            'location_dest_id': production_loc and production_loc.id or False,
+            }
+
+        res = self.env['stock.move'].create(vals)
+        mrp_prod.action_confirm()
+        mrp_prod.action_assign()
+        move_line_ids = rma.move_id and rma.move_id.move_line_nosuggest_ids
+        if not move_line_ids:
+             move_line_ids = rma.move_id and rma.move_id.move_line_ids_without_package or []
+        for move_line in move_line_ids:
+            #create a new move line for the consumption moves with their corresponding lot#s
+            vals = {
+                'company_id': company and company.id or False,
+                'product_id': product and product.id or False,
+                'product_uom_qty': rma.product_uom_qty,
+                'date': rma.date,
+                'lot_id': move_line.lot_id and move_line.lot_id.id or False,
+                'product_uom_id': rma.product_uom and rma.product_uom.id or False,
+                'location_id': src_loc_id,
+                'location_dest_id': production_loc and production_loc.id or False,         
+            }
+             
+            res = self.env['stock.move.line'].create(vals)
+        """self.message_post(
+            body=_(
+                "Repair created for:<br/>"
+                'Product <a href="#" data-oe-model="product.product" '
+                    'data-oe-id="%d">%s</a> (Production order <a href="#" '
+                    'data-oe-model="mrp.production" data-oe-id="%d">%s</a>) '
+                "Quantity %f %s<br/>"
+                "This repair created a production order."
+            )
+            % (product.id, product.display_name, res, res.name,)
+            )"""
+
+        # Force active_id to avoid issues when coming from smart buttons
+        # in other models
+        """action = (
+            self.env.ref("rma.rma_production_wizard_action")
+            .with_context(active_id=self.id)
+            .read()[0]
+        )
+        action["name"] = "Repair product(s)"
+        action["context"] = dict(self.env.context)
+        action["context"].update(
+            active_id=self.id, active_ids=self.ids, rma_delivery_type="replace",
+        )
+        return action"""
 
     def action_return(self):
         """Invoked when 'Return to customer' button in rma form
@@ -659,6 +795,24 @@ class Rma(models.Model):
             "target": "self",
             "url": self.get_portal_url(),
         }
+        
+    def action_view_repair(self):
+        """Invoked when 'Receipt' smart button in rma form view is clicked."""
+        self.ensure_one()
+        # Force active_id to avoid issues when coming from smart buttons
+        # in other models
+        action = (
+            self.env.ref("mrp.action_mrp_production_form")
+            .with_context(active_id=self.id)
+            .read()[0]
+        )
+        action.update(
+            res_id=self.mrp_prod_id.id,
+            view_mode="form",
+            view_id=False,
+            views=False,
+        )
+        return action
 
     def action_view_receipt(self):
         """Invoked when 'Receipt' smart button in rma form view is clicked."""
@@ -849,7 +1003,9 @@ class Rma(models.Model):
         return picking.move_lines
 
     def _prepare_picking(self, picking_form):
-        picking_form.origin = self.name
+        return_origin = self.picking_id and '(Return of ' + self.picking_id.name + ')' or ''
+        picking_form.origin = self.name + return_origin
+        picking_form.sale_id = self.picking_id and self.picking_id.sale_id or False
         picking_form.partner_id = self.partner_id
         picking_form.location_dest_id = self.location_id
         with picking_form.move_ids_without_package.new() as move_form:
@@ -958,6 +1114,7 @@ class Rma(models.Model):
                 move_vals.update(
                     picking_id=picking.id,
                     rma_id=rma.id,
+                    location_id = rma.finished_location_id and rma.finished_location_id.id,
                     move_orig_ids=[(4, rma.reception_move_id.id)],
                     company_id=picking.company_id.id,
                 )
@@ -990,6 +1147,66 @@ class Rma(models.Model):
         move_form.product_uom_qty = quantity or self.product_uom_qty
         move_form.product_uom = uom or self.product_uom
         move_form.date_expected = scheduled_date
+        
+   # Repair business methods
+    def create_repair(self, scheduled_date, product, qty, uom, company, mrp_bom_id, rma_move_id):
+        """Intended to be invoked by the production wizard"""
+        self.ensure_one()
+        #prepare vals for mrp.production create() method.
+        vals = {
+            'date_planned_start': scheduled_date,
+            'product_id': product and product.id or False,
+            'product_qty': qty,
+            'bom_id': mrp_bom_id and mrp_bom_id.id or False,
+            'product_uom_id': uom and uom.id or False,
+            'origin': 'RMA',
+            'company_id': company and company.id or False,
+            }
+        mrp_prod = self.env['mrp.production'].create(vals)
+        self.mrp_prod_id = mrp_prod
+        src_loc_id = rma_move_id and rma_move_id.location_id and rma_move_id.location_id.id
+        #create the bom line with the main product as the component with the serial number.
+        vals = {
+            'product_id': product and product.id or False,
+            'product_uom_qty': qty,
+            'raw_material_production_id': mrp_prod.id,
+            'name': product and product.name,
+            'product_uom': uom and uom.id or False,
+            'location_id': src_loc_id,
+            'location_dest_id': mrp_prod.location_dest_id and mrp_prod.location_dest_id.id,
+            }
+
+        res = self.env['stock.move'].create(vals)
+        mrp_prod.action_confirm()
+        mrp_prod.action_assign()
+        move_line_ids = rma_move_id.move_line_nosuggest_ids
+        if not move_line_ids:
+             move_line_ids = rma_move_id.move_line_ids_without_package
+        for move_line in move_line_ids:
+            #create a new move line for the consumption moves with their corresponding lot#s
+            vals = {
+                'company_id': company and company.id or False,
+                'product_id': product and product.id or False,
+                'product_uom_qty': qty,
+                'date': scheduled_date,
+                'lot_id': move_line.lot_id and move_line.lot_id.id or False,
+                'product_uom_id': uom and uom.id or False,
+                'location_id': src_loc_id,
+                'location_dest_id': mrp_prod.location_dest_id and mrp_prod.location_dest_id.id,           
+            }
+             
+            res = self.env['stock.move.line'].create(vals)
+        """self.message_post(
+            body=_(
+                "Repair created for:<br/>"
+                'Product <a href="#" data-oe-model="product.product" '
+                    'data-oe-id="%d">%s</a> (Production order <a href="#" '
+                    'data-oe-model="mrp.production" data-oe-id="%d">%s</a>) '
+                "Quantity %f %s<br/>"
+                "This repair created a production order."
+            )
+            % (product.id, product.display_name, res, res.name,)
+            )"""
 
     # Replacing business methods
     def create_replace(self, scheduled_date, warehouse, product, qty, uom):
