@@ -137,14 +137,21 @@
                         type="object"
                         string="To Refund"
                         name="action_refund"
-                        attrs="{'invisible': [('can_be_refunded', '=', False)]}"
+                        attrs="{'invisible': ['|','|',('refund_id', '!=', False),('can_be_refunded', '=', False),('mrp_prod_id', '!=', False)]}"
                         class="btn-primary"
                     />
                     <button
                         type="object"
                         string="Replace"
                         name="action_replace"
-                        attrs="{'invisible': [('can_be_replaced', '=', False)]}"
+                        attrs="{'invisible': ['|',('can_be_replaced', '=', False),('mrp_prod_id', '!=', False)]}"
+                        class="btn-primary"
+                    />
+                    <button
+                        type="object"
+                        string="Repair"
+                        name="action_repair"
+                        attrs="{'invisible': ['|',('can_be_repaired', '=', False),('mrp_prod_id', '!=', False)]}"
                         class="btn-primary"
                     />
                     <button
@@ -189,11 +196,21 @@
                     <field
                         name="state"
                         widget="statusbar"
-                        statusbar_visible="draft,confirmed,received"
+                        statusbar_visible="draft,confirmed,received,repaired"
                     />
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
+					    <field name="mrp_prod_id" invisible="1"/>
+                        <button
+                            type="object"
+                            name="action_view_repair"
+                            string="Repair"
+                            class="oe_stat_button"
+                            icon="fa-gears"
+                            attrs="{'invisible': [('mrp_prod_id', '=', False)]}"
+                        >
+                        </button>						
                         <button
                             type="object"
                             name="action_view_receipt"
@@ -273,6 +290,16 @@
                                 options="{'no_create': True}"
                                 groups="base.group_multi_company"
                             />
+							<field
+								name="finished_location_id"
+								options="{'no_create': True, 'no_open': True}"
+								groups="stock.group_stock_multi_locations"
+							/>
+							<field
+								name="location_id"
+								options="{'no_create': True, 'no_open': True}"
+								groups="stock.group_stock_multi_locations"
+							/>
                         </group>
                     </group>
                     <notebook>
@@ -280,11 +307,6 @@
                             <group>
                                 <group>
                                     <field name="procurement_group_id" />
-                                    <field
-                                        name="location_id"
-                                        options="{'no_create': True, 'no_open': True}"
-                                        groups="stock.group_stock_multi_locations"
-                                    />
                                 </group>
                                 <group>
                                     <field name="deadline" />
@@ -306,6 +328,7 @@
                     <field name="can_be_refunded" invisible="1" />
                     <field name="can_be_returned" invisible="1" />
                     <field name="can_be_replaced" invisible="1" />
+					<field name="can_be_repaired" invisible="1" />
                     <field name="can_be_split" invisible="1" />
                     <field name="can_be_locked" invisible="1" />
                     <field name="commercial_partner_id" invisible="1" />

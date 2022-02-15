@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" ?>
+  <odoo>
+    <record id="tmpl_form_hide_inherit" model="ir.ui.view">
+        <field name="name">tmpl.form.hide</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+		    <label for="standard_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</label>
+		    <label for="list_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</label>
+		    <field name="standard_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+		    <field name="list_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+        </field>
+    </record>
+ 	<record id="tmpl_tree_hide_inherit" model="ir.ui.view">
+        <field name="name">tmpl.tree.hide</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+		    <field name="list_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+		    <field name="standard_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+        </field>
+    </record>	
+ 	<record id="prod_tree_hide_inherit" model="ir.ui.view">
+        <field name="name">prod.prod.tree.hide</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+		    <field name="lst_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+		    <field name="standard_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+        </field>
+    </record>
+ 	<record id="prod_kanban_hide_inherit" model="ir.ui.view">
+        <field name="name">prod.prod.kanban.hide</field>
+        <field name="model">product.product</field> 
+        <field name="inherit_id" ref="product.product_kanban_view"/>
+        <field name="arch" type="xml">
+		    <field name="lst_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+			<!--field name="lst_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field-->
+			<xpath expr="//templates/t/div/div[@class='oe_kanban_details']/ul/li/strong" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</xpath>
+        </field>
+    </record>
+ 	<record id="tmpl_kanban_hide_inherit" model="ir.ui.view">
+        <field name="name">prod.tmpl.kanban.hide</field>
+        <field name="model">product.template</field>
+        <field name="inherit_id" ref="product.product_template_kanban_view"/>
+        <field name="arch" type="xml">
+			<xpath expr="//templates/t/div/div[@class='oe_kanban_details']/ul/li" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</xpath>
+        </field>
+    </record>
+   	<record id="prod_prod_hide_inherit" model="ir.ui.view">
+        <field name="name">prod.prod.hide</field>
+        <field name="model">product.product</field>
+        <field name="inherit_id" ref="product.product_normal_form_view"/>
+        <field name="arch" type="xml">
+		    <label for="lst_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</label>
+		    <field name="lst_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+		    <field name="standard_price" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+        </field>
+    </record>
+ 	<record id="view_stock_move_picking_hide_prices" model="ir.ui.view">
+        <field name="name">picking.hide.prices</field>
+        <field name="model">stock.picking</field>
+        <field name="inherit_id" ref="stock_picking_sale_order_link.view_picking_tree_sale_mods_ec"/>
+        <field name="arch" type="xml">
+		    <field name="inv_bal_due" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+        </field>
+    </record>
+  </odoo>

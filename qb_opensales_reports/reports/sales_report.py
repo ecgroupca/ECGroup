@@ -28,9 +28,9 @@ class OpenSalesXlsx(models.AbstractModel):
         selected_sales = data['form'].get('sale_ids', False)
         #domain_search = [('date','>=',date_from.strftime("%m/%d/%Y 00:00:00")),('date','<=',date_to.strftime("%m/%d/%Y 23:59:59"))]
         date_domain = [('company_id','=',company_id),('state','not in',['draft','cancel','sent']),('date_order','>=',date_from.strftime("%Y-%m-%d 00:00:00")),('date_order','<=',date_to.strftime("%Y-%m-%d 23:59:00"))]
-        sales_from_to = sale_obj.search(date_domain)
+        #sales_from_to = sale_obj.search(date_domain)
         #compute open shipments/production for the orders in docids 
-        sales_from_to._compute_open_shipments()               
+        #sales_from_to._compute_open_shipments()               
         domain_search = [('open_shipment','!=',False)]
         domain_search += date_domain
         if showroom:
@@ -107,9 +107,9 @@ class OpenSalesReport(models.AbstractModel):
             if not print_selected:
                 #domain_search = [('date','>=',date_from.strftime("%m/%d/%Y 00:00:00")),('date','<=',date_to.strftime("%m/%d/%Y 23:59:59"))]
                 date_domain = [('company_id','=',company_id),('state','not in',['draft','cancel','sent']),('date_order','>=',date_from.strftime("%Y-%m-%d 00:00:00")),('date_order','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
-                sales_from_to = sale_obj.search(date_domain)
+                #sales_from_to = sale_obj.search(date_domain)
                 #compute open shipments/production for the orders in docids 
-                sales_from_to._compute_open_shipments()               
+                #sales_from_to._compute_open_shipments()               
                 domain_search = [('open_shipment','!=',False)]
                 domain_search += date_domain
                 if showroom:
@@ -121,7 +121,7 @@ class OpenSalesReport(models.AbstractModel):
                 if not selected_sales:
                     raise UserError(_("No sales records selected!"))
                 domain_search.append(('id','in',selected_sales))
-        else :
+        else:
             date_from = date_to = False
             domain_search = [('id','in',docids)]       
         

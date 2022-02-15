@@ -21,6 +21,9 @@ class StockWarehouse(models.Model):
     rma_out_type_id = fields.Many2one(
         comodel_name="stock.picking.type", string="RMA Out Type",
     )
+    rma_mrp_type_id = fields.Many2one(
+        comodel_name="stock.picking.type", string="RMA Manufacturing Type",
+    )
     rma_loc_id = fields.Many2one(comodel_name="stock.location", string="RMA Location",)
 
     @api.model_create_multi

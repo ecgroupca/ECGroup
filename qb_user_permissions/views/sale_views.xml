@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+  <odoo>
+ 	<record id="view_sales_quotations_hide_prices" model="ir.ui.view">
+        <field name="name">sale.order.quotations.hide.prices</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_quotation_tree"/>
+        <field name="arch" type="xml">
+		    <field name="amount_total" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+		    <field name="amount_untaxed" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+        </field>
+    </record>
+	<record id="view_sales_order_hide_prices" model="ir.ui.view">
+        <field name="name">sale.order.hide.prices</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_tree"/>
+        <field name="arch" type="xml">
+		    <field name="amount_total" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+		    <field name="amount_untaxed" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+        </field>
+    </record>	
+	
+	<record id="view_sp_form_hide_prices" model="ir.ui.view">
+        <field name="name">sale.sp.form.hide.prices</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale_margin.sale_margin_sale_order_line"/>
+        <field name="arch" type="xml">
+		    <xpath expr="//field[@name='purchase_price']" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</xpath>
+		    <xpath expr="//field[@name='margin']" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</xpath>
+        </field>
+    </record>
+	<record id="view_sales_form_hide_prices" model="ir.ui.view">
+        <field name="name">sale.form.hide.prices</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+		    <xpath expr="//notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</xpath>
+		    <xpath expr="//notebook/page/field[@name='order_line']/tree/field[@name='price_subtotal']" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</xpath>
+		    <field name="amount_tax" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+		    <field name="amount_total" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+		    <field name="amount_untaxed" position="attributes">
+			    <attribute name="groups">sales_team.group_sale_salesman_all_leads</attribute> 
+			</field>
+        </field>
+    </record>
+  </odoo>
