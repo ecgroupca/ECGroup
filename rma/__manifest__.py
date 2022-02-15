@@ -21,7 +21,6 @@
         "security/ir.model.access.csv",
         "wizard/stock_picking_return_views.xml",
         "wizard/rma_delivery_views.xml",
-        "wizard/rma_production_views.xml",
         "wizard/rma_split_views.xml",
         "views/menus.xml",
         "views/res_partner_views.xml",
