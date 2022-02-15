@@ -74,7 +74,7 @@
     </t>
 </template>
 <template id="mrp.report_mrporder">
-    <t t-call="web.html_container">
+      <t t-call="web.html_container">
         <t t-foreach="docs" t-as="o">
           <t t-if="o.sale_order_id">
             <t t-foreach="o.sale_order_id" t-as="sale">
@@ -92,7 +92,7 @@
                         </div>
                     </div>
                     <div class="row mt32 mb32">
-                        <div class="col-5" t-if="o.origin">
+                        <div class="col-3" t-if="o.origin">
                             <strong>Source Document:</strong><br/>
                             <t t-if="sale">
                               <span t-field="sale.name"/>
@@ -101,7 +101,7 @@
                               <span t-field="o.origin"/>
                             </t>
                         </div>
-                        <div class="col-5">
+                        <div class="col-3">
                             <strong>Client Name:</strong><br/>
                             <t t-if="sale">
                               <span t-field="sale.partner_id"/>
@@ -110,7 +110,11 @@
                               <span/>
                             </t>
                         </div>
-                        <div class="col-5">
+                        <div class="col-3">
+                          <strong>Deadline:</strong><br/>
+                            <span t-esc="o.date_deadline.strftime('%m/%d/%y')"/>
+                        </div>
+                        <div class="col-3">
                             <strong>Responsible:</strong><br/>
                             <t t-if="sale">
                               <span t-field="sale.user_id"/>
@@ -119,24 +123,24 @@
                               <span t-field="o.user_id"/>
                             </t>
                         </div>
-                        <div class="col-5">
-                          <strong>Deadline:</strong><br/>
-                            <span t-esc="o.date_deadline.strftime('%m/%d/%y')"/>
-                        </div>
                     </div>
-                    <div class="row mt32 mb32">
-                      <div class="col-5">
+                    <div class="row">
+                      <div class="col-3">
                           <strong>Finished Product:</strong><br/>
                           <span t-field="o.product_id.default_code"/>
                       </div>
-                      <div class="col-5">
+                      <div class="col-3">
                           <strong>Quantity to Produce:</strong><br/>
                           <span t-field="o.product_qty"/>
                           <span t-field="o.product_uom_id.name" groups="uom.group_uom"/>
                       </div>
-                      <div class="col-5">
-                          <strong>Planned Date:</strong><br/>
-                          <t t-esc="o.date_planned_start.strftime('%m/%d/%y')"/>
+                      <div class="col-3">
+                          <strong>Planned Date (Start):</strong><br/>
+                          <t t-esc="o.date_planned_start.strftime('%m/%d/%y') or o.date_deadline.strftime('%m/%d/%y')"/>
+                      </div>
+                      <div class="col-3">
+                          <strong>Planned Date (End):</strong><br/>
+                          <t t-esc="o.date_planned_finished.strftime('%m/%d/%y') or o.date_deadline.strftime('%m/%d/%y')"/>
                       </div>
                     </div>
                     <div class="row mt32 mb32" style="border:solid 1px;box-shadow: 10px 10px 6px -6px #111;padding:3px;">
@@ -202,7 +206,7 @@
 								
 								<td t-if="raw_line.move_line_ids" t-attf-class="{{ 'text-right' if not has_product_barcode else '' }}">
 									<t t-foreach="raw_line.move_line_ids" t-as="move_line">
-										<span t-esc="move_line.product_uom_qty or move_line.qty_done"/>
+										<span t-esc="move_line.qty_done"/>
 										<span t-field="move_line.product_uom_id" groups="uom.group_uom"/>
 										<br/>
 									</t>
@@ -247,7 +251,7 @@
                         </div>
                     </div>
                     <div class="row mt32 mb32">
-                        <div class="col-5" t-if="o.origin">
+                        <div class="col-3" t-if="o.origin">
                             <strong>Source Document:</strong><br/>
                             <t t-if="sale">
                               <span t-field="sale.name"/>
@@ -256,7 +260,7 @@
                               <span t-field="o.origin"/>
                             </t>
                         </div>
-                        <div class="col-5">
+                        <div class="col-3">
                             <strong>Client Name:</strong><br/>
                             <t t-if="sale">
                               <span t-field="sale.partner_id"/>
@@ -265,7 +269,7 @@
                               <span/>
                             </t>
                         </div>
-                        <div class="col-5">
+                        <div class="col-3">
                             <strong>Responsible:</strong><br/>
                             <t t-if="sale">
                               <span t-field="sale.user_id"/>
@@ -274,20 +278,28 @@
                               <span t-field="o.user_id"/>
                             </t>
                         </div>
+                        <div class="col-3">
+                          <strong>Deadline:</strong><br/>
+                            <span t-esc="o.date_deadline.strftime('%m/%d/%y')"/>
+                        </div>
                     </div>
                     <div class="row mt32 mb32">
-                      <div class="col-5">
+                      <div class="col-3">
                           <strong>Finished Product:</strong><br/>
                           <span t-field="o.product_id.default_code"/>
                       </div>
-                      <div class="col-5">
+                      <div class="col-3">
                           <strong>Quantity to Produce:</strong><br/>
                           <span t-field="o.product_qty"/>
                           <span t-field="o.product_uom_id.name" groups="uom.group_uom"/>
                       </div>
-                      <div class="col-5">
-                          <strong>Planned Date:</strong><br/>
-                          <t t-esc="o.date_planned_start or o.date_deadline"/>
+                      <div class="col-3">
+                          <strong>Planned Date (Start):</strong><br/>
+                          <t t-esc="o.date_planned_start.strftime('%m/%d/%y') or o.date_deadline.strftime('%m/%d/%y')"/>
+                      </div>
+                      <div class="col-3">
+                          <strong>Planned Date (End):</strong><br/>
+                          <t t-esc="o.date_planned_finished.strftime('%m/%d/%y') or o.date_deadline.strftime('%m/%d/%y')"/>
                       </div>
                     </div>
                     <div class="row mt32 mb32" style="border:solid 1px;box-shadow: 10px 10px 6px -6px #111;padding:3px;">
@@ -338,14 +350,14 @@
 								<th>Lot#</th>
 							</tr>
 						</thead>
-                        <tbody>
-                            <tr t-foreach="o.move_raw_ids" t-as="raw_line">
+              <tbody>
+                  <tr t-foreach="o.move_raw_ids" t-as="raw_line">
 								<td>
 								  <span t-field="raw_line.product_id.default_code"/>
 								</td>								
 								<td t-if="raw_line.move_line_ids" t-attf-class="{{ 'text-right' if not has_product_barcode else '' }}">
 									<t t-foreach="raw_line.move_line_ids" t-as="move_line">
-										<span t-esc="move_line.qty_done or move_line.product_uom_qty"/>
+										<span t-esc="move_line.qty_done"/>
 										<span t-field="move_line.product_uom_id" groups="uom.group_uom"/>
 										<br/>
 									</t>
@@ -376,5 +388,5 @@
           </t>
         </t>
       </t>
-</template>
+    </template>
 </odoo>
