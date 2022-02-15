@@ -196,7 +196,7 @@
                     <field
                         name="state"
                         widget="statusbar"
-                        statusbar_visible="draft,confirmed,received"
+                        statusbar_visible="draft,confirmed,received,repaired"
                     />
                 </header>
                 <sheet>

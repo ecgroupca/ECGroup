@@ -12,6 +12,7 @@
             <xpath expr="//field[@name='out_type_id']/..">
                 <field name="rma_in_type_id" />
                 <field name="rma_out_type_id" />
+				<field name="rma_mrp_type_id" />
             </xpath>
         </field>
     </record>

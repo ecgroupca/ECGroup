@@ -2,6 +2,7 @@
 
 from . import account_move
 from . import rma
+from . import mrp
 from . import rma_operation
 from . import rma_team
 from . import res_company

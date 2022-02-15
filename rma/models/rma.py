@@ -111,6 +111,7 @@ class Rma(models.Model):
     )
     mrp_prod_id = fields.Many2one(
         comodel_name="mrp.production",
+        copy = False,
     )
     product_uom_qty = fields.Float(
         string="Quantity",
@@ -153,11 +154,13 @@ class Rma(models.Model):
             ("draft", "Draft"),
             ("confirmed", "Confirmed"),
             ("received", "Received"),
-            ("waiting_return", "Waiting for return"),
             ("waiting_replacement", "Waiting for replacement"),
-            ("refunded", "Refunded"),
-            ("returned", "Returned"),
             ("replaced", "Replaced"),
+            ("refunded", "Refunded"),
+            ("waiting_repair", "Waiting for repair"),
+            ("repaired", "Repaired"),
+            ("waiting_return", "Waiting for return"),
+            ("returned", "Returned"),
             ("locked", "Locked"),
             ("cancelled", "Canceled"),
         ],
@@ -348,7 +351,7 @@ class Rma(models.Model):
         """
         for r in self:
             r.can_be_returned = (
-                r.state in ["received", "waiting_return"] and r.remaining_qty > 0
+                r.state in ["received", "waiting_return", "repaired", "waiting_repair"] and r.remaining_qty > 0
             )
 
     @api.depends("state")
@@ -659,7 +662,7 @@ class Rma(models.Model):
                 
         #add a finished good location to the RMA form and use it for finished good location on repair order
         #and as the source location on the return to customer.
-        
+        rma_mrp_type = rma.warehouse_id and rma.warehouse_id.rma_mrp_type_id and rma.warehouse_id.rma_mrp_type_id.id or False
         vals = {
             'date_planned_start': rma.date,
             'product_id': product and product.id or False,
@@ -668,9 +671,16 @@ class Rma(models.Model):
             'product_uom_id': rma.product_uom and rma.product_uom.id or False,
             'origin': 'RMA: ' + rma.name,
             'x_repair_order': True,
+            'rma_id': rma.id,
             'company_id': company and company.id or False,
-            'location_dest_id': rma.finished_location_id and rma.finished_location_id.id,
             }
+        src_loc_id = rma.location_id and rma.location_id.id            
+        if rma_mrp_type:
+            vals['picking_type_id'] = rma_mrp_type
+        if rma.finished_location_id:
+            vals['location_dest_id'] = rma.finished_location_id.id
+        if src_loc_id:
+            vals['location_src_id'] = src_loc_id        
         mrp_prod = self.env['mrp.production'].create(vals)
         rma.mrp_prod_id = mrp_prod
         production_loc = product.property_stock_production
@@ -681,7 +691,7 @@ class Rma(models.Model):
            .id
         )
         #src_loc_id = rma.move_id and rma.move_id.location_id and rma.move_id.location_id.id
-        src_loc_id = rma.location_id and rma.location_id.id
+        
         #create the bom line with the main product as the component with the serial number.
         vals = {
             'product_id': product and product.id or False,
@@ -692,7 +702,8 @@ class Rma(models.Model):
             'location_id': src_loc_id,
             'location_dest_id': production_loc and production_loc.id or False,
             }
-
+        if src_loc_id and not rma_mrp_type:
+            vals['location_id'] = src_loc_id
         res = self.env['stock.move'].create(vals)
         mrp_prod.action_confirm()
         mrp_prod.action_assign()
@@ -713,31 +724,8 @@ class Rma(models.Model):
             }
              
             res = self.env['stock.move.line'].create(vals)
-        """self.message_post(
-            body=_(
-                "Repair created for:<br/>"
-                'Product <a href="#" data-oe-model="product.product" '
-                    'data-oe-id="%d">%s</a> (Production order <a href="#" '
-                    'data-oe-model="mrp.production" data-oe-id="%d">%s</a>) '
-                "Quantity %f %s<br/>"
-                "This repair created a production order."
-            )
-            % (product.id, product.display_name, res, res.name,)
-            )"""
-
-        # Force active_id to avoid issues when coming from smart buttons
-        # in other models
-        """action = (
-            self.env.ref("rma.rma_production_wizard_action")
-            .with_context(active_id=self.id)
-            .read()[0]
-        )
-        action["name"] = "Repair product(s)"
-        action["context"] = dict(self.env.context)
-        action["context"].update(
-            active_id=self.id, active_ids=self.ids, rma_delivery_type="replace",
-        )
-        return action"""
+        if mrp_prod:
+            rma.write({"state": "waiting_repair"})
 
     def action_return(self):
         """Invoked when 'Return to customer' button in rma form
@@ -1014,6 +1002,7 @@ class Rma(models.Model):
             picking_form.sale_id = sale_id
         picking_form.partner_id = self.partner_id
         picking_form.location_dest_id = self.location_id
+        #picking_form.picking_type_id = self.warehouse_id.rma_in_type_id
         with picking_form.move_ids_without_package.new() as move_form:
             move_form.product_id = self.product_id
             move_form.product_uom_qty = self.product_uom_qty
@@ -1118,9 +1107,9 @@ class Rma(models.Model):
                 picking_vals = picking_form._values_to_save(all_fields=True)
                 move_vals = picking_vals["move_ids_without_package"][-1][2]
                 move_vals.update(
+                    location_id = rma.finished_location_id and rma.finished_location_id.id or False,                
                     picking_id=picking.id,
                     rma_id=rma.id,
-                    location_id = rma.finished_location_id and rma.finished_location_id.id,
                     move_orig_ids=[(4, rma.reception_move_id.id)],
                     company_id=picking.company_id.id,
                 )
@@ -1143,12 +1132,15 @@ class Rma(models.Model):
 
     def _prepare_returning_picking(self, picking_form, origin=None):
         picking_form.picking_type_id = self.warehouse_id.rma_out_type_id
+        if self.finished_location_id:
+            picking_form.location_id = self.finished_location_id
         picking_form.origin = origin or self.name
         picking_form.partner_id = self.partner_id
 
     def _prepare_returning_move(
         self, move_form, scheduled_date, quantity=None, uom=None
     ):
+        move_form.location_id = self.finished_location_id
         move_form.product_id = self.product_id
         move_form.product_uom_qty = quantity or self.product_uom_qty
         move_form.product_uom = uom or self.product_uom
@@ -1395,3 +1387,11 @@ class Rma(models.Model):
         )
         if rma:
             rma.write({"state": "returned"})
+            
+    def update_repaired_state(self):
+        """ Invoked by [mrp.production]._action_done"""
+        rma = self.filtered(
+            lambda r: (r.state == "waiting_repair" and r.remaining_qty_to_done <= 0)
+        )
+        if rma:
+            rma.write({"state": "repaired"})      
