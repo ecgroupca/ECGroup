@@ -156,7 +156,7 @@
 
 						<button type="action" name="%(open_pickings)d"
 							string="Pickings"
-							attrs="{'invisible':['|',('state', '!=', 'processed'),('picking_ids','=',[])]}"
+							attrs="{'invisible':['|',('state', 'not in', ['transferred','processed']),('picking_ids','=',[])]}"
 							class="oe_stat_button" icon="fa-chain">
 							<field name="picking_ids" string="Pickings" invisible="1" />
 						</button>
