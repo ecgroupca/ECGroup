@@ -51,6 +51,7 @@ class MrpProduction(models.Model):
                     ('name', '=', values['origin'])
                 ])
                 # If so, use the 'sale_order_id' from the parent production
-                values['sale_order_id'] = production_id.sale_order_id.id
+                if production_id and production_id.sale_order_id:
+                    values['sale_order_id'] = production_id.sale_order_id.id
 
         return super(MrpProduction, self).create(values)

@@ -37,7 +37,8 @@ class InterCompanyTransferEpt(models.Model):
                                                       help="ICT Lines", copy=True)
 
     state = fields.Selection([('draft', 'Draft'),
-                              ('processed', 'Processed'),
+                              ('processed','Awaiting Transfer'),
+                              ('transferred', 'Transferred'),
                               ('cancel', 'Cancelled')],
                              string='State', copy=False, default='draft', help="State of ICT.")
     type = fields.Selection([('ict', 'ICT'), ('ict_reverse', 'Reverse ICT'),
