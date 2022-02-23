@@ -183,6 +183,7 @@ class Rma(models.Model):
         comodel_name="stock.location",
         domain=_domain_location_id,
         readonly=True,
+        required=True,
         states={"draft": [("readonly", False)]},
     )
     warehouse_id = fields.Many2one(
@@ -660,9 +661,6 @@ class Rma(models.Model):
             if rma.move_id:
                 company = rma.move_id.company_id
                 
-        #add a finished good location to the RMA form and use it for finished good location on repair order
-        #and as the source location on the return to customer.
-        rma_mrp_type = rma.warehouse_id and rma.warehouse_id.rma_mrp_type_id and rma.warehouse_id.rma_mrp_type_id.id or False
         vals = {
             'date_planned_start': rma.date,
             'product_id': product and product.id or False,
@@ -674,11 +672,13 @@ class Rma(models.Model):
             'rma_id': rma.id,
             'company_id': company and company.id or False,
             }
-        src_loc_id = rma.location_id and rma.location_id.id            
+        src_loc_id = rma.location_id and rma.location_id.id      
+        #add a finished good location to the RMA form and use it for finished good location on repair order
+        #and as the source location on the return to customer.
+        rma_mrp_type = rma.warehouse_id and rma.warehouse_id.rma_mrp_type_id or False        
         if rma_mrp_type:
-            vals['picking_type_id'] = rma_mrp_type
-        if rma.finished_location_id:
-            vals['location_dest_id'] = rma.finished_location_id.id
+            vals['picking_type_id'] = rma_mrp_type and rma_mrp_type.id or False
+            vals['location_dest_id'] = rma_mrp_type and rma_mrp_type.default_location_dest_id and rma_mrp_type.default_location_dest_id.id or False
         if src_loc_id:
             vals['location_src_id'] = src_loc_id        
         mrp_prod = self.env['mrp.production'].create(vals)
@@ -1104,16 +1104,16 @@ class Rma(models.Model):
                 # rma_id is not present in the form view, so we need to get
                 # the 'values to save' to add the rma id and use the
                 # create method intead of save the form.
-                picking_vals = picking_form._values_to_save(all_fields=True)
+                picking_vals = picking_form._values_to_save(all_fields=True)                
                 move_vals = picking_vals["move_ids_without_package"][-1][2]
                 move_vals.update(
-                    location_id = rma.finished_location_id and rma.finished_location_id.id or False,                
+                    #location_id = rma.finished_location_id and rma.finished_location_id.id or False,                
                     picking_id=picking.id,
                     rma_id=rma.id,
                     move_orig_ids=[(4, rma.reception_move_id.id)],
                     company_id=picking.company_id.id,
                 )
-                self.env["stock.move"].sudo().create(move_vals)
+                move_id = self.env["stock.move"].sudo().create(move_vals)
                 rma.message_post(
                     body=_(
                         'Return: <a href="#" data-oe-model="stock.picking" '
@@ -1121,6 +1121,23 @@ class Rma(models.Model):
                     )
                     % (picking.id, picking.name)
                 )
+                #get lot_id from repair if there is one, otherwise, get from the receipt.
+                finished_lines = rma.mrp_prod_id and rma.mrp_prod_id.finished_move_line_ids
+                loc_customers = self.env['stock.location'].search([('name','=','Customers')])
+                for line in finished_lines:
+                    move_line_vals = {
+                        'company_id': rma.company_id and rma.company_id.id or False,
+                        'product_id': line.product_id and line.product_id.id or False,
+                        'qty_done': line.qty_done,
+                        'date': scheduled_date,
+                        'lot_id': line.lot_id and line.lot_id.id or False,
+                        'product_uom_id': line.product_uom_id and line.product_uom_id.id or False,  
+                        'location_id': line.location_dest_id and line.location_dest_id.id or False,
+                        'location_dest_id': loc_customers and loc_customers.id or False,
+                        'picking_id': picking.id,
+                        'move_id': move_id.id,
+                    }
+                    self.env["stock.move.line"].sudo().create(move_line_vals)
             picking.action_confirm()
             picking.action_assign()
             picking.message_post_with_view(
@@ -1131,16 +1148,17 @@ class Rma(models.Model):
         rmas_to_return.write({"state": "waiting_return"})
 
     def _prepare_returning_picking(self, picking_form, origin=None):
-        picking_form.picking_type_id = self.warehouse_id.rma_out_type_id
-        if self.finished_location_id:
-            picking_form.location_id = self.finished_location_id
+        wh_rma_out_type = self.warehouse_id.rma_out_type_id
+        picking_form.picking_type_id = wh_rma_out_type
+        if wh_rma_out_type:
+            picking_form.location_id = wh_rma_out_type.default_location_src_id           
         picking_form.origin = origin or self.name
         picking_form.partner_id = self.partner_id
 
     def _prepare_returning_move(
         self, move_form, scheduled_date, quantity=None, uom=None
     ):
-        move_form.location_id = self.finished_location_id
+        #move_form.location_id = self.finished_location_id
         move_form.product_id = self.product_id
         move_form.product_uom_qty = quantity or self.product_uom_qty
         move_form.product_uom = uom or self.product_uom
@@ -1179,7 +1197,7 @@ class Rma(models.Model):
         mrp_prod.action_assign()
         move_line_ids = rma_move_id.move_line_nosuggest_ids
         if not move_line_ids:
-             move_line_ids = rma_move_id.move_line_ids_without_package
+            move_line_ids = rma_move_id.move_line_ids_without_package
         for move_line in move_line_ids:
             #create a new move line for the consumption moves with their corresponding lot#s
             vals = {

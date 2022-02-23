@@ -46,7 +46,7 @@ class RmaReDeliveryWizard(models.TransientModel):
         )
         delivery_type = self.env.context.get("rma_delivery_type")
         product_id = False
-        if len(rma) == 1 and delivery_type == "return":
+        if len(rma) == 1:
             product_id = rma.product_id.id
         product_uom_qty = 0.0
         if len(rma) == 1 and rma.remaining_qty > 0.0:

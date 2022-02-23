@@ -196,7 +196,7 @@
                     <field
                         name="state"
                         widget="statusbar"
-                        statusbar_visible="draft,confirmed,received,repaired"
+                        statusbar_visible="draft,confirmed,received"
                     />
                 </header>
                 <sheet>
@@ -290,11 +290,11 @@
                                 options="{'no_create': True}"
                                 groups="base.group_multi_company"
                             />
-							<field
+							<!--field
 								name="finished_location_id"
 								options="{'no_create': True, 'no_open': True}"
 								groups="stock.group_stock_multi_locations"
-							/>
+							/-->
 							<field
 								name="location_id"
 								options="{'no_create': True, 'no_open': True}"
