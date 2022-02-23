@@ -27,7 +27,7 @@ class WIPReportXlsx(models.AbstractModel):
         sheet = workbook.add_worksheet('WIP Report')
         bold = workbook.add_format({'bold': True})
         sheet.write(0, 1, 'WIP Report', bold)
-        work_orders = mrp_wo_obj.search(domain)         
+        work_orders = mrp_wo_obj.search(domain,order="production_id")         
         workcenters = {}
         for wo in work_orders:
             wc_name = wo.workcenter_id.name.replace(" ","_")           
@@ -36,22 +36,21 @@ class WIPReportXlsx(models.AbstractModel):
             else:
                 workcenters.update({wc_name:[wo]})   
         i,j = 0,-2
-        for sroom in workcenters.keys(): 
-            j+=2        
+        for sroom in workcenters.keys():
+            j+=2          
             sheet.write(i+j+4, 1, 'Workcenter: ', bold)
             sheet.write(i+j+4, 2, sroom, bold)
             sheet.write(i+j+5, 0, 'MO', bold)
-            sheet.write(i+j+5, 1, 'Workorder', bold)
-            sheet.write(i+j+5, 2, 'Date Planned', bold)
+            sheet.write(i+j+5, 1, 'Date Planned', bold)
+            sheet.write(i+j+5, 2, 'Item#', bold)
             sheet.write(i+j+5, 3, 'Product', bold)
             sheet.write(i+j+5, 4, 'Sale', bold)
-            sheet.write(i+j+5, 5, 'Routing', bold)
-            sheet.write(i+j+5, 6, 'Reserved', bold)
-            sheet.write(i+j+5, 7, 'Qty', bold)
-            sheet.write(i+j+5, 8, 'Status', bold)
-            sheet.write(i+j+5, 9, 'Company', bold)
-            sheet.write(i+j+5, 10, 'Next Workorder', bold)
-            sheet.write(i+j+5, 11, 'Responsible', bold)
+            sheet.write(i+j+5, 5, 'Reserved', bold)
+            sheet.write(i+j+5, 6, 'Qty', bold)
+            sheet.write(i+j+5, 7, 'Status', bold)
+            sheet.write(i+j+5, 8, 'Next Workorder', bold)
+            sheet.write(i+j+5, 9, 'Responsible', bold)
+            sheet.write(i+j+5, 10, 'Notes', bold)
             
             for wo in workcenters[sroom]: 
                 i+=1   
@@ -62,17 +61,16 @@ class WIPReportXlsx(models.AbstractModel):
                 user_id = wo.production_id.user_id
                 resp_name = user_id and user_id.name or ''                
                 sheet.write(j+i+5, 0, wo.production_id.name)                
-                sheet.write(j+i+5, 1, wo.name)
-                sheet.write(j+i+5, 2, wo.production_id.date_planned_start.strftime("%m-%d-%Y"))
-                sheet.write(j+i+5, 3, wo.production_id.product_id.name or '')
+                sheet.write(j+i+5, 1, wo.production_id.date_planned_start.strftime("%m-%d-%Y"))
+                sheet.write(j+i+5, 2, wo.production_id.product_id.default_code or '')
+                sheet.write(j+i+5, 3, wo.production_id.product_id.name or '')               
                 sheet.write(j+i+5, 4, sale_name)
-                sheet.write(j+i+5, 5, wo.production_id.routing_id.name)
-                sheet.write(j+i+5, 6, wo.production_id.reservation_state)
-                sheet.write(j+i+5, 7, wo.production_id.product_qty)
-                sheet.write(j+i+5, 8, wo.production_id.state)
-                sheet.write(j+i+5, 9, wo.production_id.company_id.name)
-                sheet.write(j+i+5, 10, next_wo_name)
-                sheet.write(j+i+5, 11, resp_name)
+                sheet.write(j+i+5, 5, wo.production_id.reservation_state)
+                sheet.write(j+i+5, 6, wo.production_id.product_qty)
+                sheet.write(j+i+5, 7, wo.production_id.state)
+                sheet.write(j+i+5, 8, next_wo_name)
+                sheet.write(j+i+5, 9, resp_name)
+                sheet.write(j+i+5, 10, wo.production_id.x_notes)
                 i+=1
                 
 
@@ -96,7 +94,7 @@ class ReportWIPReport(models.AbstractModel):
         else:
             domain = [('id','in',docids)]       
 
-        work_orders = mrp_wo_obj.search(domain)         
+        work_orders = mrp_wo_obj.search(domain,order="production_id")        
         workcenters = {}
         for wo in work_orders:
             wc_name = wo.workcenter_id.name.replace(" ","_")           

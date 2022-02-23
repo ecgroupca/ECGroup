@@ -68,7 +68,8 @@
 		<field name="arch" type="xml">
 			<search string="Inter Company Transfer">
 				<filter name="Draft" string="Draft" domain="[('state','=', 'draft')]"/>
-				<filter name="Processed" string="Processed" domain="[('state','=', 'processed')]"/>
+				<filter name="Awaiting" string="Awaiting Transfer" domain="[('state','=', 'processed')]"/>
+				<filter name="Transferred" string="Transferred" domain="[('state','=', 'transferred')]"/>
 				<filter name="Cancel" string="Cancel" domain="[('state','=', 'cancel')]"/>
 				<field name="name" string="Name"
 					filter_domain="[('name','ilike',self)]" />
@@ -120,7 +121,7 @@
 						string="Import/Export Product List" class="oe_highlight"
 						attrs="{'invisible':['|',('type','=','ict_reverse'),('state','in',['cancel','processed'])]}" />
 					<field name="state" widget="statusbar"
-						statusbar_visible="draft,processed" />
+						statusbar_visible="draft,processed,transferred" />
 				</header>
 				<sheet>
 					<div class="oe_button_box" name="button_box">
@@ -155,7 +156,7 @@
 
 						<button type="action" name="%(open_pickings)d"
 							string="Pickings"
-							attrs="{'invisible':['|',('state', '!=', 'processed'),('picking_ids','=',[])]}"
+							attrs="{'invisible':['|',('state', 'not in', ['transferred','processed']),('picking_ids','=',[])]}"
 							class="oe_stat_button" icon="fa-chain">
 							<field name="picking_ids" string="Pickings" invisible="1" />
 						</button>
