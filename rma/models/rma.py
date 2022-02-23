@@ -1104,7 +1104,7 @@ class Rma(models.Model):
                 # rma_id is not present in the form view, so we need to get
                 # the 'values to save' to add the rma id and use the
                 # create method intead of save the form.
-                picking_vals = picking_form._values_to_save(all_fields=True)
+                picking_vals = picking_form._values_to_save(all_fields=True)                
                 move_vals = picking_vals["move_ids_without_package"][-1][2]
                 move_vals.update(
                     #location_id = rma.finished_location_id and rma.finished_location_id.id or False,                
@@ -1113,7 +1113,7 @@ class Rma(models.Model):
                     move_orig_ids=[(4, rma.reception_move_id.id)],
                     company_id=picking.company_id.id,
                 )
-                self.env["stock.move"].sudo().create(move_vals)
+                move_id = self.env["stock.move"].sudo().create(move_vals)
                 rma.message_post(
                     body=_(
                         'Return: <a href="#" data-oe-model="stock.picking" '
@@ -1121,6 +1121,23 @@ class Rma(models.Model):
                     )
                     % (picking.id, picking.name)
                 )
+                #get lot_id from repair if there is one, otherwise, get from the receipt.
+                finished_lines = rma.mrp_prod_id and rma.mrp_prod_id.finished_move_line_ids
+                loc_customers = self.env['stock.location'].search([('name','=','Customers')])
+                for line in finished_lines:
+                    move_line_vals = {
+                        'company_id': rma.company_id and rma.company_id.id or False,
+                        'product_id': line.product_id and line.product_id.id or False,
+                        'qty_done': line.qty_done,
+                        'date': scheduled_date,
+                        'lot_id': line.lot_id and line.lot_id.id or False,
+                        'product_uom_id': line.product_uom_id and line.product_uom_id.id or False,  
+                        'location_id': line.location_dest_id and line.location_dest_id.id or False,
+                        'location_dest_id': loc_customers and loc_customers.id or False,
+                        'picking_id': picking.id,
+                        'move_id': move_id.id,
+                    }
+                    self.env["stock.move.line"].sudo().create(move_line_vals)
             picking.action_confirm()
             picking.action_assign()
             picking.message_post_with_view(
@@ -1180,7 +1197,7 @@ class Rma(models.Model):
         mrp_prod.action_assign()
         move_line_ids = rma_move_id.move_line_nosuggest_ids
         if not move_line_ids:
-             move_line_ids = rma_move_id.move_line_ids_without_package
+            move_line_ids = rma_move_id.move_line_ids_without_package
         for move_line in move_line_ids:
             #create a new move line for the consumption moves with their corresponding lot#s
             vals = {
