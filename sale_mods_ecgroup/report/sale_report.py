@@ -82,31 +82,6 @@ class SaleOrder(models.Model):
         compute="_compute_bal_due",
         store = True,
         )
-
-    """@api.onchange('carrier_id')
-    def _onchange_carrier(self):
-        for sale in self:
-            #1. get deliveries for this sale
-            #2. set the carrier
-            pickings = self.env['stock.picking'].search([('sale_id','=',sale.id)])            
-            for pick in pickings:
-                pick.carrier_id = sale.carrier_id
-                
-    @api.onchange('user_id')
-    def _onchange_user_id(self):
-        for sale in self:
-            #1. when user changes, push this value to all deliveries as user_id 
-            pickings = self.env['stock.picking'].search([('sale_id','=',sale.id)])            
-            for pick in pickings:
-                pick.user_id = sale.user_id
-                
-    @api.onchange('partner_shipping_id')
-    def _onchange_shipping_id(self):
-        for sale in self:
-            #1. when user changes, push this value to all deliveries as user_id 
-            pickings = self.env['stock.picking'].search([('sale_id','=',sale.id)])            
-            for pick in pickings:
-                pick.partner_id = sale.partner_shipping_id"""
               
     @api.onchange('team_id')
     def _onchange_sales_team(self):

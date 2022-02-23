@@ -91,9 +91,9 @@ class CheckbookRegisterReport(models.AbstractModel):
         date_domain += [('payment_method_id.name','=','Checks')]
         checks = check_obj.search(date_domain)                     
         return {
-            'doc_ids': checks.ids, 
+            'doc_ids': checks.ids,
             'doc_model': 'account.payment',
-            'data': data['form'] if not docids else data,
+            'data': data['form'],
             'docs': checks,
             'date_from':date_from.strftime("%m-%d-%Y") if date_from else False,
             'date_to':date_to.strftime("%m-%d-%Y") if date_to else False,

@@ -19,6 +19,9 @@
 											  Transfer: <span t-esc="barcode.name"/>
 											   |  Date: <span t-esc="barcode.scheduled_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
 											</div>
+											<div>
+											  Origin: <span t-esc="barcode.picking_id.origin"/>
+											</div>
 											<div> 
 												<span t-if="barcode.picking_type_code=='incoming'">Receive From: </span>
 												<span t-if="barcode.picking_type_code=='outgoing'">Ship To: </span>
@@ -58,6 +61,5 @@
                 <div style="page-break-before:always;"/>
             </t>
         </t>
-
     </template>
 </odoo>

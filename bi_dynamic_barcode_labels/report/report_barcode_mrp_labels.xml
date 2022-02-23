@@ -10,7 +10,12 @@
 											<table class="table table-bordered">
 											  <tr>
 												<td class="text-center align-middle">
-												  <img align="center" t-if="barcode.sale_id.company_id.logo" t-att-src="image_data_uri(barcode.sale_id.company_id.logo)" style="max-width:444px;max-height:73px;" alt="Logo"/>
+												  <t t-if="barcode.sale_id">
+												    <img align="center" t-if="barcode.sale_id.company_id.logo" t-att-src="image_data_uri(barcode.sale_id.company_id.logo)" style="max-width:444px;max-height:73px;" alt="Logo"/>
+												  </t>
+												  <t t-else="">
+												    <img align="center" t-if="barcode.production_id.company_id.logo" t-att-src="image_data_uri(barcode.production_id.company_id.logo)" style="max-width:444px;max-height:73px;" alt="Logo"/>
+												  </t>
 												</td>
 											  </tr>
 												<tr>
@@ -30,8 +35,9 @@
 														</t>
 														  </t>
 														  <t t-else="">
-														  Group: <span t-esc="barcode.production_id.x_studio_group_name"/>
+														  Order: <span t-esc="barcode.production_id.name"/>
 														   |  Date: <span t-esc="barcode.production_id.create_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
+														  <div>Group: <span t-esc="barcode.production_id.x_studio_group_name"/></div>
   													  <div>Item: 
   														<span t-esc="'\n'.join(barcode.product_id.name.split('\n', 2)[:2])"/>
   													  </div>
@@ -68,8 +74,5 @@
 						<div style="page-break-before:always;"/>
 					</t>
 				</t>
-
-    </t>
-
-
+    </template>
 </odoo>
