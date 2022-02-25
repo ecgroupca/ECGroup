@@ -31,7 +31,7 @@ class OpenSalesXlsx(models.AbstractModel):
         #sales_from_to = sale_obj.search(date_domain)
         #compute open shipments/production for the orders in docids 
         #sales_from_to._compute_open_shipments()               
-        domain_search = [('open_shipment','!=',False)]
+        domain_search = [('open_shipment','=',True)]
         domain_search += date_domain
         if showroom:
             domain_search.append(('team_id','in',showroom))
@@ -110,7 +110,7 @@ class OpenSalesReport(models.AbstractModel):
                 #sales_from_to = sale_obj.search(date_domain)
                 #compute open shipments/production for the orders in docids 
                 #sales_from_to._compute_open_shipments()               
-                domain_search = [('open_shipment','!=',False)]
+                domain_search = [('open_shipment','=',True)]
                 domain_search += date_domain
                 if showroom:
                     domain_search.append(('team_id','in',showroom))
