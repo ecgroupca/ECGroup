@@ -28,6 +28,7 @@ class BarcodeStockLabelsWiz(models.TransientModel):
                     'scheduled_date': order.scheduled_date,
                     'picking_type_code': order.picking_type_code,
                     'partner_name': order.partner_id.name,
+                    'picking_id': order.id,
                 }))
         res.update({
             'product_barcode_ids': barcode_order_lines
@@ -64,3 +65,4 @@ class BarcodeStockLabelsLine(models.TransientModel):
     scheduled_date = fields.Datetime('Scheduled Date')
     picking_type_code = fields.Char('Picking Type Code')
     partner_name = fields.Char('Partner Name')
+    picking_id = fields.Many2one('stock.picking','Transfer')
