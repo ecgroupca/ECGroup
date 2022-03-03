@@ -102,11 +102,11 @@ class SaleOrder(models.Model):
             setting = config.search([('key','=','sale.default_deposit_product_id')])
             setting = setting and setting[0] or None
             dep_product = setting and setting.value or None
-            for line in sale.order_line:
-                if dep_product and str(line.product_id.id) == dep_product:
-                    total_deps += abs(line.price_unit)
-                if line.comm_rate:
-                    total_comm += line.comm_rate*line.price_unit*line.product_uom_qty/100
+            for invoice in sale.invoice_ids:
+                if invoice.state=='posted':
+                  amt_res += invoice.amount_residual
+                  amt_inv += invoice.amount_total
+            total_deps = amt_inv - amt_res
             sale.comm_total = total_comm        
             sale.deposit_total = total_deps
      
