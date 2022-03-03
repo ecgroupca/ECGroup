@@ -95,8 +95,7 @@ class SaleOrder(models.Model):
     @api.depends('order_line')
     def _compute_deps_total(self):
         for sale in self:
-            total_deps = 0
-            total_comm = 0
+            total_deps,total_comm,amt_res,amt_inv = 0,0,0,0
             company_id = sale.company_id and sale.company_id.id or 1
             config = self.env['ir.config_parameter']
             setting = config.search([('key','=','sale.default_deposit_product_id')])
