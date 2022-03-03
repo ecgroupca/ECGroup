@@ -13,6 +13,7 @@
     "depends": ["account","stock","qb_indep_contractor","stock_picking_sale_order_link"],
     "data": [
         "views/report_rma.xml",
+        "views/report_auth.xml",
         "report/report.xml",
         "data/mail_data.xml",
         "data/rma_operation_data.xml",
