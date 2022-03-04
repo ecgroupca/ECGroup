@@ -103,6 +103,8 @@ class OpenSalesReport(models.AbstractModel):
             company_id = company_id and company_id[0] or None
             responsible_id = data['form'].get('responsible_id', False)
             responsible_id = responsible_id and responsible_id[0] or None
+            sales_rep_id = data['form'].get('sales_rep_id', False)
+            sales_rep_id = sales_rep_id and sales_rep_id[0] or None
             selected_sales = data['form'].get('sale_ids', False)
             if not print_selected:
                 #domain_search = [('date','>=',date_from.strftime("%m/%d/%Y 00:00:00")),('date','<=',date_to.strftime("%m/%d/%Y 23:59:59"))]
@@ -116,6 +118,8 @@ class OpenSalesReport(models.AbstractModel):
                     domain_search.append(('team_id','in',showroom))
                 if responsible_id:
                     domain_search.append(('user_id','=',responsible_id))
+                if sales_rep_id:
+                    domain_search.append(('sales_rep_id','=',sales_rep_id))
             else:
                 date_from = date_to = False
                 if not selected_sales:
@@ -128,15 +132,28 @@ class OpenSalesReport(models.AbstractModel):
         sale_orders = sale_obj.search(domain_search)      
         sales = {}
         for sale in sale_orders:
-            team_name = 'No_Name'
+            team_name = 'No Showroom'
+            sales_rep_key = sale.sales_rep_id and 'srk_%s'%(sale.sales_rep_id.id) or 'No Sales Rep'
             if sale.team_id:
                 team_name = sale.team_id.name.replace(" ","_")           
             if team_name in sales:
-                sales[team_name].append(sale)
+                if sales_rep_key in sales[team_name]:
+                    sales[team_name][sales_rep_key]['data'].append(sale)
+                else:
+                    sales[team_name].update({
+                       sales_rep_key:{
+                       'name':sale.sales_rep_id.name,
+                       'id':sale.sales_rep_id.id,
+                       'data':[sale]}})
             else:
-                sales.update({team_name:[sale]})      
-        
-        #_logger.info("\nFinal : %s\n"%(sales))        
+                sales.update({
+                    team_name:{
+                        sales_rep_key:{
+                            'name':sale.sales_rep_id.name,
+                            'id':sale.sales_rep_id.id,
+                            'data':[sale]}}})   
+                     
+        _logger.info("\nFinal : %s\n"%(sales))        
         return {
             'doc_ids': sale_orders.ids,
             'doc_model': 'sale.order',

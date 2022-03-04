@@ -1,5 +1,11 @@
 from odoo import api, fields, models
 
+
+class CRMTeam(models.Model):
+    _inherit = "crm.team"
+    
+    sales_rep_ids = fields.Many2many('res.partner', string='Sales Reps', help='Sales Representatives for the showroom.')
+    
 class SaleOrder(models.Model):
     _inherit = "sale.order"
     
@@ -8,6 +14,11 @@ class SaleOrder(models.Model):
     open_production = fields.Boolean("Open Production",compute="_compute_open_shipments")
     needs_drawing = fields.Boolean("Needs Drawing")
     needs_sample_approval = fields.Boolean("Needs Sample Approval")
+    sales_rep_ids = fields.Many2many('res.partner', related='team_id.sales_rep_ids')
+    sales_rep_id = fields.Many2one('res.partner', 
+        'Sales Rep.', 
+        domain="[('id','in',sales_rep_ids)]",
+        help='Sales Rep from the Showroom.')
     
     @api.depends('order_line','production_ids','picking_ids','state')
     def _compute_open_shipments(self):   
