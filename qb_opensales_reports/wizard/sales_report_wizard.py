@@ -14,13 +14,14 @@ class SalesReportWizard(models.TransientModel):
     print_selected = fields.Boolean("Print Selected?")
     print_excel = fields.Boolean("Print in Excel")
     responsible_id = fields.Many2one("res.users",string="Responsible")
+    sales_rep_id = fields.Many2one("res.partner",string="Sales Rep.") 
     
     def print_report(self):
         self.ensure_one()
         data = {}
         data['ids'] = self.env.context.get('active_ids', [])
         data['model'] = self.env.context.get('active_model', 'ir.ui.menu')
-        data['form'] = self.read(['responsible_id','company_id','date_from', 'date_to', 'showroom','sale_ids','print_selected'])[0]
+        data['form'] = self.read(['sales_rep_id','responsible_id','company_id','date_from', 'date_to', 'showroom','sale_ids','print_selected'])[0]
         #used_context = self._build_contexts(data)
         #data['form']['used_context'] = dict(used_context, lang=get_lang(self.env).code)
         #return self.with_context(discard_logo_check=True)._print_report(data)
