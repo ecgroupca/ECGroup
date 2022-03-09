@@ -1,55 +1,45 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+    <!-- Sale Team Mods Form -->		
+    <record id="opensales_salesreps_form_mod" model="ir.ui.view">
+        <field name="name">salesreps.mods</field>
+        <field name="model">crm.team</field>
+        <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='members']" position="after">
+			  <page name="sales_reps" string="Sales Reps" >
+			    <field name="sales_rep_ids" widget="many2many" options="{'not_delete': True}">
+					<kanban quick_create="false" create="true" delete="true">
+						<field name="id"/>
+						<field name="name"/>
+						<templates>
+							<t t-name="kanban-box">
+								<div class="oe_kanban_global_click" style="max-width: 200px">
+									<div class="o_kanban_record_top">
+										<img t-att-src="kanban_image('res.partner', 'image_128', record.id.raw_value)" class="oe_avatar oe_kanban_avatar_smallbox o_image_40_cover mb0" alt="Avatar"/>
+										<div class="o_kanban_record_headings ml8">
+											<strong class="o_kanban_record_title"><field name="name"/></strong>
+										</div>
+									</div>
+								</div>
+							</t>
+						</templates>
+					</kanban>
+				</field>
+		      </page>
+			</xpath>
+        </field>
+    </record>
+	
     <record id="view_sales_order_opensales" model="ir.ui.view">
         <field name="name">sale.order.opensales</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <field name="inv_bal_due" position="after">
-               <field name="needs_drawing"/>
-               <field name="needs_sample_approval"/>			   
+			    <field name="sales_rep_ids" invisible="1"/>
+                <field name="sales_rep_id" options="{'no_create_edit': True}" />				
             </field>
 		</field>
 	</record>
-	<record id="opensales_report_all_tree" model="ir.ui.view">
-		<field name="name">opensales_report_tree_view</field>
-		<field name="model">sale.order</field>
-		<field name="arch" type="xml">
-			<tree string="Open Sales Reports" default_order='id desc'>			
-				<field name="date_order" string="Order Date"/> 
-				<field name="name" string="Order #"/>
-				<field name="client_order_ref" string="Client PO" />
-				<field name="partner_id" string="Client" />
-				<field name="amount_total" string="Total"/>
-				<field name="deposit_total" string="Deposits"/>
-				<field name="inv_bal_due" string="Balanace"/>
-				<field name="state" string="Status"/>
-			</tree>
-		</field>
-	</record>
-	
-	<record id="action_opensales_report_all" model="ir.actions.act_window">
-		<field name="name">Open Sales Report</field>
-		<field name="res_model">sale.order</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="view_mode">tree,kanban,form</field>
-        <field name="domain"></field>
-        <field name="context">{'display_default_code': False}</field>
-        <field name="help" type="html">
-            <p class="o_view_nocontent_smiling_face">
-                Create a new Sale Order
-            </p><p>
-                Sale orders allow you to sell, receive revenues, schedule procurement and production and deliver.
-            </p>
-        </field>
-    </record>
-    <record model="ir.actions.act_window.view" id="action_opensales_report_tree">
-            <field name="sequence" eval="1"/>
-            <field name="view_mode">tree</field>
-            <field name="view_id" ref="opensales_report_all_tree"/>
-            <field name="act_window_id" ref="action_opensales_report_all"/>
-        </record>
-	
-	<menuitem id="menu_sales_reports" name="Sales Report" sequence="6"
-              parent="sale.menu_sale_report" action="action_opensales_report_all" />
 </odoo>

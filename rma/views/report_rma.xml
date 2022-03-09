@@ -37,7 +37,7 @@
                     </div>
                     <div class="col-auto mw-100 mb-2">
                         <strong>Date:</strong>
-                        <p class="m-0" t-field="rma.date" />
+                        <p class="m-0" t-esc="rma.date.strftime('%m/%d/%y')" />
                     </div>
                     <div t-if="rma.deadline" class="col-auto mw-100 mb-2">
                         <strong>Deadline:</strong>

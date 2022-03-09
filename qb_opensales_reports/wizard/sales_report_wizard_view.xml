@@ -16,7 +16,7 @@
             </group>
             <group col="4">
 			    <field name="company_id" attrs="{'invisible': [('print_selected', '=', True)]}"/>
-				<field name="responsible_id" attrs="{'invisible': [('print_selected', '=', True)]}"/>
+				<field name="sales_rep_id" attrs="{'invisible': [('print_selected', '=', True)]}"/>
                 <field name="showroom" widget="many2many_tags" attrs="{'invisible': [('print_selected', '=', True)]}"/>
                 <field name="sale_ids" invisible="1"/>
             </group>
