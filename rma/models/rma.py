@@ -149,6 +149,9 @@ class Rma(models.Model):
     operation_id = fields.Many2one(
         comodel_name="rma.operation", string="Requested operation",
     )
+    sale_ids = fields.One2many(
+        comodel_name='sale.order', inverse_name="rma_id", string="Sale Orders",
+    )
     state = fields.Selection(
         [
             ("draft", "Draft"),
@@ -211,6 +214,9 @@ class Rma(models.Model):
         readonly=True,
         copy=False,
     )
+    sales_count = fields.Integer(
+        string="Sales count", compute="_compute_sales_count",
+    )
     delivery_picking_count = fields.Integer(
         string="Delivery count", compute="_compute_delivery_picking_count",
     )
@@ -252,6 +258,11 @@ class Rma(models.Model):
                 rma.company_id = rma.picking_id.company_id
             elif rma.product_id:
                 rma.company_id = rma.product_id.company_id
+                
+    def _compute_sales_count(self):
+        #find all sales in the sale_ids field
+        sale_ids = self.sale_ids
+        self.sales_count = len(sale_ids)
     
     def _compute_delivery_picking_count(self):
         # It is enough to count the moves to know how many pickings
@@ -638,6 +649,40 @@ class Rma(models.Model):
         )
         return action
         
+    def action_sale(self):
+        #create sale with a service product for the line and customer as RMA customer
+        #it should reference the customer as well.
+        vals = {
+            'partner_id': self.partner_id and self.partner_id.id or False,
+            'rma_id': self.id,
+            'company_id': self.company_id and self.company_id.id or False,
+            'warehouse_id': self.warehouse_id and self.warehouse_id.id or False}
+        
+        domain = [('name','=','SERVICE')]        
+        service_prod = self.env['product.product'].search(domain)    
+        service_prod = service_prod and service_prod[0] or None
+        if not service_prod:
+            raise ValidationError(
+                _("Must have a \'service\' type product called \"Service\"")
+            )
+        sale_id = self.env['sale.order'].create(vals)
+        if not sale_id:
+            raise ValidationError(
+                _("Something went wrong with creating the sale order.")
+            )
+        vals = {
+            'product_uom_qty': 1,
+            'name': 'Service charge for RMA #%s'%self.name,
+            'product_id': service_prod.id,
+            'order_id': sale_id.id,
+        }
+        sale_line_id = self.env['sale.order.line'].create(vals)
+        if not sale_line_id:
+            raise ValidationError(
+                _("Something went wrong with creating a sale order line.")
+            )             
+        self.sale_ids = [(4, sale_id.id)]
+        
     def action_repair(self):
         """Invoked when 'Repair' button in rma form view is clicked."""
         self.ensure_one()
@@ -850,6 +895,22 @@ class Rma(models.Model):
         elif picking:
             action.update(
                 res_id=picking.id, view_mode="form", view_id=False, views=False,
+            )
+        return action
+        
+    def action_view_sales(self):
+        """Invoked when 'Sale Orders' smart button in rma form view is clicked."""
+        action = (
+            self.env.ref("sale.action_quotations")
+            .with_context(active_id=self.id)
+            .read()[0]
+        )
+        sales = self.sale_ids
+        if len(sales) > 1:
+            action["domain"] = [("id", "in", sales.ids)]
+        elif sales:
+            action.update(
+                res_id=sales.id, view_mode="form", view_id=False, views=False,
             )
         return action
 

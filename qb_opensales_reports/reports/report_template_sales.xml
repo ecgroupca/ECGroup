@@ -24,7 +24,7 @@
 									<th><strong>Total</strong></th>
 									<th><strong>Deposits</strong></th>
 									<th><strong>Balance</strong></th>
-									<th><strong>Responsible</strong></th>
+									<th><strong>Tags</strong></th>
 									<th><strong>Status</strong></th>
 								</tr>									
 							</thead>
@@ -51,10 +51,13 @@
 	                        			<td><span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
 	                        			<td><span t-field="o.deposit_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
 										<td><span t-field="o.inv_bal_due" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
-										<td><span t-field="o.user_id"/></td>
+										<td><t t-foreach="o.order_tags" t-as="tag">
+										       <span t-esc="tag.name"/>,
+											</t>
+										</td>
 	                        			<td>
 											<t t-if="o.open_production">Open Production,</t>
-											<t t-if="o.open_shipment">Open Shipment</t>
+											<t t-if="o.open_shipment">Open Shipment,</t>
 											<t t-if="o.needs_drawing">Needs Drawing,</t>
 											<t t-if="o.needs_sample_approval">Needs Sample Approval</t>
 										</td>
