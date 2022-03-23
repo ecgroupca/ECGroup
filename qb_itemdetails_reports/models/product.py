@@ -19,7 +19,7 @@ class ProductProduct(models.Model):
                 trans = line.move_id.raw_material_production_id or line.picking_id or None
                 pick_type = trans and trans.picking_type_id or None
                 if pick_type and pick_type.code in ['mrp_operation','outgoing','internal']:
-                    if line.state not in ['cancel','done']:
+                    if line.state not in ['cancel']:
                         if trans and trans.name in orders:
                             orders[trans.id] = trans.name 
                         else:
