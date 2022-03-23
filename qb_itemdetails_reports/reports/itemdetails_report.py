@@ -17,6 +17,7 @@ class ItemDetailsXlsx(models.AbstractModel):
         prod_obj = self.env['product.product']        
         company_id = data['form'].get('company_id', False)
         company_id = company_id and company_id[0] or None
+        domain_search = [('company_id','=',company_id)] 
         category_ids = data['form'].get('category_ids', False)
         domain_search = []
         if category_ids:        
@@ -84,9 +85,10 @@ class ItemDetailsReport(models.AbstractModel):
         prod_obj = self.env['product.product']        
         company_id = data['form'].get('company_id', False)
         company_id = company_id and company_id[0] or None
+        domain_search = [('company_id','=',company_id)] 
         category_ids = data['form'].get('category_ids', False)        
         if category_ids:        
-            domain_search = [('categ_id','in',category_ids)]    
+            domain_search.append(('categ_id','in',category_ids))   
         products = prod_obj.search(domain_search)      
         product_groups = {}
         for prod in products:
