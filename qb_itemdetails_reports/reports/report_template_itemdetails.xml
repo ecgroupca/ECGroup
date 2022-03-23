@@ -3,8 +3,8 @@
 	<template id="report_itemdetails">
 		<t t-call="web.html_container">
 		  <t t-if="docs">
-		  <t t-value="docs[0]" t-set="item"/>
-		  <t t-foreach="item" t-as="o">
+		  <t t-value="docs[0]" t-set="sale"/>
+		  <t t-foreach="sale" t-as="o">
 			<t t-call="web.external_layout">
 				<t t-foreach="cats" t-as="category">
 					<t t-set="cat_qtyoh_total" t-value="0.00"/>
