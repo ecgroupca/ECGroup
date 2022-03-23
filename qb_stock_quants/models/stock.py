@@ -5,6 +5,7 @@ from odoo import models, fields, api
 
 class ReservedOrder(models.Model):
     _name = 'reserved.order'
+    _description = 'Reserved Orders'
     
     name = fields.Char('Name')
     quant_id = fields.Many2one('stock.quant',string = 'Quant')
@@ -26,7 +27,7 @@ class StockQuant(models.Model):
 
     reserved_order_ids = fields.Many2many(
         'reserved.order',
-        'Reserved Orders',
+        string='Reserved Orders',
         compute = '_compute_reserved_orders'
     )
     
@@ -38,17 +39,20 @@ class StockQuant(models.Model):
             orders = {}
             for line in res_line_ids: 
                 if quant.lot_id == line.lot_id and quant.location_id == line.location_id:            
-                    trans = line.picking_id or line.production_id or None
-                    if trans and trans.name in orders:
-                        orders[trans.id] = trans.name 
-                    else:
-                        vals = {
-                            'quant_id': quant.id,
-                            'move_line_id': line.id, 
-                            'name': trans and trans.name + ': ' + str(line.product_uom_qty),                            
-                        }
-                        reserved_order = self.env['reserved.order'].sudo().create(vals)
-                        quant.reserved_order_ids = [(4, reserved_order.id)]                       
+                    trans = line.move_id.raw_material_production_id or line.picking_id or None
+                    pick_type = trans and trans.picking_type_id or None
+                    if pick_type and pick_type.code in ['mrp_operation','outgoing','internal']:
+                        if line.state not in ['cancel']:
+                            if trans and trans.name in orders:
+                                orders[trans.id] = trans.name 
+                            else:
+                                vals = {
+                                    'quant_id': quant.id,
+                                    'move_line_id': line.id, 
+                                    'name': trans and trans.name + ': ' + str(line.product_uom_qty),                            
+                                }
+                                reserved_order = self.env['reserved.order'].sudo().create(vals)
+                                quant.reserved_order_ids = [(4, reserved_order.id)]                       
                 
 class ProductProduct(models.Model):
     _inherit = 'product.product'
@@ -63,9 +67,6 @@ class ProductProduct(models.Model):
     def _compute_moves(self):
         for product in self:
             domain = [
-                '|',
-                ('picking_id.state','not in',['done','cancel']),
-                ('production_id.state','not in',['done','cancel']),
                 ('product_uom_qty','>',0),
                 ('product_id','=',product.id),
             ]
