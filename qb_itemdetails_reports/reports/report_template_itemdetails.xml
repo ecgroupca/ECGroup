@@ -46,11 +46,11 @@
 									<td><span t-field="prod.qty_available"/></td>
 									<td><span t-field="prod.virtual_available"/></td>
 									<td><span t-esc="res_qty"/></td>
-									<td colspan="3">
+									<!--td colspan="3">
 									   <t t-if="res_qty>0">
 									      <span align="center" style="font-size:16px;text-decoration:bold;">Reservations</span>
 										</t>
-									</td>
+									</td-->
 								  </tr>
 								  <t t-foreach="prod.reserved_order_ids" t-as="order">
 								    <t t-if="order and order.name and order.name != 'False'">
