@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_sales_order_rmas" model="ir.ui.view">
+        <field name="name">sale.order.rmas</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <div name="button_box" position="inside">
+			    <field name="rma_id" invisible="1"/>
+                <button
+                    name="action_view_rma"
+                    type="object"
+					string="RMA"
+                    class="oe_stat_button"
+                    icon="fa-reply"
+                    attrs="{'invisible': [('rma_id', '=', False)]}"
+                >
+                </button>
+            </div>
+        </field>
+    </record>
+</odoo>

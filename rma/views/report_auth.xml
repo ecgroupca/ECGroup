@@ -35,16 +35,25 @@
 					<th></th>
 				</tr>
 				<tr>
-				    <td style="padding:5px;"><span>RMA #: </span><strong><span t-field="rma.name"/></strong></td>
 				    <td style="padding:5px;">Phone: <strong><span t-esc="rma.partner_id.phone"/></strong></td>
+				    <td style="padding:5px;"><span>RMA #: </span><strong><span t-field="rma.name"/></strong></td>
+					<td style="padding:5px;">RMA Contact:<strong><span t-esc="rma.user_id.name"/></strong></td>
+					
+			   
 				</tr>
 				<tr>
-	                <td style="padding:5px;">Date Issued: <strong><span t-esc="rma.date.strftime('%m/%d/%y')"/></strong></td>			  
-				    <td style="padding:5px;">Order #: <strong><span t-esc="rma.picking_id.sale_id.name"/></strong></td>    
-				</tr>
-				<tr>
-				    <td style="padding:5px;">Responsible: <strong><span t-esc="rma.user_id.name"/></strong></td>
+	                <td style="padding:5px;">Date Issued: <strong><span t-esc="rma.date.strftime('%m/%d/%y')"/></strong></td>
                     <td style="padding:5px;">Order Date: <strong><span t-esc="rma.partner_id.phone"/></strong></td>
+					<td style="padding:5px;">
+						<span t-field="rma.user_id.partner_id"
+						t-options='{"widget": "contact", "fields": ["mobile", "phone"], "no_marker": True, "phone_icons": True}'/>
+				    </td>                   					
+				</tr>
+				<tr>
+				    <td style="padding:5px;">Order #: <strong><span t-esc="rma.picking_id.sale_id.name"/></strong></td>
+					<td style="padding:5px;"></td>
+					<td style="padding:5px;"></td>
+
 				</tr>	
 			</table>
 			</div>
@@ -53,22 +62,22 @@
 					<tr style="background: #AAA;">
 					  <th name="th_qty_return" class="text-left"><u>To Return</u></th>
 						<th name="th_qty_rework" class="text-left"><u>Rework</u></th>
-						<th name="th_quantity" class="text-right"><u>Unit</u></th>
-						<th name="th_priceunit" class="text-right"><u>Description</u></th>
+						<th name="th_quantity" class="text-left"><u>Unit</u></th>
+						<th name="th_priceunit" class="text-left"><u>Description</u></th>
 					</tr>
 				</thead>
 				<tbody class="sale_tbody">
 				    <tr style="border-bottom: dotted 1px; border-color:#AAA;" t-att-class="'bg-200 font-weight-bold o_line_section'"> 
-					    <td name="td_qty"> 
+					    <td class="text-left" name="td_qty"> 
 						   <span t-esc="'%.0f'% rma.product_uom_qty"/>
                         </td>
-						<td name="td_qty_rework">
+						<td class="text-left" name="td_qty_rework">
 						  <span t-esc="'%.0f'% rma.mrp_prod_id.product_uom_qty"/>
 						</td>
-						<td name="td_uom" class="text-right">
+						<td name="td_uom" class="text-left">
 						  <span t-esc="rma.product_uom.name"/>
 						</td>
-						<td name="td_desc" class="text-right">
+						<td name="td_desc" class="text-left">
 						  <span t-esc="rma.product_id.description"/>
 						</td>
 				    </tr>
@@ -78,8 +87,8 @@
 				<strong>Reason for Return:</strong>
 				<span t-raw="rma.description" />
 				<span style="margin-left:auto;margin-right:auto;width:90%;">
-				    Return authorizations are valid for 25 days from issue date. A signed copy of the RA must be sent to either the Return to Address
-					or faxed to (310) 837-6319 prior to shipping the item(s) for return. 
+				    Return authorizations are valid for 25 days from issue date. A signed copy of the RA must be sent to either the Return to Address 
+					prior to shipping the item(s) for return. 
 				</span>
 			</div>
 			<div>

@@ -135,7 +135,7 @@
                     />
                     <button
                         type="object"
-                        string="To Refund"
+                        string="Refund"
                         name="action_refund"
                         attrs="{'invisible': ['|','|',('refund_id', '!=', False),('can_be_refunded', '=', False),('mrp_prod_id', '!=', False)]}"
                         class="btn-primary"
@@ -156,7 +156,7 @@
                     />
                     <button
                         type="object"
-                        string="Return to customer"
+                        string="Return to Customer"
                         name="action_return"
                         attrs="{'invisible': [('can_be_returned', '=', False)]}"
                         class="btn-primary"
@@ -169,6 +169,13 @@
                     />
                     <button
                         type="object"
+                        string="Create Sale"
+                        name="action_sale"
+                        attrs="{'invisible': [('state','in',['draft','cancel'])]}"
+                        class="btn-primary"
+                    />
+                    <button
+                        type="object"
                         string="Cancel"
                         name="action_cancel"
                         confirm="Are you sure you want to cancel this RMA"
@@ -176,7 +183,7 @@
                     />
                     <button
                         type="object"
-                        string="Set to draft"
+                        string="Set to Draft"
                         name="action_draft"
                         states="cancelled"
                     />
@@ -202,6 +209,7 @@
                 <sheet>
                     <div class="oe_button_box" name="button_box">
 					    <field name="mrp_prod_id" invisible="1"/>
+						<field name="sales_count" invisible="1"/>
                         <button
                             type="object"
                             name="action_view_repair"
@@ -210,7 +218,20 @@
                             icon="fa-gears"
                             attrs="{'invisible': [('mrp_prod_id', '=', False)]}"
                         >
-                        </button>						
+                        </button>	
+                        <button
+                            type="object"
+                            name="action_view_sales"
+                            class="oe_stat_button"
+                            icon="fa-dollar"
+							attrs="{'invisible': [('sales_count', '=', 0)]}"
+                        >
+						    <field
+                                name="sales_count"
+                                widget="statinfo"
+                                string="Sales"
+                            />
+                        </button>							
                         <button
                             type="object"
                             name="action_view_receipt"

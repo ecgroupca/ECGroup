@@ -28,6 +28,7 @@
         "views/rma_portal_templates.xml",
         "views/rma_team_views.xml",
         "views/rma_views.xml",
+        "views/sales_order_view.xml",
         "views/stock_picking_views.xml",
         "views/stock_warehouse_views.xml",
     ],
