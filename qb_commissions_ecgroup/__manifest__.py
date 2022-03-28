@@ -7,7 +7,7 @@
     'version': '1.0',
     'author': 'Quickbeam ERP: Adam O\'Connor',
     'license': 'AGPL-3',
-    'depends': ['sale','sale_mods_ecgroup'],
+    'depends': ['sale','sale_mods_ecgroup','qb_opensales_reports','qb_transfer_locations'],
     'data': [
         'security/ir.model.access.csv',
         'views/commissions_views.xml',

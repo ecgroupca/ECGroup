@@ -23,6 +23,12 @@ class BarcodeStockLabelsWiz(models.TransientModel):
                     'label_id' : self.id,
                     'product_id' : line.product_id.id, 
                     'qty' : line.product_uom_qty or 1,
+                    'company_id': order.company_id.id,
+                    'name': order.name,
+                    'scheduled_date': order.scheduled_date,
+                    'picking_type_code': order.picking_type_code,
+                    'partner_name': order.partner_id.name,
+                    'picking_id': order.id,
                 }))
         res.update({
             'product_barcode_ids': barcode_order_lines
@@ -51,5 +57,12 @@ class BarcodeStockLabelsLine(models.TransientModel):
     _description = 'Barcode Product Labels Line'
     
     label_id = fields.Many2one('barcode.stock.labels.wiz', 'Barcode labels')
-    product_id = fields.Many2one('product.product',' Product')
+    product_id = fields.Many2one('product.product','Product')
     qty = fields.Integer('Barcode', default=1)
+    label_text = fields.Text('Free Text')
+    company_id = fields.Many2one('res.company','Company')
+    name = fields.Char('Partner Name')
+    scheduled_date = fields.Datetime('Scheduled Date')
+    picking_type_code = fields.Char('Picking Type Code')
+    partner_name = fields.Char('Partner Name')
+    picking_id = fields.Many2one('stock.picking','Transfer')

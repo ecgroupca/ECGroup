@@ -82,31 +82,6 @@ class SaleOrder(models.Model):
         compute="_compute_bal_due",
         store = True,
         )
-
-    """@api.onchange('carrier_id')
-    def _onchange_carrier(self):
-        for sale in self:
-            #1. get deliveries for this sale
-            #2. set the carrier
-            pickings = self.env['stock.picking'].search([('sale_id','=',sale.id)])            
-            for pick in pickings:
-                pick.carrier_id = sale.carrier_id
-                
-    @api.onchange('user_id')
-    def _onchange_user_id(self):
-        for sale in self:
-            #1. when user changes, push this value to all deliveries as user_id 
-            pickings = self.env['stock.picking'].search([('sale_id','=',sale.id)])            
-            for pick in pickings:
-                pick.user_id = sale.user_id
-                
-    @api.onchange('partner_shipping_id')
-    def _onchange_shipping_id(self):
-        for sale in self:
-            #1. when user changes, push this value to all deliveries as user_id 
-            pickings = self.env['stock.picking'].search([('sale_id','=',sale.id)])            
-            for pick in pickings:
-                pick.partner_id = sale.partner_shipping_id"""
               
     @api.onchange('team_id')
     def _onchange_sales_team(self):
@@ -120,18 +95,17 @@ class SaleOrder(models.Model):
     @api.depends('order_line')
     def _compute_deps_total(self):
         for sale in self:
-            total_deps = 0
-            total_comm = 0
+            total_deps,total_comm,amt_res,amt_inv = 0,0,0,0
             company_id = sale.company_id and sale.company_id.id or 1
             config = self.env['ir.config_parameter']
             setting = config.search([('key','=','sale.default_deposit_product_id')])
             setting = setting and setting[0] or None
             dep_product = setting and setting.value or None
-            for line in sale.order_line:
-                if dep_product and str(line.product_id.id) == dep_product:
-                    total_deps += abs(line.price_unit)
-                if line.comm_rate:
-                    total_comm += line.comm_rate*line.price_unit*line.product_uom_qty/100
+            for invoice in sale.invoice_ids:
+                if invoice.state=='posted':
+                  amt_res += invoice.amount_residual
+                  amt_inv += invoice.amount_total
+            total_deps = amt_inv - amt_res
             sale.comm_total = total_comm        
             sale.deposit_total = total_deps
      

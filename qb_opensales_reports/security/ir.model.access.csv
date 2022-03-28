@@ -1,0 +1,3 @@
+﻿id,name,group_id/id,model_id/id,perm_read,perm_write,perm_create,perm_unlink
+order_tags_admin,order.tags admin,base.group_erp_manager,qb_opensales_reports.model_order_tags,TRUE,TRUE,TRUE,TRUE
+order_tags_sales_user,order.tags sales user,sales_team.group_sale_salesman,qb_opensales_reports.model_order_tags,TRUE,FALSE,FALSE,FALSE
