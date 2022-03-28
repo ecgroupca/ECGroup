@@ -37,7 +37,8 @@ class InterCompanyTransferEpt(models.Model):
                                                       help="ICT Lines", copy=True)
 
     state = fields.Selection([('draft', 'Draft'),
-                              ('processed', 'Processed'),
+                              ('processed','Awaiting Transfer'),
+                              ('transferred', 'Transferred'),
                               ('cancel', 'Cancelled')],
                              string='State', copy=False, default='draft', help="State of ICT.")
     type = fields.Selection([('ict', 'ICT'), ('ict_reverse', 'Reverse ICT'),
@@ -75,6 +76,8 @@ class InterCompanyTransferEpt(models.Model):
                                   help="Pickings created by the ICT.")
     invoice_ids = fields.One2many('account.move', 'inter_company_transfer_id', copy=False,
                                   help="Invoices and Vendor bills created by the ICT.")
+                                  
+    shipper_id = fields.Many2one('res.partner', string='Shipper')
 
     _sql_constraints = [('source_destination_warehouse_uniq',
                          'CHECK(source_warehouse_id != destination_warehouse_id)',
@@ -315,7 +318,10 @@ class InterCompanyTransferEpt(models.Model):
         pickings = self.env['stock.picking'].search([('group_id', '=', group_id.id)])
         if not pickings:
             raise Warning("No Pickings are created for this record.")
-        pickings.write({'inter_company_transfer_id':self.id})
+        shipper_id = self.shipper_id and self.shipper_id.id or False              
+        pickings.write({'x_shipper_id': shipper_id,
+            'inter_company_transfer_id':self.id,
+            'note': self.x_studio_internal_notes})
         picking = pickings.filtered(
             lambda x: x.location_id.id == self.source_warehouse_id.lot_stock_id.id)
         if picking:

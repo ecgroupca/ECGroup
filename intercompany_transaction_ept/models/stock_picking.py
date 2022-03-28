@@ -25,3 +25,15 @@ class Picking(models.Model):
                 backorder.write({"inter_company_transfer_id":backorder.backorder_id.\
                                  inter_company_transfer_id.id})
         return res
+        
+    def action_done(self):
+        res = super().action_done()
+        for pick in self:
+            if pick.inter_company_transfer_id:
+                ict_done = True
+                for trans in pick.inter_company_transfer_id.picking_ids:
+                    if trans.state != 'done':
+                        ict_done = False
+                if ict_done:
+                    pick.inter_company_transfer_id.state = 'transferred'
+        return res
