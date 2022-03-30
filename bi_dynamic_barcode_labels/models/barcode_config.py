@@ -61,9 +61,9 @@ class BarcodeConfigSettings(models.TransientModel):
             'barcode_currency_position': self.barcode_currency_position,
         }
         # Update Paperformate
-        paper_formate = self.env['ir.model.data'].xmlid_to_object('bi_dynamic_barcode_labels.barcode_labels_report_paperformate')
-        paper_formate.page_height = self.label_height or 50
-        paper_formate.page_width = self.label_width  or 70
+        #paper_formate = self.env['ir.model.data'].xmlid_to_object('bi_dynamic_barcode_labels.barcode_labels_report_paperformate')
+        #paper_formate.page_height = self.label_height or 50
+        #paper_formate.page_width = self.label_width  or 70
 
         barcode_config.write(vals)
 
