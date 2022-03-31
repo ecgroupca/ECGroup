@@ -48,13 +48,13 @@ class ProductTemplate(models.Model):
 
     bypass_reservation = fields.Boolean('Bypass Reservation') 
 
-class MRPProductProduceLine(models.TransientModel):
+"""class MRPProductProduceLine(models.TransientModel):
     _inherit = 'mrp.product.produce.line'
 
     bypass_reservation = fields.Boolean(
         'Bypass Reservation',
         related = 'move_id.bypass_reservation'
-        )    
+        )"""  
 
 class StockMoveLine(models.Model):
     _inherit = 'stock.move.line'
