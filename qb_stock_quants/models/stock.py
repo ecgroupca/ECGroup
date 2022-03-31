@@ -19,11 +19,6 @@ class StockQuant(models.Model):
     """Stock Quant"""
 
     _inherit = 'stock.quant'
-    
-    """reserved_order_names = fields.Char(
-        'Reserved Orders',
-        compute = '_compute_reserved_orders'
-    )"""
 
     reserved_order_ids = fields.Many2many(
         'reserved.order',

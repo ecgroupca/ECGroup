@@ -6,7 +6,7 @@
         <field name="model">crm.team</field>
         <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//notebook/page[@name='members']" position="after">
+            <xpath expr="//notebook/page[@name='members_users']" position="after">
 			  <page name="sales_reps" string="Sales Reps" >
 			    <field name="sales_rep_ids" widget="many2many" options="{'not_delete': True}">
 					<kanban quick_create="false" create="true" delete="true">
