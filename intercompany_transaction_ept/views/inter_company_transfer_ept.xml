@@ -181,7 +181,7 @@
 							<field name="source_warehouse_id" required="True"
 								attrs="{'readonly':[('state','!=','draft')]}" />
 							<field name="pricelist_id" attrs="{'invisible':[('type','=','internal')]}"  />
-							<field name="crm_team_id" />
+							<field name="x_studio_internal_notes"/>
 						</group>
 						<group>
 							<field name="destination_warehouse_id" required="True"
@@ -189,6 +189,7 @@
 							<field name="currency_id" required="True" readonly="1"
 								   attrs="{'invisible':[('type','=','internal')]}" />
 							<field name="processed_date" readonly="1" />
+							<field name="shipper_id"/>
 						</group>
 					</group>
 					<notebook>

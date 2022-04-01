@@ -13,7 +13,6 @@
 		    </field>
         </field>
     </record>
-
     <record id="view_mrp_production_filter" model="ir.ui.view">
         <field name="model">mrp.production</field>
         <field name="inherit_id" ref="mrp.view_mrp_production_filter"/>
@@ -23,4 +22,14 @@
             </xpath>
         </field>
     </record>
+    <record id="view_mrp_production_tree_custom" model="ir.ui.view">
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_tree_view"/>
+        <field name="arch" type="xml">	
+		    <field name="origin" position="after">
+				<field name="x_repair_order" optional="hide"/> 
+				<field name="sale_order_id" optional="show"/>
+			</field>
+		</field>
+	</record>
 </odoo>
