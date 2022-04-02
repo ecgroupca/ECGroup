@@ -179,14 +179,14 @@ class SaleOrder(models.Model):
         self.ensure_one()
         # ensure a correct context for the _get_default_journal method and company-dependent fields
         self = self.with_context(default_company_id=self.company_id.id, force_company=self.company_id.id)
-        journal = self.env['account.move'].with_context(default_type='in_invoice')._get_default_journal()
+        journal = self.env['account.move'].with_context(default_move_type='in_invoice')._get_default_journal()
         if not journal:
             raise UserError(_('Please define an accounting sales journal for the company %s (%s).') % (self.company_id.name, self.company_id.id))
         team =  self.team_id
         team_id = team and team.id or False
         invoice_vals = {
             'ref': str(self.name) + ' - ' + str(self.client_order_ref),
-            'type': 'in_invoice',
+            'move_type': 'in_invoice',
             'narration': self.note,
             'currency_id': self.pricelist_id.currency_id.id,
             'campaign_id': self.campaign_id.id,
@@ -261,7 +261,7 @@ class SaleOrder(models.Model):
                 invoice_vals_list.append(invoice_vals)
                 # Manage the creation of invoices in sudo because a salesperson must be able to generate an invoice from a
                 # sale order without "billing" access rights. However, he should not be able to create an invoice from scratch.
-                moves = self.env['account.move'].sudo().with_context(default_type='in_invoice').create(invoice_vals_list)
+                moves = self.env['account.move'].sudo().with_context(default_move_type='in_invoice').create(invoice_vals_list)
                 move_id = moves and moves[0] and moves[0].id or None           
                 order.comm_inv_paid = False
                 order.comm_inv_id = move_id
