@@ -37,7 +37,7 @@ class AccountPayment(models.Model):
     def _get_related(self):
         for payment in self:
             sale_id = False
-            #1. loop through invoice_ids from payment
+            #1. loop through invoice_ids from payment in the self loop
             invoices = self.env['account.move'].search([('payment_id','=',payment.id)])
             for invoice in invoices:
                 #2. search for sale orders that have invoices on the payment list.
