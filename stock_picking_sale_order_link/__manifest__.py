@@ -14,6 +14,7 @@
     "depends": ["sale_stock"],
     "data": [
         "views/stock_picking_view.xml",
-        "report/report_bol",
+        "report/report_bol.xml",
+        "report/report_picking_operations.xml",
     ],
 }
