@@ -196,11 +196,11 @@ class SaleOrder(models.Model):
             'team_id': team_id,
             #'partner_id': team and team.user_id and team.user_id.partner_id and team.user_id.partner_id.id or False,
             'partner_id': team and team.comm_inv_partner and team.comm_inv_partner or False,
-            'invoice_partner_bank_id': self.company_id.partner_id.bank_ids[:1].id,
+            #'invoice_partner_bank_id': self.company_id.partner_id.bank_ids[:1].id,
             'fiscal_position_id': self.fiscal_position_id.id or self.partner_invoice_id.property_account_position_id.id,
             'journal_id': journal.id,  # company comes from the journal
             'invoice_origin': self.name,
-            'invoice_payment_ref': self.reference,
+            'payment_reference': self.reference,
             'transaction_ids': [(6, 0, self.transaction_ids.ids)],
             'invoice_line_ids': [],
         }
