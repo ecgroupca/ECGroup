@@ -20,13 +20,15 @@
 									<th><strong>Qty on Hand</strong></th>
 									<th><strong>Qty Forecasted</strong></th>
 									<th><strong>Total Qty Reserved</strong></th>
+									<th><strong>Qty Sold (Past 365 Days)</strong></th>
+									<th><strong>Qty Delivered (Past 365 Days)</strong></th>
 									<th><strong>Reserved Order</strong></th>
 									<th><strong>Reserved Lot</strong></th>
 									<th><strong>Reserved Qty</strong></th>
 								</tr>									
 							</thead>
 							<tbody>
-							  <t t-set="is_previous" t-value="s0"/>
+							  <!--t t-set="is_previous" t-value="s0"/-->
 							  <t t-foreach="cats[category]" t-as="prod">
 							  	<!-- Reserved Order Qty Totals -->
 								<t t-set="res_qty" t-value="0.00"/>
@@ -39,31 +41,36 @@
 								<t t-set="cat_qtyoh_total" t-value="prod.qty_available + cat_qtyoh_total"/>
 								<t t-set="cat_virt_available_total" t-value="prod.virtual_available + cat_virt_available_total"/>
 								<t t-set="cat_qty_res_total" t-value="res_qty + cat_qty_res_total"/>
-								<t t-if="prod and is_previous != prod.name">
+								<!--t t-if="prod and is_previous != prod.name"-->
 								  <t t-set="is_previous" t-value="prod.name"/>
+								  <t t-set="domain" t-value="[('product_id','=',prod.id),('order_id.state','in',['sale','done'])]"/>
+								  <t t-set="domain" t-value="domain + [('order_id.date_order','>=',one_year_ago)]"/>
+								  <t t-set="qty_sold" t-value="0"/>
+								  <t t-set="qty_delivered" t-value="0"/>
+								  <t t-foreach="request.env['sale.order.line'].search(domain)" t-as="order_line">
+                                    <t t-set="qty_sold" t-value="qty_sold + order_line.product_uom_qty"/>
+									<t t-set="qty_delivered" t-value="qty_delivered + order_line.qty_delivered"/>
+								  </t>								  
 								  <tr>									
 									<td><span t-esc="prod.default_code or ''"/></td>
 									<td><span t-field="prod.qty_available"/></td>
 									<td><span t-field="prod.virtual_available"/></td>
 									<td><span t-esc="res_qty"/></td>
-									<!--td colspan="3">
-									   <t t-if="res_qty>0">
-									      <span align="center" style="font-size:16px;text-decoration:bold;">Reservations</span>
-										</t>
-									</td-->
-								  </tr>
+									<td><span t-esc="qty_sold"/></td>
+									<td><span t-esc="qty_delivered"/></td>	
+                                  </tr>									
 								  <t t-foreach="prod.reserved_order_ids" t-as="order">
 								    <t t-if="order and order.name and order.name != 'False'">
 									  <tr>
-										<td colspan="4"><span/></td>
+										<td colspan="6"><span/></td>
 										<td><span t-esc="order.name"/></td>
 										<td><span t-esc="order.move_line_id.lot_id.name"/></td>
 										<td><span t-esc="order.product_uom_qty"/></td>									
 									  </tr>
-									</t>
-								  </t>
-								</t>
+								    </t>
+							      </t>
 							  </t>
+							  <!--/t-->
 								<!-- category totals <tr> -->
 								<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
 									<td colspan="1" style="font-size:15pt;" align="center"><strong><t t-esc="category"/> Totals: </strong></td>
