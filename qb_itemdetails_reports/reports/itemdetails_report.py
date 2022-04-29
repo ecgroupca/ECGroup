@@ -22,7 +22,7 @@ class ItemDetailsXlsx(models.AbstractModel):
         domain_search = [('company_id','=',company_id)] 
         category_ids = data['form'].get('category_ids', False)
         if category_ids:        
-            domain_search = [('categ_id','in',category_ids)]    
+            domain_search.append(('categ_id','in',category_ids))      
         products = prod_obj.search(domain_search)      
         product_groups = {}
         sheet = workbook.add_worksheet('Item Details')
