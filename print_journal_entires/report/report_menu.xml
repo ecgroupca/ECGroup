@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<template id="journal_entries_report_id">
-        <t t-call="web.html_container">
+  <t t-call="web.html_container">
+	  <t t-if="docs">
+	  <t t-value="docs[0]" t-set="sale"/>
+	  <t t-foreach="sale" t-as="o">
 		<t t-call="web.external_layout">
-<!--			<link rel='stylesheet' href="/journal_entries_print/static/src/css/report_css.css"/>-->
-            <t t-foreach="docs" t-as="o">
-                <div class="page" style="font-size:15px;margin-top:10px;">
-                <div>
-					        <h3>
-							    Journal Entry: <span t-field="o.name"/>
-							</h3>
+      <div class="page" style="font-size:15px;margin-top:10px;">
+        <div>
+		      <h3>
+				    Journal Entry: <span t-field="o.name"/>
+				  </h3>
 				</div>
 					<br/>
                 	<div class="row">
@@ -96,9 +97,10 @@
                 		</table>
                 	</div>
                 </div>
-            </t>
-			</t>
-        </t>
+		    	</t>
+      </t>
+    </t>
+  </t>
     </template>
 
     <report

@@ -72,7 +72,7 @@
 									<t t-set="showroom_amt_total" t-value="showroom_amt_total + rep_sales_total"/>
 									<t t-set="showroom_deposits_total" t-value="showroom_deposits_total + rep_deposits_total"/>
 									<t t-set="showroom_balance_total" t-value="showroom_balance_total + rep_balance_total"/>
-								    <td colspan="2" align="left"><span/></td>
+								    <td colspan="2" align="left"><span></span></td>
 								</tr>
 							  </t>
 								<!-- Showroom totals <tr> -->
@@ -81,7 +81,7 @@
 									<td align="left"><strong><t t-esc="showroom_amt_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 									<td align="left"><strong><t t-esc="showroom_deposits_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 									<td align="left"><strong><t t-esc="showroom_balance_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
-								    <td colspan="2" align="left"><span/></td>
+								    <td colspan="2" align="left"><span></span></td>
 								</tr>
 							</tbody>
 						</table>
