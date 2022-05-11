@@ -5,9 +5,13 @@
         <field name="model">approval.request</field>
 		<field name="inherit_id" ref="approvals.approval_request_view_tree"/>
         <field name="arch" type="xml">
-		    <field name="request_status" position="after">
+			<field name="request_status" position="replace">
+                <field name="request_status" decoration-primary="request_status == 'rfqs'" decoration-info="request_status == 'new'" decoration-warning="request_status == 'pending'" decoration-success="request_status == 'approved'" decoration-danger="request_status == 'refused'" widget="badge"/>
 			    <field name="purchase_order_ids" widget="many2many_tags"/>
+			    <button name="action_open_purchase_orders" type="object" icon="fa-credit-card" attrs="{'invisible': [('purchase_order_count', '=', 0)]}">
+			        <field name="purchase_order_count" string="Purchase/RFQs"/>
+			    </button>   
 			</field>
-        </field>
+		</field>
     </record>
 </odoo>
