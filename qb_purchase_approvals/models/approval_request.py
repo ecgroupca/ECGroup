@@ -18,7 +18,16 @@ class ApprovalRequest(models.Model):
         ('refused', 'Refused'),
         ('cancel', 'Cancel')],
         )
-    
+
+    user_status = fields.Selection([
+        ('new', 'New'),
+        ('pending', 'To Approve'),
+        ('approved', 'Approved'),
+        ('rfqs', 'RFQs Created'),
+        ('refused', 'Refused'),
+        ('cancel', 'Cancel')],
+        )
+        
     def _compute_purchase_orders(self):
         for approval in self:
             domain = [('approval_request_id','=',approval.id)]
