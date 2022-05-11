@@ -1,6 +1,6 @@
 {
-    'name': 'Firefly Purchase Approvals',
-    'description': 'Firefly Purchase Approvals',
+    'name': 'QB Purchase Approvals',
+    'description': 'QB Purchase Approvals',
     'sequence': 1,
     'version': '1.0.0',
     'author': 'Adam OConnor <aoconnor@quickbeamllc.com>',
