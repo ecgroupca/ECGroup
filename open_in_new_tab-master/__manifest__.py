@@ -17,6 +17,13 @@
     "qweb": [
         "static/src/xml/template.xml"
     ],
-    "license": "AGPL-3",
+     'assets': { 
+         'web.assets_backend': [ 
+            "/open_in_new_tab/static/src/js/many2one.js",
+            "/open_in_new_tab/static/src/js/many2many.js",
+            "/open_in_new_tab/static/src/js/tree_view.js",
+         ] 
+     } 
+    "license": 'AGPL-3', 
     "installable": True
 }
