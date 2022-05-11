@@ -17,6 +17,6 @@
     "qweb": [
         "static/src/xml/template.xml"
     ],
-    "license": 'LGPL-3', 
+    "license": "AGPL-3",
     "installable": True
 }
