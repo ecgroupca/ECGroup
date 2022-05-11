@@ -11,9 +11,6 @@
     "depends": [
         "web" 
     ],
-    "data": [
-        "views/assets.xml"
-    ],
     "qweb": [
         "static/src/xml/template.xml"
     ],
@@ -23,7 +20,7 @@
             "/open_in_new_tab/static/src/js/many2many.js",
             "/open_in_new_tab/static/src/js/tree_view.js",
          ] 
-     } 
+     }, 
     "license": 'AGPL-3', 
     "installable": True
 }
