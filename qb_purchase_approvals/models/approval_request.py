@@ -67,6 +67,7 @@ class ApprovalApprover(models.Model):
         ('rfqs', 'RFQs Created'),
         ('refused', 'Refused'),
         ('cancel', 'Cancel')]
+    )
     
     
                         
