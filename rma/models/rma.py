@@ -1222,13 +1222,12 @@ class Rma(models.Model):
         picking_form.partner_id = self.partner_id
 
     def _prepare_returning_move(
-        self, move_form, scheduled_date, quantity=None, uom=None
-    ):
+        self, move_form, scheduled_date, quantity=None, uom=None):
         #move_form.location_id = self.finished_location_id
         move_form.product_id = self.product_id
         move_form.product_uom_qty = quantity or self.product_uom_qty
         move_form.product_uom = uom or self.product_uom
-        move_form.date_expected = scheduled_date
+        move_form.date_deadline = scheduled_date
         
    # Repair business methods
     def create_repair(self, scheduled_date, product, qty, uom, company, mrp_bom_id, rma_move_id):
