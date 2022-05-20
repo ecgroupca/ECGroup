@@ -755,8 +755,8 @@ class Rma(models.Model):
         if src_loc_id and not rma_mrp_type:
             vals['location_id'] = src_loc_id
         res = self.env['stock.move'].create(vals)
-        mrp_prod.action_confirm()
-        mrp_prod.action_assign()
+        #mrp_prod.action_confirm()
+        #mrp_prod.action_assign()
         move_line_ids = rma.move_id and rma.move_id.move_line_nosuggest_ids
         if not move_line_ids:
              move_line_ids = rma.move_id and rma.move_id.move_line_ids_without_package or []
