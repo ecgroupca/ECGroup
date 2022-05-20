@@ -742,7 +742,7 @@ class Rma(models.Model):
         )
         #src_loc_id = rma.move_id and rma.move_id.location_id and rma.move_id.location_id.id
         
-        #create the bom line with the main product as the component with the serial number.
+        #create the MRP consumption line with the main product as the component with the serial number.
         vals = {
             'product_id': product and product.id or False,
             'product_uom_qty': rma.product_uom_qty,
@@ -755,8 +755,10 @@ class Rma(models.Model):
         if src_loc_id and not rma_mrp_type:
             vals['location_id'] = src_loc_id
         res = self.env['stock.move'].create(vals)
-        #mrp_prod.action_confirm()
-        #mrp_prod.action_assign()
+        #for workorder in mrp_bom_id.workorder_ids:
+        mrp_prod._create_workorder()        
+        mrp_prod.action_confirm()
+        mrp_prod.action_assign()
         move_line_ids = rma.move_id and rma.move_id.move_line_nosuggest_ids
         if not move_line_ids:
              move_line_ids = rma.move_id and rma.move_id.move_line_ids_without_package or []
@@ -1257,6 +1259,7 @@ class Rma(models.Model):
             }
 
         res = self.env['stock.move'].create(vals)
+        
         mrp_prod.action_confirm()
         mrp_prod.action_assign()
         move_line_ids = rma_move_id.move_line_nosuggest_ids
@@ -1276,6 +1279,7 @@ class Rma(models.Model):
             }
              
             res = self.env['stock.move.line'].create(vals)
+        
         """self.message_post(
             body=_(
                 "Repair created for:<br/>"
