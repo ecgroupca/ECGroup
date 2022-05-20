@@ -30,12 +30,7 @@ class ApprovalRequest(models.Model):
                 if purch_id not in purchase_orders:
                     purchase_orders.append(purch_id)
                     approval.purchase_order_ids = [(4, purch_id)]
-            if purchase_orders and approval.request_status == 'approved': 
-                approval.request_status = 'rfqs'                          
-    
-    
-                        
-                
-            
+            if approval.purchase_order_count > 0 and approval.request_status == 'approved': 
+                approval.request_status = 'rfqs'                        
         
          

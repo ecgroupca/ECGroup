@@ -26,4 +26,13 @@ class MRPProduction(models.Model):
         if res:
             self.rma_id.state = 'repaired'
         return res
+        
+    @api.constrains('product_id', 'move_raw_ids')
+    def _check_production_lines(self):
+        for production in self:
+            if not production.rma_id:
+                for move in production.move_raw_ids:
+                    if production.product_id == move.product_id:
+                        raise ValidationError(_("The component %s should not be the same as the product to produce.") % production.product_id.display_name)
+
 
