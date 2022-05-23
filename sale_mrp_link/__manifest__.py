@@ -19,7 +19,6 @@
     ],
     'data': [
         'views/mrp_production.xml',
-        'views/sale_order.xml',
         'report/report_mrp_document.xml',
     ],
 }
