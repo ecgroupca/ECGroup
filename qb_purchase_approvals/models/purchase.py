@@ -12,5 +12,4 @@ class PurchaseOrder(models.Model):
     approval_id = fields.Many2one(
         'purchase.approval',
         'Approval', 
-        check_company=True
         )
