@@ -10,7 +10,7 @@
     ],
     'data': [
         'views/approvals_purchase.xml',
-        'views/purchase_views',
+        'views/purchase_views.xml',
     ],
     'application': True,
     'installable': True,
