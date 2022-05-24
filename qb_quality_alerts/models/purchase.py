@@ -21,7 +21,7 @@ class PurchaseOrder(models.Model):
             #search for products that have quality
             quality_ids = []
             for line in purchase.order_line:
-                domain = ['|',('product_id','=',line.product_id.id),('product_id','=',line.product_id.id)]
+                domain = [('product_id','=',mrp.product_id.id)]
                 qual_ids = quality_obj.search(domain)
                 quality_ids += qual_ids.ids
             purchase.quality_alert_ids = [(6, 0, quality_ids)]
