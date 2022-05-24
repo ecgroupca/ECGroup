@@ -20,14 +20,9 @@ class MRPProduction(models.Model):
             mrp.quality_alert_ids = [(4, False)]
             #search for products that have quality
             quality_ids = []
-            move_line_ids = rma.move_id and rma.move_id.move_line_nosuggest_ids
-            if not move_line_ids:
-                move_line_ids = rma.move_id and rma.move_id.move_line_ids_without_package or []
+            move_line_ids = mrp.move_raw_ids
             for line in move_line_ids:
                 domain = ['|',('product_id','=',line.product_id.id),('product_id','=',line.product_id.id)]
-                qual_ids = quality_obj.search(domain)
-                for qual in qual_ids:
-                    qual.mrp_ids = [(4, [mrp.id])]
                 quality_ids.append(qual_ids.ids)
             domain = ['|',('product_id','=',mrp.product_id.id),('product_id','=',mrp.product_id.id)]
             mrp_prod_qual_id = quality_obj.search(domain)
