@@ -44,11 +44,11 @@ class QualityAlert(models.Model):
             approval_obj = self.env['approval.request']
             domain = [('quality_alert_ids','in',quality.id)]
             mrp_orders = mrp_obj.search(domain)
-            quality.mrp_ids = [(4, mrp_orders.ids)]
+            quality.mrp_ids = [(6, 0, mrp_orders.ids)]
             purchase_orders = purchase_obj.search(domain)
-            quality.purchase_ids = [(4, purchase_orders.ids)]
+            quality.purchase_ids = [(6, 0, purchase_orders.ids)]
             approval_orders = approval_obj.search(domain)
-            quality.approval_ids = [(4, approval_orders.ids)]
+            quality.approval_ids = [(6, 0, approval_orders.ids)]
         
     def _compute_doc_counts(self):
         for quality in self:

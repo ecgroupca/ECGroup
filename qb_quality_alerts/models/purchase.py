@@ -23,8 +23,8 @@ class PurchaseOrder(models.Model):
             for line in purchase.order_line:
                 domain = ['|',('product_id','=',line.product_id.id),('product_id','=',line.product_id.id)]
                 qual_ids = quality_obj.search(domain)
-                quality_ids.append(qual_ids.ids)
-            purchase.quality_alert_ids = [(4, quality_ids)]
+                quality_ids += qual_ids.ids
+            purchase.quality_alert_ids = [(6, 0, quality_ids)]
             purchase.quality_count = len(quality_ids)
             
     def action_view_quality(self):

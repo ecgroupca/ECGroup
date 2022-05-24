@@ -24,12 +24,12 @@ class MRPProduction(models.Model):
             for line in move_line_ids:
                 domain = ['|',('product_id','=',line.product_id.id),('product_id','=',line.product_id.id)]
                 qual_ids = quality_obj.search(domain)
-                quality_ids.append(qual_ids.ids)
+                quality_ids += qual_ids.ids
             domain = ['|',('product_id','=',mrp.product_id.id),('product_id','=',mrp.product_id.id)]
             mrp_prod_qual_id = quality_obj.search(domain)
             if mrp_prod_qual_id:
                 quality_ids.append(mrp_prod_qual_id.id)
-            mrp.quality_alert_ids = [(4, quality_ids)]
+            mrp.quality_alert_ids = [(6, 0, quality_ids)]
             mrp.quality_count = len(quality_ids)
             
     def action_view_quality(self):
