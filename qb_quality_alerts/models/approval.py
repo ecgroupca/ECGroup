@@ -21,7 +21,7 @@ class ApprovalRequest(models.Model):
             #search for products that have quality
             quality_ids = []
             for line in approval.product_line_ids:
-                domain = [('product_id','=',mrp.product_id.id)]
+                domain = [('product_id','=',line.product_id.id)]
                 qual_ids = quality_obj.search(domain)
                 quality_ids += qual_ids.ids
             approval.quality_alert_ids = [(6, 0, quality_ids)]

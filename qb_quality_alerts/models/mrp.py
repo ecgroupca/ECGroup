@@ -22,7 +22,7 @@ class MRPProduction(models.Model):
             quality_ids = []
             move_line_ids = mrp.move_raw_ids
             for line in move_line_ids:
-                domain = [('product_id','=',mrp.product_id.id)]
+                domain = [('product_id','=',line.product_id.id)]
                 qual_ids = quality_obj.search(domain)
                 quality_ids += qual_ids.ids
             domain = [('product_id','=',mrp.product_id.id)]
