@@ -12,14 +12,14 @@
     'author': 'Adam OConnor, Quickbeam LLC <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': [
-        #'approvals_purchase',
         'quality_control',
         'mrp',
         'purchase',
+        'approvals',
         ],
     'data': [
         'views/purchase_views.xml',
-        #'views/quality_views.xml',
+        'views/quality_views.xml',
         'views/mrp_views.xml',
         'views/approvals_views.xml',
     ],
