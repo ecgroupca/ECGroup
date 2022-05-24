@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <xpath expr="//div[@class='o_not_full oe_button_box']" position="inside">
                 <button type="object"
-                    name="action_view_quality_alerts"
+                    name="action_view_quality"
                     class="oe_stat_button"  
                     icon="fa-gears"
                     attrs="{'invisible': [('quality_count', '=', 0)]}">
