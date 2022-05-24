@@ -21,7 +21,7 @@
         'views/purchase_views.xml',
         'views/quality_views.xml',
         'views/mrp_views.xml',
-        'views/approvals_views.xml',
+        'views/approval_views.xml',
     ],
     'application': True,
     'installable': True,
