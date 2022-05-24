@@ -29,7 +29,7 @@ class ApprovalRequest(models.Model):
                 purchase = line.purchase_order_line_id\
                    and line.purchase_order_line_id.order_id or None
                 purch_id = purchase and purchase.id or 0        
-                if purch_id not in purchase_orders:
+                if purch_id and purch_id not in purchase_orders:
                     purchase_orders.append(purch_id)
                     approval.purchase_order_ids = [(4, purch_id)]
                     purchase.approval_id = approval                   
