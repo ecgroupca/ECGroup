@@ -51,7 +51,7 @@ class QualityAlert(models.Model):
             mrp_orders = mrp_obj.search(main_domain)           
             #search all component (raw) moves
             move_domain = [('raw_material_production_id','!=',False)]
-            move_domain.append(main_domain)
+            move_domain += main_domain
             raw_moves = stock_move_obj.search(move_domain)
             for raw in raw_moves:
                 mrp_orders.append(raw.raw_material_production_id)
