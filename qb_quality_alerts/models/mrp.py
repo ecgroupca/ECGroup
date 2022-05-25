@@ -19,18 +19,20 @@ class MRPProduction(models.Model):
         for mrp in self:
             mrp.quality_alert_ids = [(4, False)]
             #search for products that have quality
-            quality_ids = []
+            quality_ids = quality_obj
             move_line_ids = mrp.move_raw_ids
             for line in move_line_ids:
                 domain = [('product_id','=',line.product_id.id)]
+                domain += [('company_id','=',line.company_id.id)]
                 qual_ids = quality_obj.search(domain)
                 for qual in qual_ids:
                     qual.mrp_ids = [(4, mrp.id)]
-                quality_ids += qual_ids.ids
+                quality_ids |= qual_ids
             domain = [('product_id','=',mrp.product_id.id)]
+            domain += [('company_id','=',line.company_id.id)]
             mrp_prod_qual_id = quality_obj.search(domain)
-            #if mrp_prod_qual_id:
-            #    quality_ids.append(mrp_prod_qual_id.id)
+            if mrp_prod_qual_id:
+                quality_ids |= mrp_prod_qual_id
             mrp.quality_alert_ids = [(6, 0, quality_ids)]
             mrp.quality_count = len(quality_ids)
 

@@ -45,6 +45,7 @@ class QualityAlert(models.Model):
             purch_line_obj = self.env['purchase.order.line']
             appro_line_obj = self.env['approval.product.line']
             main_domain = [('product_id','=',quality.product_id.id)]
+            main_domain += [('company_id','=',quality.company_id.id)]
             #mrp_domain.append(('assembly_product_id','=',quality.product_id))
             
             #search all MOs with the finished product 
@@ -103,7 +104,7 @@ class QualityAlert(models.Model):
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
         action = (
-            self.env.ref("purchase.purchase_rfq")
+            self.env.ref("purchase.purchase_form_action")
             .with_context(active_id=self.id)
             .read()[0]
         )
