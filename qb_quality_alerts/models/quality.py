@@ -1,5 +1,5 @@
 from odoo import api, fields, models
-
+    
   
 class QualityAlert(models.Model):
     _inherit = "quality.alert"
@@ -7,7 +7,6 @@ class QualityAlert(models.Model):
     mrp_ids = fields.Many2many(
         'mrp.production',
         string = 'Production Orders',
-        compute="_compute_related_docs",
     )
     
     mrp_count = fields.Integer(
@@ -18,7 +17,6 @@ class QualityAlert(models.Model):
     approval_ids = fields.Many2many(
         'approval.request',
         string = 'Approval Requests',
-        compute="_compute_related_docs",
     )
 
     approval_count = fields.Integer(
@@ -29,26 +27,12 @@ class QualityAlert(models.Model):
     purchase_ids = fields.Many2many(
         'purchase.order',
         string = 'Purchase Orders',
-        compute="_compute_related_docs",
     )
 
     purchase_count = fields.Integer(
         string="Purchase Count", 
         compute="_compute_doc_counts",
     )
-    
-    def _compute_related_docs(self):
-        for quality in self:
-            mrp_obj = self.env['mrp.production']
-            purchase_obj = self.env['purchase.order']
-            approval_obj = self.env['approval.request']
-            domain = [('quality_alert_ids','in',quality.id)]
-            mrp_orders = mrp_obj.search(domain)
-            quality.mrp_ids = [(6, 0, mrp_orders.ids)]
-            purchase_orders = purchase_obj.search(domain)
-            quality.purchase_ids = [(6, 0, purchase_orders.ids)]
-            approval_orders = approval_obj.search(domain)
-            quality.approval_ids = [(6, 0, approval_orders.ids)]
         
     def _compute_doc_counts(self):
         for quality in self:
@@ -97,7 +81,7 @@ class QualityAlert(models.Model):
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
         action = (
-            self.env.ref("quality_control.quality_check_action_main")
+            self.env.ref("approvals.approval_request_action_all")
             .with_context(active_id=self.id)
             .read()[0]
         )

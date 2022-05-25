@@ -23,6 +23,8 @@ class PurchaseOrder(models.Model):
             for line in purchase.order_line:
                 domain = [('product_id','=',line.product_id.id)]
                 qual_ids = quality_obj.search(domain)
+                for qual in qual_ids:
+                    qual.purchase_ids = [(4, [purchase.id])]
                 quality_ids += qual_ids.ids
             purchase.quality_alert_ids = [(6, 0, quality_ids)]
             purchase.quality_count = len(quality_ids)
@@ -32,7 +34,7 @@ class PurchaseOrder(models.Model):
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
         action = (
-            self.env.ref("quality_control.quality_check_action_main")
+            self.env.ref("quality_control.quality_alert_action_check")
             .with_context(active_id=self.id)
             .read()[0]
         )

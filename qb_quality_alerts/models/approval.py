@@ -5,8 +5,8 @@ class ApprovalRequest(models.Model):
     _inherit = "approval.request"
     
     quality_alert_ids = fields.Many2many(
-        'purchase.order',
-        string = 'Purchase Orders',
+        'quality.alert',
+        string = 'Quality Alerts',
         compute = '_compute_quality_alerts',
     )
     
@@ -23,6 +23,8 @@ class ApprovalRequest(models.Model):
             for line in approval.product_line_ids:
                 domain = [('product_id','=',line.product_id.id)]
                 qual_ids = quality_obj.search(domain)
+                for qual in qual_ids:
+                    qual.approval_ids = [(4, [approval.id])]
                 quality_ids += qual_ids.ids
             approval.quality_alert_ids = [(6, 0, quality_ids)]
             approval.quality_count = len(quality_ids)
@@ -32,7 +34,7 @@ class ApprovalRequest(models.Model):
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
         action = (
-            self.env.ref("quality_control.quality_check_action_main")
+            self.env.ref("quality_control.quality_alert_action_check")
             .with_context(active_id=self.id)
             .read()[0]
         )

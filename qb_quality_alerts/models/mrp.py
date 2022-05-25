@@ -24,6 +24,8 @@ class MRPProduction(models.Model):
             for line in move_line_ids:
                 domain = [('product_id','=',line.product_id.id)]
                 qual_ids = quality_obj.search(domain)
+                for qual in qual_ids:
+                    qual.mrp_ids = [(4, [mrp.id])]
                 quality_ids += qual_ids.ids
             domain = [('product_id','=',mrp.product_id.id)]
             mrp_prod_qual_id = quality_obj.search(domain)
@@ -31,13 +33,14 @@ class MRPProduction(models.Model):
                 quality_ids.append(mrp_prod_qual_id.id)
             mrp.quality_alert_ids = [(6, 0, quality_ids)]
             mrp.quality_count = len(quality_ids)
+
             
     def action_view_quality(self):
         self.ensure_one()
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
         action = (
-            self.env.ref("quality_control.quality_check_action_main")
+            self.env.ref("quality_control.quality_alert_action_check")
             .with_context(active_id=self.id)
             .read()[0]
         )
