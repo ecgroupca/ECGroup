@@ -25,7 +25,7 @@ class MRPProduction(models.Model):
                 domain = [('product_id','=',line.product_id.id)]
                 qual_ids = quality_obj.search(domain)
                 for qual in qual_ids:
-                    qual.mrp_ids = [(4, [mrp.id])]
+                    qual.mrp_ids = [(4, mrp.id)]
                 quality_ids += qual_ids.ids
             domain = [('product_id','=',mrp.product_id.id)]
             mrp_prod_qual_id = quality_obj.search(domain)

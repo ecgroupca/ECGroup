@@ -24,7 +24,7 @@ class PurchaseOrder(models.Model):
                 domain = [('product_id','=',line.product_id.id)]
                 qual_ids = quality_obj.search(domain)
                 for qual in qual_ids:
-                    qual.purchase_ids = [(4, [purchase.id])]
+                    qual.purchase_ids = [(4, purchase.id)]
                 quality_ids += qual_ids.ids
             purchase.quality_alert_ids = [(6, 0, quality_ids)]
             purchase.quality_count = len(quality_ids)
