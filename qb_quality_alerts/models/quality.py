@@ -7,6 +7,8 @@ class QualityAlert(models.Model):
     mrp_ids = fields.Many2many(
         'mrp.production',
         string = 'Production Orders',
+        compute="_compute_related_docs",
+        
     )
     
     mrp_count = fields.Integer(
@@ -17,6 +19,7 @@ class QualityAlert(models.Model):
     approval_ids = fields.Many2many(
         'approval.request',
         string = 'Approval Requests',
+        compute="_compute_related_docs",
     )
 
     approval_count = fields.Integer(
@@ -27,6 +30,7 @@ class QualityAlert(models.Model):
     purchase_ids = fields.Many2many(
         'purchase.order',
         string = 'Purchase Orders',
+        compute="_compute_related_docs",
     )
 
     purchase_count = fields.Integer(
