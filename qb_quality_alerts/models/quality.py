@@ -33,7 +33,40 @@ class QualityAlert(models.Model):
         string="Purchase Count", 
         compute="_compute_doc_counts",
     )
-        
+    
+    def _compute_related_docs(self):
+        for quality in self:
+            mrp_obj = self.env['mrp.production']
+            stock_move_obj = self.env['stock.move']
+            purch_line_obj = self.env['purchase.order.line']
+            appro_line_obj = self.env['approval.product.line']
+            main_domain = [('product_id','=',quality.product_id.id)]
+            #mrp_domain.append(('assembly_product_id','=',quality.product_id))
+            
+            #search all MOs with the finished product 
+            mrp_orders = mrp_obj.search(main_domain)           
+            #search all component (raw) moves
+            move_domain = [('raw_material_production_id','!=',False)]
+            move_domain.append(main_domain)
+            raw_moves = stock_move_obj.search(move_domain)
+            for raw in raw_moves:
+                mrp_orders.append(raw.raw_material_production_id)
+            quality.mrp_ids = [(6, 0, mrp_orders)]
+            
+            #purchases that have quality alerts
+            purchase_lines = purch_line_obj.search(main_domain)
+            purchase_orders = []           
+            for line in purchase_lines:
+                purchase_orders.append(line.order_id)            
+            quality.purchase_ids = [(6, 0, purchase_orders)]
+            
+            #approvals that have quality alerts
+            approval_lines = appro_line_obj.search(main_domain)
+            approvals = []           
+            for line in approval_lines:
+                approvals.append(line.approval_request_id)          
+            quality.approval_ids = [(6, 0, approvals)]
+            
     def _compute_doc_counts(self):
         for quality in self:
             quality.mrp_count = len(quality.mrp_ids)
@@ -54,7 +87,10 @@ class QualityAlert(models.Model):
             action["domain"] = [("id", "in", mrp_orders.ids)]
         elif mrp_orders:
             action.update(
-                res_id=mrp_orders.id, view_mode="form", view_id=False, views=False,
+                res_id=mrp_orders.id, 
+                view_mode="form", 
+                view_id=False, 
+                views=False,
             )
         return action
 
@@ -72,7 +108,10 @@ class QualityAlert(models.Model):
             action["domain"] = [("id", "in", purchases.ids)]
         elif purchases:
             action.update(
-                res_id=purchases.id, view_mode="form", view_id=False, views=False,
+                res_id=purchases.id, 
+                view_mode="form", 
+                view_id=False, 
+                views=False,
             )
         return action
 
@@ -90,6 +129,9 @@ class QualityAlert(models.Model):
             action["domain"] = [("id", "in", approvals.ids)]
         elif approvals:
             action.update(
-                res_id=approvals.id, view_mode="form", view_id=False, views=False,
+                res_id=approvals.id, 
+                view_mode="form", 
+                view_id=False, 
+                views=False,
             )
         return action        

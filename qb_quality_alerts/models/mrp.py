@@ -29,8 +29,8 @@ class MRPProduction(models.Model):
                 quality_ids += qual_ids.ids
             domain = [('product_id','=',mrp.product_id.id)]
             mrp_prod_qual_id = quality_obj.search(domain)
-            if mrp_prod_qual_id:
-                quality_ids.append(mrp_prod_qual_id.id)
+            #if mrp_prod_qual_id:
+            #    quality_ids.append(mrp_prod_qual_id.id)
             mrp.quality_alert_ids = [(6, 0, quality_ids)]
             mrp.quality_count = len(quality_ids)
 

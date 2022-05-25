@@ -23,8 +23,8 @@ class ApprovalRequest(models.Model):
             for line in approval.product_line_ids:
                 domain = [('product_id','=',line.product_id.id)]
                 qual_ids = quality_obj.search(domain)
-                for qual in qual_ids:
-                    qual.approval_ids = [(4, approval.id)]
+                #for qual in qual_ids:
+                #    qual.approval_ids = [(4, approval.id)]
                 quality_ids += qual_ids.ids
             approval.quality_alert_ids = [(6, 0, quality_ids)]
             approval.quality_count = len(quality_ids)
