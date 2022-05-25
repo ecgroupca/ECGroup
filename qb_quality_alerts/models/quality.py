@@ -56,21 +56,21 @@ class QualityAlert(models.Model):
             raw_moves = stock_move_obj.search(move_domain)
             for raw in raw_moves:
                 mrp_orders |= raw.raw_material_production_id
-            quality.mrp_ids = [(6, 0, mrp_orders)]
+            quality.mrp_ids = [(6, 0, mrp_orders.ids)]
             
             #purchases that have quality alerts
             purchase_lines = purch_line_obj.search(main_domain)
             purchase_orders = self.env['purchase.order']           
             for line in purchase_lines:
                 purchase_orders |= line.order_id           
-            quality.purchase_ids = [(6, 0, purchase_orders)]
+            quality.purchase_ids = [(6, 0, purchase_orders.ids)]
             
             #approvals that have quality alerts
             approval_lines = appro_line_obj.search(main_domain)
             approvals = self.env['approval.request']            
             for line in approval_lines:
                 approvals |= line.approval_request_id         
-            quality.approval_ids = [(6, 0, approvals)]
+            quality.approval_ids = [(6, 0, approvals.ids)]
             
     def _compute_doc_counts(self):
         for quality in self:
