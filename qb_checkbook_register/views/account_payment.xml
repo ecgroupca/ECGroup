@@ -8,7 +8,7 @@
 				<field name="routing_number"/>
 				<field name="account_number"/>
 				<field name="check_number"/>
-				<field name="payment_date"/>
+				<field name="date"/>
 				<field name="name"/>
 				<field name="journal_id"/>
 				<field name="amount" sum="Amount"/>

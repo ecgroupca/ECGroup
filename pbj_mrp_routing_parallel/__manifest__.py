@@ -12,7 +12,7 @@
         'mrp',
     ],
     'data': [
-        'views/mrp_routing.xml',
+        #'views/mrp_routing.xml',
     ],
     'images': [
         'static/description/banner.png',
