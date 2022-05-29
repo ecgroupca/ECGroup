@@ -18,7 +18,7 @@
 						<!--th style="padding:5px;" name="th_routing"><strong>Routing ID</strong></th>
 						<th style="padding:5px;" name="th_account"><strong>Account #</strong></th-->
 						<th style="padding:5px;" name="th_check"><strong>Check #</strong></th>
-						<th style="padding:5px;" name="th_date"><strong>Pmt Date</strong></th>
+						<th style="padding:5px;" name="th_payment_date"><strong>Pmt Date</strong></th>
 						<th style="padding:5px;" name="th_name"><strong>Name</strong></th>
 						<th style="padding:5px;" name="th_journal"><strong>Journal</strong></th>
 						<th style="padding:5px;" name="th_partner_id"><strong>Payee #</strong></th>
@@ -34,7 +34,7 @@
 					  <!--td style="padding:5px;"><span t-field="check.routing_number"/></td>
 					  <td style="padding:5px;"><span t-field="check.account_number"/></td-->
 					  <td style="padding:5px;"><span t-field="check.check_number"/></td>
-					  <td style="padding:5px;"><span t-field="check.date"/></td>
+					  <td style="padding:5px;"><span t-field="check.payment_date"/></td>
 					  <td style="padding:5px;"><span t-field="check.name"/></td>
 					  <td style="padding:5px;"><span t-field="check.journal_id.name"/></td>
 					  <td style="padding:5px;"><span t-field="check.partner_id"/></td>

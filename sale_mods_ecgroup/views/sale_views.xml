@@ -7,18 +7,20 @@
         <field name="arch" type="xml">
             <field name="partner_shipping_id" position="after">
                <field name="sidemark"/> 
-               <field name="client_order_ref"/> 
-               <field name="ship_name"/>
-               <field name="shipper_phone"/>
-               <field name="x_taxed_order"/>
+               <field name="client_order_ref"/> 			   
             </field>
 			<field name="payment_term_id" position="after">
-			   <field name="x_studio_approximate_lead_time"/>
+			   <field name="approx_lead_time"/>
 			   <field name="deposit_total"/> 
-               <field name="inv_bal_due"/>
-               <field name="etwo_number" string="E2 Sales Order"/>
+               <field name="inv_bal_due"/>			   
 			</field>
-		</field>
+			<xpath expr="//notebook/page/field[@name='order_line']/tree/field[@name='price_unit']" position="after">
+				<field name="comm_rate"/>
+			</xpath>
+			<xpath expr="//notebook/page/field[@name='order_line']/form/group/group/field[@name='price_unit']" position="after">
+				<field name="comm_rate"/>
+			</xpath>
+        </field>
     </record>
 
     <record id="view_quotation_tree_mod" model="ir.ui.view">
