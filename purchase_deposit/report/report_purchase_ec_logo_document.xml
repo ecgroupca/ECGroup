@@ -3,22 +3,13 @@
 <template id="purchase.report_purchaseorder_document">
     <t t-call="web.external_layout">
         <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
-        <t t-set="information_block">
+        <t t-set="address">
             <div t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
-            <!--p t-if="o.partner_id.vat"><t t-esc="o.company_id.country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></p-->
-        </t>
-        <t t-if="not o.dest_address_id">
-          <t t-set="address">
-              <strong>Ship To:</strong>
-              <div t-if="o.picking_type_id and o.picking_type_id.warehouse_id">
-                  <span t-field="o.picking_type_id.warehouse_id.name"/>
-                  <div t-field="o.picking_type_id.warehouse_id.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
-              </div>
-          </t>
+            <p t-if="o.partner_id.vat"><t t-esc="o.company_id.country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></p>
         </t>
         <t t-if="o.dest_address_id">
-            <t t-set="address">
-                <strong>Ship To:</strong>
+            <t t-set="information_block">
+                <strong>Shipping address:</strong>
                 <div t-if="o.dest_address_id">
                     <div t-field="o.dest_address_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}" name="purchase_shipping_address"/>
                 </div>
@@ -26,7 +17,8 @@
             </t>
         </t>
         <div class="page">
-        <div class="oe_structure"/>
+            <div class="oe_structure"/>
+
             <h2 t-if="o.state == 'draft'">Request for Quotation #<span t-field="o.name"/></h2>
             <h2 t-if="o.state in ['sent', 'to approve']">Purchase Order #<span t-field="o.name"/></h2>
             <h2 t-if="o.state in ['purchase', 'done']">Purchase Order #<span t-field="o.name"/></h2>
@@ -50,7 +42,6 @@
             <table class="table table-sm o_main_table">
                 <thead>
                     <tr>
-                        <th name="th_code" class="text-center"><strong>Item</strong></th>
                         <th name="th_description"><strong>Description</strong></th>
                         <th name="th_date_req" class="text-center"><strong>Date Req.</strong></th>
                         <th name="th_quantity" class="text-right"><strong>Qty</strong></th>
@@ -65,10 +56,7 @@
                         <t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
 
                         <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
-                            <t t-if="not line.display_type and line.product_qty > 0">
-                                <td class="text-right">
-                                    <span t-field="line.product_id.default_code"/>
-                                </td>
+                            <t t-if="not line.display_type">
                                 <td id="product">
                                     <span t-field="line.name"/>
                                 </td>
@@ -133,81 +121,45 @@
 <template id="report_purchase_no_logo_document">
     <t t-call="purchase_deposit.external_layout_ec_logo">
         <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
-    	   <div>
-    	     <h2 style="text-align:center;" t-if="o.state == 'draft'">Request for Quotation</h2>
-           <h2 style="text-align:center;" t-if="o.state in ['sent', 'to approve']">Purchase Order</h2>
-           <h2 style="text-align:center;" t-if="o.state in ['purchase', 'done']">Purchase Order</h2>
-           <h2 style="text-align:center;" t-if="o.state == 'cancel'">Cancelled Purchase Order</h2>
-        </div>
-    	  <div style="margin-bottom:40px;">
-          <div style="margin-left:-185px;color:#444;">
-    				<t t-set="information_block" style="color:#444;">
-    					<strong style="color:#444;">To:</strong>
-    					<div style="color:#444;" t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
-    				</t>
-    			</div>
-    			<div style="margin-left:-185px;">
-    			  <t t-set="address">
-    				  <strong style="color:#444;">Ship To:</strong>
-    				  <div>EC Group INC.</div>
-    				  <div style="color:#444;" t-field="o.company_id.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;], &quot;no_marker&quot;: True}"/>
-    			  </t>
-    			</div>
-        </div>
+        <t t-set="address">
+            <div t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+            <p t-if="o.partner_id.vat"><t t-esc="o.company_id.country_id.vat_label or 'Tax ID'"/>: <span t-field="o.partner_id.vat"/></p>
+        </t>
+        <t t-if="o.dest_address_id">
+            <t t-set="information_block">
+                <strong>Shipping address:</strong>
+                <div t-if="o.dest_address_id">
+                    <div t-field="o.dest_address_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}" name="purchase_shipping_address"/>
+                </div>
+
+            </t>
+        </t>
         <div class="page">
-          <div class="oe_structure"/>
-			   <div style="border:solid 1px;">
-		      <table width="100%" style="margin-bottom:20px 0;font-size:11.5px;box-shadow: 10px 10px 6px -6px #111;">
-		      <colgroup>
-		        <col width="330px"/>
-            <col width="330px"/>
-            <col width="330px"/>
-          </colgroup>
-				  <tr>
-					<th></th>
-					<th></th>
-					<th></th>
-				  </tr>
-				  <tr>
-				    <td style="padding:5px;">Purchase Order #: <strong><span t-field="o.name"/></strong></td>
-				    <td style="padding-left:155px;">Ship Via: <strong><span t-field="o.x_ship_via"/></strong></td>
-				  </tr>
-				  <tr>
-				    <td style="padding:5px;">Order Date: <strong><span t-field="o.date_order"/></strong></td>
-				    <td style="padding-left:155px;">Terms: <strong><span t-field="o.payment_term_id.name"/></strong></td>
-				  </tr>
-				  <tr>
-				     <td style="padding:5px;">Vendor Code: <strong><span t-field="o.partner_id.ref"/></strong></td>
-				     <td style="padding-left:155px;">Contact: <strong><span t-field="o.partner_id.name"/></strong></td>
-				  </tr>	
-				  <tr>
-				     <td style="padding:5px;">Vendor Phone: <strong><span t-field="o.partner_id.phone"/></strong></td>
-				     <td style="padding-left:155px;">Confirm To: <strong><span t-field="o.user_id.name"/></strong></td>
-				  </tr>	
-				  <tr>
-				     <td style="padding:5px;">Vendor Fax: <strong><span t-field="o.partner_id.phone"/></strong></td>
-				     <td style="padding-left:155px;">FOB: <strong><span t-field="o.x_fob"/></strong></td>
-				  </tr>	
-				  </table>
-		 	  </div>
-            <div style="margin-top:20px;">
-                 <span>
-                    <ul>
-                      <li>This is a new order</li>
-                      <li>Please confirm order upon receipt and advise with ship date</li>
-                      <li>Note any QC comments under each item number</li>
-                      <li>All items must be QC’ed</li>
-                      <li>Pictures are required of actual production next to our master sample for approval and prior to shipment</li>
-                    </ul>
-                    <t t-if="o.x_po_bullets">
-                      <span style="margin-top:-14px;" t-raw="o.x_po_bullets"/>
-                    </t>
-                </span>             
+            <div class="oe_structure"/>
+
+            <h2 t-if="o.state == 'draft'">Request for Quotation #<span t-field="o.name"/></h2>
+            <h2 t-if="o.state in ['sent', 'to approve']">Purchase Order #<span t-field="o.name"/></h2>
+            <h2 t-if="o.state in ['purchase', 'done']">Purchase Order #<span t-field="o.name"/></h2>
+            <h2 t-if="o.state == 'cancel'">Cancelled Purchase Order #<span t-field="o.name"/></h2>
+
+            <div id="informations" class="row mt32 mb32">
+                <div t-if="o.user_id" class="col-3 bm-2">
+                    <strong>Purchase Representative:</strong>
+                    <p t-field="o.user_id" class="m-0"/>
+                </div>
+                <div t-if="o.partner_ref" class="col-3 bm-2">
+                    <strong>Your Order Reference:</strong>
+                    <p t-field="o.partner_ref" class="m-0"/>
+                </div>
+                <div t-if="o.date_order" class="col-3 bm-2">
+                    <strong>Order Date:</strong>
+                    <p t-field="o.date_order" class="m-0"/>
+                </div>
             </div>
+
             <table class="table table-sm o_main_table">
                 <thead>
                     <tr>
-                        <th name="th_item"><strong>Item</strong></th>
                         <th name="th_description"><strong>Description</strong></th>
                         <th name="th_date_req" class="text-center"><strong>Date Req.</strong></th>
                         <th name="th_quantity" class="text-right"><strong>Qty</strong></th>
@@ -222,10 +174,7 @@
                         <t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
 
                         <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
-                            <t t-if="not line.display_type and line.product_qty > 0">
-                                <td id="item">
-                                    <span t-field="line.product_id.default_code"/>
-                                </td>
+                            <t t-if="not line.display_type">
                                 <td id="product">
                                     <span t-field="line.name"/>
                                 </td>
@@ -233,7 +182,7 @@
                                     <span t-field="line.date_planned"/>
                                 </td>
                                 <td class="text-right">
-                                    <span t-esc="'%.1f'% line.product_qty"/>
+                                    <span t-field="line.product_qty"/>
                                     <span t-field="line.product_uom.name" groups="uom.group_uom"/>
                                 </td>
                                 <td class="text-right">
@@ -254,13 +203,6 @@
                                 <td colspan="99" id="note">
                                     <span t-field="line.name"/>
                                 </td>
-                             </t>
-                            <t t-if="line.product_id.purchase_line_warn_msg">
-                                <tr id="warning">
-                                  <td colspan="99"><span style="margin-left:25px;"></span>
-                                    <span t-field="line.product_id.purchase_line_warn_msg"/>
-                                  </td>  
-                                </tr>
                             </t>
                         </tr>
                         <t t-if="current_section and (line_last or o.order_line[line_index+1].display_type == 'line_section')">
@@ -289,7 +231,6 @@
             </div>
 
             <p t-field="o.notes"/>
-            				<div>To avoid a delay in payment, please attach a copy of this PO to your delivery.</div>
             <div class="oe_structure"/>
         </div>
     </t>

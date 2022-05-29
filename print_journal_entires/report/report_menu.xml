@@ -1,108 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<template id="journal_entries_report_id">
-	  <t t-call="web.html_container">
-		  <t t-if="docs">
-		  <t t-value="docs[0]" t-set="sale"/>
-		  <t t-foreach="sale" t-as="o">
-			<t t-call="web.external_layout">
-		  <div class="page" style="font-size:15px;margin-top:10px;">
-			<div>
-				  <h3>
-						Journal Entry: <span t-field="o.name"/>
-					  </h3>
-					</div>
+        <t t-call="web.html_container">
+		<t t-call="web.external_layout">
+<!--			<link rel='stylesheet' href="/journal_entries_print/static/src/css/report_css.css"/>-->
+            <t t-foreach="docs" t-as="o">
+                <div class="page" style="font-size:15px;margin-top:10px;">
+                <div>
+					        <h3>
+							    Journal Entry: <span t-field="o.name"/>
+							</h3>
+				</div>
+					<br/>
+                	<div class="row">
+	            			<table width="100%" class="table-bordered">
+							   
+	            				<tr>
+	            					<td>Journal: <span t-field="o.journal_id.name"/>
+	            					</td>
+	            					<td>
+	            						Date: <span t-field="o.date"/>
+	            					</td>
+	            				</tr>
+	            				<tr>
+	            					<td>
+	            						Partner: <span t-field="o.partner_id.name"/>
+	            					</td>
+	            					<td>
+	            						Reference: <span t-field="o.ref"/>
+	            					</td>
+	            				</tr>
+	            			</table>                	
+                	</div>
+                	<div class="row">
+                    <style>
+                    .tblbordr {
+                        text-align: left;
+                        border: 1px dotted black;
+                        padding: 3px;
+                    }
+                    </style>
 						<br/>
-						<div class="row">
-								<table width="100%" class="table-bordered">
-								   
-									<tr>
-										<td>Journal: <span t-field="o.journal_id.name"/>
-										</td>
-										<td>
-											Date: <span t-field="o.date"/>
-										</td>
-									</tr>
-									<tr>
-										<td>
-											Partner: <span t-field="o.partner_id.name"/>
-										</td>
-										<td>
-											Reference: <span t-field="o.ref"/>
-										</td>
-									</tr>
-								</table>                	
-						</div>
-						<div class="row">
-						<style>
-						.tblbordr {
-							text-align: left;
-							border: 1px dotted black;
-							padding: 3px;
-						}
-						</style>
-							<br/>
-							<table width="100%" class="tblbordr">
-								<thead>
-									<tr class="tblbordr">
-										<th class="tblbordr">Account</th>
-										<th class="tblbordr">Date</th>
-										<th class="tblbordr">Partner</th>
-										<th class="tblbordr">Label</th>
-										<th class="tblbordr">Analytic Account</th>
-										<th class="tblbordr">Debit</th>
-										<th class="tblbordr">Credit</th>
-									</tr>
-								</thead>
-								<tbody>
-									 <t t-foreach="o.line_ids" t-as="line">
-										<tr class="tblbordr">
-											<td class="tblbordr">
-												<span t-field="line.account_id.code"/> <span t-field="line.account_id.name"/>
-											</td>
-											<td class="tblbordr">
-												<span t-field="line.date"/>
-											</td>
-											<td class="tblbordr">
-												<span t-field="line.partner_id.name"/>
-											</td>
-											<td class="tblbordr">
-												<span style="max-width:20%" t-field="line.name"/>
-											</td>
-											<td class="tblbordr">
-												<span t-field="line.analytic_account_id.name"/>
-											</td>
-											<td class="tblbordr">
-												<span t-field="line.debit" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
-												
-											</td>
-											<td class="tblbordr">
-												<span t-field="line.credit" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
-												
-											</td>
-										</tr>
-									 </t>
-								</tbody>
-								<tfooter>
-									<tr class="tblbordr">
-										<td colspan="5"/>
-										<td class="tblbordr">
-											<span t-esc="o.total_debit_credit().get('dr_total')" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
-										</td>
-										<td class="tblbordr">
-											<span t-esc="o.total_debit_credit().get('cr_total')" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
-										</td>
-									</tr>
-								</tfooter>
-							</table>
-						</div>
-					</div>
-					</t>
-		  </t>
-		</t>
-	  </t>
-    
-	</template>
+                		<table width="100%" class="tblbordr">
+                			<thead>
+                				<tr class="tblbordr">
+                					<th class="tblbordr">Account</th>
+                					<th class="tblbordr">Date</th>
+                					<th class="tblbordr">Partner</th>
+                					<th class="tblbordr">Label</th>
+                					<th class="tblbordr">Analytic Account</th>
+                					<th class="tblbordr">Debit</th>
+                					<th class="tblbordr">Credit</th>
+                				</tr>
+                			</thead>
+                			<tbody>
+                				 <t t-foreach="o.line_ids" t-as="line">
+                				 	<tr class="tblbordr">
+                				 		<td class="tblbordr">
+                				 			<span t-field="line.account_id.code"/> <span t-field="line.account_id.name"/>
+                				 		</td>
+                				 		<td class="tblbordr">
+                				 			<span t-field="line.date"/>
+                				 		</td>
+                				 		<td class="tblbordr">
+                				 			<span t-field="line.partner_id.name"/>
+                				 		</td>
+                				 		<td class="tblbordr">
+                				 			<span style="max-width:20%" t-field="line.name"/>
+                				 		</td>
+                				 		<td class="tblbordr">
+                				 			<span t-field="line.analytic_account_id.name"/>
+                				 		</td>
+                				 		<td class="tblbordr">
+                				 			<span t-field="line.debit" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
+                				 			
+                				 		</td>
+                				 		<td class="tblbordr">
+                				 			<span t-field="line.credit" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
+                				 			
+                				 		</td>
+                				 	</tr>
+                				 </t>
+                			</tbody>
+							<tfooter>
+                				<tr class="tblbordr">
+                					<td colspan="5"/>
+                					<td class="tblbordr">
+                						<span t-esc="o.total_debit_credit().get('dr_total')" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
+                					</td>
+                					<td class="tblbordr">
+                						<span t-esc="o.total_debit_credit().get('cr_total')" t-options="{'widget': 'monetary', 'display_currency': (company_id or res_company).currency_id}"/>
+                					</td>
+                				</tr>
+                			</tfooter>
+                		</table>
+                	</div>
+                </div>
+            </t>
+			</t>
+        </t>
+    </template>
 
     <report
         id="journal_entries_moce_print_id"

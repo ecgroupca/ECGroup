@@ -45,7 +45,7 @@
 								    <t t-set="is_previous" t-value="o.name"/>
 	                        		  <tr>									
 	                        			<td><span t-field="o.name"/></td>
-	                        			<td><span t-esc="o.date_order and o.date_order.strftime('%m/%d/%y') or ''"/></td>
+	                        			<td><span t-field="o.date_order"/></td>
 	                        			<td><span t-field="o.client_order_ref"/></td>
 	                        			<td><span t-field="o.partner_id.name"/></td>
 	                        			<td><span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
