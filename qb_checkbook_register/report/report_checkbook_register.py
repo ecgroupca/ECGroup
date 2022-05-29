@@ -27,8 +27,8 @@ class ReportCheckbookRegisterXlsx(models.AbstractModel):
         company_id = data['form'].get('company_id', False)
         company_id = company_id and company_id[0] or None
         date_domain = [('company_id','=',company_id)]
-        date_domain += [('payment_date','>=',date_from.strftime("%Y-%m-%d 00:00:00"))]
-        date_domain += [('payment_date','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
+        date_domain += [('date','>=',date_from.strftime("%Y-%m-%d 00:00:00"))]
+        date_domain += [('date','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
         date_domain += [('state','not in',['draft','cancelled'])]
         date_domain += [('payment_method_id.name','=','Checks')]
         bold_cust = workbook.add_format({'bold': True,'underline': 1})
@@ -54,7 +54,7 @@ class ReportCheckbookRegisterXlsx(models.AbstractModel):
         for check in checks:  
             subtotal += check.amount        
             sheet.write(i+j+5, 0, check.check_number)
-            sheet.write(i+j+5, 1, check.payment_date)
+            sheet.write(i+j+5, 1, check.date)
             sheet.write(i+j+5, 2, check.name)
             sheet.write(i+j+5, 3, check.journal_id.name)
             sheet.write(i+j+5, 4, check.partner_id.name)
@@ -85,8 +85,8 @@ class CheckbookRegisterReport(models.AbstractModel):
         company_id = data['form'].get('company_id', False)
         company_id = company_id and company_id[0] or None
         date_domain = [('company_id','=',company_id)]
-        date_domain += [('payment_date','>=',date_from.strftime("%Y-%m-%d 00:00:00"))]
-        date_domain += [('payment_date','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
+        date_domain += [('date','>=',date_from.strftime("%Y-%m-%d 00:00:00"))]
+        date_domain += [('date','<=',date_to.strftime("%Y-%m-%d 23:59:59"))]
         date_domain += [('state','not in',['draft','cancelled'])]
         date_domain += [('payment_method_id.name','=','Checks')]
         checks = check_obj.search(date_domain)                     
