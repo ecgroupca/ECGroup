@@ -45,3 +45,16 @@ class PurchaseOrder(models.Model):
         action = {
             'res_model': 'sale.order',
             'type': 'ir.actions.act_window',
+        }
+        if len(sale_order_ids) == 1:
+            action.update({
+                'view_mode': 'form',
+                'res_id': sale_order_ids[0],
+            })
+        else:
+            action.update({
+                'name': _('Sources Sale Orders %s', self.name),
+                'domain': [('id', 'in', sale_order_ids)],
+                'view_mode': 'tree,form',
+            })
+        return action
