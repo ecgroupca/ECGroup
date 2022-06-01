@@ -34,8 +34,6 @@ class ReportOpenPOReport(models.AbstractModel):
             else:
                 sm.update({vendor_name:{'name':po.partner_id.name,'ref':po.partner_id.ref,'data':[po]}})
         
-        #_logger.info("\nFinal : %s\n"%(sm))
-        
         return {
             'doc_ids': po_ids.ids,
             'doc_model': 'purchase.order',
