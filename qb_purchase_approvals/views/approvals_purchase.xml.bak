@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="approvals_purchase_inherit_view" model="ir.ui.view">
+        <field name="name">approvals.purchase.inherit</field>
+        <field name="model">approval.request</field>
+		<field name="inherit_id" ref="approvals.approval_request_view_tree"/>
+        <field name="arch" type="xml">
+			<field name="request_status" position="replace">
+                <field name="request_status" decoration-primary="request_status == 'rfqs'" decoration-info="request_status == 'new'" decoration-warning="request_status == 'pending'" decoration-success="request_status == 'approved'" decoration-danger="request_status == 'refused'" widget="badge"/>
+			    <field name="purchase_order_ids" widget="many2many_tags" attrs="{'invisible': [('purchase_order_count', '=', 0)]}"/>
+			    <button name="action_open_purchase_orders" type="object" icon="fa-credit-card" attrs="{'invisible': [('purchase_order_count', '=', 0)]}">
+			        <field name="purchase_order_count" string="Purchase/RFQs"/>
+			    </button>  
+			    <field name="vendor_bill_ids" widget="many2many_tags" attrs="{'invisible': [('vendor_bill_count', '=', 0)]}"/>
+			    <button name="action_open_vendor_bill" type="object" icon="fa-credit-card" attrs="{'invisible': [('vendor_bill_count', '=', 0)]}">
+			        <field name="purchase_order_count" string="Purchase/RFQs"/>
+			    </button>  				
+			</field>
+		</field>
+    </record>
+</odoo>
