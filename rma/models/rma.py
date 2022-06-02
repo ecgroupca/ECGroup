@@ -663,7 +663,7 @@ class Rma(models.Model):
             'company_id': company_id and company_id.id,
             'warehouse_id': self.warehouse_id and self.warehouse_id.id or False}
         #,('company_id','=',company_id.id)
-        domain = ['|',('name','=','Service'),('default_code','=','Service')]         
+        domain = ['|',('name','=','Service'),('default_code','=','Service')]        
         service_prod = self.env['product.product'].search(domain)    
         service_prod = service_prod and service_prod[0] or None
         if not service_prod:

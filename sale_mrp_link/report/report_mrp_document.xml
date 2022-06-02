@@ -79,19 +79,18 @@
           <t t-if="o.sale_order_id">
             <t t-foreach="o.sale_order_id" t-as="sale">
               <t t-call="web.internal_layout">
-                <div class="page">
-                    <div class="oe_structure"/>
-                    <div class="row">
+                <div class="page" style="font-size:9pt;margin-top:-35px;">
+                    <div class="row mt32 mb32">
                         <div class="col-7">
-                            <h2><span t-field="o.name"/></h2>
+                            <h4><span t-field="o.name"/></h4>
                         </div>
                         <div class="col-5">
                             <span class="text-right">
-                                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 600, 100)" style="width:350px;height:60px"/>
+                                <img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', o.name, 600, 100)" style="width:350px;height:25px"/>
                             </span>
                         </div>
                     </div>
-                    <div class="row mt32 mb32">
+                    <div class="row mt32 mb32" style="margin-top:-25px;">
                         <div class="col-3" t-if="o.origin">
                             <strong>Source Document:</strong><br/>
                             <t t-if="sale">
@@ -111,8 +110,10 @@
                             </t>
                         </div>
                         <div class="col-3">
+                          <t t-if="o.date_deadline">
                           <strong>Deadline:</strong><br/>
                             <span t-esc="o.date_deadline.strftime('%m/%d/%y')"/>
+                          </t>
                         </div>
                         <div class="col-3">
                             <strong>Responsible:</strong><br/>
@@ -124,7 +125,7 @@
                             </t>
                         </div>
                     </div>
-                    <div class="row">
+                    <div class="row" style="margin-top:-25px;">
                       <div class="col-3">
                           <strong>Finished Product:</strong><br/>
                           <span t-field="o.product_id.default_code"/>
@@ -135,12 +136,16 @@
                           <span t-field="o.product_uom_id.name" groups="uom.group_uom"/>
                       </div>
                       <div class="col-3">
+                        <t t-if="o.date_deadline or o.date_planned_start">
                           <strong>Planned Date (Start):</strong><br/>
                           <t t-esc="o.date_planned_start.strftime('%m/%d/%y') or o.date_deadline.strftime('%m/%d/%y')"/>
+                        </t>
                       </div>
                       <div class="col-3">
+                        <t t-if="o.date_deadline or o.date_planned_finished">
                           <strong>Planned Date (End):</strong><br/>
                           <t t-esc="o.date_planned_finished.strftime('%m/%d/%y') or o.date_deadline.strftime('%m/%d/%y')"/>
+                        </t>
                       </div>
                     </div>
                     <div class="row mt32 mb32" style="border:solid 1px;box-shadow: 10px 10px 6px -6px #111;padding:3px;">
@@ -159,10 +164,10 @@
                       </t>
                     </div>
                     <div t-if="o.workorder_ids">
-                        <h3>
+                        <h5>
                             <t t-if="o.state == 'done'">Operations Done</t>
                             <t t-else="">Operations Planned</t>
-                        </h3>
+                        </h5>
                         <table class="table table-sm">
                             <tr>
                                 <th><strong>Operation</strong></th>
@@ -180,14 +185,14 @@
                         </table>
                     </div>
 
-                    <h3 t-if="o.move_raw_ids">
+                    <h5 t-if="o.move_raw_ids">
                         <t t-if="o.state == 'done'">
                             Consumed Products
                         </t>
                         <t t-else="">
                             Products to Consume
                         </t>
-                    </h3>
+                    </h5>
                     <table class="table table-sm" t-if="o.move_raw_ids">
                         <t t-set="has_product_barcode" t-value="any(o.move_raw_ids.filtered(lambda x: x.product_id.barcode))"/>
 						<thead>
@@ -217,7 +222,7 @@
 								</td>
 								<td t-if="has_product_barcode" width="15%" class="text-center">
 									<t t-if="raw_line.product_id.barcode">
-										<img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', raw_line.product_id.barcode, 600, 100)" style="width:100%;height:35px" alt="Barcode"/>
+										<img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', raw_line.product_id.barcode, 600, 100)" style="width:100%;height:25px" alt="Barcode"/>
 									</t>
 								</td>
 								<td t-if="raw_line.move_line_ids">
@@ -279,8 +284,10 @@
                             </t>
                         </div>
                         <div class="col-3">
+                          <t t-if="o.date_deadline">
                           <strong>Deadline:</strong><br/>
                             <span t-esc="o.date_deadline.strftime('%m/%d/%y')"/>
+                          </t>
                         </div>
                     </div>
                     <div class="row mt32 mb32">
@@ -294,12 +301,16 @@
                           <span t-field="o.product_uom_id.name" groups="uom.group_uom"/>
                       </div>
                       <div class="col-3">
+                        <t t-if="o.date_deadline or o.date_planned_start">
                           <strong>Planned Date (Start):</strong><br/>
                           <t t-esc="o.date_planned_start.strftime('%m/%d/%y') or o.date_deadline.strftime('%m/%d/%y')"/>
+                        </t>
                       </div>
                       <div class="col-3">
+                        <t t-if="o.date_deadline or o.date_planned_finished">
                           <strong>Planned Date (End):</strong><br/>
                           <t t-esc="o.date_planned_finished.strftime('%m/%d/%y') or o.date_deadline.strftime('%m/%d/%y')"/>
+                        </t>
                       </div>
                     </div>
                     <div class="row mt32 mb32" style="border:solid 1px;box-shadow: 10px 10px 6px -6px #111;padding:3px;">
@@ -311,10 +322,10 @@
                         <span t-field="o.product_id.name"/>
                     </div>
                     <div t-if="o.workorder_ids">
-                        <h3>
+                        <h5>
                             <t t-if="o.state == 'done'">Operations Done</t>
                             <t t-else="">Operations Planned</t>
-                        </h3>
+                        </h5>
                         <table class="table table-sm">
                             <tr>
                                 <th><strong>Operation</strong></th>
@@ -332,14 +343,14 @@
                         </table>
                     </div>
 
-                    <h3 t-if="o.move_raw_ids">
+                    <h5 t-if="o.move_raw_ids">
                         <t t-if="o.state == 'done'">
                             Consumed Products
                         </t>
                         <t t-else="">
                             Products to Consume
                         </t>
-                    </h3>
+                    </h5>
                     <table class="table table-sm" t-if="o.move_raw_ids">
                         <t t-set="has_product_barcode" t-value="any(o.move_raw_ids.filtered(lambda x: x.product_id.barcode))"/>
 						<thead>
@@ -388,5 +399,5 @@
           </t>
         </t>
       </t>
-    </template>
+</template>
 </odoo>

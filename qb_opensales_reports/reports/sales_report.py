@@ -14,7 +14,7 @@ class OpenSalesXlsx(models.AbstractModel):
     
     def generate_xlsx_report(self, workbook, data, report):
         domain_search = []
-        sale_obj = self.env['sale.order']        
+        sale_obj = self.env['sale.order']      
         print_selected = data['form'].get('print_selected') 
         date_from = fields.Date.from_string(data['form'].get('date_from')) or fields.Date.today()
         date_to = fields.Date.from_string(data['form'].get('date_to')) or fields.Date.today()
@@ -31,7 +31,7 @@ class OpenSalesXlsx(models.AbstractModel):
         #sales_from_to = sale_obj.search(date_domain)
         #compute open shipments/production for the orders in docids 
         #sales_from_to._compute_open_shipments()               
-        domain_search = [('open_shipment','=',True),('inv_bal_due','>=',0.00001)]
+        domain_search = [('open_shipment','!=',False),('inv_bal_due','>=',0.00001)]
         domain_search += date_domain
         if showroom:
             domain_search.append(('team_id','in',showroom))
@@ -112,7 +112,7 @@ class OpenSalesReport(models.AbstractModel):
                 #sales_from_to = sale_obj.search(date_domain)
                 #compute open shipments/production for the orders in docids 
                 #sales_from_to._compute_open_shipments()               
-                domain_search = [('open_shipment','=',True),('inv_bal_due','>=',0.00001)]
+                domain_search = [('open_shipment','!=',False),('inv_bal_due','>=',0.00001)]
                 domain_search += date_domain
                 if showroom:
                     domain_search.append(('team_id','in',showroom))
