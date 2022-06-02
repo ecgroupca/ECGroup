@@ -19,7 +19,7 @@ class BarcodeSaleLabelsWiz(models.TransientModel):
         barcode_order_lines = []
         for order in sale_order_ids:
             for line in order.order_line:
-                if line.product_id.type != 'service':
+                if line.product_id and line.product_id.type != 'service':
                     barcode_order_lines.append((0,0, {
                         'label_id' : self.id,
                         'product_id' : line.product_id.id, 
