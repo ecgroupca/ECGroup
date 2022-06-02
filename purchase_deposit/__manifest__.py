@@ -15,6 +15,7 @@
         "wizard/purchase_make_invoice_advance_views.xml",
         "views/res_config_settings_views.xml",
         "views/purchase_view.xml",
+        "views/sale_order.xml",
         "report/external_layout_ec_logo.xml",
         "report/report_purchase_ec_logo.xml",
         "report/report_purchase_ec_logo_document.xml",
