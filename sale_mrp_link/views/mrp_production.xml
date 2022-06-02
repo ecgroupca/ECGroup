@@ -16,8 +16,8 @@
                     name="action_view_sales"
                     class="oe_stat_button"
                     icon="fa-dollar"
-                    attrs="{'invisible': [('sale_order_count', '=', 0)]}">
-                    <field name="sale_order_count" widget="statinfo" string="Sales"/>
+                    attrs="{'invisible': [('sale_count', '=', 0)]}">
+                    <field name="sale_count" widget="statinfo" string="Sales"/>
                 </button>
             </xpath>
         </field>
