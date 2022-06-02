@@ -34,12 +34,12 @@ class MrpProduction(models.Model):
             .with_context(active_id=self.id)
             .read()[0]
         )
-        sales = self.sale_ids
-        if len(sales) > 1:
-            action["domain"] = [("id", "in", sales.ids)]
-        elif sales:
+        sale = self.sale_order_id
+        #if len(sales) > 1:
+            #action["domain"] = [("id", "in", sales.ids)]
+        if sale:
             action.update(
-                res_id=sales.id, view_mode="form", view_id=False, views=False,
+                res_id=sale.id, view_mode="form", view_id=False, views=False,
             )
         return action
     
