@@ -27,7 +27,7 @@ class PurchaseOrder(models.Model):
             count = len(purchase.sale_order_id)
             purchase.sale_order_count = count
 
-    @api.depends('order_line.sale_order_id','sale_order_id')    
+    @api.depends('order_line.sale_order_id','sale_order_id')   
     def _compute_sale_orders(self):
         for purchase in self:
             purchase.sale_order_id = [(4, False)]
