@@ -652,13 +652,18 @@ class Rma(models.Model):
     def action_sale(self):
         #create sale with a service product for the line and customer as RMA customer
         #it should reference the customer as well.
+        company_id = self.company_id
+        if not company_id:
+            raise ValidationError(
+                _("Must have a company on the RMA.")
+            )
         vals = {
             'partner_id': self.partner_id and self.partner_id.id or False,
             'rma_id': self.id,
-            'company_id': self.company_id and self.company_id.id or False,
+            'company_id': company_id and company_id.id,
             'warehouse_id': self.warehouse_id and self.warehouse_id.id or False}
-        
-        domain = [('name','=','SERVICE')]        
+        #,('company_id','=',company_id.id)
+        domain = ['|',('name','=','Service'),('default_code','=','Service')]         
         service_prod = self.env['product.product'].search(domain)    
         service_prod = service_prod and service_prod[0] or None
         if not service_prod:

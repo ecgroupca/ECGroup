@@ -15,7 +15,6 @@
         'report_xlsx',
     ],
     'data': [
-        'security/ir.model.access.csv',
         'views/sales_report_view.xml',
         'reports/report_sales.xml',
         'reports/report_template_sales.xml',
