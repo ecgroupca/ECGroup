@@ -32,7 +32,7 @@ class PurchaseOrder(models.Model):
         for purchase in self:
             purchase.sale_order_id = [(4, False)]
             #search for purchases that reference the sale
-            domain = [('id','in',purchase.order_line.sale_order_id.ids)]
+            domain = ['|',('id','in',purchase.order_line.sale_order_id.ids)]
             domain += [('id','in',purchase.sale_order_id.ids)]
             domain += [('company_id','=',purchase.company_id.id)]
             sale_ids = self.env['sale.order'].search(domain)
@@ -105,7 +105,15 @@ class PurchaseOrderLine(models.Model):
         help="Deposit payments are made when creating invoices from a purhcase"
         " order. They are not copied when duplicating a purchase order.",
     )
-
+    sale_order_id = fields.Many2one(
+        related='sale_line_id.order_id', 
+        string="Sale Order", 
+        store=True, readonly=True)
+    sale_line_id = fields.Many2one(
+        'sale.order.line', 
+        string="Origin Sale Item", 
+        index=True, copy=False)
+    
     def _prepare_account_move_line(self, move):
         res = super(PurchaseOrderLine, self)._prepare_account_move_line(move)
         if self.is_deposit:
