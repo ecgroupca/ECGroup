@@ -10,12 +10,6 @@ class ApprovalRequest(models.Model):
         compute = '_compute_purchase_orders',
     )
     
-    vendor_bill_ids = fields.Many2many(
-        'account.move',
-        string='Vendor Bills',
-        compute = '_compute_vendor_bills',
-    )
-    
     request_status = fields.Selection([
         ('new', 'To Submit'),
         ('pending', 'Submitted'),
@@ -40,23 +34,5 @@ class ApprovalRequest(models.Model):
                     approval.purchase_order_ids = [(4, purch_id)]
                     purchase.approval_id = approval                
             if approval.purchase_order_count > 0\
-                and approval.request_status == 'approved': 
-                approval.request_status = 'rfqs'
-                
-    def _compute_vendor_bills(self):
-        for approval in self:
-            domain = [('approval_request_id','=',approval.id)]
-            prod_lines = self.env['approval.product.line'].search(domain)
-            vendor_bills = []
-            approval.vendor_bill_ids = [(4, False)]
-            for line in prod_lines: 
-                bill = line.account_move_line_id\
-                   and line.account_move_line_id.move_id or None
-                bill_id = bill and bill.id or 0        
-                if bill_id and bill_id not in vendor_bills:
-                    vendor_bills.append(bill_id)
-                    approval.vendor_bill_ids = [(4, bill_id)]
-                    bill.approval_id = approval                
-            if approval.vendor_bill_count > 0\
                 and approval.request_status == 'approved': 
                 approval.request_status = 'rfqs'
