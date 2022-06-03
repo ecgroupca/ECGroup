@@ -23,11 +23,13 @@ class SaleOrder(models.Model):
         for sale in self:
             sale.purchase_order_ids = [(4, False)]
             #search for purchases that reference the sale
-            domain = [('sale_order_id','in',sale.id)]
-            domain += [('company_id','=',sale.company_id.id)]
-            purchase_ids = purch_obj.search(domain)
-            purch_ids = purchase_ids.ids
-            sale.purchase_order_ids = [(6, 0, purch_ids)]
+            #purchases that have quality alerts
+            main_domain = [('sale_order_id','in',[sale.id])]
+            purchases = purch_obj.search(main_domain)
+            #purchase_orders = self.env['purchase.order']           
+            #for line in purchase_lines:
+            #    purchase_orders |= line.order_id           
+            sale.purchase_order_ids = [(6, 0, purchases.ids)]
             
     def action_view_purchases(self):
         self.ensure_one()
@@ -38,7 +40,7 @@ class SaleOrder(models.Model):
             .with_context(active_id=self.id)
             .read()[0]
         )
-        purchases = self.purchase_ids
+        purchases = self.purchase_order_ids
         if len(purchases) > 1:
             action["domain"] = [("id", "in", purchases.ids)]
         elif purchases:

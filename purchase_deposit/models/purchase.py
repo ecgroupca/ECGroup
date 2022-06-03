@@ -11,32 +11,25 @@ class PurchaseOrder(models.Model):
     sale_order_id = fields.Many2many(
         'sale.order',
         string = 'Sale Orders',
-        compute = "_compute_sale_orders",
+        #compute = "_compute_sale_orders",
         readonly = False,
-        store = True,
     )
 
-    sale_order_count = fields.Integer(
-        "Number of Source Sale",
-        compute='_compute_sale_order_count',
-        groups='sales_team.group_sale_salesman')
-        
-    @api.depends('order_line.sale_order_id','sale_order_id')
-    def _compute_sale_order_count(self):
-        for purchase in self:
-            count = len(purchase.sale_order_id)
-            purchase.sale_order_count = count
+    """sale_order_count = fields.Integer(
+        "Sale Order Count",
+        compute='_compute_sale_order_count',)"""
 
-    @api.depends('order_line.sale_order_id','sale_order_id')   
+    """@api.depends('order_line.sale_order_id','sale_order_id')   
     def _compute_sale_orders(self):
         for purchase in self:
             purchase.sale_order_id = [(4, False)]
             #search for purchases that reference the sale
+            import pdb;pdb.set_trace()
             domain = ['|',('id','in',purchase.order_line.sale_order_id.ids)]
             domain += [('id','in',purchase.sale_order_id.ids)]
             domain += [('company_id','=',purchase.company_id.id)]
             sale_ids = self.env['sale.order'].search(domain)
-            purchase.sale_order_id = [(6, 0, sale_ids.ids)]
+            purchase.sale_order_id = [(6, 0, sale_ids.ids)]"""
             
     def action_view_sale_orders(self):
         self.ensure_one()
@@ -109,6 +102,7 @@ class PurchaseOrderLine(models.Model):
         related='sale_line_id.order_id', 
         string="Sale Order", 
         store=True, readonly=True)
+        
     sale_line_id = fields.Many2one(
         'sale.order.line', 
         string="Origin Sale Item", 
