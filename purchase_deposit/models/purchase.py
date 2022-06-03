@@ -15,9 +15,14 @@ class PurchaseOrder(models.Model):
         readonly = False,
     )
 
-    """sale_order_count = fields.Integer(
+    sale_orders_counted = fields.Integer(
         "Sale Order Count",
-        compute='_compute_sale_order_count',)"""
+        compute='_compute_sale_orders_counted',)
+        
+    @api.depends("sale_order_id")
+    def _compute_sale_orders_counted(self):
+        for purchase in self:
+            purchase.sale_orders_counted = len(purchase.sale_order_id)
 
     """@api.depends('order_line.sale_order_id','sale_order_id')   
     def _compute_sale_orders(self):
