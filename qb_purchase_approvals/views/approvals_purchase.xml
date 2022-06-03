@@ -11,10 +11,10 @@
 			    <button name="action_open_purchase_orders" type="object" icon="fa-credit-card" attrs="{'invisible': [('purchase_order_count', '=', 0)]}">
 			        <field name="purchase_order_count" string="Purchase/RFQs"/>
 			    </button>  
-			    <field name="vendor_bill_ids" widget="many2many_tags" attrs="{'invisible': [('vendor_bill_count', '=', 0)]}"/>
+			    <!--field name="vendor_bill_ids" widget="many2many_tags" attrs="{'invisible': [('vendor_bill_count', '=', 0)]}"/>
 			    <button name="action_open_vendor_bill" type="object" icon="fa-credit-card" attrs="{'invisible': [('vendor_bill_count', '=', 0)]}">
 			        <field name="vendor_bill_count" string="Bills"/>
-			    </button>  				
+			    </button-->  				
 			</field>
 		</field>
     </record>
