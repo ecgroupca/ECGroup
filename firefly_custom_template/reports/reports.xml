@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<odoo>
-    <record id="purchase.action_report_purchase_order" model="ir.actions.report">
-        <field name="paperformat_id" ref="firefly_custom_template.paperformat_purchaseorder_firefly"/>
-    </record>
-</odoo>
