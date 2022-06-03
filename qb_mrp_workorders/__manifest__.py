@@ -7,7 +7,7 @@
     'author': 'Adam OConnor, Quickbeam LLC <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': [
-        'mrp',
+        'mrp_workorder',
         ],
     'data': [
         'security/ir.model.access.csv',
