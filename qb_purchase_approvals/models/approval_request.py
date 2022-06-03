@@ -56,7 +56,7 @@ class ApprovalRequest(models.Model):
                 if bill_id and bill_id not in vendor_bills:
                     vendor_bills.append(bill_id)
                     approval.vendor_bill_ids = [(4, bill_id)]
-                    bill_id.approval_id = approval                
+                    bill.approval_id = approval                
             if approval.vendor_bill_count > 0\
                 and approval.request_status == 'approved': 
                 approval.request_status = 'rfqs'
