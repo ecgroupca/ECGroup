@@ -9,7 +9,7 @@ class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
     sale_order_id = fields.Many2one(
-        comodel_name='sale.order', readonly=False, string='Source Sale Order')
+        comodel_name='sale.order', readonly=False, string='Sale Order')
         
     sale_order_line_id = fields.Many2one(
         comodel_name='sale.order.line', readonly=False, string='Source Sale Order Line.')    
@@ -18,6 +18,28 @@ class MrpProduction(models.Model):
         'Sale Line Description',
         compute = '_get_line_desc'
     )
+    
+    sale_count = fields.Integer(
+        compute='_compute_sale_count', store=True)
+        
+    @api.depends("sale_order_id")
+    def _compute_sale_count(self):
+        for mrp in self:
+            mrp.sale_count = len(mrp.sale_order_id)
+          
+    def action_view_sales(self):
+        """Invoked when 'Sale Orders' smart button in rma form view is clicked."""
+        action = (
+            self.env.ref("sale.action_quotations")
+            .with_context(active_id=self.id)
+            .read()[0]
+        )
+        sales = self.sale_order_id
+        if sales:
+            action.update(
+                res_id=sales.id, view_mode="form", view_id=False, views=False,
+            )
+        return action
     
     @api.depends('sale_order_id')     
     def _get_line_desc(self):
