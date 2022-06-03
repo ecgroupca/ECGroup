@@ -24,7 +24,6 @@ class SaleOrder(models.Model):
             sale.purchase_order_ids = [(4, False)]
             #search for purchases that reference the sale
             #purchases that have quality alerts
-            import pdb;pdb.set_trace()
             main_domain = [('sale_order_id','in',[sale.id])]
             purchases = purch_obj.search(main_domain)
             #purchase_orders = self.env['purchase.order']           
