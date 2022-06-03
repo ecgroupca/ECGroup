@@ -45,7 +45,7 @@ class SaleOrder(models.Model):
             domain = [('sale_order_id','in',sale.id)]
             domain += [('company_id','=',line.company_id.id)]
             purchase_ids = purchase_obj.search(domain)
-            purch_ids = purchase_ids.ids
+            purch_ids += purchase_ids.ids
             sale.purchase_order_ids = [(6, 0, purch_ids)]
             
     def action_view_purchase(self):
