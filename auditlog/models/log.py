@@ -9,7 +9,12 @@ class AuditlogLog(models.Model):
     _order = "create_date desc"
 
     name = fields.Char("Resource Name", size=64)
-    model_id = fields.Many2one("ir.model", string="Model")
+    model_id = fields.Many2one(
+        "ir.model", string="Model", index=True
+        #, ondelete="set null"
+    )
+    model_name = fields.Char(readonly=True)
+    model_model = fields.Char(string="Technical Model Name", readonly=True)
     res_id = fields.Integer("Resource ID")
     user_id = fields.Many2one("res.users", string="User")
     method = fields.Char(size=64)
