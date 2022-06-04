@@ -6,16 +6,12 @@
     "author": "ACSONE SA/NV," "Creu Blanca," "Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/reporting-engine",
     "category": "Reporting",
-    "version": "15.0.1.0.4",
+    "version": "13.0.1.0.5",
     "development_status": "Production/Stable",
     "license": "AGPL-3",
     "external_dependencies": {"python": ["xlsxwriter", "xlrd"]},
     "depends": ["base", "web"],
+    "data": ["views/webclient_templates.xml"],
     "demo": ["demo/report.xml"],
     "installable": True,
-    "assets": {
-        "web.assets_backend": [
-            "report_xlsx/static/src/js/report/action_manager_report.esm.js",
-        ],
-    },
 }

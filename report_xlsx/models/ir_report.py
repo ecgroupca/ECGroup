@@ -8,20 +8,18 @@ from odoo.exceptions import UserError
 class ReportAction(models.Model):
     _inherit = "ir.actions.report"
 
-    report_type = fields.Selection(
-        selection_add=[("xlsx", "XLSX")], ondelete={"xlsx": "set default"}
-    )
+    report_type = fields.Selection(selection_add=[("xlsx", "XLSX")])
 
     @api.model
-    def _render_xlsx(self, docids, data):
+    def render_xlsx(self, docids, data):
         report_model_name = "report.%s" % self.report_name
         report_model = self.env.get(report_model_name)
         if report_model is None:
             raise UserError(_("%s model was not found") % report_model_name)
-        return (
-            report_model.with_context(active_model=self.model)
-            .sudo(False)
-            .create_xlsx_report(docids, data)  # noqa
+        return report_model.with_context(
+            active_model=self.model
+        ).create_xlsx_report(  # noqa
+            docids, data
         )
 
     @api.model
@@ -36,4 +34,4 @@ class ReportAction(models.Model):
             ("report_name", "=", report_name),
         ]
         context = self.env["res.users"].context_get()
-        return report_obj.with_context(**context).search(conditions, limit=1)
+        return report_obj.with_context(context).search(conditions, limit=1)

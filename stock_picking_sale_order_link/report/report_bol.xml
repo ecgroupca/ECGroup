@@ -6,168 +6,90 @@
 	</t>
   </template>
   <template id="report_bol_document">
-  <t t-foreach="docs" t-as="trans">
-        <t t-call="web.html_container">
-            <t t-call="web.external_layout">
-                <div class="page" style="font-name:Calibri">
-                    <h3 style="margin-top:2px;">
+    <t t-foreach="docs" t-as="trans">
+      <t t-call="web.html_container">
+        <t t-call="web.external_layout">
+          <div class="page" style="font-name:Calibri">
+                    <h2 style="margin-top:10px;">
                         <span>STRAIGHT BILL OF LADING</span>
-                    </h3>
-		      <table width="100%" style="margin:3px 0;font-size:10pt;">
+                    </h2>
+		      <table width="100%" style="margin:15px 0;font-size:12pt;">
 		        <colgroup>
-		          <col width="50%"/>
-              <col width="50%"/>
+		          <col width="330px"/>
+              <col width="330px"/>
             </colgroup>
 				    <tr>
-				      <td style="padding:5px;"><strong>Carrier: </strong>
-				      <t t-if="trans.x_shipper_id">
-				        <span t-field="trans.x_shipper_id.name"/>
-				      </t>
-				      <t t-if="not trans.x_shipper_id">
-					      <span t-field="trans.sale_id.ship_name"/>
-				      </t>
-				      </td>
-				      <td style="padding:5px;">
-				        <strong>Bill of Lading#: </strong>
-				        <t t-if="trans.origin">
-				          <span t-field="trans.origin"/><br/>
-				        </t>
-				        <span t-field="trans.name"/>
-				      </td>
+				      <td style="padding:5px;"><strong>Carrier: </strong><span t-field="trans.sale_id.ship_name"/></td>
+				      <td style="padding:5px;"><strong>Shipper: </strong><span t-field="trans.owner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/></td>
 				    </tr>
 				    <tr>
-				      <td style="padding:5px;"><strong>Ship To: </strong><span t-field="trans.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: False, &quot;phone_icons&quot;: True}"/></td>
-				    	<td style="padding:5px;"><strong>Shipper Info: </strong><span t-field="trans.x_shipper_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: False, &quot;phone_icons&quot;: True}"/></td>
+				      <td style="padding:5px;"><strong>Consignee<br/>Address: </strong>
+				      <span t-field="trans.owner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
+				      <div style="margin-top:25px;font-weight: bold;font-size:13pt;">Call at least 24 hours before delivery:</div></td>
+				      <td style="padding:5px;"><strong>Bill of Lading#: </strong><span t-field="trans.origin"/></td>
 				    </tr>
 				  </table>
-				      <div style="margin:0px;font-weight: bold;font-size:11pt;padding:0px;">Call at least 24 hours before delivery:</div>
-                    <table class="table table-sm" t-if="not trans.move_line_ids" name="stock_move_table" style="font-size:9pt!important;">
+
+                    <table class="table table-sm" t-if="trans.state!='done'" name="stock_move_table">
                         <thead>
                             <tr>
-                                <th name="th_sm_product" style="max-width:210px;"><strong>Item</strong></th>
-                                <th name="th_sm_quantity" style="max-width:80px;"><strong>Qty</strong></th>
-                                <th name="th_sm_value" style="max-width:100px;"><strong>Value</strong></th>
+                                <th name="th_sm_quantity"><strong>Quantity</strong></th>
+                                <th name="th_sm_product" style="width:120px;"><strong>Item#</strong></th>
+                                <th name="th_sm_desc" style="max-width:120px;"><strong>Item Description</strong></th>
+                                <th name="th_sm_value"><strong>Value</strong></th>
                             </tr>
                         </thead>
                         <tbody>
-                          	<t t-set="lines" t-value="trans.move_lines.filtered(lambda x: x.product_uom_qty)"/>
-                            <t t-set="amount_total" t-value="0"/>
-                            <t t-set="line_total" t-value="0"/>
+                            <t t-set="lines" t-value="trans.move_lines.filtered(lambda x: x.product_uom_qty)"/>
                             <tr t-foreach="lines" t-as="move">
                                 <td>
-                                  [<span t-field="move.product_id.default_code"/>] 
-                                  <t t-if="move.sale_line_id">
-                                    <span t-field="move.sale_line_id.name"/>
-                                  </t>
-                                  <t t-elif="request.env['sale.order.line'].search([('order_id','=',trans.sale_id.id),('product_id','=',move.product_id.id)], limit=1)">
-                                    <t t-foreach="request.env['sale.order.line'].search([('order_id','=',trans.sale_id.id),('product_id','=',move.product_id.id)], limit=1)" t-as="sale_line">
-                                      <span t-field="sale_line.name"/>
-                                    </t>
-                                  </t>
-                                  <t t-else="">
-                                    <span t-field="move.product_id.name"/>
-                                  </t>
+                                    <span t-esc="'%.0f'% move.product_uom_qty"/>
                                 </td>
                                 <td>
-                                  <span t-esc="'%.2f'% move.product_uom_qty"/>
+                                    <span t-field="move.product_id.default_code"/>
+                                </td>
+                                <td><span t-field="move.product_id.name"/>
+                                    <p t-if="move.description_picking != move.product_id.name">
+                                        <span t-field="move.description_picking"/>
+                                    </p>
                                 </td>
                                 <td>
-                                 <t t-if="move.sale_line_id">
-                                  <t t-set="line_total" t-value="move.sale_line_id.price_unit*move.product_uom_qty"/>
-                                  $<span t-esc="'%.2f'% (move.sale_line_id.price_unit*move.product_uom_qty or move.sale_line_id.price_unit*move_line.qty_done)"/>
-                                  <t t-set="amount_total" t-value="line_total + amount_total"/>
-                                 </t>
-                                 <t t-elif="trans.sale_id">
-                                   <t t-foreach="request.env['sale.order.line'].search([('order_id','=',trans.sale_id.id),('product_id','=',move.product_id.id)], limit=1)" t-as="sale_line">
-                                     $<span t-esc="'%.2f'% (sale_line.price_unit*move.quantity_done or sale_line.price_unit*move.product_uom_qty)"/>
-                                     <t t-set="line_total" t-value="sale_line.price_unit*move.quantity_done or sale_line.price_unit*move.product_uom_qty"/>
-                                   </t>
-								                 </t>
-                                 <t t-else="">
-                                   <t t-set="line_total" t-value="move.product_id.lst_price*move.quantity_done or move.product_id.lst_price*move.product_uom_qty"/>
-                                    $<span t-esc="'%.2f'% (line_total)"/>
-                                 </t>
-                                 <t t-set="amount_total" t-value="line_total + amount_total"/>
+                                    <span t-esc="'%.2f'% (move.sale_line_id.price_unit * move.product_uom_qty)"/>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
-                    <table class="table table-sm" t-if="trans.move_line_ids" name="stock_move_line_table" style="font-size:9pt!important;">
+                    <table class="table table-sm mt48" t-if="trans.move_line_ids and trans.state=='done'" name="stock_move_line_table">
                         <t t-set="has_serial_number" t-value="trans.move_line_ids.mapped('lot_id')"/>
                         <thead>
                             <tr>
-                                <th name="th_sm_product" style="max-width:210px;"><strong>Item</strong></th>
-                                <th name="th_sm_quantity" style="max-width:80px;"><strong>Qty</strong></th>
-                                <th name="th_sm_value" style="max-width:100px;"><strong>Value</strong></th>
+                                <th name="th_sml_product"><strong>Product</strong></th>
+                                <th name="lot_serial" t-if="has_serial_number" groups="stock.group_lot_on_delivery_slip">
+                                    Lot/Serial Number
+                                </th>
+                                <th name="th_sml_quantity" class="text-center"><strong>Quantity</strong></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <t t-set="amount_total" t-value="0"/>
-                            <t t-set="line_total" t-value="0"/>
-                            <t t-if="trans.move_line_ids.filtered(lambda x: x.qty_done)">
-                              <t t-set="lines" t-value="trans.move_line_ids.filtered(lambda x: x.qty_done)"/>
-                            </t>
-                            <t t-else="">
-                              <t t-set="lines" t-value="trans.move_line_ids.filtered(lambda x: x.product_uom_qty)"/>
-                            </t>
-                            <tr t-foreach="lines" t-as="move_line">
-                                <t t-set="qty" t-value="move_line.qty_done"/>
+                            <tr t-foreach="trans.move_line_ids" t-as="move_line">
                                 <td>
-                                  [<span t-field="move_line.product_id.default_code"/>] 
-                                  <t t-if="move_line.move_id.sale_line_id">
-                                    <span t-field="move_line.move_id.sale_line_id.name"/>
-                                  </t>
-                                  <t t-elif="request.env['sale.order.line'].search([('order_id','=',trans.sale_id.id),('product_id','=',move_line.product_id.id)], limit=1)">
-                                    <t t-foreach="request.env['sale.order.line'].search([('order_id','=',trans.sale_id.id),('product_id','=',move_line.product_id.id)], limit=1)" t-as="sale_line">
-                                      <span t-field="sale_line.name"/>
-                                    </t>
-                                  </t>
-                                  <t t-else="">
-                                    <span t-field="move_line.product_id.name"/>
-                                  </t>
+                                    <span t-field="move_line.product_id"/>
+                                    <p t-if="move_line.move_id.description_picking != move_line.product_id.name">
+                                        <span t-field="move_line.move_id.description_picking"/>
+                                    </p>
                                 </td>
-                                <td>
-                                    
-                                    <t t-if="move_line.qty_done>0">
-                                      <span t-esc="'%.2f'% move_line.qty_done"/>
-                                      
-                                    </t>
-                                    <t t-else="">
-                                      <span t-esc="'%.2f'% move_line.product_uom_qty"/>
-                                      <t t-set="qty" t-value="move_line.product_uom_qty"/>
-                                    </t>
+                                <td t-if="has_serial_number and move_line.lot_name" groups="stock.group_lot_on_delivery_slip">
+                                    <span t-field="move_line.lot_name"/>
                                 </td>
-                                <td>
-                                  <t t-if="move_line.move_id.sale_line_id">
-                                    <t t-set="line_total" t-value="move_line.move_id.sale_line_id.price_unit*move_line.product_uom_qty or move_line.move_id.sale_line_id.price_unit*move_line.qty_done"/>
-                                    $<span t-esc="'%.2f'% (move_line.move_id.sale_line_id.price_unit*move_line.product_uom_qty or move_line.move_id.sale_line_id.price_unit*move_line.qty_done)"/>
-                                  </t>
-                                  <t t-elif="trans.sale_id">
-                                    <t t-foreach="request.env['sale.order.line'].search([('order_id','=',trans.sale_id.id),('product_id','=',move_line.product_id.id)], limit=1)" t-as="sale_line">
-                            
-                                      $<span t-esc="'%.2f'% (sale_line.price_unit*move_line.product_uom_qty or sale_line.price_unit*move_line.qty_done)"/>
-                                      <t t-set="line_total" t-value="sale_line.price_unit*move_line.product_uom_qty or sale_line.price_unit*move_line.qty_done"/>
-                                    </t>
-                                  </t>
-                                  <t t-else="">
-                                    <t t-set="line_total" t-value="move_line.product_id.lst_price*move_line.product_uom_qty"/>
-                                    $<span t-esc="'%.2f'% (line_total)"/>
-                                  </t>
-                                  <t t-set="amount_total" t-value="line_total + amount_total"/>
+                                <td t-elif="has_serial_number" groups="stock.group_lot_on_delivery_slip">
+                                    <span t-field="move_line.lot_id.name"/>
+                                </td>
+                                <td class="text-center">
+                                    <span t-field="move_line.qty_done"/>
+                                    <span t-field="move_line.product_uom_id"/>
                                 </td>
                             </tr>
-
                         </tbody>
-                    </table>
-                    <table style="float:right;">
-                      <tbody>
-                        <tr style="border-bottom:dotted 1px; border-color:#AAA;color:#333;">
-      									  <td name="td_amount_total_label"><strong style="color:#333;margin-right:5px;">Total:  </strong></td>
-      									  <td name="td_amount_total" class="text-right">
-      										   $<span t-esc="'%.2f'% amount_total"/>
-      									  </td>
-      								  </tr>
-                      </tbody>
                     </table>
                     <p>
                         <t t-if="trans.backorder_ids and trans.backorder_ids.filtered(lambda x: x.state not in ('done', 'cancel'))">
@@ -175,13 +97,13 @@
                         </t>
                         <span t-field="trans.note"/>
                     </p>
-				</div>					
-            </t>
-         </t>
-         </t>
-    
+			</div>
+          </t>
+        </t>
+      </t>
   </template> 
-	  <report id="report_bol_pdf'"	
+	  <report id="report_bol_pdf'"
+	
 		string="Bill of Lading"
 		model="stock.picking"
 		report_type="qweb-pdf"

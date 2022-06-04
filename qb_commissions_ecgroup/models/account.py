@@ -33,13 +33,12 @@ class AccountPayment(models.Model):
         compute = '_get_related'
     )
     
-    @api.depends('state')
+    @api.depends('invoice_ids')
     def _get_related(self):
         for payment in self:
             sale_id = False
             #1. loop through invoice_ids from payment
-            invoices = self.env['account.move'].search([('payment_id','=',payment.id)])
-            for invoice in invoices:
+            for invoice in payment.invoice_ids:              
                 #2. search for sale orders that have invoices on the payment list.
                 for line in invoice.invoice_line_ids:
                     #3. loop through the invoice line's sale_line_ids
@@ -70,9 +69,8 @@ class AccountPayment(models.Model):
                             amt_inv += invoice.amount_total
                     sale.inv_bal_due = (sale.amount_total - amt_inv) + amt_res
                     if sale.inv_bal_due == 0:
-                        sale.fully_paid_date = pmt.payment_date 
-                invoices = self.env['account.move'].search([('payment_id','=',pmt.id)])                        
-                for invoice in invoices:
+                        sale.fully_paid_date = pmt.payment_date                    
+                for invoice in pmt.invoice_ids:
                     commissions = self.env['sale.commission'].search([('invoice_id','=',invoice.id)])
                     comm_sale = self.env['sale.order'].search([('comm_inv_id','=',invoice.id)])
                     if invoice.amount_residual == 0:

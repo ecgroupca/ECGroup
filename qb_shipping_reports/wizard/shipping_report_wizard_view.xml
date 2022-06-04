@@ -34,7 +34,5 @@
         <field name="view_id" ref="shipping_report_wiz_view"/>
         <field name="target">new</field>
     </record>
-
-	<menuitem id="menu_shipping_reports" name="Shipping Report" sequence="6"
-              parent="stock.menu_warehouse_report" action="action_shipping_report" />	
+	
 </odoo>

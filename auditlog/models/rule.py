@@ -4,7 +4,6 @@
 import copy
 
 from odoo import _, api, fields, models, modules
-from odoo.exceptions import UserError
 
 FIELDS_BLACKLIST = [
     "id",
@@ -55,13 +54,12 @@ class AuditlogRule(models.Model):
     model_id = fields.Many2one(
         "ir.model",
         "Model",
+        required=True,
         help="Select model for which you want to generate log.",
         states={"subscribed": [("readonly", True)]},
         #ondelete="set null",
         index=True,
     )
-    model_name = fields.Char(readonly=True)
-    model_model = fields.Char(string="Technical Model Name", readonly=True)
     user_ids = fields.Many2many(
         "res.users",
         "audittail_rules_users",
@@ -120,7 +118,14 @@ class AuditlogRule(models.Model):
         ),
         states={"subscribed": [("readonly", True)]},
     )
-
+    # log_action = fields.Boolean(
+    #     "Log Action",
+    #     help=("Select this if you want to keep track of actions on the "
+    #           "model of this rule"))
+    # log_workflow = fields.Boolean(
+    #     "Log Workflow",
+    #     help=("Select this if you want to keep track of workflow on any "
+    #           "record of the model of this rule"))
     state = fields.Selection(
         [("draft", "Draft"), ("subscribed", "Subscribed")],
         required=True,
@@ -132,7 +137,7 @@ class AuditlogRule(models.Model):
         states={"subscribed": [("readonly", True)]},
     )
     capture_record = fields.Boolean(
-        help="Select this if you want to keep track of Unlink Record",
+        "Capture Record", help="Select this if you want to keep track of Unlink Record",
     )
 
     _sql_constraints = [
@@ -162,12 +167,13 @@ class AuditlogRule(models.Model):
         updated = False
         model_cache = self.pool._auditlog_model_cache
         for rule in self:
-            if rule.state != "subscribed" or not self.pool.get(
-                rule.model_id.model or rule.model_model
-            ):
+            if rule.state != "subscribed":
+                continue
+            if not self.pool.get(rule.model_id.model):
+                # ignore rules for models not loadable currently
                 continue
             model_cache[rule.model_id.model] = rule.model_id.id
-            model_model = self.env[rule.model_id.model or rule.model_model]
+            model_model = self.env[rule.model_id.model]
             # CRUD
             #   -> create
             check_attr = "auditlog_ruled_create"
@@ -199,7 +205,7 @@ class AuditlogRule(models.Model):
         """Restore original ORM methods of models defined in rules."""
         updated = False
         for rule in self:
-            model_model = self.env[rule.model_id.model or rule.model_model]
+            model_model = self.env[rule.model_id.model]
             for method in ["create", "read", "write", "unlink"]:
                 if getattr(rule, "log_%s" % method) and hasattr(
                     getattr(model_model, method), "origin"
@@ -213,26 +219,17 @@ class AuditlogRule(models.Model):
     @api.model
     def create(self, vals):
         """Update the registry when a new rule is created."""
-        if "model_id" not in vals or not vals["model_id"]:
-            raise UserError(_("No model defined to create line."))
-        model = self.env["ir.model"].sudo().browse(vals["model_id"])
-        vals.update({"model_name": model.name, "model_model": model.model})
-        new_record = super().create(vals)
+        new_record = super(AuditlogRule, self).create(vals)
         if new_record._register_hook():
             modules.registry.Registry(self.env.cr.dbname).signal_changes()
         return new_record
 
     def write(self, vals):
         """Update the registry when existing rules are updated."""
-        if "model_id" in vals:
-            if not vals["model_id"]:
-                raise UserError(_("Field 'model_id' cannot be empty."))
-            model = self.env["ir.model"].sudo().browse(vals["model_id"])
-            vals.update({"model_name": model.name, "model_model": model.model})
-        res = super().write(vals)
+        super(AuditlogRule, self).write(vals)
         if self._register_hook():
             modules.registry.Registry(self.env.cr.dbname).signal_changes()
-        return res
+        return True
 
     def unlink(self):
         """Unsubscribe rules before removing them."""
@@ -457,7 +454,7 @@ class AuditlogRule(models.Model):
         additional_log_values=None,
     ):
         """Create logs. `old_values` and `new_values` are dictionaries, e.g:
-        {RES_ID: {'FIELD': VALUE, ...}}
+            {RES_ID: {'FIELD': VALUE, ...}}
         """
         if old_values is None:
             old_values = EMPTY_DICT
@@ -510,7 +507,7 @@ class AuditlogRule(models.Model):
             # - we use 'search()' then 'read()' instead of the 'search_read()'
             #   to take advantage of the 'classic_write' loading
             # - search the field in the current model and those it inherits
-            field_model = self.env["ir.model.fields"].sudo()
+            field_model = self.env["ir.model.fields"]
             all_model_ids = [model.id]
             all_model_ids.extend(model.inherited_model_ids.ids)
             field = field_model.search(
@@ -665,4 +662,5 @@ class AuditlogRule(models.Model):
             act_window = rule.action_id
             if act_window:
                 act_window.unlink()
-        return self.write({"state": "draft"})
+        self.write({"state": "draft"})
+        return True

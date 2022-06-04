@@ -38,7 +38,7 @@ class InterCompanyTransferLine(models.Model):
         """
         for line in self:
             delivered_qty = 0.0
-            if line.inter_company_transfer_id.state != 'draft':
+            if line.inter_company_transfer_id.state == 'transferred':
                 for picking_id in line.inter_company_transfer_id.picking_ids.filtered(
                         lambda x: x.state != 'cancel' and x.picking_type_id.code == 'incoming'):
                     for move in picking_id.move_ids_without_package:
