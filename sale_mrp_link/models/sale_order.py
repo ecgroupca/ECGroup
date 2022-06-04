@@ -10,7 +10,7 @@ class SaleOrder(models.Model):
     production_ids = fields.One2many('mrp.production', 'sale_order_id')
     production_count = fields.Integer(
         compute='_compute_production_count', store=True)
-    
+
     @api.depends("production_ids")
     def _compute_production_count(self):
         for sale in self:
