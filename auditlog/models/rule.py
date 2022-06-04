@@ -57,6 +57,7 @@ class AuditlogRule(models.Model):
         "Model",
         help="Select model for which you want to generate log.",
         states={"subscribed": [("readonly", True)]},
+        ondelete="set null",
         index=True,
     )
     model_name = fields.Char(readonly=True)
