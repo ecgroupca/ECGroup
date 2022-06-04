@@ -1,12 +1,58 @@
-# Copyright 2019 Elico Corp, Dominique K. <dominique.k@elico-corp.com.sg>
-# Copyright 2019 Ecosoft Co., Ltd., Kitti U. <kittiu@ecosoft.co.th>
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
-
-from odoo import fields, models, api
+from odoo import fields, models, api, _
 
 
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
+    
+    sale_order_id = fields.Many2many(
+        'sale.order',
+        string = 'Sale Orders',
+        #compute = "_compute_sale_orders",
+        readonly = False,
+    )
+
+    sale_orders_counted = fields.Integer(
+        "Sale Order Count",
+        compute='_compute_sale_orders_counted',)
+        
+    @api.depends("sale_order_id")
+    def _compute_sale_orders_counted(self):
+        for purchase in self:
+            purchase.sale_orders_counted = len(purchase.sale_order_id)
+
+    """@api.depends('order_line.sale_order_id','sale_order_id')   
+    def _compute_sale_orders(self):
+        for purchase in self:
+            purchase.sale_order_id = [(4, False)]
+            #search for purchases that reference the sale
+            import pdb;pdb.set_trace()
+            domain = ['|',('id','in',purchase.order_line.sale_order_id.ids)]
+            domain += [('id','in',purchase.sale_order_id.ids)]
+            domain += [('company_id','=',purchase.company_id.id)]
+            sale_ids = self.env['sale.order'].search(domain)
+            purchase.sale_order_id = [(6, 0, sale_ids.ids)]"""
+            
+    def action_view_sale_orders(self):
+        self.ensure_one()
+        # Force active_id to avoid issues when coming from smart buttons
+        # in other models
+        sale_order_ids = self.sale_order_id.ids
+        action = {
+            'res_model': 'sale.order',
+            'type': 'ir.actions.act_window',
+        }
+        if len(sale_order_ids) == 1:
+            action.update({
+                'view_mode': 'form',
+                'res_id': sale_order_ids[0],
+            })
+        else:
+            action.update({
+                'name': _('Sources Sale Orders %s', self.name),
+                'domain': [('id', 'in', sale_order_ids)],
+                'view_mode': 'tree,form',
+            })
+        return action
 
     def copy_data(self, default=None):
         if default is None:
@@ -16,8 +62,6 @@ class PurchaseOrder(models.Model):
             for line in self.order_line.filtered(lambda l: not l.is_deposit)
         ]
         return super(PurchaseOrder, self).copy_data(default)
-        
-    sale_order_id = fields.Many2many('sale.order', string='Sale Order')
 
     @api.model
     def create(self, values):       
@@ -55,7 +99,16 @@ class PurchaseOrderLine(models.Model):
         help="Deposit payments are made when creating invoices from a purhcase"
         " order. They are not copied when duplicating a purchase order.",
     )
-
+    sale_order_id = fields.Many2one(
+        related='sale_line_id.order_id', 
+        string="Sale Order", 
+        store=True, readonly=True)
+        
+    sale_line_id = fields.Many2one(
+        'sale.order.line', 
+        string="Origin Sale Item", 
+        index=True, copy=False)
+    
     def _prepare_account_move_line(self, move):
         res = super(PurchaseOrderLine, self)._prepare_account_move_line(move)
         if self.is_deposit:

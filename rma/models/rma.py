@@ -742,7 +742,7 @@ class Rma(models.Model):
         )
         #src_loc_id = rma.move_id and rma.move_id.location_id and rma.move_id.location_id.id
         
-        #create the bom line with the main product as the component with the serial number.
+        #create the MRP consumption line with the main product as the component with the serial number.
         vals = {
             'product_id': product and product.id or False,
             'product_uom_qty': rma.product_uom_qty,
@@ -755,6 +755,8 @@ class Rma(models.Model):
         if src_loc_id and not rma_mrp_type:
             vals['location_id'] = src_loc_id
         res = self.env['stock.move'].create(vals)
+        #for workorder in mrp_bom_id.workorder_ids:
+        mrp_prod._create_workorder()        
         mrp_prod.action_confirm()
         mrp_prod.action_assign()
         move_line_ids = rma.move_id and rma.move_id.move_line_nosuggest_ids
@@ -1221,14 +1223,12 @@ class Rma(models.Model):
         picking_form.origin = origin or self.name
         picking_form.partner_id = self.partner_id
 
-    def _prepare_returning_move(
-        self, move_form, scheduled_date, quantity=None, uom=None
-    ):
+    def _prepare_returning_move(self, move_form, scheduled_date, quantity=None, uom=None):
         #move_form.location_id = self.finished_location_id
         move_form.product_id = self.product_id
         move_form.product_uom_qty = quantity or self.product_uom_qty
         move_form.product_uom = uom or self.product_uom
-        move_form.date_expected = scheduled_date
+        move_form.date = scheduled_date
         
    # Repair business methods
     def create_repair(self, scheduled_date, product, qty, uom, company, mrp_bom_id, rma_move_id):
@@ -1259,6 +1259,7 @@ class Rma(models.Model):
             }
 
         res = self.env['stock.move'].create(vals)
+        
         mrp_prod.action_confirm()
         mrp_prod.action_assign()
         move_line_ids = rma_move_id.move_line_nosuggest_ids
@@ -1278,6 +1279,7 @@ class Rma(models.Model):
             }
              
             res = self.env['stock.move.line'].create(vals)
+        
         """self.message_post(
             body=_(
                 "Repair created for:<br/>"
