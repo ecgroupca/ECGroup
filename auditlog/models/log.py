@@ -11,7 +11,8 @@ class AuditlogLog(models.Model):
 
     name = fields.Char("Resource Name", size=64)
     model_id = fields.Many2one(
-        "ir.model", string="Model", index=True, ondelete="set null"
+        "ir.model", string="Model", index=True
+        #, ondelete="set null"
     )
     model_name = fields.Char(readonly=True)
     model_model = fields.Char(string="Technical Model Name", readonly=True)
