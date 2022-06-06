@@ -1,0 +1,5 @@
+id,name,model_id,group_id,perm_read,perm_write,perm_create,perm_unlink
+mrp.access_mrp_workorder_mrp_manager,mrp.workorder,Work Order,Manufacturing / Administrator,TRUE,TRUE,TRUE,TRUE
+mrp.access_mrp_workorder_mrp_user,mrp.workorder.user,Work Order,Manufacturing / User,TRUE,TRUE,TRUE,FALSE
+sale_mrp.access_mrp_production_workcenter_line_salesman,mrp.workorder salesman,Work Order,Sales / User: Own Documents Only,TRUE,FALSE,TRUE,FALSE
+mrp_workorder.access_mrp_workorder_additional_product,access.mrp_workorder.additional.product,Additional Product,Manufacturing / User,TRUE,TRUE,TRUE,FALSE
