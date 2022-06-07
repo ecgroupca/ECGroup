@@ -30,7 +30,7 @@ class ApprovalRequest(models.Model):
         return [("id", "child_of", buyer_users.ids)]
     
     user_id = fields.Many2one('res.users',
-        string = 'Purchase Representative'
+        string = 'Purchase Representative',
         domain = _compute_rep_domain,
         )
                     
