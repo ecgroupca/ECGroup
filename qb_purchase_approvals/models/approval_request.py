@@ -27,7 +27,6 @@ class ApprovalRequest(models.Model):
         
     def _compute_rep_domain(self):
         buyer_users = self.env['res.groups'].search([('name','=','Buyers']).mapped('users')
-        import pdb;pdb.set_trace()
         return [("id", "child_of", buyer_users.ids)]
     
     user_id = fields.Many2one('res.users',
