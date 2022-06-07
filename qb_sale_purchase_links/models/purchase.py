@@ -6,7 +6,7 @@ class PurchaseOrder(models.Model):
     
     sale_order_id = fields.Many2many(
         'sale.order',
-        string = 'Sale Orders',
+        string = 'Sales',
         readonly = False,
     )
 
@@ -28,7 +28,7 @@ class PurchaseOrder(models.Model):
             .with_context(active_id=self.id)
             .read()[0]
         )
-        sales = self.sale_order_ids
+        sales = self.sale_order_id
         if len(sales) > 1:
             action["domain"] = [("id", "in", sale.ids)]
         elif sales:
