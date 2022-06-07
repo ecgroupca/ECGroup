@@ -23,22 +23,21 @@ class PurchaseOrder(models.Model):
         self.ensure_one()
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
-        sale_order_ids = self.sale_order_id.ids
-        action = {
-            'res_model': 'sale.order',
-            'type': 'ir.actions.act_window',
-        }
-        if len(sale_order_ids) == 1:
-            action.update({
-                'view_mode': 'form',
-                'res_id': sale_order_ids[0],
-            })
-        else:
-            action.update({
-                'name': _('Sources Sale Orders %s', self.name),
-                'domain': [('id', 'in', sale_order_ids)],
-                'view_mode': 'tree,form',
-            })
+        action = (
+            self.env.ref("sale.action_quotations")
+            .with_context(active_id=self.id)
+            .read()[0]
+        )
+        sales = self.sale_order_ids
+        if len(sales) > 1:
+            action["domain"] = [("id", "in", sale.ids)]
+        elif sales:
+            action.update(
+                res_id=sales.id, 
+                view_mode="form", 
+                view_id=False,
+                views=False,
+            )
         return action
 
     def copy_data(self, default=None):
