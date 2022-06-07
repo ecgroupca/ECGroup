@@ -7,6 +7,7 @@
     'website': 'https://quickbeamllc.com',
     'depends': [
         'approvals_purchase',
+        'firefly_approvals_purchase_requisition',
     ],
     'data': [
         'views/approvals_purchase.xml',
