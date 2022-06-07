@@ -31,7 +31,7 @@ class ApprovalRequest(models.Model):
     
     user_id = fields.Many2one('res.users',
         string = 'Purchase Representative'
-        domain = '_compute_rep_domain',
+        domain = _compute_rep_domain,
         )
                     
     def _compute_purchase_orders(self):
