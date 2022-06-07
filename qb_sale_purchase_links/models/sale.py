@@ -11,7 +11,7 @@ class SaleOrder(models.Model):
     )
     
     purchase_orders_counted = fields.Integer(
-        compute='_compute_purchase_orders_counted', store=True)
+        compute='_compute_purchase_orders_counted')
         
     @api.depends("purchase_order_ids")
     def _compute_purchase_orders_counted(self):
