@@ -13,6 +13,9 @@
                     attrs="{'invisible': [('sale_orders_counted', '=', 0)]}">
                     <field name="sale_orders_counted" widget="statinfo" string="Sales"/>
                 </button>
+            </xpath>
+            <xpath expr="//field[@name='date_approve']" position="after">
+                <field name="sale_order_id"/>
             </xpath>			
         </field>
     </record>
