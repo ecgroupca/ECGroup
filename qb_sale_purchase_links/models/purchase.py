@@ -30,7 +30,7 @@ class PurchaseOrder(models.Model):
         )
         sales = self.sale_order_id
         if len(sales) > 1:
-            action["domain"] = [("id", "in", sale.ids)]
+            action["domain"] = [("id", "in", sales.ids)]
         elif sales:
             action.update(
                 res_id=sales.id, 

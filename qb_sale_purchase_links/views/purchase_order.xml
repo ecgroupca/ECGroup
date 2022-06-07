@@ -15,7 +15,7 @@
                 </button>
             </xpath>
             <xpath expr="//field[@name='date_approve']" position="after">
-                <field name="sale_order_id"/>
+                <field name="sale_order_id" widget="many2many_tags"/>
             </xpath>			
         </field>
     </record>
