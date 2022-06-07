@@ -1,5 +1,5 @@
 {
-    'name': 'QB Sale Purchase Linkds',
+    'name': 'QB Sale Purchase Links',
     'description': 'Provides links from purchase to sales and vice versa.',
     'sequence': 1,
     'version': '13.1.0.0',
