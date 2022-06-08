@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="email_template_edi_purchase_done_firefly" model="mail.template">
+        <field name="name">Firefly Purchase Order: Send PO</field>
+        <field name="model_id" ref="purchase.model_purchase_order"/>
+        <field name="subject">{{ object.company_id.name }} Order (Ref {{ object.name or 'n/a' }})</field>
+        <field name="partner_to">{{ object.partner_id.id }}</field>
+        <field name="body_html" type="html">
+            <div style="margin: 0px; padding: 0px;">
+                <p style="margin: 0px; padding: 0px; font-size: 13px;">
+                    "Hello <t t-out="object.partner_id.name or ''"></t>,
+                    <br/><br/>
+                    In response to your recent quote
+                    <span class="font-italic"><t t-out="object.partner_ref or ''"></t></span>
+                    I've created <t t-out="object.name or ''"></t>, see attached terms and conditions.
+                    Please reply all to confirm receipt of this order, and ability to meet the promise date or
+                    with any questions regarding this order.
+                    <br/><br/>
+                    *** Let's agree to communicate with each other on this thread, including
+                    <span style="font-weight:bold">catchall@firefly.com</span>. This will allow my Teammates to be
+                    aware of the progress and answer any questions you may have***.
+                    <br/><br/>
+                    <span style="font-weight:bold;color:red">Required with delivery of order</span> :
+                    <br/><br/>
+                    Please REPLY ALL to email including <span style="font-weight:bold">receiving@firefly.com</span>
+                    with a copy of applicable quality documents.
+                    <br/><br/>
+                    <t t-if="object.quality_tag_ids">
+                        <t t-foreach="object.quality_tag_ids" t-as="tag">
+                            <t t-out="tag.code"></t> - <t t-out="tag.quality_tag"></t>
+                            <br/>
+                        </t>
+                        <br/>
+                    </t>
+                    Finance and Accounting
+                    <br/><br/>
+                    Send Invoice and payment request to <span style="font-weight:bold">invoices@firefly.com</span>.
+                    Be advised, Firefly Aerospace purchases are TAX EXEMPT; therefore, please DO NOT include taxes.
+                    Also, please include PO #'s with these Invoices.
+                    <br/><br/>
+                    Here is in attachment a purchase order <t t-out="object.name or ''"></t> amounting in
+                    <span style="font-weight:bold"><t t-out="format_amount(object.amount_total, object.currency_id) or ''"></t></span>
+                    from <t t-out="object.company_id.name or ''"></t>.
+                    <br/><br/>
+                    <t t-if="object.date_planned">
+                        The receipt is expected for
+                        <span style="font-weight:bold"><t t-out="format_date(object.date_planned) or ''"></t></span>.
+                        <br/><br/>
+                        Could you please acknowledge the receipt of this order?
+                        <br/><br/>
+                    </t>
+                    Best regards,
+                    <br/><br/>
+                    <t t-out="object.company_id.name or ''"></t>"
+                </p>
+            </div>
+        </field>
+        <field name="report_template" ref="purchase.action_report_purchase_order"/>
+        <field name="report_name">PO_{{ (object.name or '').replace('/','_') }}</field>
+        <field name="lang">{{ object.partner_id.lang }}</field>
+        <field name="auto_delete" eval="True"/>
+    </record>
+</odoo>

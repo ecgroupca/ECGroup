@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="external_layout_boxed" inherit_id="web.external_layout_boxed">
+        <!-- header -->
+        <xpath expr="//div[@class='row mb8']" position="replace">
+            <div class="row mb8">
+                <div class="col-6">
+                    <img t-if="company.logo" t-att-src="image_data_uri(company.logo)" alt="Logo" t-field-options="{'widget':'image'}" style="max-height:150px;"/>
+                </div>
+                <div class="col-6 text-right mb4">
+                    <h2 class="mt0" style="color:grey;font-weight:bolder;text-transform:uppercase;">
+                        <span t-field="company.report_header"/>
+                    </h2>
+                    <div name="company_address" class="float-right mb4">
+                        1320 Arrow Point Dr Suite 109<br/>
+                        Cedar Park, TX 78613<br/>
+                        Office: (512) 277-6959<br/>
+                        <br/>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+        <!-- footer -->
+        <xpath expr="//div[@t-attf-class='footer o_boxed_footer o_company_#{company.id}_layout']" position="replace">
+            <div t-attf-class="footer o_boxed_footer o_company_#{company.id}_layout">
+                <div class="text-center">
+                    <div>
+                        <t t-if="company.phone">
+                            Tel: <span t-field="company.phone"/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                        </t>
+                        <t t-if="company.email">
+                            Mail: <span t-field="company.email"/>&#160;&#160;&#160;&#160;&#160;&#160;&#160;
+                        </t>
+                        <t t-if="company.website">
+                            Web: <span t-field="company.website"/>
+                        </t>
+                    </div>
+                    <div name="footer" >
+                        <t t-foreach="company.report_footer.split('&lt;p&gt;')" t-as="line">
+                            <t t-if="line != ''">
+                                <t t-out="line.replace('&lt;/p&gt;','')"/>
+                                <br/>
+                            </t>
+                        </t>
+                    </div>
+                    <div t-if="report_type == 'pdf'">
+                        Page: <span class="page"/> / <span class="topage"/>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+    </template>
+
+    <template id="document_tax_totals" inherit_id="account.document_tax_totals">
+        <xpath expr="//tr[@class='border-black o_subtotal']" position="replace">
+            <tr class="border-black o_subtotal">
+                <td><strong>Subtotal</strong></td>
+                <td class="text-right o_price_total">
+                    <span t-att-class="oe_subtotal_footer_separator" t-esc="subtotal['formatted_amount']"/>
+                </td>
+            </tr>
+        </xpath>
+    </template>
+
+    <template id="report_purchaseorder_document_firefly" inherit_id="purchase_stock.report_purchaseorder_document">
+        <!-- Move Purchase order up -->
+        <xpath expr="//h2[@t-if=&#34;o.state in ['purchase', 'done']&#34;]" position="replace"></xpath>
+        <!-- Billing address -->
+        <xpath expr="//div[@t-field='o.partner_id']" position="replace">
+            <div t-field="o.partner_id" t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+        </xpath>
+        <xpath expr="//div[@t-field='o.partner_id']" position="before">
+            <h2><br/></h2>
+            <strong>Vendor Billing Address</strong>
+        </xpath>
+        <!-- Warehouse address -->
+        <xpath expr="//div[@t-field='o.picking_type_id.warehouse_id.partner_id']" position="replace">
+            <div t-field="o.picking_type_id.warehouse_id.partner_id" t-options='{"widget": "contact", "fields": ["address", "name"], "no_marker": True}'/>
+        </xpath>
+        <xpath expr="//t[@t-else='']/t[@t-set='information_block']/strong" position="replace">
+            <h2 t-if="o.state in ['purchase', 'done']" style="margin-top:-20px;padding-top:0px;">
+                Purchase Order #<span t-field="o.name"/>
+            </h2>
+            <strong>Shipping address</strong>
+        </xpath>
+        <!-- Shipping method -->
+        <xpath expr="//t[@t-else='']/t[@t-set='information_block']" position="inside">
+            <br/>
+            <strong>Shipping Method:</strong>
+            <p t-field="o.shipping_method_id" class="m-0"/>
+        </xpath>
+        <!-- Add space -->
+        <xpath expr="//div[@id='informations']" position="before">
+            <br/><br/>
+        </xpath>
+        <!-- Before table info -->
+         <xpath expr="//div[@id='informations']" position="replace">
+            <div id="informations">
+                <div class="row mt32 mb32">
+                    <div class="col-3">
+                        <strong>Order Date:</strong>
+                        <p t-field="o.date_order" class="m-0" t-options="{'widget': 'date'}"/>
+                    </div>
+                    <div class="col-3">
+                        <strong>Vendor Reference:</strong>
+                        <p t-field="o.partner_ref" class="m-0"/>
+                    </div>
+                    <div class="col-3">
+                        <strong>Flight:</strong>
+                        <p t-field="o.flight" class="m-0"/>
+                    </div>
+                    <div class="col-3">
+                        <strong>Shipping Payment:</strong>
+                        <p t-field="o.shipping_payment_id" class="m-0"/>
+                    </div>
+                </div>
+                <div class="row mt32 mb32">
+                    <div class="col-3">
+                        <strong>Terms:</strong>
+                        <p t-field="o.payment_term_id" class="m-0"/>
+                    </div>
+                    <div class="col-3">
+                        <strong>Inco:</strong>
+                        <p t-field="o.incoterm_id" class="m-0"/>
+                    </div>
+                    <div class="col-3">
+                        <strong>Attn.:</strong>
+                        <p t-field="o.prob_hr_employee_id" class="m-0"/>
+                    </div>
+                    <div class="col-3">
+                        <strong>Name:</strong>
+                        <p t-field="o.user_id" class="m-0"/>
+                    </div>
+                </div>
+            </div>
+        </xpath>
+
+        <!-- Modify table -->
+        <xpath expr="//table[@class='table table-sm o_main_table']" position="replace">
+            <t t-set="current_subtotal" t-value="0"/>
+            <table class="table table-sm o_main_table">
+                <thead>
+                    <tr>
+                        <th name="th_item"><strong>ITEM</strong></th>
+                        <th name="th_description"><strong>DESCRIPTION</strong></th>
+                        <th name="th_date_plan" class="text-center"><strong>PROMISE DATE</strong></th>
+                        <th name="th_quantity" class="text-right"><strong>QTY</strong></th>
+                        <th name="th_price_unit" class="text-right"><strong>RATE</strong></th>
+                        <th name="th_amount" class="text-right"><strong>AMOUNT</strong></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-foreach="o.order_line" t-as="line">
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_subtotal" groups="account.group_show_line_subtotals_tax_excluded"/>
+                        <t t-set="current_subtotal" t-value="current_subtotal + line.price_total" groups="account.group_show_line_subtotals_tax_included"/>
+
+                        <tr t-att-class="'bg-200 font-weight-bold o_line_section' if line.display_type == 'line_section' else 'font-italic o_line_note' if line.display_type == 'line_note' else ''">
+                            <t t-if="not line.display_type">
+                                <td id="product">
+                                    <span t-field="line.product_id.default_code"/>
+                                </td>
+                                <td id="description">
+                                    <span t-field="line.name"/>
+                                </td>
+                                <td class="text-center">
+                                    <span t-field="line.date_planned" t-options="{'widget': 'date'}"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-field="line.product_qty"/>
+                                    <span t-field="line.product_uom.name" groups="uom.group_uom"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-field="line.price_unit" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                </td>
+                                <td class="text-right">
+                                    <span t-field="line.price_subtotal" t-options="{'widget': 'monetary', 'display_currency': o.currency_id}"/>
+                                </td>
+                            </t>
+                            <t t-if="line.display_type == 'line_section'">
+                                <td colspan="99" id="section">
+                                    <span t-field="line.name"/>
+                                </td>
+                                <t t-set="current_section" t-value="line"/>
+                                <t t-set="current_subtotal" t-value="0"/>
+                            </t>
+                            <t t-if="line.display_type == 'line_note'">
+                                <td colspan="99" id="note">
+                                    <span t-field="line.name"/>
+                                </td>
+                            </t>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+        </xpath>
+
+        <xpath expr="//div[@id='total']" position="replace">
+            <div id="total" class="row justify-content-end">
+                <div class="col-5">
+                    <table class="table table-sm">
+                        <t t-set="tax_totals" t-value="json.loads(o.tax_totals_json)"/>
+                        <t t-esc="tax_totals.update({'formatted_amount_total': o.currency_id.symbol + ' ' + str(tax_totals['amount_total'])})"></t>
+                        <!-- tax_totals['groups_by_subtotal'] -->
+                        <t t-if="tax_totals['groups_by_subtotal'] == {}">
+                            <t t-esc="tax_totals['groups_by_subtotal'].update({
+                                'Untaxed Amount': [{
+                                    'tax_group_name': 'Taxes',
+                                    'tax_group_amount': 0.0,
+                                    'tax_group_base_amount': tax_totals['amount_untaxed'],
+                                    'formatted_tax_group_amount': o.currency_id.symbol + ' 0.0',
+                                    'formatted_tax_group_base_amount': o.currency_id.symbol + ' ' + str(tax_totals['amount_untaxed']),
+                                }]})">
+                            </t>
+                        </t>
+                        <!-- tax_totals['subtotals'] -->
+                        <t t-if="tax_totals['subtotals'] == []">
+                            <t t-esc="tax_totals['subtotals'].append({
+                                'name': 'Untaxed Amount',
+                                'amount': tax_totals['amount_untaxed'],
+                                'formatted_amount': o.currency_id.symbol + ' ' + str(tax_totals['amount_untaxed'])
+                            })">
+                            </t>
+                        </t>
+                        <t t-call="firefly_custom_template.document_tax_totals"/>
+                    </table>
+                </div>
+            </div>
+        </xpath>
+
+        <xpath expr="//div[@id='total']" position="after">
+            <br/>
+            <div style="page-break-inside:avoid;page-break-before auto;page-break-after:avoid;">
+                <t t-if="o.quality_tag_ids">
+                    <table id="quality_tag_table" class="table o_main_table">
+                        <thead>
+                            <tr>
+                                <th name="th_quality_tags"><strong>QUALITY CLAUSE</strong></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <t t-foreach="o.quality_tag_ids" t-as="tag">
+                                <tr>
+                                    <td style="background-color:#e2e3e2;color:red;border:none!important">
+                                        <span t-field="tag.code"/> - <span t-field="tag.quality_tag"/>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
+                </t>
+            </div>
+
+            <strong>Receiving hours are 8am to 3pm</strong>
+            <br/><br/>
+            <p id="covid_notice" class="alert alert-warning" style="page-break-inside:avoid;page-break-before auto;page-break-after:avoid;">
+                <strong>COVID-19 Notice</strong>
+                Delivery drivers are required to follow all rules for access to the facility,
+                including but not limited to rules adopted to prevent the spread of COVID-19
+                (e.g. temperature screenings and mask requirements). If a delivery is missed
+                due to noncompliance with facility access rules, supplier will be responsible
+                for all damages due to delay and all costs associated with redelivery.
+            </p>
+            <hr/>
+            <div style="font-style:italic;">
+                Send Invoice and Payment Request to : INVOICES@FIREFLY.COM.
+                <br/><br/>
+                For Terms and conditions go to https://www.firefly.com/tnc
+                <br/><br/>
+                Send any FFQC deliverables to RECEIVING@FIREFLY.COM to ensure proper processing.
+                <br/><br/>
+                NOTE: Please use REPLY ALL when responding via email to ensure proper routing for processing.
+            </div>
+        </xpath>
+    </template>
+</odoo>
