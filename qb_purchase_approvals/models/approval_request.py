@@ -26,8 +26,9 @@ class ApprovalRequest(models.Model):
         )
         
     def _compute_rep_domain(self):
-        buyer_users = self.env['res.groups'].search([('name','=','Buyers')]).mapped('users')
-        return [("id", "child_of", buyer_users.ids)]
+        buyer_group = self.env['res.groups'].search([('name','=','Buyers')])
+        domain = [("id", "in", buyer_group.users.ids)]       
+        return domain
     
     user_id = fields.Many2one('res.users',
         string = 'Purchase Representative',
