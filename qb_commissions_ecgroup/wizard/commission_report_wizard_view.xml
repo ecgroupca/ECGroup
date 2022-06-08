@@ -7,6 +7,7 @@
         <field name="arch" type="xml">
         <form string="Report Commission">
 		    <group col="4">
+			    <field name="company_id"/>
 			    <field name="remove_paid"/>
 			    <field name="showroom" widget="many2many_tags"/>
 			</group>
