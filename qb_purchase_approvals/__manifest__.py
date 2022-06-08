@@ -9,7 +9,7 @@
         'approvals_purchase',
     ],
     'data': [
-        'views/approvals_purchase.xml',
+        #'views/approvals_purchase.xml',
         'views/purchase_views.xml',
         'views/account_move_views.xml',
     ],
