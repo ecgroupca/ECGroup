@@ -31,7 +31,7 @@ class ApprovalRequest(models.Model):
         return domain"""
         
     def _compute_rep_domain(self):
-        buyer_users = self.env['res.groups'].search([('name','=','Buyers']).mapped('users')
+        buyer_users = self.env['res.groups'].search([('name','=','Buyers')]).mapped('users')
         return [("id", "child_of", buyer_users.ids)]
     
     user_id = fields.Many2one('res.users',
