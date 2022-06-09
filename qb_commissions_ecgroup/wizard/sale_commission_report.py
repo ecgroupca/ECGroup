@@ -34,7 +34,7 @@ class CommissionsReportXlsx(models.AbstractModel):
         #paid or shipped must be greater than date_from
         #both paid and shipped must be less than date_to
         #domain_search = [('comm_total','>',0)]
-        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('company_id','=',company_id.id)]
+        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('company_id','=',company_id)]
         domain_search.append(('fully_shipped_date','<=',date_to))
         domain_search.append(('fully_paid_date','<=',date_to))
         domain_search += ['|',('fully_paid_date','>=',date_from),('fully_shipped_date','>=',date_from)]
@@ -238,7 +238,7 @@ class ReportSaleCommissionReport(models.AbstractModel):
         showroom = data['form'].get('showroom', False)
         remove_paid = data['form'].get('remove_paid', False)   
         #create the domain for sales eligible for commissions  
-        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('company_id','=',company_id.id)]
+        domain_search = [('inv_bal_due','<=',0),('comm_total','>',0),('company_id','=',company_id)]
         domain_search.append(('fully_shipped_date','<=',date_to))
         domain_search.append(('fully_paid_date','<=',date_to))
         domain_search += ['|',('fully_paid_date','>=',date_from),('fully_shipped_date','>=',date_from)]    
