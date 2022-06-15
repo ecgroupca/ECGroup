@@ -1,5 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
+<odoo>	
+    <record id="qb_quality_search_inherit_view" model="ir.ui.view">
+        <field name="name">quality.alert.search.inherit</field>
+        <field name="model">quality.alert</field>
+		<field name="inherit_id" ref="quality.quality_alert_view_search"/>
+        <field name="arch" type="xml">
+		    <field name="product_id" position="after">
+			    <field name="manufacturing_order_id" string="MOs"/>
+			</field>
+		</field>
+    </record>
     <record id="qb_quality_docs_inherit_view" model="ir.ui.view">
         <field name="name">quality.alert.buttons.inherit</field>
         <field name="model">quality.alert</field>
