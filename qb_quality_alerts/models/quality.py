@@ -60,7 +60,7 @@ class QualityAlert(models.Model):
             
     def _compute_doc_counts(self):
         for quality in self:
-            quality.mrp_count = len(quality.mrp_ids)
+            quality.mrp_count = quality.manufacturing_order_id and 1 or 0
             quality.approval_count = len(quality.approval_ids)
             quality.purchase_count = len(quality.purchase_ids)
             

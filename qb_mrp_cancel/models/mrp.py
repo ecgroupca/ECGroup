@@ -41,8 +41,8 @@ class MRPProduction(models.Model):
                 """for move in new_picking.move_lines:
                     move.state = 'done'   
                     move.quantity_done = move.product_uom_qty                    
-                new_picking.state = 'done'
-                self.picking_ids |= new_picking"""
+                new_picking.state = 'done'"""
+                self.picking_ids |= new_picking
         res = super(MRPProduction, self)._action_cancel()
         return res
         
