@@ -21,3 +21,23 @@ class MRPProduction(models.Model):
             #find all alerts that have manufacturing_order_id = production
             domain = [('manufacturing_order_id','=',production.id)]
             production.quality_alert_ids = self.env['quality.alert'].search(domain)
+            
+    def action_view_quality(self):
+        self.ensure_one()
+        # Force active_id to avoid issues when coming from smart buttons
+        # in other models
+        action = (
+            self.env.ref("quality_control.quality_alert_action_check")
+            .with_context(active_id=self.id)
+            .read()[0]
+        )
+        alerts = self.quality_alert_ids
+        if len(alerts) > 1:
+            action["domain"] = [("id", "in", alerts.ids)]
+        elif alerts:
+            action.update(
+                res_id=alerts.id, view_mode="form", view_id=False, views=False,
+            )
+        return action
+            
+    
