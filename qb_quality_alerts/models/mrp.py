@@ -7,7 +7,7 @@ class MRPProduction(models.Model):
     quality_alert_ids = fields.One2many(
         'quality.alert', 
         "production_id", 
-        string="Alerts"
+        string="Alerts",
         compute='_compute_quality_alerts'
         )
     quality_alert_count = fields.Integer(compute='_compute_quality_alert_count')

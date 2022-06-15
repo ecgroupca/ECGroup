@@ -12,7 +12,7 @@
     </record>
     <record model="ir.ui.view" id="mrp_production_backorders">
         <field name="name">mrp.production.form.backorders</field>
-        <field name="model">mrp.production</field>
+        <field name="model">mrp.production.backorder</field>
         <field name="inherit_id" ref="mrp.view_mrp_production_backorder_form"/>
         <field name="arch" type="xml">
             <xpath expr="//button[@name='action_close_mo']" position="attributes">
