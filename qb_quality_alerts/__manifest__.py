@@ -16,7 +16,7 @@
         'quality_mrp',
         'purchase',
         'approvals',
-        'quality_firefly',
+        #'quality_firefly',
         ],
     'data': [
         'views/purchase_views.xml',
