@@ -38,11 +38,11 @@ class MRPProduction(models.Model):
                         
                 new_picking.action_confirm()
                 new_picking.action_assign()   
-                for move in new_picking.move_lines:
+                """for move in new_picking.move_lines:
                     move.state = 'done'   
                     move.quantity_done = move.product_uom_qty                    
                 new_picking.state = 'done'
-                self.picking_ids |= new_picking
+                self.picking_ids |= new_picking"""
         res = super(MRPProduction, self)._action_cancel()
         return res
         
