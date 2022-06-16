@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <!-- mrp.production form view-->
+    <record id="mrp_production_form_view" model="ir.ui.view">
+        <field name="name">mrp.bom.sub.product</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+        <field name="arch" type="xml">
+            <button name="action_assign" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </button>
+            <button name="button_mark_done" position="before">
+                <field name="new_order" invisible="1"/>
+                <button name="generate_production_bom" type="object" string="Generate BOM" class="oe_highlight" attrs="{'invisible':['|', ('new_order','=',False),('production_bom_ids','!=',False)]}"/>
+                <button name="reserve_items"  attrs="{'invisible':[('full_reserved','=',True)]}" string="Reserve Items" class="oe_highlight" type="object"/>
+            </button>
+            <field name="move_raw_ids" position="before">
+                <field name="full_reserved" invisible="1"/>
+                <separator name="substitute_products" string="Substitute Products" attrs="{'invisible' : [('new_order','=',False)]}"/>
+                <field name="production_bom_ids" create="false" attrs="{'invisible' : [('new_order','=',False)]}">
+                    <tree create="false" delete="false" editable="top" decoration-danger="error_status=='e'" decoration-muted="error_status=='d'" decoration-success="error_status=='o'">
+                        <field name="sequence" readonly="1"/>
+                        <field name="name" readonly="1" invisible="1"/>
+                        <field name="product_id" readonly="1"/>
+                        <field name="substitute_product_id" readonly="1"/>
+                        <field name="product_uom" options="{'no_open':True,'no_create':True}" groups="uom.group_uom"/>
+                        <field name="required_qty" readonly="1"/>
+                        <field name="available_qty"/>
+                        <field name="consumable_qty"/>
+                        <field name="reserved_qty" invisible="1"/>
+                        <field name="move_id" invisible="1"/>
+                        <field name="bom_line_id" invisible="1"/>
+                        <field name="production_id" invisible="1"/>
+                        <field name="status"/>
+                        <field name="error_status" invisible="1"/>
+
+                    </tree>
+                </field>
+                <separator name="consumed_products" string="Consumed Products"/>
+            </field>
+        </field>
+    </record>
+
+    <!--mrp.bom form view -->
+    <record id="mrp_subproduct_view" model="ir.ui.view">
+        <field name="name">mrp.bom.sub.product</field>
+        <field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+            <button name="action_see_attachments" position="before">
+                <field name="substitute_product_ids" widget="many2many_tags" domain="[('id','!=', product_id)]"/>
+            </button>
+        </field>
+    </record>
+</odoo>
