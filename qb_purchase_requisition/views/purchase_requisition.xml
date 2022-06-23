@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="qb_purchase_requisition_rfqs" model="ir.ui.view">
+        <field name="name">qb.purchase.requisition.rfqs</field>
+        <field name="model">purchase.requisition</field>
+		<field name="inherit_id" ref="purchase.purchase_order_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='%(action_purchase_requisition_to_so)d']" position="replace">
+                <button type="object"
+                    name="action_create_rfqs"
+                    class="oe_stat_button"  
+                    icon="fa-credit-card"
+                    string="New Quotation" class="btn-primary"
+                    attrs="{'invisible': [('state', 'not in', ('open', 'in_progress', 'ongoing'))]}"
+                </button>
+            </xpath>
+		</field>
+    </record>
+</odoo>

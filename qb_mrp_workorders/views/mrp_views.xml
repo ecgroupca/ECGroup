@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.ui.view" id="mrp_workcenter_custom">
+        <field name="name">mrp.workcenter.custom</field>
+        <field name="model">mrp.workcenter</field>
+        <field name="inherit_id" ref="mrp.mrp_workcenter_view"/>
+        <field name="arch" type="xml">
+            <field name="code" position="after">
+                <field name="is_quality"/>
+            </field>
+        </field>
+    </record>
+</odoo>
