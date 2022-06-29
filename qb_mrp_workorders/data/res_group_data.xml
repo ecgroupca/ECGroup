@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <data noupdate="0">
-        <record id="mrp.mrp_quality_user" model="res.groups">			
-            <field name="name">Quality</field>
-            <field name="category_id" ref="base.module_category_manufacturing"/>
+        <record id="mrp_quality_user" model="res.groups">			
+            <field name="name">Quality Workcenter</field>
+			<field name="category_id" eval="ref('base.module_category_manufacturing')"/>
             <field name="implied_ids" eval="[(4, ref('mrp.group_mrp_user'))]"/>
         </record>
     </data>
