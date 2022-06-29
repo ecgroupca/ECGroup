@@ -14,6 +14,7 @@
     'data': [
         'security/ir.model.access.csv',
         'views/mrp_views.xml',
+        'data/res_group_data.xml',
     ],
     'application': True,
     'installable': True,
