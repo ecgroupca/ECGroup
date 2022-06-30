@@ -19,8 +19,11 @@ class MRPWorkorder(models.Model):
             return True
 
         if self.workcenter_id.is_quality:
-            if not self.env.user.has_groups('qb_mrp_workorders.mrp_quality_user'):
-                raise UserError(_("Quality workorders can only be started by quality users."))  
+            quality_group = self.env['res.groups'].search([('name','=','Quality Workcenter')])
+            if quality_group:
+                quality_user = self.env.user.id in quality_group.users.ids
+                if not quality_user:
+                    raise UserError(_("Quality workorders can only be started by quality users."))  
             
         if self.product_tracking == 'serial':
             self.qty_producing = 1.0
