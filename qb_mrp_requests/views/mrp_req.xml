@@ -31,8 +31,11 @@
 		<field name="model">manufacturing.request.custom</field>
         <field name="inherit_id" ref="manufacturing_production_request.manufacturing_production_request_form"/>
         <field name="arch" type="xml">
-		    <button name="custom_action_reset_draft" position="attributes">
+     		<button name="custom_action_reset_draft" position="attributes">
 			    <attribute name="states">b_confirm,c_validate,programming,tooling,ready,d_manufacturing_created,cancel</attribute>
+			</button>
+		    <button name="custom_action_cancel" position="attributes">
+			    <attribute name="states">a_draft,b_confirm,c_validate,programming,tooling,ready</attribute>
 			</button>
 		    <button name="custom_manufacturing_order_create" position="attributes">
 			    <attribute name="states">ready</attribute>

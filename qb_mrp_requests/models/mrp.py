@@ -159,6 +159,10 @@ class ManufacturingRequestCustom(models.Model):
     tracking=True,
     )
 
+    custom_product_template_id = fields.Many2one(
+        required=False,
+    )
+    
     custom_product_uom_id = fields.Many2one(
         required=False,
     )
@@ -216,10 +220,10 @@ class ManufacturingRequestCustom(models.Model):
                 line.program = self.program
 
     @api.onchange('custom_date_start_wo')
-    def onchange_create_date(self):
-        if self.create_date:
+    def onchange_date_start_wo(self):
+        if self.custom_date_start_wo:
             for line in self.line_ids:
-                line.create_date = self.create_date                
+                line.date_start_wo = self.custom_date_start_wo                
     
     @api.onchange('end_date')
     def onchange_end_date(self):
@@ -258,12 +262,13 @@ class ManufacturingRequestCustom(models.Model):
                             'bom_id': line.bom_id.id,
                             'origin': req.number,
                             'date_deadline': line.end_date,
-                            'date_planned_start': line.custom_date_start_wo,
+                            'date_planned_start': line.date_start_wo,
                             'custom_request_id': req.id,
                             'request_line_id': line.id,
                         }
                         new_line = self.env['mrp.production'].new(mrp_vals)
                         new_line._onchange_product_id()
+                        #new_line._onchange_bom_id()
                         new_line._onchange_move_raw()
                         mrp_vals_dict = self.env['mrp.production']._convert_to_write({
                                 name: new_line[name] for name in new_line._cache
