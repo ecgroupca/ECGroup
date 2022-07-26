@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <data>
+
+        <record id="mrp_production_formview_inherit_manufacturing_request_field" model="ir.ui.view">
+            <field name="name">mrp.production.formview.inherit.manufacturing.request.field</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+                <!--  odoo 13 -->
+                <xpath expr="//page[@name='miscellaneous']/group/group" position="inside">
+                    <field name="custom_request_id" />
+                </xpath>
+            </field>
+         </record>
+
+     </data>
+ </odoo>

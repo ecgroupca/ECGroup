@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record model="ir.actions.act_window" id="manufacturing_production_request.manufacturing_production_request_action">
+        <field name="name">Manufacturing Requests</field>
+        <field name="res_model">manufacturing.request.custom</field>
+        <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_group_by_dept': 1}</field>
+    </record>
+    <record id="view_bom_inherits" model="ir.ui.view">
+        <field name="name">view.bom.inherits</field>        
+		<field name="model">mrp.bom</field>
+        <field name="inherit_id" ref="mrp.mrp_bom_form_view"/>
+        <field name="arch" type="xml">
+		    <xpath expr="//notebook//page[@name='components']//field//tree//field[@name='operation_id']" position="after">
+			    <field name="qty_available"/>
+			</xpath>
+		</field>
+	</record>
+    <record id="search_mrp_req_inh" model="ir.ui.view">
+        <field name="name">search.mrp.req.inh</field>        
+		<field name="model">manufacturing.request.custom</field>
+        <field name="inherit_id" ref="manufacturing_production_request.manufacturing_production_request_search_view"/>
+        <field name="arch" type="xml">
+		    <xpath expr="//filter[@name='by_custom_product_template_id']" position="after">
+		        <filter string="Department" name="group_by_dept" context="{'group_by':'department_id'}"/>
+			</xpath>
+		</field>
+	</record>
+    <record id="view_mrp_requisitions_inh" model="ir.ui.view">
+        <field name="name">view.mrp.req.inh</field>        
+		<field name="model">manufacturing.request.custom</field>
+        <field name="inherit_id" ref="manufacturing_production_request.manufacturing_production_request_form"/>
+        <field name="arch" type="xml">
+		    <button name="custom_action_reset_draft" position="attributes">
+			    <attribute name="states">b_confirm,c_validate,programming,tooling,ready,d_manufacturing_created,cancel</attribute>
+			</button>
+		    <button name="custom_manufacturing_order_create" position="attributes">
+			    <attribute name="states">ready</attribute>
+			</button>
+			<label for="custom_product_qty" position="replace"/>
+			<xpath expr="//form//header" position="inside">
+				<button string="Push to Programming" type="object" name="action_programming" states="c_validate" class="oe_highlight" groups="mrp.group_mrp_user"/>
+				<button string="Push to Tooling" type="object" name="action_tooling" states="programming" class="oe_highlight" groups="mrp.group_mrp_user"/>
+				<button string="Make Ready" type="object" name="action_ready" states="tooling" class="oe_highlight" groups="mrp.group_mrp_user"/>
+			</xpath>
+			<field name="custom_company_id" position="before">
+			    <field name="program"/>
+			    <field name="subprogram"/>
+				<field name="department_id"/>
+		    </field>
+			<field name="state" position="attributes">
+			    <attribute name="statusbar_visible">a_draft,b_confirm,c_validate,programming,tooling,ready,d_manufacturing_created
+				</attribute>
+			</field>
+		    <field name="custom_product_template_id" position="attributes">
+			    <attribute name="required">0</attribute>
+				<attribute name="invisible">1</attribute>
+			</field>
+		    <field name="custom_bom_id" position="attributes">
+			    <attribute name="required">0</attribute>
+				<attribute name="invisible">1</attribute>
+			</field>
+		    <field name="custom_product_qty" position="attributes">
+			    <attribute name="required">0</attribute>
+				<attribute name="invisible">1</attribute>
+			</field>
+		    <field name="custom_product_uom_id" position="attributes">
+			    <attribute name="required">0</attribute>
+				<attribute name="invisible">1</attribute>
+			</field>
+		    <xpath expr="//sheet//notebook//page" position="before">
+			    <page string="Requests">
+				    <field name="line_ids" attrs="{'readonly': [('state','not in',['a_draft','b_confirm','c_validate'])]}">
+					    <tree string="Request Lines" editable="bottom">
+						    <field name="product_id"/>
+							<field name="bom_id"/>
+							<field name="product_uom_qty"/>
+							<field name="product_uom"/>
+							<field name="program"/>
+			                <field name="subprogram"/>
+							<field name="date_start_wo"/>
+			                <field name="end_date"/>
+							<field name="mrp_id"/>
+						</tree>
+					</field>
+				</page>
+			</xpath>
+		</field>
+	</record>
+</odoo>

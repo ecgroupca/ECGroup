@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+         <!-- QWeb Reports -->
+        <!-- <report 
+            id="manufacturing_production_request_report"
+            model="manufacturing.request.custom"
+            menu="True"
+            report_type="qweb-pdf"
+            string="Manufacturing Production Request" 
+            name="manufacturing_production_request.manufacturing_production_request_template"
+            file="manufacturing_production_request.manufacturing_production_request_template"
+           /> -->
+
+        <record id="manufacturing_production_request_report" model="ir.actions.report">
+            <field name="name">Manufacturing Production Request</field>
+            <field name="model">manufacturing.request.custom</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">manufacturing_production_request.manufacturing_production_request_template</field>
+            <field name="report_file">manufacturing_production_request.manufacturing_production_request_template</field>
+            <field name="binding_model_id" ref="model_manufacturing_request_custom"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="manufacturing_production_request_template">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="web.internal_layout">
+                         <div class="page">
+                            <table class="table">
+                            <thead>
+                                <tr>
+                                   <td style="text-align: center;" colspan="4">
+                                       <strong><h5><span t-field="doc.number"/></h5></strong>
+                                   </td>
+                                </tr>
+                                <tr>
+                                    <td style="text-align: center;" colspan="4">
+                                       <strong><h5><span t-field="doc.custom_product_template_id"/></h5></strong>
+                                   </td>
+                                </tr>
+                             </thead>
+                             <tbody>
+                                <tr>
+                                    <td>
+                                        <strong>Quantity To Produce:</strong>
+                                    </td>
+                                    <td>
+                                      <div class="o_row no-gutters d-flex">
+                                        <div class="col">
+                                            <span t-field="doc.custom_product_qty"/>
+                                            <span t-field="doc.custom_product_uom_id"/>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    <td>
+                                      <strong>Deadline:</strong>
+                                    </td>
+                                    <td>
+                                        <span t-field="doc.end_date"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <strong>Bill of Material:</strong>
+                                    </td>
+                                    <td>
+                                      <span t-field="doc.custom_bom_id"/>
+                                    </td>
+                                    
+                                    <td>
+                                       <strong>Plan From:</strong>
+                                    </td>
+                                    <td>
+                                      <span t-field="doc.custom_date_start_wo"/>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                       <strong>Request Date:</strong>
+                                    </td>
+                                    <td>
+                                      <span t-field="doc.create_date"/>
+                                    </td>
+                                    <td>
+                                       <strong>Responsible User:</strong>
+                                    </td>
+                                    <td>
+                                      <span t-field="doc.custom_user_id"/>
+                                    </td>
+                                </tr>
+                             </tbody>
+                            </table>
+                            <h2>Other Info</h2>
+                            <table class="table table-condensed">
+                                        <tr>
+                                            <td>
+                                                <strong>Confirmed by</strong>
+                                            </td>
+                                            <td>
+                                                <span t-field="doc.confirm_by"/>
+                                            </td>
+                                            <td>
+                                                <strong>Confirmed Date</strong>
+                                            </td>
+                                            <td>
+                                                <span t-field="doc.confirm_date"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Approved by</strong>
+                                            </td>
+                                            <td>
+                                                <span t-field="doc.approve_by"/>
+                                            </td>
+                                            <td>
+                                                <strong>Approved Date</strong>
+                                            </td>
+                                            <td>
+                                                <span t-field="doc.approve_date"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <strong>Manufacturing Created by</strong>
+                                            </td>
+                                            <td>
+                                                <span t-field="doc.manufacturing_create_by"/>
+                                            </td>
+                                            <td>
+                                                <strong>Manufacturing Created Date</strong>
+                                            </td>
+                                            <td>
+                                                <span t-field="doc.manufacturing_date"/>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <br/><br/>
+                                    <div class="row mt32 mb32">
+                                      <div class="col-6">
+                                          <strong>Customer Signature:_________________</strong>
+                                      </div>
+                                      <div class="col-6">
+                                          <strong>Authorized signature:_____________________________</strong>
+                                      </div>
+                                    </div>
+                                    <div class="row mt32 mb32">
+                                        <div class="col-6">
+                                            <strong>Date:_____________</strong>
+                                        </div>
+                                        <div class="col-6">
+                                            <strong>Date:__________________</strong>
+                                        </div>
+                                    </div>
+                        </div>
+                </t>
+               </t>
+           </t>
+        </template>
+    </data>
+</openerp>

@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+
+        <record model="ir.ui.view" id="manufacturing_production_request_form">
+            <field name="name">Manufacturing Request Form</field>
+            <field name="model">manufacturing.request.custom</field>
+            <field name="arch" type="xml">
+                 <form string="Manufacturing Production Request Form">
+                     <header>
+                       <button string="Approve" type="object" name="custom_action_validate" states="b_confirm" 
+                                class="oe_highlight" groups="mrp.group_mrp_manager"/>
+                       <button string="Reset to Draft" type="object" name="custom_action_reset_draft" states="d_manufacturing_created,cancel" groups="mrp.group_mrp_manager"/>
+                       <button string="Create Manufacturing Order" type="object" name="custom_manufacturing_order_create" class="oe_highlight" states="c_validate" groups="mrp.group_mrp_manager"/>
+                       <button string="Confirm" type="object" name="custom_action_confirm" states="a_draft" class="oe_highlight" groups="mrp.group_mrp_user"/>
+                       <button string="Cancel" type="object" name="custom_action_cancel" states="a_draft,b_confirm,c_validate" groups="mrp.group_mrp_manager"/>
+                       <field name="state" widget="statusbar"
+                              statusbar_visible="a_draft,b_confirm,c_validate,d_manufacturing_created"/>
+                     </header>
+                     <sheet>
+                         <div class="oe_button_box" name="button_box">
+                            <button class="oe_stat_button" name="action_view_mrp_production" type="object"
+                             icon="fa-industry" string="Manufacturing Orders" attrs="{'invisible':[('state', 'in', ('a_draft','b_confirm','cancel','c_validate'))]}">
+                            </button>
+                        </div>
+                        <div class="oe_title">
+                            <h1><field name="number" nolabel="1"/></h1>
+                            <h1><field name="custom_product_template_id" nolabel="1" placeholder="Manufacturing Product ....." attrs="{'readonly':[('state', 'in', ('cancel','d_manufacturing_created'))]}"/></h1>
+                        </div>
+                    <group>
+                        <group>
+                            <label for="custom_product_qty"/>
+                            <div class="o_row no-gutters d-flex">
+                                <div class="col">
+                                    <field name="custom_product_qty" class="mr-1" attrs="{'readonly':[('state', 'in', ('cancel','d_manufacturing_created'))]}"/>
+                                    <field name="custom_product_uom_id" options="{'no_open':True,'no_create':True}" force_save="1" groups="uom.group_uom" attrs="{'readonly':[('state', 'in', ('cancel','d_manufacturing_created'))]}"/>
+                                </div>
+                            </div>
+                            <field name="custom_bom_id" attrs="{'readonly':[('state', 'in', ('cancel','d_manufacturing_created'))]}" />
+                            <field name="custom_company_id" groups="base.group_multi_company" attrs="{'readonly':[('state', 'in', ('cancel','d_manufacturing_created'))]}" widget="selection"/>
+                            
+                        </group>
+                        <group>
+                            <field name="end_date" attrs="{'readonly':[('state', 'in', ('cancel','d_manufacturing_created'))]}"/>
+                            <field name="custom_date_start_wo" attrs="{'readonly':[('state', 'in', ('cancel','d_manufacturing_created'))]}"/>
+                            <field name="custom_user_id" attrs="{'readonly':[('state', 'in', ('cancel','d_manufacturing_created'))]}"/>
+                            <field name="create_date" attrs="{'readonly':[('state', 'in', ('cancel','d_manufacturing_created'))]}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="General Details" >
+                            <group string="Description">
+                              <field name="custom_description" placeholder="Request Details....." attrs="{'readonly':[('state', 'in', ('cancel','d_manufacturing_created'))]}" nolabel="1"/>
+                            </group>
+                            <group string="Internal Notes">
+                                <field name="notes" placeholder="Internal Notes........" nolabel="1"/>
+                            </group>
+                        </page>
+                        <page string="Other Info">
+                            <group>
+                                <group>
+                                    <field name="confirm_by"/>
+                                    <field name="approve_by"/>
+                                    <field name="manufacturing_create_by"/>
+                                    <field name="custom_manufacturing_order_id" invisible="1"/>
+                                </group>
+                                <group>
+                                    <field name="confirm_date"/>
+                                    <field name="approve_date"/>
+                                    <field name="manufacturing_date" />
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+                <div class="oe_chatter">
+                    <field name="message_follower_ids" widget="mail_followers"/>
+                    <field name="message_ids" widget="mail_thread"/>
+                </div>
+                 </form>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="manufacturing_production_request_tree_view">
+            <field name="name">manufacturing.production.request.tree.view</field>
+            <field name="model">manufacturing.request.custom</field>
+            <field name="arch" type="xml">
+                <tree string="Manufacturing Production Request List View">
+                    <field name="number"/>
+                    <field name="custom_product_template_id"/>
+                    <field name="custom_product_qty"/>
+                    <field name="custom_product_uom_id"/>
+                    <field name="custom_bom_id"/>
+                    <field name="custom_user_id"/>
+                    <field name="create_date"/>
+                    <field name="state"/>
+                </tree>
+            </field>
+        </record>
+        <record model="ir.ui.view" id="manufacturing_production_request_search_view">
+        <field name="name">manufacturing.production.request.search.view</field>
+        <field name="model">manufacturing.request.custom</field>
+        <field name="arch" type="xml">
+            <search>
+                    <field name="custom_product_template_id"/>
+                    <field name="custom_user_id"/>
+                    <field name="create_date"/>
+                    <field name="end_date"/>
+                    <field name="custom_product_qty"/>
+                    <field name="custom_product_uom_id"/>
+                    <field name="custom_company_id" groups="base.group_multi_company"/>
+                    <field name="number"/>
+                    <field name="custom_bom_id"/>
+                    <field name="end_date"/>
+                    <field name="custom_date_start_wo"/>
+                    <field name="state" />
+                <group expand="0" string="Group By">
+                    <filter name="by_custom_product_template_id" string="Product" context="{'group_by': 'custom_product_template_id'}" />
+                    <filter name="by_custom_user_id" string="Responsible User" context="{'group_by': 'custom_user_id'}" />
+                    <filter name="by_custom_bom_id" string="Bill of Material" context="{'group_by': 'custom_bom_id'}" />
+                    <filter name="by_create_date" string="Request Date" context="{'group_by': 'create_date'}" />
+                    <filter name="by_custom_company_id" string="Company" context="{'group_by': 'custom_company_id'}"/>
+                    <filter name="by_state" string="Status"
+                            context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+    
+    <record model="ir.actions.act_window" id="manufacturing_production_request_action">
+        <field name="name">Manufacturing Requests</field>
+        <field name="res_model">manufacturing.request.custom</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_mrp_request" name="Requests" parent="mrp.menu_mrp_root" sequence="12"/>
+
+    <menuitem id="menu_mrp_request_child" name="Manufacturing Requests" parent="menu_mrp_request"
+              action="manufacturing_production_request_action"/>
+    </data>
+</odoo>
