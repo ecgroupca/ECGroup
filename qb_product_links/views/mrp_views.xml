@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="qb_mrp_links_product_view" model="ir.ui.view">
+        <field name="name">qb.mrp.links.product.inherit</field>
+        <field name="model">product.template</field>
+		<field name="inherit_id" ref="product.product_template_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button type="object"
+                    name="action_view_purchase"
+                    class="oe_stat_button"  
+                    icon="fa-credit-card"
+                    attrs="{'invisible': [('purchase_count', '=', 0)]}">
+                    <field name="purchase_count" widget="statinfo" string="Purchases"/>
+                </button>
+                <button type="object"
+                    name="action_view_mrp"
+                    class="oe_stat_button"
+                    icon="fa-gears"
+                    attrs="{'invisible': [('mrp_count', '=', 0)]}">
+                    <field name="mrp_count" widget="statinfo" string="MOs"/>
+                </button>
+            </xpath>
+		</field>
+    </record>
+    <record id="qb_mrp_links_product_tree" model="ir.ui.view">
+        <field name="name">qb.mrp.links.product.tree</field>
+        <field name="model">product.template</field>
+		<field name="inherit_id" ref="product.product_template_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="uom_id" position="after">
+			    <field name="mrp_order_ids" optional="hide" widget="many2many_tags" attrs="{'invisible': [('mrp_count', '=', 0)]}"/>
+			    <button name="action_view_mrp" type="object" icon="fa-rocket" attrs="{'invisible': [('mrp_count', '=', 0)]}">
+			        <field name="mrp_count" string="MOs"/>
+			    </button>
+			    <field name="purchase_ids" optional="hide" widget="many2many_tags" attrs="{'invisible': [('purchase_count', '=', 0)]}"/>
+			    <button name="action_view_purchase" type="object" icon="fa-credit-card" attrs="{'invisible': [('purchase_count', '=', 0)]}">
+			        <field name="purchase_count" string="POs"/>
+			    </button>
+            </field>
+		</field>
+    </record>
+    <record id="qb_mrp_links_variant_tree" model="ir.ui.view">
+        <field name="name">qb.mrp.links.variant.tree</field>
+        <field name="model">product.product</field>
+		<field name="inherit_id" ref="product.product_product_tree_view"/>
+        <field name="arch" type="xml">
+            <field name="uom_id" position="after">
+			    <field name="mrp_order_ids" optional="hide" widget="many2many_tags" attrs="{'invisible': [('mrp_count', '=', 0)]}"/>
+			    <button name="action_view_mrp" type="object" icon="fa-rocket" attrs="{'invisible': [('mrp_count', '=', 0)]}">
+			        <field name="mrp_count" string="MOs"/>
+			    </button>
+			    <field name="purchase_ids" optional="hide" widget="many2many_tags" attrs="{'invisible': [('purchase_count', '=', 0)]}"/>
+			    <button name="action_view_purchase" type="object" icon="fa-credit-card" attrs="{'invisible': [('purchase_count', '=', 0)]}">
+			        <field name="purchase_count" string="POs"/>
+			    </button>
+            </field>
+		</field>
+    </record>
+</odoo>

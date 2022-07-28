@@ -14,14 +14,58 @@ class MRPProduction(models.Model):
         
     @api.depends('procurement_group_id')
     def _compute_picking_ids(self):
+        """Must find the pickings that are going to pre-production
+           and then create a new picking from stock to pre-production
+           for each of the workorders that exist for the MO, 
+           grouping by their consumed in operation."""
+        wo_obj = self.env['mrp.workorder']
+        bom_line_obj = self.env['mrp.bom.line']
+        pick_obj = self.env['stock.picking']        
         for order in self:
-            picking_ids = self.env['stock.picking'].search([
+            picking_ids = pick_obj.search([
                 ('group_id', '=', order.procurement_group_id.id),
                 ('group_id', '!=', False),
             ])
+            bom_id = order.bom_id
             for pick in picking_ids:
+                new_picking_id = pick_obj
+                if pick.picking_type_id.name=='Pick Components':
+                    #loop through moves and assign workorders according to consumed in
+                    for move in pick.move_lines:
+                        domain = [('bom_id','=',bom_id.id),('product_id','=',move.product_id.id)]
+                        bom_line = bom_line_obj.search(domain) and bom_line_obj.search(domain)[0] or False
+                        domain = [('production_id','=',order.id),('operation_id','=',bom_line.operation_id.id)]
+                        workorder_id = wo_obj.search(domain) and wo_obj.search(domain)[0] or False
+                        pick_wo_id = pick.workorder_id
+                        if not pick_wo_id:
+                            pick.workorder_id = workorder_id
+                            move.bom_line_id = bom_line and bom_line.id or False
+                            move.workorder_id = workorder_id and workorder_id.id or False                           
+                        elif pick_wo_id == workorder_id:
+                            move.bom_line_id = bom_line and bom_line.id or False
+                            move.workorder_id = workorder_id and workorder_id.id or False
+                            move.picking_id = pick.id                           
+                        else: 
+                            #find the picking that was created for the workorder and assign the move                        
+                            wo_pick = pick_obj.search([('workorder_id','=',workorder_id.id)])
+                            if wo_pick:
+                                move.picking_id = wo_pick.id
+                                move.bom_line_id = bom_line and bom_line.id or False
+                                move.workorder_id = workorder_id and workorder_id.id or False 
+                            else:
+                                #create a new picking and reassign this move to the new pick.
+                                new_picking_id = pick.copy()
+                                new_picking_id.move_lines.unlink()
+                                move.picking_id = new_picking_id.id
+                                move.bom_line_id = bom_line and bom_line.id or False
+                                move.workorder_id = workorder_id and workorder_id.id or False 
+                                new_picking_id.workorder_id = workorder_id
+                                self._compute_picking_ids()
+                        
                 order.picking_ids |= pick
-            order.delivery_count = len(order.picking_ids)
+                if new_picking_id:
+                    order.picking_ids |= new_picking_id
+            order.delivery_count = len(order.picking_ids)                     
         
     def _action_cancel(self):
         documents_by_production = {}

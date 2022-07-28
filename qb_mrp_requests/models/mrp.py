@@ -35,9 +35,23 @@ class MrpProduction(models.Model):
             self.product_uom_id = self.request_line_id.product_uom.id
             
     def button_mark_done(self):
+        all_wo_done = True
+        for wo in self.workorder_ids:
+            if wo.state not in ['done','cancel']:
+                all_wo_done = False     
+        if not all_wo_done:
+            raise ValidationError(_("All work orders must be finished before closing MO.")) 
+        #if no exceptions, we call super to mark it done                
         res = super().button_mark_done()
         if res:
-            self.mrp_production_request_id.state = 'repaired'
+            mrp_req = self.custom_request_id
+            if mrp_req:
+                all_mrp_done = True
+                for mrp in mrp_req.mrp_ids:
+                    if mrp.state not in ['done','cancel']:
+                        all_mrp_done = False
+                if all_mrp_done:
+                    mrp_req.state = 'done'
         return res
         
         
@@ -48,7 +62,7 @@ class ManufacturingRequestLine(models.Model):
     
     subprogram = fields.Char('Sub-program')
     
-    date_start_wo = fields.Date(
+    date_start_wo = fields.Datetime(
         'Plan From',
         tracking=True,
     )
@@ -175,7 +189,7 @@ class ManufacturingRequestCustom(models.Model):
         required=False,
         ) 
 
-    create_date = fields.Date(
+    custom_date_start_wo = fields.Datetime(
         tracking=True,
     )
     
@@ -274,6 +288,7 @@ class ManufacturingRequestCustom(models.Model):
                                 name: new_line[name] for name in new_line._cache
                             })
                         mrp_id = self.env['mrp.production'].create(mrp_vals_dict)
+                        mrp_id._create_workorder()
                         req.mrp_ids |= mrp_id
                         line.mrp_id = mrp_id
                         req.state = 'd_manufacturing_created'
@@ -283,8 +298,7 @@ class ManufacturingRequestCustom(models.Model):
                     else:
                         #raise exception stating that there is already an MO for that item 
                         raise ValidationError(
-                            _("Duplicate BoM. A BoM can only appear on one request line.")
-            ) 
+                            _("Duplicate BoM. A BoM can only appear on one request line.")) 
         action = self.env.ref('mrp.mrp_production_action')
         result = action.sudo().read()[0]
         result['domain'] = [('custom_request_id', '=', self.id)]

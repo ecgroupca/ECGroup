@@ -21,9 +21,39 @@
 		<field name="model">manufacturing.request.custom</field>
         <field name="inherit_id" ref="manufacturing_production_request.manufacturing_production_request_search_view"/>
         <field name="arch" type="xml">
-		    <xpath expr="//filter[@name='by_custom_product_template_id']" position="after">
+		  <field name="custom_product_template_id" position="replace"/>
+		  <field name="custom_product_qty" position="replace"/>
+		  <field name="custom_product_uom_id" position="replace"/>
+		  <field name="custom_bom_id" position="replace">
+		      	<field name="program"/>
+			    <field name="subprogram"/>
+				<field name="department_id"/>
+				<field name="custom_date_start_wo"/>
+				<field name="end_date"/>
+		  </field>
+		  <xpath expr="//filter[@name='by_custom_bom_id']" position="replace"/>
+		    <xpath expr="//filter[@name='by_custom_product_template_id']" position="replace">
 		        <filter string="Department" name="group_by_dept" context="{'group_by':'department_id'}"/>
+				<filter string="Program" name="group_by_program" context="{'group_by':'program'}"/>
+				<filter string="Sub-program" name="group_by_subprogram" context="{'group_by':'subprogram'}"/>
 			</xpath>
+		</field>
+	</record>
+    <record id="tree_mrp_requests_inh" model="ir.ui.view">
+        <field name="name">tree.mrp.req.inh</field>        
+		<field name="model">manufacturing.request.custom</field>
+        <field name="inherit_id" ref="manufacturing_production_request.manufacturing_production_request_tree_view"/>
+        <field name="arch" type="xml">
+		  <field name="custom_product_template_id" position="replace"/>
+		  <field name="custom_product_qty" position="replace"/>
+		  <field name="custom_product_uom_id" position="replace"/>
+		  <field name="custom_bom_id" position="replace">
+		      	<field name="program"/>
+			    <field name="subprogram"/>
+				<field name="department_id"/>
+				<field name="custom_date_start_wo"/>
+				<field name="end_date"/>
+		  </field>
 		</field>
 	</record>
     <record id="view_mrp_requisitions_inh" model="ir.ui.view">
@@ -47,9 +77,9 @@
 				<button string="Make Ready" type="object" name="action_ready" states="tooling" class="oe_highlight" groups="mrp.group_mrp_user"/>
 			</xpath>
 			<field name="custom_company_id" position="before">
-			    <field name="program"/>
-			    <field name="subprogram"/>
-				<field name="department_id"/>
+			    <field name="program" attrs="{'readonly': [('state','not in',['a_draft','b_confirm'])]}"/>
+			    <field name="subprogram" attrs="{'readonly': [('state','not in',['a_draft','b_confirm'])]}"/>
+				<field name="department_id" attrs="{'readonly': [('state','not in',['a_draft','b_confirm'])]}"/>
 		    </field>
 			<field name="state" position="attributes">
 			    <attribute name="statusbar_visible">a_draft,b_confirm,c_validate,programming,tooling,ready,d_manufacturing_created
@@ -71,9 +101,24 @@
 			    <attribute name="required">0</attribute>
 				<attribute name="invisible">1</attribute>
 			</field>
+		    <field name="custom_company_id" position="attributes">
+			    <attribute name="attrs">{'readonly': [('state','not in',['a_draft','b_confirm'])]}</attribute>
+			</field>
+		    <field name="end_date" position="attributes">
+			    <attribute name="attrs">{'readonly': [('state','not in',['a_draft','b_confirm'])]}</attribute>
+			</field>
+		    <field name="custom_date_start_wo" position="attributes">
+			    <attribute name="attrs">{'readonly': [('state','not in',['a_draft','b_confirm'])]}</attribute>
+			</field>
+		    <field name="custom_user_id" position="attributes">
+			    <attribute name="attrs">{'readonly': [('state','not in',['a_draft','b_confirm'])]}</attribute>
+			</field>
+		    <field name="create_date" position="attributes">
+			    <attribute name="attrs">{'readonly': [('state','not in',['a_draft','b_confirm'])]}</attribute>
+			</field>
 		    <xpath expr="//sheet//notebook//page" position="before">
 			    <page string="Requests">
-				    <field name="line_ids" attrs="{'readonly': [('state','not in',['a_draft','b_confirm','c_validate'])]}">
+				    <field name="line_ids" attrs="{'readonly': [('state','not in',['a_draft','b_confirm'])]}">
 					    <tree string="Request Lines" editable="bottom">
 						    <field name="product_id"/>
 							<field name="bom_id"/>
