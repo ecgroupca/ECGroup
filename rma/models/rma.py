@@ -756,7 +756,7 @@ class Rma(models.Model):
             vals['location_id'] = src_loc_id
         res = self.env['stock.move'].create(vals)
         #for workorder in mrp_bom_id.workorder_ids:
-        mrp_prod._create_workorder()        
+        #mrp_prod._create_workorder()        
         mrp_prod.action_confirm()
         mrp_prod.action_assign()
         move_line_ids = rma.move_id and rma.move_id.move_line_nosuggest_ids
@@ -1228,7 +1228,7 @@ class Rma(models.Model):
         move_form.product_id = self.product_id
         move_form.product_uom_qty = quantity or self.product_uom_qty
         move_form.product_uom = uom or self.product_uom
-        move_form.date = scheduled_date
+        move_form.date_expected = scheduled_date
         
    # Repair business methods
     def create_repair(self, scheduled_date, product, qty, uom, company, mrp_bom_id, rma_move_id):
