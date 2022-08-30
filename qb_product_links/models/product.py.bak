@@ -1,0 +1,40 @@
+from odoo import api, fields, models
+
+  
+class ProductTemplate(models.Model):
+    _inherit = "product.template"
+
+    mrp_count = fields.Integer('# MOs',
+        compute='_compute_mrp_count', compute_sudo=False)
+
+    mrp_order_ids = fields.One2many('MOs',
+        compute='_compute_mrp_orders', compute_sudo=False)
+
+    def _compute_mrp_count(self):
+        for product in self:
+            product.mrp_count = len(product.mrp_order_ids)
+            
+    def _compute_mrp_orders(self):
+        for tmpl in self:
+            domain = [('state', '!=', 'cancel'), ('product_id.prod_tmpl_id', '=', tmpl.id)]
+            mrp_ids = self.env['mrp.production'].search(domain)
+            self.mrp_order_ids = [(6,0,mrp_ids)]
+
+            
+class ProductProduct(models.Model):
+    _inherit = "product.product"
+
+    mrp_count = fields.Integer('# MOs',
+        compute='_compute_mrp_count', compute_sudo=False)
+    mrp_order_ids = fields.One2many('MOs',
+        compute='_compute_mrp_orders', compute_sudo=False)
+        
+    def _compute_mrp_count(self):
+        for product in self:
+            product.mrp_count = len(product.mrp_order_ids)
+
+    def _compute_mrp_orders(self):
+        for product in self:
+            domain = [('state', '!=', 'cancel'), ('product_id', '=', product.id)]
+            mrp_ids = self.env['mrp.production'].search(domain)
+            self.mrp_order_ids = [(6,0,mrp_ids)]
