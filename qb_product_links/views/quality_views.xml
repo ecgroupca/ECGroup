@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="qb_quality_docs_inherit_view" model="ir.ui.view">
+        <field name="name">quality.alert.buttons.inherit</field>
+        <field name="model">quality.alert</field>
+		<field name="inherit_id" ref="quality_control.quality_alert_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@class='oe_button_box']" position="inside">
+                <button type="object"
+                    name="action_view_mrp"
+                    class="oe_stat_button"  
+                    icon="fa-rocket"
+                    attrs="{'invisible': [('mrp_count', '=', 0)]}">
+                    <field name="mrp_count" widget="statinfo" string="MRP Orders"/>
+                </button>
+                <button type="object"
+                    name="action_view_purchase"
+                    class="oe_stat_button"  
+                    icon="fa-credit-card"
+                    attrs="{'invisible': [('purchase_count', '=', 0)]}">
+                    <field name="purchase_count" widget="statinfo" string="Purchase Orders"/>
+                </button>
+                <button type="object"
+                    name="action_view_approval"
+                    class="oe_stat_button"  
+                    icon="fa-check-square-o"
+                    attrs="{'invisible': [('approval_count', '=', 0)]}">
+                    <field name="approval_count" widget="statinfo" string="Approvals"/>
+                </button>
+            </xpath>
+		</field>
+    </record>
+</odoo>

@@ -49,6 +49,7 @@ class MrpProduction(models.Model):
             sale_line = self.env['sale.order.line'].search([
                 ('product_id', '=', mrp.product_id),
                 ('product_uom_qty','=',mrp.product_uom_qty),
+                ('order_id','=',sale_id.id),
                 ]
             )
             if sale_line:

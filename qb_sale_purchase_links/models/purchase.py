@@ -1,9 +1,14 @@
 from odoo import fields, models, api, _
 
+class ProcurementGroup(models.Model):
+    _inherit = 'procurement.group'
+
+    mrp_production_ids = fields.One2many('mrp.production', 'procurement_group_id')
+    
 
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
-    
+        
     sale_order_id = fields.Many2many(
         'sale.order',
         string = 'Sales',
@@ -13,6 +18,39 @@ class PurchaseOrder(models.Model):
     sale_orders_counted = fields.Integer(
         "Sale Order Count",
         compute='_compute_sale_orders_counted',)
+
+    mrp_production_count = fields.Integer(
+        "Count of MO Source",
+        compute='_compute_mrp_production_count',
+        groups='mrp.group_mrp_user')
+
+    @api.depends('order_line.move_dest_ids.group_id.mrp_production_ids')
+    def _compute_mrp_production_count(self):
+        for purchase in self:
+            purchase.mrp_production_count = len(purchase._get_mrp_productions())
+
+    def _get_mrp_productions(self, **kwargs):
+        return self.order_line.move_dest_ids.group_id.mrp_production_ids | self.order_line.move_ids.move_dest_ids.group_id.mrp_production_ids
+
+    def action_view_mrp_productions(self):
+        self.ensure_one()
+        mrp_production_ids = self._get_mrp_productions().ids
+        action = {
+            'res_model': 'mrp.production',
+            'type': 'ir.actions.act_window',
+        }
+        if len(mrp_production_ids) == 1:
+            action.update({
+                'view_mode': 'form',
+                'res_id': mrp_production_ids[0],
+            })
+        else:
+            action.update({
+                'name': _("Manufacturing Source of %s", self.name),
+                'domain': [('id', 'in', mrp_production_ids)],
+                'view_mode': 'tree,form',
+            })
+        return action  
         
     @api.depends("sale_order_id")
     def _compute_sale_orders_counted(self):
