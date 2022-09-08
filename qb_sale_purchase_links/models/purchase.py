@@ -15,7 +15,7 @@ class PurchaseOrder(models.Model):
         readonly = False,
     )
     
-    state = fields.addSelection(
+    state = fields.Selection(
         selection_add=[('received', 'Received')],
     )
 
