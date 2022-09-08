@@ -14,6 +14,10 @@ class PurchaseOrder(models.Model):
         string = 'Sales',
         readonly = False,
     )
+    
+    state = fields.addSelection(
+        selection_add=[('received', 'Received')],
+    )
 
     sale_orders_counted = fields.Integer(
         "Sale Order Count",
@@ -117,7 +121,8 @@ class PurchaseOrder(models.Model):
 
 class PurchaseOrderLine(models.Model):
     _inherit = "purchase.order.line"
-
+    
+    
     is_deposit = fields.Boolean(
         string="Is a deposit payment",
         help="Deposit payments are made when creating invoices from a purhcase"
@@ -138,3 +143,8 @@ class PurchaseOrderLine(models.Model):
         if self.is_deposit:
             res["quantity"] = -1 * self.qty_invoiced
         return res
+        
+    @api.onchange('qty_received', 'qty_received_manual')
+    def _onchange_quantity_received(self):
+        if self.qty_received == self.product_uom_qty or self.qty_received_manual == self.product_uom_qty:
+            self.state == 'received'

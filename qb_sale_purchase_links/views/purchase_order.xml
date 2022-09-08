@@ -1,5 +1,17 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+
+    <record id="view_purchase_sale_links_filter" model="ir.ui.view">
+		<field name="name">purchase.sale.links</field>
+		<field name="model">purchase.order</field>
+		<field name="arch" type="xml">
+		<field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+		    <filter name="to_approve">
+			    <filter name="received" string="Received" domain="[('state', '=', 'received')]"/>
+			</filter>
+		</field>
+	</record>
+			
     <record id="view_purchase_sale_links" model="ir.ui.view">
         <field name="name">view.purchase.sale.links</field>
         <field name="model">purchase.order</field>
@@ -25,7 +37,10 @@
                     attrs="{'invisible': [('mrp_production_count', '=', 0)]}">
                     <field name="mrp_production_count" widget="statinfo" string="MOs"/>
                 </button>
-            </xpath>		
+            </xpath>
+            <field name="state" position="attributes">
+			    <attribute name="statusbar_visible">draft,sent,purchase,received</attribute>
+            </field>			
         </field>
     </record>
     <record id="view_rfq_order_form_mods" model="ir.ui.view">
