@@ -5,7 +5,7 @@
     'version': '13.3.0.0',
     'author': 'Adam O\'Connor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
-    'depends': ['sale_management','purchase'],
+    'depends': ['sale_management','purchase','sale_purchase','purchase_mrp'],
     'data': [
         'views/purchase_order.xml',
         'views/sale_order.xml'

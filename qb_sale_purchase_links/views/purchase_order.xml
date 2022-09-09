@@ -4,8 +4,8 @@
     <record id="view_purchase_sale_links_filter" model="ir.ui.view">
 		<field name="name">purchase.sale.links</field>
 		<field name="model">purchase.order</field>
-		<field name="arch" type="xml">
 		<field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+		<field name="arch" type="xml">
 		    <filter name="to_approve">
 			    <filter name="received" string="Received" domain="[('state', '=', 'received')]"/>
 			</filter>
