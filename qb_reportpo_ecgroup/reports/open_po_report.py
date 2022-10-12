@@ -66,7 +66,7 @@ class OpenPurchasesXlsx(models.AbstractModel):
                 sheet.write(j+i+5, 1, purchase.date_order.strftime("%m-%d-%Y"))               
                 sheet.write(j+i+5, 2, purchase.partner_ref)
                 for line in purchase.order_line:
-                    sheet.write(j+i+5, 3, line.date_planned.strftime('%m/%d/%y'))
+                    sheet.write(j+i+5, 3, line.date_planned and line.date_planned.strftime('%m/%d/%y') or '')
                     sheet.write(j+i+5, 4, line.product_qty)
                     sheet.write(j+i+5, 5, line.qty_received)
                     sheet.write(j+i+5, 6, line.product_id.default_code)
