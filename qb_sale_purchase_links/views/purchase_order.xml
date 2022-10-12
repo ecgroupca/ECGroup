@@ -29,15 +29,6 @@
             <xpath expr="//field[@name='date_approve']" position="after">
                 <field name="sale_order_id" widget="many2many_tags"/>
             </xpath>
-	        <xpath expr="//div[@name='button_box']" position="inside">
-                <button type="object"
-                    name="action_view_mrp_productions"
-                    class="oe_stat_button"
-                    icon="fa-wrench"
-                    attrs="{'invisible': [('mrp_production_count', '=', 0)]}">
-                    <field name="mrp_production_count" widget="statinfo" string="MOs"/>
-                </button>
-            </xpath>
             <field name="state" position="attributes">
 			    <attribute name="statusbar_visible">draft,sent,purchase,received</attribute>
             </field>			
