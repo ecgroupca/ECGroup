@@ -70,7 +70,8 @@ class OpenSalesXlsx(models.AbstractModel):
             sheet.write(i+j+5, 5, 'Deposits', bold)
             sheet.write(i+j+5, 6, 'Balance', bold)
             sheet.write(i+j+5, 7, 'Responsible', bold)
-            sheet.write(i+j+5, 8, 'Status', bold)
+            sheet.write(i+j+5, 8, 'Item', bold)
+            sheet.write(i+j+5, 9, 'Status', bold)
             
             for sale in sales[sroom]: 
                 i+=1            
@@ -82,8 +83,27 @@ class OpenSalesXlsx(models.AbstractModel):
                 sheet.write(j+i+5, 5, sale.deposit_total)
                 sheet.write(j+i+5, 6, sale.inv_bal_due)
                 sheet.write(j+i+5, 7, sale.user_id and sale.user_id.name or '')
-                sheet.write(j+i+5, 8, sale.state)
-                i+=1
+                #sheet.write(j+i+5, 8, sale.state)             
+                for sale_line in sale.order_line:
+                    status = 'N/A'
+                    product = sale_line.product_id
+                    if product and sale_line.product_id.type != 'service':
+                        #search for production order for the sale line
+                        domain = [('sale_order_id','=',sale.id),('product_id','=',product.id)]
+                        mrp_order = self.env['mrp.production'].search(domain)
+                        mrp_order = mrp_order and mrp_order[0] or None
+                        #find the workorder that hasn't been done and is next in the sequence
+                        if mrp_order:
+                            domain = [('production_id','=',mrp_order.id)]
+                            domain += [('state','not in',['done','cancel'])]
+                            work_orders = self.env['mrp.workorder'].search(domain, order="id asc")
+                            wo = work_orders and work_orders[0] or None
+                            status = wo and wo.workcenter_id and wo.workcenter_id.name
+                    sheet.write(j+i+5, 8, product.default_code)        
+                    sheet.write(j+i+5, 9, status)
+                    i+=1  
+                i+=1                    
+                        
             
 class OpenSalesReport(models.AbstractModel):
 
