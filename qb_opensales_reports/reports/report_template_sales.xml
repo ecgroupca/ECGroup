@@ -25,6 +25,7 @@
 									<th><strong>Deposits</strong></th>
 									<th><strong>Balance</strong></th>
 									<th><strong>Tags</strong></th>
+									<th><strong>Item</strong></th>
 									<th><strong>Status</strong></th>
 								</tr>									
 							</thead>
@@ -38,32 +39,53 @@
 							    <t t-set="rep_balance_total" t-value="0.00" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/>
 								  <t t-set="is_previous" t-value="s0"/>
 								  <t t-foreach="sm[showroom][rep]['data']" t-as="o">
-								  	<t t-set="rep_sales_total" t-value="o.amount_total + rep_sales_total"/>
+									<t t-set="rep_sales_total" t-value="o.amount_total + rep_sales_total"/>
 									<t t-set="rep_deposits_total" t-value="o.deposit_total + rep_deposits_total"/>
 									<t t-set="rep_balance_total" t-value="o.inv_bal_due + rep_balance_total"/>
-								    <t t-if="o and is_previous != o.name">
-								    <t t-set="is_previous" t-value="o.name"/>
-	                        		  <tr>									
-	                        			<td><span t-field="o.name"/></td>
-	                        			<td><span t-field="o.date_order"/></td>
-	                        			<td><span t-field="o.client_order_ref"/></td>
-	                        			<td><span t-field="o.partner_id.name"/></td>
-	                        			<td><span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
-	                        			<td><span t-field="o.deposit_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
-										<td><span t-field="o.inv_bal_due" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
-										<td><t t-foreach="o.order_tags" t-as="tag">
-										       <span t-esc="tag.name"/>,
-											</t>
-										</td>
-	                        			<td>
-											<t t-if="o.open_production">Open Production,</t>
-											<t t-if="o.open_shipment">Open Shipment,</t>
-											<t t-if="o.needs_drawing">Needs Drawing,</t>
-											<t t-if="o.needs_sample_approval">Needs Sample Approval</t>
-										</td>
-	                        		  </tr>
-	                                </t>
-	                              </t>
+										<t t-foreach="o.order_line" t-as="sale_line">
+										    <t t-set="work_order" t-value=""/>
+											<t t-set="mrp_order" t-value=""/>
+											<t t-set="product" t-value="sale_line.product_id"/>
+											<t t-if="product and product.type != 'service'">
+												<tr>
+													<t t-if="o and is_previous != o.name">
+													  <t t-set="is_previous" t-value="o.name"/>											
+														<td><span t-field="o.name"/></td>
+														<td><span t-esc="o.date_order and o.date_order.strftime('%m/%d/%y') or ''"/></td>
+														<td><span t-field="o.client_order_ref"/></td>
+														<td><span t-field="o.partner_id"/></td>
+														<td><span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
+														<td><span t-field="o.deposit_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
+														<td><span t-field="o.inv_bal_due" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
+														<td><t t-foreach="o.order_tags" t-as="tag">
+															   <span t-esc="tag.name"/>,
+															</t>
+														</td>
+													</t>
+													<t t-else="">
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+														<td></td>
+													</t>
+													<t t-set="domain" t-value="[('sale_order_id','=',o.id),('product_id','=',product.id)]"/>
+													<t t-foreach="request.env['mrp.production'].search(domain, limit=1)" t-as="mrp_order">
+														<t t-if="mrp_order">
+															<t t-set="domain_wo" t-value="[('production_id','=',mrp_order.id),('state','not in',['done','cancel'])]"/>
+															<t t-foreach="request.env['mrp.workorder'].search(domain_wo, order='id asc', limit=1)" t-as="work_order">																		
+															</t>
+														</t>
+													</t>
+													<td><span t-esc="product.default_code or product.name"/></td>
+													<td><span t-esc="work_order and work_order.workcenter_id and work_order.workcenter_id.name or 'N/A'"/></td>
+												</tr>
+										    </t>
+									    </t>
+								  </t>
 								<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
 									<td colspan="4" style="font-size:12pt;" align="center"><strong><t t-esc="sm[showroom][rep]['name']"/> Totals: </strong></td>
 									<td align="left"><strong style="font-size:12pt;"><t t-esc="rep_sales_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
@@ -86,11 +108,11 @@
 							</tbody>
 						</table>
 					</div>
+				</t>
 			  </t>
 			</t>
 		  </t>
         </t>
-	  </t>	
     </template>
 		<report
 			string="Open Sales Report"
