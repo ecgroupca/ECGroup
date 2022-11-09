@@ -89,7 +89,7 @@
 														</t>
 													</t>
 													<td><span t-esc="product.default_code or product.name"/></td>
-													<td><span t-esc="status"/></td>
+													<td>status</td>
 												</tr>
 										    </t>
 									    </t>
