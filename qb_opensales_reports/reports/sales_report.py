@@ -90,15 +90,21 @@ class OpenSalesXlsx(models.AbstractModel):
                     if product and sale_line.product_id.type != 'service':
                         #search for production order for the sale line
                         domain = [('sale_order_id','=',sale.id),('product_id','=',product.id)]
-                        mrp_order = self.env['mrp.production'].search(domain)
+                        mrp_order = self.env['mrp.production'].search(domain, limit=1, order="id desc")
                         mrp_order = mrp_order and mrp_order[0] or None
                         #find the workorder that hasn't been done and is next in the sequence
                         if mrp_order:
                             domain = [('production_id','=',mrp_order.id)]
                             domain += [('state','not in',['done','cancel'])]
-                            work_orders = self.env['mrp.workorder'].search(domain, order="id asc")
+                            work_orders = self.env['mrp.workorder'].search(domain, limit=1, order="id asc")
                             wo = work_orders and work_orders[0] or None
-                            status = wo and wo.workcenter_id and wo.workcenter_id.name
+                            if mrp_order.state in ['planned','in_progress']:
+                                status = wo and wo.workcenter_id and wo.workcenter_id.name
+                            if mrp_order.state in ['done','to_close']:
+                                status = 'Finished'
+                            if mrp_order.state in ['draft','cancel']:
+                                status = 'Not Started'
+                            
                     sheet.write(j+i+5, 8, product.default_code)        
                     sheet.write(j+i+5, 9, status)
                     i+=1  
