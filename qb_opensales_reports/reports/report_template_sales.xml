@@ -76,7 +76,7 @@
 													<t t-set="domain" t-value="[('sale_order_id','=',o.id),('product_id','=',product.id)]"/>
 													<t t-foreach="request.env['mrp.production'].search(domain, order='id desc', limit=1)" t-as="mrp_order">
 														<t t-if="mrp_order.state in ['planned','progress']">
-															<t t-set="domain_wo" t-value="[('production_id','=',mrp_order.id)),('state','not in',['done','cancel'])]"/>
+															<t t-set="domain_wo" t-value="[('production_id','=',mrp_order.id),('state','not in',['done','cancel'])]"/>
 															<t t-foreach="request.env['mrp.workorder'].search(domain_wo, order='id asc', limit=1)" t-as="work_order">
                                                               <t t-set="status" t-value="work_order and work_order.workcenter_id and work_order.workcenter_id.name"/>															
 															</t>
