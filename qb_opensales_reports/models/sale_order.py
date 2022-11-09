@@ -13,6 +13,11 @@ class CRMTeam(models.Model):
     
     sales_rep_ids = fields.Many2many('res.partner', string='Sales Reps', help='Sales Representatives for the showroom.')
     
+class ResPartner(models.Model):
+    _inherit = "res.partner"
+    
+    urgent_order_msg = fields.Char("Urgent Order Message")
+    
 class SaleOrder(models.Model):
     _inherit = "sale.order"
     
@@ -28,6 +33,7 @@ class SaleOrder(models.Model):
         domain="[('id','in',sales_rep_ids)]",
         help='Sales Rep from the Showroom.')
     order_tags = fields.Many2many('order.tags',string='Order Tags',)
+    urgent_order_msg = fields.Char("Urgent Order Message")
     
     
     @api.depends('order_line','production_ids','picking_ids','state')

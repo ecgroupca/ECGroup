@@ -37,6 +37,9 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+		    <field name="date_order">
+			    <field name="urgent_order_msg"/>
+			</field>
             <field name="inv_bal_due" position="after">
 			    <field name="sales_rep_ids" invisible="1"/>
                 <field name="sales_rep_id" options="{'no_create_edit': True}" />
