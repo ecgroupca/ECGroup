@@ -108,7 +108,7 @@
 														</t>
 												    </t>  
 													<t t-if="status in ['N/A','Finished','Received']">
-														<t t-set="domain" t-value = "[(('picking_id.picking_type_code','=','outgoing'),'picking_id.sale_id','=',o.id),('product_id','=',sale_line.product_id.id)]"/>
+														<t t-set="domain" t-value = "[('picking_id.picking_type_code','=','outgoing'),('picking_id.sale_id','=',o.id),('product_id','=',sale_line.product_id.id)]"/>
 														<t t-foreach="request.env['stock.move'].search(domain, limit=1, order='id desc')" t-as="del_move">
 														  <t t-set="del_move" t-value="del_move and del_move[0] or None"/>
 														  <t t-if="del_move">
