@@ -31,14 +31,24 @@
 			</xpath>
         </field>
     </record>
-	
+    <record id="view_res_partner_key_account" model="ir.ui.view">
+        <field name="name">view.partner.key.account</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <field name="user_id" position="after">
+               <field name="key_account"/>		   
+            </field>
+		</field>
+	</record>	
     <record id="view_sales_order_opensales" model="ir.ui.view">
         <field name="name">sale.order.opensales</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-		    <field name="date_order" position="before">
-			    <field name="urgent_order_msg"/>
+		    <field name="name" position="before">
+			    <label for="key_account" color="red"/>
+			    <field name="key_account"/>
 			</field>
             <field name="inv_bal_due" position="after">
 			    <field name="sales_rep_ids" invisible="1"/>
