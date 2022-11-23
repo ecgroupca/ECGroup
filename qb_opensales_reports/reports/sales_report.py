@@ -113,9 +113,9 @@ class OpenSalesXlsx(models.AbstractModel):
                             po_line = self.env['purchase.order.line'].search(domain, limit=1, order="id desc")
                             purch_order = po_line and po_line[0] and po_line[0].order_id or None
                             if purch_order:
-                                if purch_order.state in ['draft']:
+                                if purch_order.state in ['draft','sent','to approve']:
                                     status = 'Purchase Created'  
-                                if purch_order.state in ['sent','to approve','purchase']: 
+                                if purch_order.state in ['purchase']: 
                                     status = 'Ordered'                               
                                 if purch_order.state in ['done']:
                                     status = 'Received'
@@ -131,7 +131,7 @@ class OpenSalesXlsx(models.AbstractModel):
                                 elif del_move.state != 'cancel' and del_move.picking_id.x_printed:
                                     status = 'Ready for Pick up' 
                                 elif del_move.state != 'cancel':
-                                    status = 'Pending Shipment'                          
+                                    status = 'Moved to Shipment'                          
                             
                     sheet.write(j+i+5, 8, product.default_code)        
                     sheet.write(j+i+5, 9, status)
