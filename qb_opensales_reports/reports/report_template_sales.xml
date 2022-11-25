@@ -119,7 +119,7 @@
 															  <t t-set="status" t-value="'Ready for Pick-up'"/>
 															</t>
 															<t t-if="del_move.state == 'cancel'">
-															  <t t-set="status" t-value="'Pending Shipment'"/>
+															  <t t-set="status" t-value="'Moved to Shipment'"/>
 															</t>
 														  </t>
 														</t>			 														  

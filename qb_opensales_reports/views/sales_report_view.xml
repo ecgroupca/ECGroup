@@ -36,8 +36,8 @@
         <field name="model">res.partner</field>
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
-            <field name="user_id" position="after">
-               <field name="key_account"/>		   
+            <field name="category_id" position="after">
+               <field name="key_account" widget="boolean_toggle"/>		   
             </field>
 		</field>
 	</record>	
@@ -46,9 +46,8 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-		    <field name="name" position="before">
-			    <label for="key_account" color="red"/>
-			    <field name="key_account"/>
+		    <field name="partner_invoice_id" position="after">
+			    <field name="key_account" widget="boolean_toggle"/>
 			</field>
             <field name="inv_bal_due" position="after">
 			    <field name="sales_rep_ids" invisible="1"/>

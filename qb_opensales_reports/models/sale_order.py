@@ -36,6 +36,16 @@ class SaleOrder(models.Model):
     key_account = fields.Boolean("Key Account")
     
     
+    @api.onchange('partner_id')
+    def onchange_partner_id(self):
+        """
+        Update the following fields when the partner is changed:
+        - Key Account
+        """
+        self.key_account = self.partner_id.key_account
+        result = super(SaleOrder, self).onchange_partner_id()
+        return result       
+    
     @api.depends('order_line','production_ids','picking_ids','state')
     def _compute_open_shipments(self):   
         for sale in self:
