@@ -2,7 +2,7 @@
     'name': 'EC Group Sales Reports',
     'description': 'EC Group Open Sales Reports',
     'sequence': 1,
-    'version': '1.0.0',
+    'version': '1.5.0',
     'author': 'Adam OConnor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': [
