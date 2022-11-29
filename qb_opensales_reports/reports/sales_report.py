@@ -133,10 +133,10 @@ class OpenSalesXlsx(models.AbstractModel):
                                 elif del_move.state != 'cancel':
                                     status = 'Moved to Shipment'                          
                             
-                    sheet.write(j+i+5, 8, product.default_code)        
-                    sheet.write(j+i+5, 9, status)
-                    i+=1  
-                i+=1                    
+                        sheet.write(j+i+5, 8, product.default_code)        
+                        sheet.write(j+i+5, 9, status)
+                        i+=1  
+                i+=1                   
                         
             
 class OpenSalesReport(models.AbstractModel):

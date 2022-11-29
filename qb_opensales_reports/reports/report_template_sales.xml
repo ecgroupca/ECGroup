@@ -41,18 +41,20 @@
 								  <t t-foreach="sm[showroom][rep]['data']" t-as="o">
 									<t t-set="rep_sales_total" t-value="o.amount_total + rep_sales_total"/>
 									<t t-set="rep_deposits_total" t-value="o.deposit_total + rep_deposits_total"/>
-									<t t-set="rep_balance_total" t-value="o.inv_bal_due + rep_balance_total"/>
+									<t t-set="rep_balance_total" t-value="o.inv_bal_due + rep_balance_total"/>									
+									<t t-if="o and is_previous != o.name">
+									  <t t-set="is_previous" t-value="o.name"/>	
 										<t t-foreach="o.order_line" t-as="sale_line">
+										<t t-set="product" t-value="sale_line.product_id"/>
+										<t t-if="product and product.type != 'service'">
+										  <tr>
 										    <t t-set="status" t-value="'N/A'"/>
 										    <t t-set="work_order" t-value=""/>
 											<t t-set="mrp_order" t-value=""/>
 											<t t-set="purch_order" t-value=""/>
 											<t t-set="del_order" t-value=""/>
-											<t t-set="product" t-value="sale_line.product_id"/>
-											<t t-if="product and product.type != 'service'">
-												<tr>
-													<t t-if="o and is_previous != o.name">
-													  <t t-set="is_previous" t-value="o.name"/>											
+
+										
 														<td><span t-field="o.name"/></td>
 														<td><span t-esc="o.date_order and o.date_order.strftime('%m/%d/%y') or ''"/></td>
 														<td style="max-width:50px;"><span t-field="o.client_order_ref"/></td>
@@ -64,17 +66,17 @@
 															   <span t-esc="tag.name"/>,
 															</t>
 														</td>
-													</t>
-													<t t-else="">														
-													    <td></td>
-														<td></td>
-														<td></td>
-														<td></td>
-														<td></td>
-														<td></td>
-														<td></td>
-														<td></td>
-													</t>
+													
+													<!--t t-else="">														
+													    <td/>
+														<td/>
+														<td/>
+														<td/>
+														<td/>
+														<td/>
+														<td/>
+														<td/>
+													</t-->
 													<t t-set="domain" t-value="[('sale_order_id','=',o.id),('product_id','=',product.id)]"/>
 													<t t-foreach="request.env['mrp.production'].search(domain, order='id desc', limit=1)" t-as="mrp_order">
 														<t t-if="mrp_order.state in ['planned','progress']">
@@ -108,17 +110,17 @@
 														</t>
 												    </t>  
 													<t t-if="status in ['N/A','Finished','Received']">
-														<t t-set="domain" t-value = "[('picking_id.picking_type_code','=','outgoing'),('picking_id.sale_id','=',o.id),('product_id','=',sale_line.product_id.id)]"/>
+														<t t-set="domain" t-value="[('picking_id.picking_type_code','=','outgoing'),('picking_id.sale_id','=',o.id),('product_id','=',sale_line.product_id.id)]"/>
 														<t t-foreach="request.env['stock.move'].search(domain, limit=1, order='id desc')" t-as="del_move">
 														  <t t-set="del_move" t-value="del_move and del_move[0] or None"/>
 														  <t t-if="del_move">
 															<t t-if="del_move.state == 'done'">
 															  <t t-set="status" t-value="'Delivered'"/>
 															</t>
-															<t t-if="del_move.state not in ['done','cancel'] and del_move.picking_id.x_printed">
+															<t t-if="del_move.state != 'cancel' and del_move.picking_id.x_printed">
 															  <t t-set="status" t-value="'Ready for Pick-up'"/>
 															</t>
-															<t t-if="del_move.state == 'cancel'">
+															<t t-if="del_move.state != 'cancel'">
 															  <t t-set="status" t-value="'Moved to Shipment'"/>
 															</t>
 														  </t>
@@ -127,9 +129,11 @@
 													
 													<td><span t-esc="product.default_code or product.name"/></td>
 													<td><span t-esc="status"/></td>
-												</tr>
-											</t>
-										</t>
+											
+										  </tr>	
+										  </t>
+										</t>										  
+									</t>
 									<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
 										<td colspan="4" style="font-size:12pt;" align="center"><strong><t t-esc="sm[showroom][rep]['name']"/> Totals: </strong></td>
 										<td align="left"><strong style="font-size:12pt;"><t t-esc="rep_sales_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
@@ -138,18 +142,18 @@
 										<t t-set="showroom_amt_total" t-value="showroom_amt_total + rep_sales_total"/>
 										<t t-set="showroom_deposits_total" t-value="showroom_deposits_total + rep_deposits_total"/>
 										<t t-set="showroom_balance_total" t-value="showroom_balance_total + rep_balance_total"/>
-										<td colspan="3" align="left"><span></span></td>
+										<td colspan="3" align="left"><span/></td>
 									</tr>
 							      </t>
+						      </t>
 								<!-- Showroom totals <tr> -->
 								<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
 									<td colspan="4" style="font-size:15pt;" align="center"><strong>Showroom <t t-esc="showroom"/> Totals: </strong></td>
 									<td align="left"><strong><t t-esc="showroom_amt_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 									<td align="left"><strong><t t-esc="showroom_deposits_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
 									<td align="left"><strong><t t-esc="showroom_balance_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
-								    <td colspan="3" align="left"><span></span></td>
+								    <td colspan="3" align="left"><span/></td>
 								</tr>
-						      </t>
 							</tbody>
 						</table>
 					</div>
@@ -159,24 +163,24 @@
 		  </t>
         </t>
     </template>
-		<report
-			string="Open Sales Report"
-			id="action_report_opensales"
-			model="sale.order"
-			report_type="qweb-pdf"
-			name="qb_opensales_reports.report_open_sales"
-			file="qb_opensales_reports.report_open_sales"
-			print_report_name="'Open Sales'"
-			menu="False"
-		/>
-		<report
-			id="action_report_opensales_xlsx"
-			model="sale.order"
-			string="Print to Excel"
-			report_type="xlsx"
-			name="qb_opensales_reports.report_opensales_xlsx"
-			file="qb_opensales_reports.report_opensales_xlsx"
-			attachment_use="False"
-			print_report_name="'Open Sales Excel'"
-		/>
+	<report
+		string="Open Sales Report"
+		id="action_report_opensales"
+		model="sale.order"
+		report_type="qweb-pdf"
+		name="qb_opensales_reports.report_open_sales"
+		file="qb_opensales_reports.report_open_sales"
+		print_report_name="'Open Sales'"
+		menu="False"
+	/>
+	<report
+		id="action_report_opensales_xlsx"
+		model="sale.order"
+		string="Print to Excel"
+		report_type="xlsx"
+		name="qb_opensales_reports.report_opensales_xlsx"
+		file="qb_opensales_reports.report_opensales_xlsx"
+		attachment_use="False"
+		print_report_name="'Open Sales Excel'"
+	/>
 </odoo>
