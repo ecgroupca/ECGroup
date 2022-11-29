@@ -13,6 +13,7 @@
         'sale_mrp_link',
         'sale_stock',
         'report_xlsx',
+        'qb_sale_purchase_links',
     ],
     'data': [
         'views/sales_report_view.xml',
