@@ -53,86 +53,75 @@
 											<t t-set="mrp_order" t-value=""/>
 											<t t-set="purch_order" t-value=""/>
 											<t t-set="del_order" t-value=""/>
-
 										
-														<td><span t-field="o.name"/></td>
-														<td><span t-esc="o.date_order and o.date_order.strftime('%m/%d/%y') or ''"/></td>
-														<td style="max-width:50px;"><span t-field="o.client_order_ref"/></td>
-														<td style="max-width:50px;"><span t-field="o.partner_id"/></td>
-														<td><span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
-														<td><span t-field="o.deposit_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
-														<td><span t-field="o.inv_bal_due" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
-														<td style="max-width:50px;"><t t-foreach="o.order_tags" t-as="tag">
-															   <span t-esc="tag.name"/>,
-															</t>
-														</td>
-													
-													<!--t t-else="">														
-													    <td/>
-														<td/>
-														<td/>
-														<td/>
-														<td/>
-														<td/>
-														<td/>
-														<td/>
-													</t-->
-													<t t-set="domain" t-value="[('sale_order_id','=',o.id),('product_id','=',product.id)]"/>
-													<t t-foreach="request.env['mrp.production'].search(domain, order='id desc', limit=1)" t-as="mrp_order">
-														<t t-if="mrp_order.state in ['planned','progress']">
-															<t t-set="domain_wo" t-value="[('production_id','=',mrp_order.id),('state','not in',['done','cancel'])]"/>
-															<t t-foreach="request.env['mrp.workorder'].search(domain_wo, order='id asc', limit=1)" t-as="work_order">
-                                                              <t t-set="status" t-value="work_order and work_order.workcenter_id and work_order.workcenter_id.name"/>															
-															</t>
-														</t>
-														<t t-if="mrp_order.state in ['done','to_close']">
-														    <t t-set="status" t-value="'Finished'"/>															
-														</t>
-														<t t-if="mrp_order.state in ['cancel','draft']">
-														    <t t-set="status" t-value="'Not Started'"/>															
-														</t>
+											<td><span t-field="o.name"/></td>
+											<td><span t-esc="o.date_order and o.date_order.strftime('%m/%d/%y') or ''"/></td>
+											<td style="max-width:50px;"><span t-field="o.client_order_ref"/></td>
+											<td style="max-width:50px;"><span t-field="o.partner_id"/></td>
+											<td><span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
+											<td><span t-field="o.deposit_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
+											<td><span t-field="o.inv_bal_due" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
+											<td style="max-width:50px;"><t t-foreach="o.order_tags" t-as="tag">
+												   <span t-esc="tag.name"/>,
+												</t>
+											</td>
+											<t t-set="domain" t-value="[('sale_order_id','=',o.id),('product_id','=',product.id)]"/>
+											<t t-foreach="request.env['mrp.production'].search(domain, order='id desc', limit=1)" t-as="mrp_order">
+												<t t-if="mrp_order.state in ['planned','progress']">
+													<t t-set="domain_wo" t-value="[('production_id','=',mrp_order.id),('state','not in',['done','cancel'])]"/>
+													<t t-foreach="request.env['mrp.workorder'].search(domain_wo, order='id asc', limit=1)" t-as="work_order">
+													  <t t-set="status" t-value="work_order and work_order.workcenter_id and work_order.workcenter_id.name"/>															
 													</t>
-													<t t-if="not mrp_order">
-													    <t t-set="domain" t-value="[('order_id.sale_order_id','in',[o.id]),('product_id','=',sale_line.product_id.id)]"/>
-														<t t-foreach="request.env['purchase.order.line'].search(domain, order='id asc', limit=1)" t-as="po_line">
-                                                          <t t-set="purch_order" t-value="po_line.order_id"/>										  
-														  <t t-if="purch_order">
-															  <t t-if="purch_order.state in ['draft','sent','to approve']">
-																<t t-set="status" t-value="'Purchase Created'"/>
-															  </t>
-															  <t t-if="purch_order.state in ['purchase']">
-																<t t-set="status" t-value="'Ordered'"/>
-															  </t>
-															  <t t-if="purch_order.state in ['done']">
-																<t t-set="status" t-value="'Received'"/>
-															  </t>
-                                                          </t>
-														</t>
-												    </t>  
-													<t t-if="status in ['N/A','Finished','Received']">
-														<t t-set="domain" t-value="[('picking_id.picking_type_code','=','outgoing'),('picking_id.sale_id','=',o.id),('product_id','=',sale_line.product_id.id)]"/>
-														<t t-foreach="request.env['stock.move'].search(domain, limit=1, order='id desc')" t-as="del_move">
-														  <t t-set="del_move" t-value="del_move and del_move[0] or None"/>
-														  <t t-if="del_move">
-															<t t-if="del_move.state == 'done'">
-															  <t t-set="status" t-value="'Delivered'"/>
-															</t>
-															<t t-if="del_move.state != 'cancel' and del_move.picking_id.x_printed">
-															  <t t-set="status" t-value="'Ready for Pick-up'"/>
-															</t>
-															<t t-if="del_move.state != 'cancel'">
-															  <t t-set="status" t-value="'Moved to Shipment'"/>
-															</t>
-														  </t>
-														</t>			 														  
+												</t>
+												<t t-if="mrp_order.state in ['done','to_close']">
+													<t t-set="status" t-value="'Finished'"/>															
+												</t>
+												<t t-if="mrp_order.state in ['cancel','draft']">
+													<t t-set="status" t-value="'Not Started'"/>															
+												</t>
+											</t>
+											<t t-if="not mrp_order">
+												<t t-set="domain" t-value="[('order_id.sale_order_id','in',[o.id]),('product_id','=',sale_line.product_id.id)]"/>
+												<t t-foreach="request.env['purchase.order.line'].search(domain, order='id asc', limit=1)" t-as="po_line">
+												  <t t-set="purch_order" t-value="po_line.order_id"/>										  
+												  <t t-if="purch_order">
+													  <t t-if="purch_order.state in ['draft','sent','to approve']">
+														<t t-set="status" t-value="'Purchase Created'"/>
+													  </t>
+													  <t t-if="purch_order.state in ['purchase']">
+														<t t-set="status" t-value="'Ordered'"/>
+													  </t>
+													  <t t-if="purch_order.state in ['done']">
+														<t t-set="status" t-value="'Received'"/>
+													  </t>
+												  </t>
+												</t>
+											</t>  
+											<t t-if="status in ['N/A','Finished','Received']">
+												<t t-set="domain" t-value="[('picking_id.picking_type_code','=','outgoing'),('picking_id.sale_id','=',o.id),('product_id','=',sale_line.product_id.id)]"/>
+												<t t-foreach="request.env['stock.move'].search(domain, limit=1, order='id desc')" t-as="del_move">
+												  <t t-set="del_move" t-value="del_move and del_move[0] or None"/>
+												  <t t-if="del_move">
+													<t t-if="del_move.state == 'done'">
+													  <t t-set="status" t-value="'Delivered'"/>
 													</t>
-													
-													<td><span t-esc="product.default_code or product.name"/></td>
-													<td><span t-esc="status"/></td>
+													<t t-if="del_move.state != 'cancel' and del_move.picking_id.x_printed">
+													  <t t-set="status" t-value="'Ready for Pick-up'"/>
+													</t>
+													<t t-if="del_move.state != 'cancel'">
+													  <t t-set="status" t-value="'Moved to Shipment'"/>
+													</t>
+												  </t>
+												</t>			 														  
+											</t>
+											
+											<td><span t-esc="product.default_code or product.name"/></td>
+											<td><span t-esc="status"/></td>
 											
 										  </tr>	
 										  </t>
 										</t>										  
+									  </t>
 									</t>
 									<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
 										<td colspan="4" style="font-size:12pt;" align="center"><strong><t t-esc="sm[showroom][rep]['name']"/> Totals: </strong></td>
@@ -144,8 +133,7 @@
 										<t t-set="showroom_balance_total" t-value="showroom_balance_total + rep_balance_total"/>
 										<td colspan="3" align="left"><span/></td>
 									</tr>
-							      </t>
-						      </t>
+							  </t>
 								<!-- Showroom totals <tr> -->
 								<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
 									<td colspan="4" style="font-size:15pt;" align="center"><strong>Showroom <t t-esc="showroom"/> Totals: </strong></td>
