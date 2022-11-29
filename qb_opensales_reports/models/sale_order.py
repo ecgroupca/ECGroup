@@ -47,8 +47,6 @@ class SaleOrder(models.Model):
         flow does not necessarily goes through write if the action was not done
         on the SO itself. We hence override the _write to catch the computation
         of invoice_status field. """
-        if self.env.context.get('mail_activity_automation_skip'):
-            return super(SaleOrder, self)._write(values)
 
         if 'invoice_status' in values:
             if values['invoice_status'] == 'upselling':
