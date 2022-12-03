@@ -46,9 +46,15 @@
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
-		    <field name="partner_invoice_id" position="after">
+		    <xpath expr="//field[@name='name']" position="before">
+			    <field name="key_account" invisible="1"/>
+				<widget name="web_ribbon" title="Key Account"
+					attrs="{'invisible': [('key_account', '=', False)]}"/>
+							
+			</xpath>
+		    <!--field name="partner_invoice_id" position="after">
 			    <field name="key_account" widget="boolean_toggle"/>
-			</field>
+			</field-->
             <field name="inv_bal_due" position="after">
 			    <field name="sales_rep_ids" invisible="1"/>
                 <field name="sales_rep_id" options="{'no_create_edit': True}" />
