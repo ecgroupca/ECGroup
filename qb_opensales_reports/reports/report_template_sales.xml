@@ -79,6 +79,9 @@
 												<t t-if="mrp_order.state in ['cancel','draft']">
 													<t t-set="status" t-value="'Not Started'"/>															
 												</t>
+												<t t-if="mrp_order.state in ['confirmed']">
+													<t t-set="status" t-value="'Started'"/>															
+												</t>
 											</t>
 											<t t-if="not mrp_order">
 												<t t-set="domain" t-value="[('order_id.sale_order_id','in',[o.id]),('product_id','=',sale_line.product_id.id)]"/>

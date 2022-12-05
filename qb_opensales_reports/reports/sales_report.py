@@ -107,7 +107,9 @@ class OpenSalesXlsx(models.AbstractModel):
                             if mrp_order.state in ['done','to_close']:
                                 status = 'Finished'
                             if mrp_order.state in ['draft','cancel']:
-                                status = 'Not Started'                             
+                                status = 'Not Started'   
+                            if mrp_order.state in ['confirmed']:
+                                status = 'Started'                                 
                         if not mrp_order:
                             domain = [('order_id.sale_order_id','in',[sale.id]),('product_id','=',sale_line.product_id.id)]
                             po_line = self.env['purchase.order.line'].search(domain, limit=1, order="id desc")
