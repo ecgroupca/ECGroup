@@ -48,9 +48,12 @@
         <field name="arch" type="xml">
 		    <xpath expr="//field[@name='name']" position="before">
 			    <field name="key_account" invisible="1"/>
-				<widget name="web_ribbon" title="Key Account"
-					attrs="{'invisible': [('key_account', '=', False)]}"/>
-							
+				<!--widget name="web_ribbon" title="Key Account"
+					attrs="{'invisible': [('key_account', '=', False)]}"/-->
+				<div class="ribbon ribbon-top-right o_widget" 
+				   attrs="{'invisible': [('key_account', '=', False)]}">
+				  <span style="background-color:red;">Key Account</span>
+				</div>							
 			</xpath>
 		    <!--field name="partner_invoice_id" position="after">
 			    <field name="key_account" widget="boolean_toggle"/>
