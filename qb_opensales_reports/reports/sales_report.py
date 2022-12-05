@@ -88,7 +88,7 @@ class OpenSalesXlsx(models.AbstractModel):
 
                     status = 'N/A'
                     product = sale_line.product_id
-                    if product and sale_line.product_id.type != 'service':
+                    if sale_line.product_uom_qty > 0 and product and sale_line.product_id.type != 'service':
                         #search for production order for the sale line
                         domain = [('sale_order_id','=',sale.id),('product_id','=',product.id)]
                         mrp_order = self.env['mrp.production'].search(domain, limit=1, order="id desc")
