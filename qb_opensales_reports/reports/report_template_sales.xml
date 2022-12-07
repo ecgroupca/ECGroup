@@ -47,7 +47,7 @@
                                         <t t-set="is_repped" t-value="s0"/>									  
 										<t t-foreach="o.order_line" t-as="sale_line">										
 										<t t-set="product" t-value="sale_line.product_id"/>
-										<t t-if="product and product.type != 'service'">
+										<t t-if="sale_line.product_uom_qty > 0 and product and product.type != 'service'">
 										  <tr>
 										    <t t-set="status" t-value="'N/A'"/>
 										    <t t-set="work_order" t-value=""/>
