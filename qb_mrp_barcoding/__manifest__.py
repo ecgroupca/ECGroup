@@ -11,7 +11,8 @@
         'stock_barcode',
     ],
     'data': [
-        'views/mrp_barcoding_views.xml',   
+        'views/mrp_barcoding_views.xml',  
+        'data/data.xml',        
     ],
     'application': True,
     'installable': True,
