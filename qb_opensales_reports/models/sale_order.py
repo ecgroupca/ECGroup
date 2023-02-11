@@ -21,7 +21,7 @@ class ResPartner(models.Model):
 class StockPicking(models.Model):
     _inherit = "stock.picking"
     
-    x_printed = fields.Boolean("BoL Printed")
+    x_printed = fields.Boolean("BoL Printed", copy=False)
     
 class SaleOrder(models.Model):
     _inherit = "sale.order"
