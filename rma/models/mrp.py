@@ -11,7 +11,12 @@ class MRPProduction(models.Model):
     # RMA that created the repair (Manufacturing Order)
     rma_id = fields.Many2one(comodel_name="rma", string="RMA Repair", copy=False,)
 
-
+    @api.constrains('product_id', 'move_raw_ids')
+    def _check_production_lines(self):
+        #override method to make it do nothing and not throw an exception
+        for production in self:
+            alert = False
+                    
     def _action_cancel(self):
         res = super()._action_cancel()
         # A stock user could have no RMA permissions, so the ids wouldn't

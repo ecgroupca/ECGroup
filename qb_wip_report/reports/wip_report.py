@@ -19,7 +19,8 @@ class WIPReportXlsx(models.AbstractModel):
         mrp_wo_obj = self.env['mrp.workorder']       
         workcenter_ids = data['form'].get('workcenter_id', False)
         user_id = data['form'].get('user_id', False)
-        domain = [('state','not in',['done','cancel']),('production_id.state','not in',['draft','cancel','done','confirmed'])]              
+        domain = [('state','not in',['done','cancel']),('production_id.state','not in',['draft','cancel','done','confirmed'])] 
+        domain += [('company_id','=',company_id.id)]        
         if workcenter_ids:
             domain.append(('workcenter_id','in',workcenter_ids))
         if user_id:
@@ -27,7 +28,9 @@ class WIPReportXlsx(models.AbstractModel):
         sheet = workbook.add_worksheet('WIP Report')
         bold = workbook.add_format({'bold': True})
         sheet.write(0, 1, 'WIP Report', bold)
-        work_orders = mrp_wo_obj.search(domain,order="production_id")         
+        work_orders = mrp_wo_obj.search(domain,order="production_id")  
+        if len(work_orders) == 0:
+            raise UserError(_('No workorders found.'))         
         workcenters = {}
         for wo in work_orders:
             wc_name = wo.workcenter_id.name.replace(" ","_")           
@@ -80,21 +83,23 @@ class ReportWIPReport(models.AbstractModel):
     
     @api.model
     def _get_report_values(self, docids, data=None):
-        domain_search = []
+        domain = []
         mrp_wo_obj = self.env['mrp.workorder']       
         if not docids:
-            
+            company_id = data['form'].get('company_id', False)
             workcenter_ids = data['form'].get('workcenter_id', False)
             user_id = data['form'].get('user_id', False)
-            domain = [('state','not in',['done','cancel']),('production_id.state','not in',['draft','cancel','done','confirmed'])]              
+            domain = [('state','not in',['done','cancel']),('production_id.state','not in',['draft','cancel','done','confirmed'])] 
+            domain += [('company_id','=',company_id[0])]           
             if workcenter_ids:
                 domain.append(('workcenter_id','in',workcenter_ids))
             if user_id:
                 domain.append(('production_id.user_id','=',user_id[0]))
         else:
-            domain = [('id','in',docids)]       
-
-        work_orders = mrp_wo_obj.search(domain,order="production_id")        
+            domain = [('id','in',docids)]  
+        work_orders = mrp_wo_obj.search(domain,order="production_id") 
+        if len(work_orders) == 0:
+            raise UserError(_('No workorders found.'))         
         workcenters = {}
         for wo in work_orders:
             wc_name = wo.workcenter_id.name.replace(" ","_")           
