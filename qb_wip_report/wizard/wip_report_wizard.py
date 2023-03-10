@@ -4,7 +4,8 @@ from odoo.tools.misc import get_lang
 class WIPReportWizard(models.TransientModel):
     _name = "wip.report.wizard"
     _description = "WIP Report Wizard"
-    
+   
+    company_id = fields.Many2one("res.company",string="Company",required=True)   
     workcenter_id = fields.Many2many("mrp.workcenter",string="Workcenters")
     user_id = fields.Many2one("res.users",string="Responsible")
     print_excel = fields.Boolean("Print in Excel")
@@ -14,7 +15,7 @@ class WIPReportWizard(models.TransientModel):
         data = {}
         data['ids'] = self.env.context.get('active_ids', [])
         data['model'] = self.env.context.get('active_model', 'ir.ui.menu')
-        data['form'] = self.read(['user_id', 'workcenter_id'])[0]
+        data['form'] = self.read(['company_id','user_id','workcenter_id'])[0]
         print_excel = self.read(['print_excel'])[0]
         print_excel = 'print_excel' in print_excel and print_excel['print_excel'] or False
         if print_excel:
