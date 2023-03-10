@@ -13,21 +13,20 @@
                     string="Register Deposit"
                 />
             </xpath>
-	        <xpath expr="//div[@name='button_box']" position="inside">
-                <button type="object"
-                    name="action_view_sale_orders"
-                    class="oe_stat_button"
-                    icon="fa-dollar"
-                    attrs="{'invisible': [('sale_orders_counted', '=', 0)]}">
-                    <field name="sale_orders_counted" widget="statinfo" string="Sales"/>
-                </button>
-            </xpath>
 			<field name="origin" position="after">
 			    <field name="sale_order_id" widget="many2many_tags"/>
+				<field name="inv_bal_due"/>
+				<button string="Update bal due" name="action_update_bal_due" type="object"/>
 			</field>			
-			<field name="date_planned" position="replace">
-			    <field name="date_planned"/>
-		    </field>
+			<group name="other_info" position="after">
+				<group>
+				  <field name="fob"/>
+				  <label for="po_bullets"/>
+				  <div>
+					<field name="po_bullets" widget="html"/>
+				  </div>
+				</group>							
+		    </group>
         </field>
     </record>
 </odoo>

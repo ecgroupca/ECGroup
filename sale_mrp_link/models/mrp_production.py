@@ -34,12 +34,10 @@ class MrpProduction(models.Model):
             .with_context(active_id=self.id)
             .read()[0]
         )
-        sale = self.sale_order_id
-        #if len(sales) > 1:
-            #action["domain"] = [("id", "in", sales.ids)]
-        if sale:
+        sales = self.sale_order_id
+        if sales:
             action.update(
-                res_id=sale.id, view_mode="form", view_id=False, views=False,
+                res_id=sales.id, view_mode="form", view_id=False, views=False,
             )
         return action
     
@@ -51,6 +49,7 @@ class MrpProduction(models.Model):
             sale_line = self.env['sale.order.line'].search([
                 ('product_id', '=', mrp.product_id),
                 ('product_uom_qty','=',mrp.product_uom_qty),
+                ('order_id','=',sale_id.id),
                 ]
             )
             if sale_line:

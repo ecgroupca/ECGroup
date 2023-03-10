@@ -1,7 +1,3 @@
-# Copyright 2019 Elico Corp, Dominique K. <dominique.k@elico-corp.com.sg>
-# Copyright 2019 Ecosoft Co., Ltd., Kitti U. <kittiu@ecosoft.co.th>
-# License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
-
 from odoo import fields, models, api, _
 
 
@@ -15,14 +11,14 @@ class PurchaseOrder(models.Model):
         readonly = False,
     )
 
-    sale_order_count = fields.Integer(
+    sale_orders_counted = fields.Integer(
         "Sale Order Count",
-        compute='_compute_sale_order_count',)
+        compute='_compute_sale_orders_counted',)
         
     @api.depends("sale_order_id")
-    def _compute_sale_order_count(self):
+    def _compute_sale_orders_counted(self):
         for purchase in self:
-            purchase.sale_order_count = len(purchase.sale_order_id)
+            purchase.sale_orders_counted = len(purchase.sale_order_id)
 
     """@api.depends('order_line.sale_order_id','sale_order_id')   
     def _compute_sale_orders(self):

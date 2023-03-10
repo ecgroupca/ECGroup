@@ -1,25 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <template id="external_layout_ec_logo">
-        <t t-if="not o" t-set="o" t-value="doc"/>
-        <t t-if="not company">
-            <!-- Multicompany -->
-            <t t-if="company_id">
-                <t t-set="company" t-value="company_id"/>
-            </t>
-            <t t-elif="o and 'company_id' in o">
-                <t t-set="company" t-value="o.company_id.sudo()"/>
-            </t>
-            <t t-else="else">
-                <t t-set="company" t-value="res_company"/>
-            </t>
-        </t>
 		<div t-attf-class="header o_company_#{company.id}_layout">
 			<div class="row">
 				<div class="col-3 mb4">
-				  <t t-foreach="company.search([('id','=',1)])" t-as="base_company">
-					<img t-if="base_company" t-att-src="image_data_uri(base_company.logo)" style="max-width:450px;max-height:95px;margin:0px;padding:0px;" alt="Parent Company Logo"/>
-				    </t>
+					<img t-if="company.x_logo_parent" t-att-src="image_data_uri(company.x_logo_parent)" style="max-height:95px;margin:0px;padding:0px;" alt="Parent Company Logo"/>
+				</div>
+				<div t-if="doc" style="font-size:12pt;width:auto;margin-left:480px;margin-top:4px;">
+					<div t-if="doc.x_etwo_number">Sale Order: <span t-field="doc.x_etwo_number"/></div>
+					<div t-if="not doc.x_etwo_number">Sale Order: <span t-field="doc.name"/></div>
+					<div>Order Date: <span t-esc="doc.date_order.strftime('%m/%d/%y')"/></div>
+					<div>Showroom: <span t-field="doc.team_id"/></div>
+					<div>Salesperson: <span t-field="doc.x_sales_associate"/></div>
 				</div>
 			</div>
 		</div>
@@ -27,7 +19,11 @@
 			<t t-call="web.address_layout"/>
 			<t t-raw="0"/>
 		</div>
-		<div t-attf-class="footer o_standard_footer o_company_#{company.id}_layout" style="font-size:10px;">
+		<div t-attf-class="footer o_standard_footer o_company_#{company.id}_layout" style="font-size:8px;">
+				<div t-field="company.report_footer" class="text-muted"/>
+				<div t-if="doc" class="text-muted">The Terms and Conditions of Sale, including arbitration of disputes, are printed on the  final pages of this sale order. Please read them carefully. Seller's receipt of
+a 50% deposit constitutes Buyer's acknowledgement of this order and agreement to all terms and conditions of Sale. Unless we are notified of any errors in
+this order within (10) days of the Order Date, this order will stand as final.</div>
 				<div t-if="report_type == 'pdf'" class="text-muted">
 					Page: <span class="page"/> / <span class="topage"/>
 				</div>
