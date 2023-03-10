@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+
+    <record id="view_purchase_sale_links_filter" model="ir.ui.view">
+		<field name="name">purchase.sale.links</field>
+		<field name="model">purchase.order</field>
+		<field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+		<field name="arch" type="xml">
+		    <filter name="to_approve">
+			    <filter name="received" string="Received" domain="[('state', '=', 'received')]"/>
+			</filter>
+		</field>
+	</record>
+			
+    <record id="view_purchase_sale_links" model="ir.ui.view">
+        <field name="name">view.purchase.sale.links</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_form" />
+        <field name="arch" type="xml">
+	        <xpath expr="//div[@name='button_box']" position="inside">
+                <button type="object"
+                    name="action_view_sale_orders"
+                    class="oe_stat_button"
+                    icon="fa-dollar"
+                    attrs="{'invisible': [('sale_orders_counted', '=', 0)]}">
+                    <field name="sale_orders_counted" widget="statinfo" string="Sales"/>
+                </button>
+            </xpath>
+            <xpath expr="//field[@name='date_approve']" position="after">
+                <field name="sale_order_id" widget="many2many_tags"/>
+            </xpath>
+            <field name="state" position="attributes">
+			    <attribute name="statusbar_visible">draft,sent,purchase,received</attribute>
+            </field>			
+        </field>
+    </record>
+    <record id="view_rfq_order_form_mods" model="ir.ui.view">
+        <field name="name">view.rfq.order.mods</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.view_purchase_order_filter"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="sale_order_id"/>
+            </xpath>
+        </field>
+    </record>
+    <record id="view_mrp_order_form_mods" model="ir.ui.view">
+        <field name="name">view.mrp.order.mods</field>
+        <field name="model">purchase.order</field>
+        <field name="inherit_id" ref="purchase.purchase_order_view_search" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='product_id']" position="after">
+                <field name="sale_order_id"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

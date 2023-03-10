@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <odoo>
+
     <!-- Sale Team Mods Form -->		
     <record id="opensales_salesreps_form_mod" model="ir.ui.view">
         <field name="name">salesreps.mods</field>
@@ -30,15 +31,37 @@
 			</xpath>
         </field>
     </record>
-	
+    <record id="view_res_partner_key_account" model="ir.ui.view">
+        <field name="name">view.partner.key.account</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <field name="category_id" position="after">
+               <field name="key_account" widget="boolean_toggle"/>		   
+            </field>
+		</field>
+	</record>	
     <record id="view_sales_order_opensales" model="ir.ui.view">
         <field name="name">sale.order.opensales</field>
         <field name="model">sale.order</field>
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
+		    <xpath expr="//field[@name='name']" position="before">
+			    <field name="key_account" invisible="1"/>
+				<!--widget name="web_ribbon" title="Key Account"
+					attrs="{'invisible': [('key_account', '=', False)]}"/-->
+				<div class="ribbon ribbon-top-right o_widget" 
+				   attrs="{'invisible': [('key_account', '=', False)]}">
+				  <span style="background-color:red;">Key Account</span>
+				</div>							
+			</xpath>
+		    <!--field name="partner_invoice_id" position="after">
+			    <field name="key_account" widget="boolean_toggle"/>
+			</field-->
             <field name="inv_bal_due" position="after">
 			    <field name="sales_rep_ids" invisible="1"/>
-                <field name="sales_rep_id" options="{'no_create_edit': True}" />				
+                <field name="sales_rep_id" options="{'no_create_edit': True}" />
+                <field name="order_tags" widget="many2many_tags"/>				
             </field>
 		</field>
 	</record>

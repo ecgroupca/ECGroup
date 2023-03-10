@@ -2,6 +2,9 @@
 <odoo>
 	<template id="report_open_po">
 		<t t-call="web.html_container">
+		  <t t-if="docs">
+		  <t t-value="docs[0]" t-set="sale"/>
+		  <t t-foreach="sale" t-as="o">
 			<t t-call="web.external_layout">
 				<t t-foreach="sm" t-as="vendor">
 					<div class="page" style="font-name:Calibri;page-break-before:always;">
@@ -15,7 +18,7 @@
 								<td><strong>Vendor : <span t-if="sm[vendor]['ref']"><t t-esc="sm[vendor]['ref']"/> - </span><t t-esc="sm[vendor]['name']"/></strong></td>
 							</tr>
 							<tr>
-								<span t-if="date_from"><strong>Dates: </strong><t t-esc="date_from[4:5] +'/'+ date_from[:2] +'/'+ date_from[6:]"/> <strong>  to  </strong> <t t-esc="date_to[4:5] +'/'+ date_to[:2] +'/'+ date_to[6:]"/></span>
+								<span t-if="date_from"><strong>Dates: </strong><t t-esc="date_from[3:5] +'/'+ date_from[:2] +'/'+ date_from[6:]"/> <strong>  to  </strong> <t t-esc="date_to[3:5] +'/'+ date_to[:2] +'/'+ date_to[6:]"/></span>
 							</tr>
 						</table>
 						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
@@ -69,6 +72,8 @@
 						</table>
 					</div>
 				</t>
+			</t>
+		</t>
 			</t>
 		</t>
     </template>

@@ -8,8 +8,18 @@
 			report_type="qweb-pdf"
 			name="qb_reportpo_ecgroup.report_open_po"
 			file="qb_reportpo_ecgroup.report_open_po"
-			print_report_name="'Open Purchase Order'"
+			print_report_name="'Open Purchase Orders'"
 			menu="False"
+		/>
+		<report
+			id="action_report_open_po_xlsx"
+			model="purchase.order"
+			string="Print to Excel"
+			report_type="xlsx"
+			name="qb_reportpo_ecgroup.report_open_po_xlsx"
+			file="qb_reportpo_ecgroup.report_open_po_xlsx"
+			attachment_use="False"
+			print_report_name="'Open Purchase Orders - Excel'"
 		/>
 	</data>
 </odoo>

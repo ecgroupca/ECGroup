@@ -6,6 +6,9 @@
         <field name="model">vendor.po.report.wizard</field>
         <field name="arch" type="xml">
         <form string="Open PO Report">
+		    <group col="1">
+				<field name="print_excel"/>
+            </group>
             <group col="4">
                 <field name="date_from" required="1"/>
                 <field name="date_to" required="1"/>

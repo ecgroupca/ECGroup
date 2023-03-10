@@ -13,6 +13,16 @@ class CRMTeam(models.Model):
     
     sales_rep_ids = fields.Many2many('res.partner', string='Sales Reps', help='Sales Representatives for the showroom.')
     
+class ResPartner(models.Model):
+    _inherit = "res.partner"
+    
+    key_account = fields.Boolean("Key Account")
+    
+class StockPicking(models.Model):
+    _inherit = "stock.picking"
+    
+    x_printed = fields.Boolean("BoL Printed", copy=False)
+    
 class SaleOrder(models.Model):
     _inherit = "sale.order"
     
@@ -28,7 +38,32 @@ class SaleOrder(models.Model):
         domain="[('id','in',sales_rep_ids)]",
         help='Sales Rep from the Showroom.')
     order_tags = fields.Many2many('order.tags',string='Order Tags',)
+    key_account = fields.Boolean("Key Account")
     
+    def _write(self, values):
+        """ Override of private write method in order to generate activities
+        based in the invoice status. As the invoice status is a computed field
+        triggered notably when its lines and linked invoice status changes the
+        flow does not necessarily goes through write if the action was not done
+        on the SO itself. We hence override the _write to catch the computation
+        of invoice_status field. """
+
+        if 'invoice_status' in values:
+            if values['invoice_status'] == 'upselling':
+                filtered_self = self.search([('id', 'in', self.ids)])
+                filtered_self.activity_unlink(['sale.mail_act_sale_upsell'])
+                
+        return super(SaleOrder, self)._write(values)
+        
+    @api.onchange('partner_id')
+    def onchange_partner_id(self):
+        """
+        Update the following fields when the partner is changed:
+        - Key Account
+        """
+        self.key_account = self.partner_id.key_account
+        result = super(SaleOrder, self).onchange_partner_id()
+        return result       
     
     @api.depends('order_line','production_ids','picking_ids','state')
     def _compute_open_shipments(self):   
