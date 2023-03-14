@@ -19,8 +19,10 @@ class WIPReportXlsx(models.AbstractModel):
         mrp_wo_obj = self.env['mrp.workorder']       
         workcenter_ids = data['form'].get('workcenter_id', False)
         user_id = data['form'].get('user_id', False)
-        domain = [('state','not in',['done','cancel']),('production_id.state','not in',['draft','cancel','done','confirmed'])] 
-        domain += [('company_id','=',company_id.id)]        
+        company_id = data['form'].get('company_id', False)
+        domain = [('state','not in',['done','cancel'])]
+        domain += [('production_id.state','not in',['draft','cancel','done','confirmed'])] 
+        domain += [('company_id','=',company_id[0])]        
         if workcenter_ids:
             domain.append(('workcenter_id','in',workcenter_ids))
         if user_id:
