@@ -7,7 +7,8 @@
     'website': 'https://quickbeamllc.com',
     'depends': ['stock','product'],
     'data': [
-        'views/stock_views.xml'
+        'views/stock_views.xml',
+        'views/product_views.xml',
     ],
     'qweb': [],
     'application': True,
