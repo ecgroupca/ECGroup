@@ -135,10 +135,11 @@ class SaleOrder(models.Model):
         for sale in self:
             def_comm_rate = sale.team_id.default_comm_rate
             sale.comm_rate = def_comm_rate
-            for line in sale.order_line:
-                if line.product_id and not line.product_id.no_commissions: 
-                    if line.product_id.type not in ['service','consu']:
-                        line.comm_rate = def_comm_rate
+            #for line in sale.order_line:
+            #    if line.product_id and not line.product_id.no_commissions: 
+            #        if line.product_id.type not in ['service','consu']:
+            #            line.comm_rate = def_comm_rate
+            sale._compute_comm_total()
             for line in sale.order_line:
                 if line.comm_rate and not line.product_id.no_commissions and line.product_id.type not in ['service','consu']:
                     client_po = self.client_order_ref and str(self.client_order_ref) or ''
