@@ -13,6 +13,7 @@ class CRMTeam(models.Model):
         string = "Commission Invoice Address",        
         copy = False,
         stored = True,
+        
     )
     
     default_comm_rate = fields.Float(
