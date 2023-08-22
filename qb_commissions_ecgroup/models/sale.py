@@ -5,7 +5,7 @@ from odoo import models, fields, api, _
 import datetime
 
          
-class CRMTeam(models.Model):
+class CRMTeam(models.Model): 
     _inherit = 'crm.team'
     
     comm_inv_partner = fields.Many2one(
