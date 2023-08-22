@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
-from odoo import models, fields, api
+from odoo.exceptions import UserError
+from odoo import models, fields, api, _
 import datetime
 
          
-class CRMTeam(models.Model):
+class CRMTeam(models.Model): 
     _inherit = 'crm.team'
     
     comm_inv_partner = fields.Many2one(
@@ -12,6 +13,7 @@ class CRMTeam(models.Model):
         string = "Commission Invoice Address",        
         copy = False,
         stored = True,
+        
     )
     
     default_comm_rate = fields.Float(
@@ -141,15 +143,19 @@ class SaleOrder(models.Model):
             #            line.comm_rate = def_comm_rate
             sale._compute_comm_total()
             for line in sale.order_line:
-                if line.comm_rate and not line.product_id.no_commissions and line.product_id.type not in ['service','consu']:
-                    client_po = self.client_order_ref and str(self.client_order_ref) or ''
-                    vals = {
-                        'name': 'Order: ' + self.name  + ' commissions.',
-                        'ref':client_po,
-                        'order_line': line.id,
-                        'state': 'draft',
-                        }
-                    self.env['sale.commission'].create(vals)
+                if line.product_id.type != 'service':              
+                    if not line.tax_id:
+                        UserError(_('Must have a tax on every non-service line.'))
+                    if line.product_id.type != 'consu':
+                        if line.comm_rate and not line.product_id.no_commissions:
+                            client_po = self.client_order_ref and str(self.client_order_ref) or ''
+                            vals = {
+                                'name': 'Order: ' + self.name  + ' commissions.',
+                                'ref':client_po,
+                                'order_line': line.id,
+                                'state': 'draft',
+                                }
+                            self.env['sale.commission'].create(vals)
         return res
         
     def pay_commission(self): 
