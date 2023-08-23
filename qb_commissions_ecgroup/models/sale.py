@@ -140,7 +140,7 @@ class SaleOrder(models.Model):
             #for line in sale.order_line:
             #    if line.product_id and not line.product_id.no_commissions: 
             #        if line.product_id.type not in ['service','consu']:
-            #            line.comm_rate = def_comm_rate
+            #            line.comm_rate = def_comm_rate123
             sale._compute_comm_total()
             for line in sale.order_line:
                 if line.product_id.type != 'service':              
