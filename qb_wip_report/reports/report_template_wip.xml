@@ -12,12 +12,12 @@
 							<thead>
 								<tr>
 									<th><strong>MO</strong></th>
-									<th><strong>Date Planned</strong></th>
+									<th><strong>Order Date</strong></th>
+									<th><strong>Deadline</strong></th>
 									<th><strong>Product</strong></th>
 									<th><strong>Sale</strong></th>
-									<th><strong>Reserved</strong></th>
+									<th><strong>Client</strong></th>
 									<th><strong>Qty</strong></th>
-									<th><strong>Status</strong></th>
 									<th><strong>Next Workorder</strong></th>
 									<th><strong>Responsible</strong></th>
 									<th><strong>Notes</strong></th>
@@ -27,12 +27,12 @@
 								<t t-foreach="wc.get(workcenter)" t-as="mo">
 	                        		<tr>
 	                        			<td><span t-field="mo.production_id.name"/></td>
-	                        			<td><span t-esc="mo.production_id.date_planned_start.strftime('%m/%d/%y')"/></td>
+	                        			<td><span t-esc="mo.production_id.sale_order_id.date_order.strftime('%m/%d/%y')"/></td>
+										<td><span t-esc="mo.production_id.date_deadline.strftime('%m/%d/%y')"/></td>
 	                        			<td><span t-field="mo.production_id.product_id.default_code"/></td>
 	                        			<td><span t-field="mo.production_id.sale_order_id.name"/></td>
-	                        			<td><span t-field="mo.production_id.reservation_state"/></td>
+	                        			<td><span t-field="mo.production_id.sale_order_id.partner_id.name"/></td>
 	                        			<td><span t-esc="'%.2f'% mo.production_id.product_qty"/></td>
-	                        			<td><span t-field="mo.production_id.state"/></td>
 	                        			<td><t t-if="mo.next_wo_id"><span t-field="mo.next_wo_id.name"/></t>
 										    <t t-else="">None</t>
 										</td>
