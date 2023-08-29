@@ -6,14 +6,6 @@ from odoo.exceptions import UserError
 import logging
 _logger = logging.getLogger(__name__)
 
-WIP Report:
-i.	1.Planned Date - Change to Order Date [DONE]
-2. Add in Deadline Date
-3. Remove Reserved column
-4. Remove Status column
-5. Add in Client Name
-
-
 
 class WIPReportXlsx(models.AbstractModel):
 
