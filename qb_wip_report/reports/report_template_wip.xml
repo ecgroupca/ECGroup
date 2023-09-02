@@ -27,8 +27,8 @@
 								<t t-foreach="wc.get(workcenter)" t-as="mo">
 	                        		<tr>
 	                        			<td><span t-field="mo.production_id.name"/></td>
-	                        			<td><span t-esc="mo.production_id.sale_order_id.date_order.strftime('%m/%d/%y')"/></td>
-										<td><span t-esc="mo.production_id.date_deadline.strftime('%m/%d/%y')"/></td>
+	                        			<td><span t-esc="mo.production_id and mo.production_id.sale_order_id and mo.production_id.sale_order_id.date_order.strftime('%m/%d/%y')"/></td>
+										<td><span t-esc="mo.production_id and mo.production_id.date_deadline and mo.production_id.date_deadline.strftime('%m/%d/%y')"/></td>
 	                        			<td><span t-field="mo.production_id.product_id.default_code"/></td>
 	                        			<td><span t-field="mo.production_id.sale_order_id.name"/></td>
 	                        			<td><span t-field="mo.production_id.sale_order_id.partner_id.name"/></td>
