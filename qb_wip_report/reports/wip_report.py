@@ -46,13 +46,13 @@ class WIPReportXlsx(models.AbstractModel):
             sheet.write(i+j+4, 1, 'Workcenter: ', bold)
             sheet.write(i+j+4, 2, sroom, bold)
             sheet.write(i+j+5, 0, 'MO', bold)
-            sheet.write(i+j+5, 1, 'Date Planned', bold)
-            sheet.write(i+j+5, 2, 'Item#', bold)
-            sheet.write(i+j+5, 3, 'Product', bold)
-            sheet.write(i+j+5, 4, 'Sale', bold)
-            sheet.write(i+j+5, 5, 'Reserved', bold)
-            sheet.write(i+j+5, 6, 'Qty', bold)
-            sheet.write(i+j+5, 7, 'Status', bold)
+            sheet.write(i+j+5, 1, 'Order Date', bold)
+            sheet.write(i+j+5, 2, 'Deadline', bold)            
+            sheet.write(i+j+5, 3, 'Item#', bold)
+            sheet.write(i+j+5, 4, 'Product', bold)
+            sheet.write(i+j+5, 5, 'Sale', bold)
+            sheet.write(i+j+5, 6, 'Client', bold)
+            sheet.write(i+j+5, 7, 'Qty', bold)
             sheet.write(i+j+5, 8, 'Next Workorder', bold)
             sheet.write(i+j+5, 9, 'Responsible', bold)
             sheet.write(i+j+5, 10, 'Notes', bold)
@@ -61,18 +61,21 @@ class WIPReportXlsx(models.AbstractModel):
                 i+=1   
                 sale_id = wo.production_id.sale_order_id
                 sale_name = sale_id and sale_id.name or ''
+                client_name = sale_id.partner_id and sale_id.partner_id.name or ''
+                date_order = sale_id and sale_id.date_order and sale_id.date_order.strftime("%m-%d-%Y") or ''
+                date_deadline = wo.production_id.date_deadline and wo.production_id.date_deadline.strftime("%m-%d-%Y") or ''
                 next_wo_id = wo.next_wo_id
                 next_wo_name = next_wo_id and next_wo_id.name or ''
                 user_id = wo.production_id.user_id
                 resp_name = user_id and user_id.name or ''                
                 sheet.write(j+i+5, 0, wo.production_id.name)                
-                sheet.write(j+i+5, 1, wo.production_id.date_planned_start.strftime("%m-%d-%Y"))
-                sheet.write(j+i+5, 2, wo.production_id.product_id.default_code or '')
-                sheet.write(j+i+5, 3, wo.production_id.product_id.name or '')               
-                sheet.write(j+i+5, 4, sale_name)
-                sheet.write(j+i+5, 5, wo.production_id.reservation_state)
-                sheet.write(j+i+5, 6, wo.production_id.product_qty)
-                sheet.write(j+i+5, 7, wo.production_id.state)
+                sheet.write(j+i+5, 1, date_order)
+                sheet.write(j+i+5, 2, date_deadline)
+                sheet.write(j+i+5, 3, wo.production_id.product_id.default_code or '')
+                sheet.write(j+i+5, 4, wo.production_id.product_id.name or '')               
+                sheet.write(j+i+5, 5, sale_name)
+                sheet.write(j+i+5, 6, client_name)
+                sheet.write(j+i+5, 7, wo.production_id.product_qty)
                 sheet.write(j+i+5, 8, next_wo_name)
                 sheet.write(j+i+5, 9, resp_name)
                 sheet.write(j+i+5, 10, wo.production_id.x_notes)
