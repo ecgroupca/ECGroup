@@ -63,13 +63,14 @@ class WIPReportXlsx(models.AbstractModel):
                 sale_name = sale_id and sale_id.name or ''
                 client_name = sale_id.partner_id and sale_id.partner_id.name or ''
                 date_order = sale_id and sale_id.date_order and sale_id.date_order.strftime("%m-%d-%Y") or ''
+                date_deadline = wo.production_id.date_deadline and wo.production_id.date_deadline.strftime("%m-%d-%Y")) or ''
                 next_wo_id = wo.next_wo_id
                 next_wo_name = next_wo_id and next_wo_id.name or ''
                 user_id = wo.production_id.user_id
                 resp_name = user_id and user_id.name or ''                
                 sheet.write(j+i+5, 0, wo.production_id.name)                
                 sheet.write(j+i+5, 1, date_order)
-                sheet.write(j+i+5, 2, wo.production_id.date_deadline.strftime("%m-%d-%Y"))
+                sheet.write(j+i+5, 2, date_deadline)
                 sheet.write(j+i+5, 3, wo.production_id.product_id.default_code or '')
                 sheet.write(j+i+5, 4, wo.production_id.product_id.name or '')               
                 sheet.write(j+i+5, 5, sale_name)
