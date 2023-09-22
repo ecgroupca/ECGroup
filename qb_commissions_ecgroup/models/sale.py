@@ -143,7 +143,7 @@ class SaleOrder(models.Model):
             #            line.comm_rate = def_comm_rate
             sale._compute_comm_total()
             for line in sale.order_line:
-                if not line.tax_id:
+                if not line.tax_id and line.product_id.type not in ['service',]:
                     raise ValidationError(_('Must have a tax on every non-service line.'))
                 elif line.product_id.type not in ['service','consu']:
                     if line.comm_rate and not line.product_id.no_commissions:
