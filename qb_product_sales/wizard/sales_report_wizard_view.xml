@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="product_sales_report_wiz_view" model="ir.ui.view">
+        <field name="name">Product Sales Report</field>
+        <field name="model">product.sales.report.wizard</field>
+        <field name="arch" type="xml">
+        <form string="Report Product Sales">
+            <group col="2">
+				<field name="print_excel"/>
+            </group>
+            <group col="4">
+                <field name="date_from" attrs="{'invisible': [('print_selected', '=', True)], 'required': [('print_selected', '=', False)]}"/>
+                <field name="date_to" attrs="{'invisible': [('print_selected', '=', True)], 'required': [('print_selected', '=', False)]}"/>
+            </group>
+            <group col="4">
+			    <field name="company_id" attrs="{'invisible': [('print_selected', '=', True)]}"/>
+            </group>
+            <group>
+            </group>
+            <footer>
+                <button name="print_report" string="Print" type="object" default_focus="1" class="oe_highlight"/>
+                <button string="Cancel" class="btn btn-secondary" special="cancel" />
+            </footer>
+        </form>
+        </field>
+    </record>
+
+    <record id="action_report_product_sales" model="ir.actions.act_window">
+        <field name="name">Product Sales Report</field>
+        <field name="res_model">product.sales.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="product_sales_report_wiz_view"/>
+        <field name="target">new</field>
+    </record>
+
+	<menuitem id="menu_action_product_sales_report"
+            action="action_report_product_sales"
+            parent="sale.menu_sale_report"
+            sequence="25"/>	
+</odoo>
