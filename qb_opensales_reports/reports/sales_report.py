@@ -96,11 +96,11 @@ class OpenSalesXlsx(models.AbstractModel):
                         purch_order = None
                         del_move = None
                         order_tag = self.env['order.tags']
-                        tag_dom = [('sale_id','=',sale.id),('name','=','Sample Approval')]
+                        tag_dom = [('sale_id','=',sale.id),('name','=','Sample Approved')]
                         sale_tags = order_tag.search(tag_dom)
                         sample_apprvl = sale_tags and sale_tags[0] or False
                         if sample_apprvl:
-                            status = 'Sample Approval'
+                            status = 'Sample Approved'
                         #find the workorder that hasn't been done and is next in the sequence
                         if mrp_order:
                             domain = [('production_id','=',mrp_order.id)]
