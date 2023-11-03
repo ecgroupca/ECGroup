@@ -83,7 +83,7 @@ class OpenSalesXlsx(models.AbstractModel):
                 sheet.write(j+i+5, 5, sale.deposit_total)
                 sheet.write(j+i+5, 6, sale.inv_bal_due)
                 sheet.write(j+i+5, 7, sale.user_id and sale.user_id.name or '')
-                #sheet.write(j+i+5, 8, sale.state)             
+                             
                 for sale_line in sale.order_line:
 
                     status = 'N/A'
@@ -95,7 +95,12 @@ class OpenSalesXlsx(models.AbstractModel):
                         mrp_order = mrp_order and mrp_order[0] or None
                         purch_order = None
                         del_move = None
-                        
+                        order_tag = self.env['order.tags']
+                        tag_dom = [('sale_id','=',sale.id),('name','=','Sample Approval')]
+                        sale_tags = order_tag.search(tag_dom)
+                        sample_apprvl = sale_tags and sale_tags[0] or False
+                        if sample_apprvl:
+                            status = 'Sample Approval'
                         #find the workorder that hasn't been done and is next in the sequence
                         if mrp_order:
                             domain = [('production_id','=',mrp_order.id)]
