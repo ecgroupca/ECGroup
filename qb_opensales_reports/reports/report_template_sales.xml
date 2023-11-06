@@ -54,6 +54,12 @@
 											<t t-set="mrp_order" t-value=""/>
 											<t t-set="purch_order" t-value=""/>
 											<t t-set="del_order" t-value=""/>
+											<t t-set="order_tag" t-value=""/>
+                                            <t t-set="tag_dom" t-value="[('sale_id','=',sale.id),('name','=','Sample Approved')]"/>
+                                            <t t-set="sale_tags" t-value="order_tag.search(tag_dom)"/>
+                                            <t t-if="sale_tags and sale_tags[0] or False"/>
+                                              <t t-set="status" t-value="Sample Approved"/>
+											</t>
 										    <t t-if="is_repped != o.name">
 												<td><span t-field="o.name"/></td>
 												<td><span t-esc="o.date_order and o.date_order.strftime('%m/%d/%y') or ''"/></td>
