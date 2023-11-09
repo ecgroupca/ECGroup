@@ -196,4 +196,24 @@
 		attachment_use="False"
 		print_report_name="'Open Sales Excel'"
 	/>
+	<report
+		string="Sales Completion Report"
+		id="action_report_compsales"
+		model="sale.order"
+		report_type="qweb-pdf"
+		name="qb_opensales_reports.report_compsales"
+		file="qb_opensales_reports.report_compsales"
+		print_report_name="'Sales Completion'"
+		menu="False"
+	/>
+	<report
+		id="action_report_compsales_xlsx"
+		model="sale.order"
+		string="Print to Excel"
+		report_type="xlsx"
+		name="qb_opensales_reports.report_compsales_xlsx"
+		file="qb_opensales_reports.report_compsales_xlsx"
+		attachment_use="False"
+		print_report_name="'Sales Completion Excel'"
+	/>
 </odoo>
