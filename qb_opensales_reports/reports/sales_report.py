@@ -83,19 +83,24 @@ class OpenSalesXlsx(models.AbstractModel):
                 sheet.write(j+i+5, 5, sale.deposit_total)
                 sheet.write(j+i+5, 6, sale.inv_bal_due)
                 sheet.write(j+i+5, 7, sale.user_id and sale.user_id.name or '')
-                #sheet.write(j+i+5, 8, sale.state)             
+                             
                 for sale_line in sale.order_line:
 
                     status = 'N/A'
                     product = sale_line.product_id
-                    if sale_line.product_uom_qty > 0 and product and sale_line.product_id.type != 'service':
+                    if sale_line.product_uom_qty != sale_line.qty_delivered and sale_line.product_uom_qty > 0 and product and sale_line.product_id.type != 'service':
                         #search for production order for the sale line
                         domain = [('sale_order_id','=',sale.id),('product_id','=',product.id)]
                         mrp_order = self.env['mrp.production'].search(domain, limit=1, order="id desc")
                         mrp_order = mrp_order and mrp_order[0] or None
                         purch_order = None
                         del_move = None
-                        
+                        order_tag = self.env['order.tags']
+                        tag_dom = [('sale_id','=',sale.id),('name','=','Finish Sample - Approved')]
+                        sale_tags = order_tag.search(tag_dom)
+                        sample_apprvl = sale_tags and sale_tags[0] or False
+                        if sample_apprvl:
+                            status = 'Sample Approved'
                         #find the workorder that hasn't been done and is next in the sequence
                         if mrp_order:
                             domain = [('production_id','=',mrp_order.id)]
@@ -124,17 +129,20 @@ class OpenSalesXlsx(models.AbstractModel):
                             
                         if status in ['N/A','Finished','Received']:
                             domain = [('picking_id.picking_type_code','=','outgoing')]
-                            domain += [('picking_id.sale_id','=',sale.id),('product_id','=',sale_line.product_id.id)]
+                            domain += [('picking_id.sale_id','=',sale.id)]
+                            domain += [('product_id','=',sale_line.product_id.id)]
                             del_move = self.env['stock.move'].search(domain, limit=1, order="id desc")
                             del_move = del_move and del_move[0] or None
                             if del_move:
                                 if del_move.state == 'done':
                                     status = 'Delivered'
-                                elif del_move.state != 'cancel' and del_move.picking_id.x_printed:
-                                    status = 'Ready for Pick up' 
                                 elif del_move.state != 'cancel':
-                                    status = 'Moved to Shipment'                          
-                            
+                                    if status in ['Finished','Received']:
+                                        if del_move.picking_id.x_printed:
+                                            status = 'Ready for Pick up' 
+                                        else:
+                                            status = 'Moved to Shipment'                          
+                                    
                         sheet.write(j+i+5, 8, product.default_code)        
                         sheet.write(j+i+5, 9, status)
                         i+=1  
