@@ -73,8 +73,6 @@ class StockLocation(models.Model):
         activity_type_id = self.env.ref('mail.mail_activity_data_todo')
         company_ids = self.env['res.company'].sudo().search([])
         for company_id in company_ids:
-            min_qty = product.reordering_min_qty
-            low_stock_alert_qty = min_qty or 1
             loc_dom = [('usage','=','internal')]
             loc_dom += [('name','in',['Raw','Finished'])]
             loc_dom += [('company_id','in',[False, company_id.id])]
