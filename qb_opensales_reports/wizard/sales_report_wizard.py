@@ -3,7 +3,7 @@ from odoo.tools.misc import get_lang
 
 class CompSalesReportWizard(models.TransientModel):
     _name = "comp.sales.report.wizard"
-    _description = "Completion Sales Report Wizard"
+    _description = "Completed Sales Report Wizard"
     
     company_id = fields.Many2one("res.company",string="Company",required=True)
     date_from = fields.Date("Date From", required=False)
@@ -12,7 +12,6 @@ class CompSalesReportWizard(models.TransientModel):
     sale_ids = fields.Many2many("sale.order",'sales_report_rel_transient', 'sales_report_id', 'sale_order_id', string="Sales")
     print_selected = fields.Boolean("Print Selected?")
     print_excel = fields.Boolean("Print in Excel")
-    responsible_id = fields.Many2one("res.users",string="Responsible")
     sales_rep_id = fields.Many2one("res.partner",string="Sales Rep.") 
     
     def print_report(self):
