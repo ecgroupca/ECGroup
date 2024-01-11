@@ -56,7 +56,7 @@ class StockLocation(models.Model):
             """.format(table_html = table_html)
             return html_body
 
-        def _send_mail(user_id,location_id,body,company):
+        def _send_mail(location_id,body,company):
             subject = "Low Stock At {location}".format(location=location_id.display_name)
             mail_id = self.env['mail.mail'].create({
                 'subject':subject,
@@ -81,18 +81,17 @@ class StockLocation(models.Model):
                 low_stock_quant_ids = internal_loc_id.quant_ids.filtered(lambda quant:quant.product_id.qty_available <= quant.product_id.reordering_min_qty)
                 if low_stock_quant_ids:
                     html_body = _set_html_body(low_stock_quant_ids)
-                    for user_id in user_ids:
-                        mail_activity = self.env['mail.activity'].create({'activity_type_id': activity_type_id.id,
-									'date_deadline': datetime.today(),
-									'summary': "Alert - Low Stock",
-									'create_uid' : user_id.id,
-									'user_id': user_id.id,
-									'res_id': internal_loc_id.id,
-									'res_model_id': location_model.id,
-									'note':html_body,
-									})
-                        
-                        _send_mail(user_id,internal_loc_id,html_body,company_id)
+                    mail_activity = self.env['mail.activity'].create({'activity_type_id': activity_type_id.id,
+                                'date_deadline': datetime.today(),
+                                'summary': "Alert - Low Stock",
+                                'create_uid' : 1,
+                                'user_id': 1,
+                                'res_id': internal_loc_id.id,
+                                'res_model_id': location_model.id,
+                                'note':html_body,
+                                })
+                    
+                    _send_mail(internal_loc_id,html_body,company_id)
 
 
 
