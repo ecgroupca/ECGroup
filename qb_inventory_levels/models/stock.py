@@ -36,7 +36,7 @@ class StockLocation(models.Model):
                         </td>
                     </tr>
                 """.format(product_name=low_stock_quant_id.display_name,
-                           available_qty=low_stock_quant_id.available_quantity,
+                           available_qty=low_stock_quant_id.product_id.qty_available,
                            min_qty=low_stock_quant_id.product_id.reordering_min_qty)
             table_html += """
                     </tbody>
