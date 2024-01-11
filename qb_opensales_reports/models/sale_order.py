@@ -30,9 +30,11 @@ class SaleOrder(models.Model):
         'Date',
         )    
     comp_status = fields.Selection(
-        'Completion Status',
-        ['Completion','Nearing Completion'],
-        store=True)
+        string='Completion Status',
+        [('completion','Completion'),
+        ('near_completion','Nearing Completion')],
+        default='draft', 
+        copy=False, store=True)
     received = fields.Boolean("Received", 
         compute="_compute_open_shipments", 
         store=True)
