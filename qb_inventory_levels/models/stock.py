@@ -78,7 +78,7 @@ class StockLocation(models.Model):
             loc_dom += [('company_id','in',[False, company_id.id])]
             internal_loc_ids = self.search(loc_dom)
             for internal_loc_id in internal_loc_ids:
-                low_stock_quant_ids = internal_loc_id.quant_ids.filtered(lambda quant:quant.available_quantity <= quant.product_id.reordering_min_qty)
+                low_stock_quant_ids = internal_loc_id.quant_ids.filtered(lambda quant:quant.product_id.qty_available <= quant.product_id.reordering_min_qty)
                 if low_stock_quant_ids:
                     html_body = _set_html_body(low_stock_quant_ids)
                     for user_id in user_ids:
