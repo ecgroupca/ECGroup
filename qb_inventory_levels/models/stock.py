@@ -69,12 +69,8 @@ class StockLocation(models.Model):
 
 
         self = self.sudo()
-        group_id = self.env.ref('iwesabe_send_low_stock_alert.group_notify_low_stock')
         location_model = self.env['ir.model'].sudo().search([('model','=','stock.location')])
         activity_type_id = self.env.ref('mail.mail_activity_data_todo')
-        user_ids = group_id.users
-        if not user_ids:
-            return
         company_ids = self.env['res.company'].sudo().search([])
         for company_id in company_ids:
             min_qty = product.reordering_min_qty
