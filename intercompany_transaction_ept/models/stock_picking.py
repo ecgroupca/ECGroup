@@ -8,6 +8,9 @@ class Picking(models.Model):
     """
     Inherited for adding relation with inter company transfer.
     @author: Maulik Barad on Date 25-Sep-2019.
+    Updated by Adam O'Connor Fall 2021, again in 2022 and on 11/16/23
+    modified the action_done override to no longer consider an ict not 
+    done if one of the transfers was in cancel
     """
     _inherit = 'stock.picking'
 
@@ -31,8 +34,10 @@ class Picking(models.Model):
         for pick in self:
             if pick.inter_company_transfer_id:
                 ict_done = True
+                #ideal - only count backorders if the item on them is 
+                #not canceled
                 for trans in pick.inter_company_transfer_id.picking_ids:
-                    if trans.state != 'done':
+                    if trans.state not in ['done','cancel']:
                         ict_done = False
                 if ict_done:
                     pick.inter_company_transfer_id.state = 'transferred'
