@@ -93,7 +93,7 @@ class StockLocation(models.Model):
                     _send_mail(internal_loc_id,html_body,company_id)
 
                 cat_list = ['Accessories','Lamps','Lanterns','Occassional Tables','Sconces']
-                cat_line_quant_ids = internal_loc_id.quant_ids.filtered(quant.product_id.categ_id.name in cat_list)                                
+                cat_line_quant_ids = internal_loc_id.quant_ids.filtered(lambda quant: quant.product_id.categ_id.name in cat_list)                                
                 if cat_line_quant_ids:
                     html_body = _set_html_body(cat_line_quant_ids)
                     mail_activity = self.env['mail.activity'].create({'activity_type_id': activity_type_id.id,
