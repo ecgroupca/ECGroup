@@ -79,6 +79,8 @@ class StockLocation(models.Model):
             internal_loc_ids = self.search(loc_dom)
             for internal_loc_id in internal_loc_ids:
                 low_stock_quant_ids = internal_loc_id.quant_ids.filtered(lambda quant:quant.product_id.qty_available <= quant.product_id.reordering_min_qty)              
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'MISC' not in quant.product_id.name)
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'CUSTOM' not in quant.product_id.name)
                 if low_stock_quant_ids:
                     html_body = _set_html_body(low_stock_quant_ids)
                     mail_activity = self.env['mail.activity'].create({'activity_type_id': activity_type_id.id,
