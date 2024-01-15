@@ -10,7 +10,7 @@ class StockLocation(models.Model):
 
     @api.model
     def _cron_send_alert_for_low_stock(self):
-        def _set_html_body(low_stock_quant_ids):
+        def _set_html_body(low_stock_quant_ids,item_cat=''):
             table_html = """
                 <table class="table table-sm">
                     <thead>
@@ -46,18 +46,18 @@ class StockLocation(models.Model):
                 <div class="page">
                     <p>Dear Inventory Manager,</p>
                     <div class="container">
-                       <p>The following items are running low on stock:</p>
+                       <p>The following {item_cat} items are running low on stock:</p>
                         {table_html}
                         
                     </div>
                     <p>Please take appropriate actions to restock these items as soon as possible.</p>
                     <p>Thanks for your attention.</p>
                 </div>
-            """.format(table_html = table_html)
+            """.format(item_cat=item_cat,table_html=table_html)
             return html_body
 
-        def _send_mail(location_id,body,company):
-            subject = "Low Stock At {location}".format(location=location_id.display_name)
+        def _send_mail(location_id,body,company,item_cat=''):
+            subject = "Low {item_cat} Stock At {location}".format(item_cat=item_cat,location=location_id.display_name)
             mail_id = self.env['mail.mail'].create({
                 'subject':subject,
                 'email_from':company.email,
@@ -97,7 +97,8 @@ class StockLocation(models.Model):
                 cat_list = ['Accessories','Lamps','Lanterns','Occassional Tables','Sconces']
                 cat_line_quant_ids = low_stock_quant_ids.filtered(lambda quant: quant.product_id.categ_id.name in cat_list)                                
                 if cat_line_quant_ids:
-                    html_body = _set_html_body(cat_line_quant_ids)
+                    item_cat = "Accessories,Lamps,Lanterns,Occassional Tables,and Sconces"
+                    html_body = _set_html_body(verano_line_quant_ids,item_cat=item_cat)
                     mail_activity = self.env['mail.activity'].create({'activity_type_id': activity_type_id.id,
                                 'date_deadline': datetime.today(),
                                 'summary': "Low Stock - Best Sellers and Accessories",
@@ -107,11 +108,12 @@ class StockLocation(models.Model):
                                 'res_model_id': location_model.id,
                                 'note':html_body,
                                 })
-                    _send_mail(internal_loc_id,html_body,company_id)
+                    _send_mail(internal_loc_id,html_body,company_id,item_cat=item_cat)
                     
                 verano_line_quant_ids = low_stock_quant_ids.filtered(lambda quant:'Verano' in quant.product_id.name)                                
                 if verano_line_quant_ids:
-                    html_body = _set_html_body(verano_line_quant_ids)
+                    item_cat = "Verano"
+                    html_body = _set_html_body(verano_line_quant_ids,item_cat=item_cat)
                     mail_activity = self.env['mail.activity'].create({'activity_type_id': activity_type_id.id,
                                 'date_deadline': datetime.today(),
                                 'summary': "Low Stock - Verano Line",
@@ -121,7 +123,8 @@ class StockLocation(models.Model):
                                 'res_model_id': location_model.id,
                                 'note':html_body,
                                 })
-                    _send_mail(internal_loc_id,html_body,company_id)
+                    item_cat = "Verano"
+                    _send_mail(internal_loc_id,html_body,company_id,item_cat=item_cat)
 
 
 
