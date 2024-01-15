@@ -92,11 +92,11 @@ class StockLocation(models.Model):
                                 })
                     _send_mail(internal_loc_id,html_body,company_id)
                 lambda_func = lambda quant:'Verano' in quant.product_id.name
-                lambda_func |= quant.product_id.categ_id.name == 'Accessories'
-                lambda_func |= quant.product_id.categ_id.name == 'Lamps'
-                lambda_func |= quant.product_id.categ_id.name == 'Lanterns'
-                lambda_func |= quant.product_id.categ_id.name == 'Occassional Tables'
-                lambda_func |= quant.product_id.categ_id.name == 'Sconces'
+                lambda_func |= lambda quant:quant.product_id.categ_id.name == 'Accessories'
+                lambda_func |= lambda quant:quant.product_id.categ_id.name == 'Lamps'
+                lambda_func |= lambda quant:quant.product_id.categ_id.name == 'Lanterns'
+                lambda_func |= lambda quant:quant.product_id.categ_id.name == 'Occassional Tables'
+                lambda_func |= lambda quant:quant.product_id.categ_id.name == 'Sconces'
                 prod_line_quant_ids = internal_loc_id.quant_ids.filtered(lambda_func)                                
                 if prod_line_quant_ids:
                     html_body = _set_html_body(prod_line_quant_ids)
