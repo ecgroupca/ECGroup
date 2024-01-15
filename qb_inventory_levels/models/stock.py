@@ -58,10 +58,13 @@ class StockLocation(models.Model):
 
         def _send_mail(location_id,body,company,item_cat=''):
             subject = "Low {item_cat} Stock At {location}".format(item_cat=item_cat,location=location_id.display_name)
+            user_names = ['David Goman','Robert Hearn','Kenny Double','Tom Nowland','Adam ECG Admin']
+            recipient_ids = self.env['res.user'].search([('name', 'in', user_names)])
             mail_id = self.env['mail.mail'].create({
                 'subject':subject,
                 'email_from':company.email,
-                'email_to':'aoconnor@quickbeamllc.com',
+                #'email_to':'aoconnor@quickbeamllc.com',
+                'recipient_ids': [(6, 0, recipient_ids]
                 'body_html':body,
             })
             mail_id.sudo().send()
