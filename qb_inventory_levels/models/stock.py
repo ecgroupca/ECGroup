@@ -98,7 +98,7 @@ class StockLocation(models.Model):
                 cat_line_quant_ids = low_stock_quant_ids.filtered(lambda quant: quant.product_id.categ_id.name in cat_list)                                
                 if cat_line_quant_ids:
                     item_cat = "Accessories,Lamps,Lanterns,Occassional Tables,and Sconces"
-                    html_body = _set_html_body(verano_line_quant_ids,item_cat=item_cat)
+                    html_body = _set_html_body(cat_line_quant_ids,item_cat=item_cat)
                     mail_activity = self.env['mail.activity'].create({'activity_type_id': activity_type_id.id,
                                 'date_deadline': datetime.today(),
                                 'summary': "Low Stock - Best Sellers and Accessories",
