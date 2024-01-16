@@ -59,7 +59,7 @@ class StockLocation(models.Model):
             mail_id = self.env['mail.mail'].create({
                 'subject':subject,
                 'email_from':company.email,
-                'recipient_ids': [(6, 0, recipient_ids)],
+                'recipient_ids': [(6, 0, recipient_ids.ids)],
                 'body_html':body,
             })
             mail_id.sudo().send()
