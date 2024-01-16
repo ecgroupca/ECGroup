@@ -93,7 +93,6 @@ class StockLocation(models.Model):
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Fabric'.upper() not in quant.product_id.name.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'leather'.upper() not in quant.product_id.name.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Limited Edition'.upper() not in quant.product_id.name.upper())
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'one'.upper() not in quant.product_id.default_code.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'refinish'.upper() not in quant.product_id.name.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'rework'.upper() not in quant.product_id.name.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'repair'.upper() not in quant.product_id.name.upper())
