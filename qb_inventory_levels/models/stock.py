@@ -1,5 +1,6 @@
 from datetime import datetime
 from odoo import models, fields, api, _
+import upper
 
 class StockLocation(models.Model):
     _name = "stock.location"
@@ -79,27 +80,27 @@ class StockLocation(models.Model):
             internal_loc_ids = self.search(loc_dom)
             for internal_loc_id in internal_loc_ids:
                 low_stock_quant_ids = internal_loc_id.quant_ids.filtered(lambda quant:quant.product_id.qty_available <= quant.product_id.reordering_min_qty)              
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('MISC') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('CUSTOM') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('Prototype') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('model') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('mold') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('counter sample') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('Master Sample') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('R&D') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('Finished Sample') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('candle') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('Pillow') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('Fabric') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('leather') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('Limited Edition') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('one') not in upper(quant.product_id.default_code))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('refinish') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('rework') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('repair') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('pavillion') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('hook') not in upper(quant.product_id.name))
-                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: upper('foam') not in upper(quant.product_id.name))
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'MISC'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'CUSTOM'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Prototype'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'model'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'mold'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'counter sample'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Master Sample'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'R&D'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Finished Sample'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'candle'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Pillow'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Fabric'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'leather'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Limited Edition'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'one'.upper() not in upper(quant.product_id.default_code))
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'refinish'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'rework'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'repair'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'pavillion'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'hook'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'foam'.upper() not in quant.product_id.name.upper())
                 #low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: quant.product_id.reordering_min_qty>0)
                 if low_stock_quant_ids:
                     html_body = _set_html_body(low_stock_quant_ids)
@@ -130,7 +131,7 @@ class StockLocation(models.Model):
                                 })
                     _send_mail(internal_loc_id,html_body,company_id,item_cat=item_cat)
                     
-                verano_line_quant_ids = low_stock_quant_ids.filtered(lambda quant:upper('Verano') in upper(quant.product_id.name))                                
+                verano_line_quant_ids = low_stock_quant_ids.filtered(lambda quant:upper('Verano') in quant.product_id.name.upper())                                
                 if verano_line_quant_ids:
                     item_cat = "Verano"
                     html_body = _set_html_body(verano_line_quant_ids,item_cat=item_cat)
