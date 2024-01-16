@@ -1,5 +1,3 @@
-d# -*- coding: utf-8 -*-
-
 from datetime import datetime
 from odoo import models, fields, api, _
 
