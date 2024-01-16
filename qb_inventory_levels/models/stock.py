@@ -54,10 +54,8 @@ class StockLocation(models.Model):
             """.format(item_cat=item_cat,table_html=table_html)
             return html_body
 
-        def _send_mail(location_id,body,company,item_cat=''):
+        def _send_mail(location_id,body,company,recipient_ids,item_cat=''):
             subject = "Low {item_cat} Stock At {location}".format(item_cat=item_cat,location=location_id.display_name)
-            user_names = ['David Goman','Robert Hearn','Kenny Double','Tom Nowland','Adam ECG Admin']
-            recipient_ids = self.env['res.partner'].sudo().search([('name', 'in', user_names)])
             mail_id = self.env['mail.mail'].create({
                 'subject':subject,
                 'email_from':company.email,
@@ -72,6 +70,8 @@ class StockLocation(models.Model):
         location_model = self.env['ir.model'].sudo().search([('model','=','stock.location')])
         activity_type_id = self.env.ref('mail.mail_activity_data_todo')
         company_ids = self.env['res.company'].sudo().search([])
+        user_names = ['David Goman','Robert Hearn','Kenny Double','Tom Nowland','Adam ECG Admin']
+        recipient_ids = self.env['res.partner'].sudo().search([('name', 'in', user_names)])
         for company_id in company_ids:
             loc_dom = [('usage','=','internal')]
             loc_dom += [('name','in',['Raw','Finished'])]
@@ -112,7 +112,7 @@ class StockLocation(models.Model):
                                 'res_model_id': location_model.id,
                                 'note':html_body,
                                 })
-                    _send_mail(internal_loc_id,html_body,company_id)
+                    _send_mail(internal_loc_id,html_body,company_id,recipient_ids)
 
                 cat_list = ['Accessories','Lamps','Lanterns','Occassional Tables','Sconces']
                 cat_line_quant_ids = low_stock_quant_ids.filtered(lambda quant: quant.product_id.categ_id.name in cat_list)                                
@@ -128,7 +128,7 @@ class StockLocation(models.Model):
                                 'res_model_id': location_model.id,
                                 'note':html_body,
                                 })
-                    _send_mail(internal_loc_id,html_body,company_id,item_cat=item_cat)
+                    _send_mail(internal_loc_id,html_body,company_id,recipient_ids,item_cat=item_cat)
                     
                 verano_line_quant_ids = low_stock_quant_ids.filtered(lambda quant:upper('Verano') in quant.product_id.name.upper())                                
                 if verano_line_quant_ids:
@@ -144,7 +144,7 @@ class StockLocation(models.Model):
                                 'note':html_body,
                                 })
                     item_cat = "Verano"
-                    _send_mail(internal_loc_id,html_body,company_id,item_cat=item_cat)
+                    _send_mail(internal_loc_id,html_body,company_id,recipient_ids,item_cat=item_cat)
 
 
 
