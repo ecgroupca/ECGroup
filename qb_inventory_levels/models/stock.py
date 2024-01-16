@@ -130,7 +130,7 @@ class StockLocation(models.Model):
                                 })
                     _send_mail(internal_loc_id,html_body,company_id,recipient_ids,item_cat=item_cat)
                     
-                verano_line_quant_ids = low_stock_quant_ids.filtered(lambda quant:upper('Verano') in quant.product_id.name.upper())                                
+                verano_line_quant_ids = low_stock_quant_ids.filtered(lambda quant:'Verano'.upper() in quant.product_id.name.upper())                                
                 if verano_line_quant_ids:
                     item_cat = "Verano"
                     html_body = _set_html_body(verano_line_quant_ids,item_cat=item_cat)
