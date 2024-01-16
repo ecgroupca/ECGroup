@@ -1,6 +1,5 @@
 from datetime import datetime
 from odoo import models, fields, api, _
-import upper
 
 class StockLocation(models.Model):
     _name = "stock.location"
