@@ -7,7 +7,7 @@ class StockLocation(models.Model):
     _description = "Low Stock On Locations"
 
     @api.model
-    def _cron_send_alert_for_low_stock(self):
+    def _cron_send_alert_for_low_stock(self,user_names):
         def _set_html_body(low_stock_quant_ids,item_cat=''):
             table_html = """
                 <table class="table table-sm">
@@ -70,7 +70,6 @@ class StockLocation(models.Model):
         location_model = self.env['ir.model'].sudo().search([('model','=','stock.location')])
         activity_type_id = self.env.ref('mail.mail_activity_data_todo')
         company_ids = self.env['res.company'].sudo().search([])
-        user_names = ['David Goman','Robert Hearn','Kenny Double','Tom Nowland','Adam ECG Admin']
         recipient_ids = self.env['res.partner'].sudo().search([('name', 'in', user_names)])
         for company_id in company_ids:
             loc_dom = [('usage','=','internal')]
