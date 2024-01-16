@@ -25,8 +25,18 @@ class StockPicking(models.Model):
     
 class SaleOrder(models.Model):
     _inherit = "sale.order"
-    
-    received = fields.Boolean("Received", compute="_compute_open_shipments", store=True)
+
+    comp_status_date = fields.Date(
+        'Date',
+        )    
+    comp_status = fields.Selection(
+        [('completion','Completion'),
+        ('near_completion','Nearing Completion')],
+        string='Completion Status',
+        copy=False, store=True)
+    received = fields.Boolean("Received", 
+        compute="_compute_open_shipments", 
+        store=True)
     open_shipment = fields.Boolean("Open Shipments",compute="_compute_open_shipments", store=True)
     open_production = fields.Boolean("Open Production",compute="_compute_open_shipments", store=True)
     needs_drawing = fields.Boolean("Needs Drawing")

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 	<template id="report_open_sales">
-		<t t-call="web.html_container">
+  		<t t-call="web.html_container">
 		  <t t-if="docs">
 		  <t t-value="docs[0]" t-set="sale"/>
 		  <t t-foreach="sale" t-as="o">
@@ -47,7 +47,7 @@
                                         <t t-set="is_repped" t-value="s0"/>									  
 										<t t-foreach="o.order_line" t-as="sale_line">										
 										<t t-set="product" t-value="sale_line.product_id"/>
-										<t t-if="sale_line.product_uom_qty > 0 and product and product.type != 'service'">
+										<t t-if="sale_line.product_uom_qty != sale_line.qty_delivered and sale_line.product_uom_qty > 0 and product and product.type != 'service'">
 										  <tr>
 										    <t t-set="status" t-value="'N/A'"/>
 										    <t t-set="work_order" t-value=""/>
@@ -78,6 +78,10 @@
 												<td><span/></td>
 											</t>
 											<t t-set="is_repped" t-value="o.name"/>
+                      <t t-set="tag_dom" t-value="[('sale_id','=',sale.id),('name','=','Finish Sample - Approved')]"/>
+                      <t t-foreach="request.env['order.tags'].search(tag_dom)" t-as="sale_tag">
+                        <t t-set="status" t-value="'Sample Approved'"/>
+											</t>
 											<t t-set="domain" t-value="[('sale_order_id','=',o.id),('product_id','=',product.id)]"/>
 											<t t-foreach="request.env['mrp.production'].search(domain, order='id desc', limit=1)" t-as="mrp_order">
 												<t t-if="mrp_order.state in ['planned','progress']">
@@ -118,15 +122,19 @@
 												<t t-foreach="request.env['stock.move'].search(domain, limit=1, order='id desc')" t-as="del_move">
 												  <t t-set="del_move" t-value="del_move and del_move[0] or None"/>
 												  <t t-if="del_move">
-													<t t-if="del_move.state == 'done'">
-													  <t t-set="status" t-value="'Delivered'"/>
-													</t>
-													<t t-if="del_move.state != 'cancel' and del_move.picking_id.x_printed">
-													  <t t-set="status" t-value="'Ready for Pick-up'"/>
-													</t>
-													<t t-if="del_move.state != 'cancel'">
-													  <t t-set="status" t-value="'Moved to Shipment'"/>
-													</t>
+  													<t t-if="del_move.state == 'done'">
+  													  <t t-set="status" t-value="'Delivered'"/>
+  													</t>
+  													<t t-if="del_move.state != 'cancel'">
+  													 <t t-if="status in ['Finished','Received']">
+    													<t t-if="del_move.picking_id.x_printed">
+    													  <t t-set="status" t-value="'Ready for Pick-up'"/>
+    													</t>
+    													<t t-else="">
+    													  <t t-set="status" t-value="'Moved to Shipment'"/>
+    													</t>
+    												 </t>
+  													</t>
 												  </t>
 												</t>			 														  
 											</t>
@@ -165,7 +173,183 @@
 			  </t>
 			</t>
 		  </t>
-        </t>
+      </t>
+	
+    </template>
+	<template id="report_comp_sales">
+  		<t t-call="web.html_container">
+		  <t t-if="docs">
+		  <t t-value="docs[0]" t-set="sale"/>
+		  <t t-foreach="sale" t-as="o">
+			<t t-call="web.external_layout">
+				<t t-foreach="sm" t-as="showroom">
+					<t t-set="showroom_amt_total" t-value="0.00"/>
+					<t t-set="showroom_deposits_total" t-value="0.00"/>
+					<t t-set="showroom_balance_total" t-value="0.00"/>
+					<div class="page" style="font-name:Calibri;page-break-before:always;">
+						<h2 style="margin-top:10px;text-align: center;width:100%">Sales Completion Report</h2>
+						<p><strong><h5>Showroom : <t t-esc="showroom.replace('_',' ')"/></h5></strong></p>
+                        <span t-if="date_from"><strong>Dates: </strong><t t-esc="date_from[3:5] +'/'+ date_from[:2] +'/'+ date_from[6:]"/> <strong>  to  </strong> <t t-esc="date_to[3:5] +'/'+ date_to[:2] +'/'+ date_to[6:]"/></span>
+						<table width="100%" style="padding:5px;margin:15px 0;font-size:10pt;">
+							<thead>
+								<tr style="border-bottom: dotted 1px; border-color:#AAA;">
+									<th><strong>Order No.</strong></th>
+									<th><strong>Date</strong></th>
+									<th><strong>Client PO</strong></th>
+									<th><strong>Client</strong></th>
+									<th><strong>Total</strong></th>
+									<th><strong>Deposits</strong></th>
+									<th><strong>Balance</strong></th>
+									<th><strong>Tags</strong></th>
+									<th><strong>Item</strong></th>
+									<th><strong>Status</strong></th>
+								</tr>									
+							</thead>
+							<tbody>
+							  <t t-foreach="sm.get(showroom)" t-as="rep">
+							    <tr>
+								    <td colspan="4" style="font-size:12pt;" align="center"><strong><t t-esc="sm[showroom][rep]['name']"/></strong></td>
+							    </tr>
+							    <t t-set="rep_sales_total" t-value="0.00" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/>
+							    <t t-set="rep_deposits_total" t-value="0.00" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/>
+							    <t t-set="rep_balance_total" t-value="0.00" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/>
+								  <t t-set="is_previous" t-value="s0"/>
+								  <t t-foreach="sm[showroom][rep]['data']" t-as="o">
+									<t t-set="rep_sales_total" t-value="o.amount_total + rep_sales_total"/>
+									<t t-set="rep_deposits_total" t-value="o.deposit_total + rep_deposits_total"/>
+									<t t-set="rep_balance_total" t-value="o.inv_bal_due + rep_balance_total"/>									
+									<t t-if="o and is_previous != o.name">
+									    <t t-set="is_previous" t-value="o.name"/>
+                                        <t t-set="is_repped" t-value="s0"/>									  
+										<t t-foreach="o.order_line" t-as="sale_line">										
+										<t t-set="product" t-value="sale_line.product_id"/>
+										<t t-if="sale_line.product_uom_qty != sale_line.qty_delivered and sale_line.product_uom_qty > 0 and product and product.type != 'service'">
+										  <tr>
+										    <t t-set="status" t-value="'N/A'"/>
+										    <t t-set="work_order" t-value=""/>
+											<t t-set="mrp_order" t-value=""/>
+											<t t-set="purch_order" t-value=""/>
+											<t t-set="del_order" t-value=""/>
+										    <t t-if="is_repped != o.name">
+												<td><span t-field="o.name"/></td>
+												<td><span t-esc="o.date_order and o.date_order.strftime('%m/%d/%y') or ''"/></td>
+												<td style="max-width:50px;"><span t-field="o.client_order_ref"/></td>
+												<td style="max-width:50px;"><span t-field="o.partner_id"/></td>
+												<td><span t-field="o.amount_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
+												<td><span t-field="o.deposit_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
+												<td><span t-field="o.inv_bal_due" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></td>
+												<td style="max-width:50px;"><t t-foreach="o.order_tags" t-as="tag">
+													   <span t-esc="tag.name"/>,
+													</t>
+												</td>
+											</t>
+											<t t-else="">											    
+											    <td><span/></td>
+												<td><span/></td>
+												<td><span/></td>
+												<td><span/></td>
+												<td><span/></td>
+												<td><span/></td>
+												<td><span/></td>
+												<td><span/></td>
+											</t>
+											<t t-set="is_repped" t-value="o.name"/>
+											  <t t-set="tag_dom" t-value="[('sale_id','=',sale.id),('name','=','Finish Sample - Approved')]"/>
+											  <t t-foreach="request.env['order.tags'].search(tag_dom)" t-as="sale_tag">
+												<t t-set="status" t-value="'Sample Approved'"/>
+											</t>
+											<t t-set="domain" t-value="[('sale_order_id','=',o.id),('product_id','=',product.id)]"/>
+											<t t-foreach="request.env['mrp.production'].search(domain, order='id desc', limit=1)" t-as="mrp_order">
+												<t t-if="mrp_order.state in ['planned','progress']">
+													<t t-set="domain_wo" t-value="[('production_id','=',mrp_order.id),('state','not in',['done','cancel'])]"/>
+													<t t-foreach="request.env['mrp.workorder'].search(domain_wo, order='id asc', limit=1)" t-as="work_order">
+													  <t t-set="status" t-value="work_order and work_order.workcenter_id and work_order.workcenter_id.name"/>															
+													</t>
+												</t>
+												<t t-if="mrp_order.state in ['done','to_close']">
+													<t t-set="status" t-value="'Finished'"/>															
+												</t>
+												<t t-if="mrp_order.state in ['cancel','draft']">
+													<t t-set="status" t-value="'Not Started'"/>															
+												</t>
+												<t t-if="mrp_order.state in ['confirmed']">
+													<t t-set="status" t-value="'Started'"/>															
+												</t>
+											</t>
+											<t t-if="not mrp_order">
+												<t t-set="domain" t-value="[('order_id.sale_order_id','in',[o.id]),('product_id','=',sale_line.product_id.id)]"/>
+												<t t-foreach="request.env['purchase.order.line'].search(domain, order='id asc', limit=1)" t-as="po_line">
+												  <t t-set="purch_order" t-value="po_line.order_id"/>										  
+												  <t t-if="purch_order">
+													  <t t-if="purch_order.state in ['draft','sent','to approve']">
+														<t t-set="status" t-value="'Purchase Created'"/>
+													  </t>
+													  <t t-if="purch_order.state in ['purchase']">
+														<t t-set="status" t-value="'Ordered'"/>
+													  </t>
+													  <t t-if="purch_order.state in ['done']">
+														<t t-set="status" t-value="'Received'"/>
+													  </t>
+												  </t>
+												</t>
+											</t>  
+											<t t-if="status in ['N/A','Finished','Received']">
+												<t t-set="domain" t-value="[('picking_id.picking_type_code','=','outgoing'),('picking_id.sale_id','=',o.id),('product_id','=',sale_line.product_id.id)]"/>
+												<t t-foreach="request.env['stock.move'].search(domain, limit=1, order='id desc')" t-as="del_move">
+												  <t t-set="del_move" t-value="del_move and del_move[0] or None"/>
+												  <t t-if="del_move">
+  													<t t-if="del_move.state == 'done'">
+  													  <t t-set="status" t-value="'Delivered'"/>
+  													</t>
+  													<t t-if="del_move.state != 'cancel'">
+  													 <t t-if="status in ['Finished','Received']">
+    													<t t-if="del_move.picking_id.x_printed">
+    													  <t t-set="status" t-value="'Ready for Pick-up'"/>
+    													</t>
+    													<t t-else="">
+    													  <t t-set="status" t-value="'Moved to Shipment'"/>
+    													</t>
+    												 </t>
+  													</t>
+												  </t>
+												</t>			 														  
+											</t>
+											
+											<td><span t-esc="product.default_code or product.name"/></td>
+											<td><span t-esc="status"/></td>
+											
+										  </tr>	
+										  </t>
+										</t>										  
+									  </t>
+									</t>
+									<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
+										<td colspan="4" style="font-size:12pt;" align="center"><strong><t t-esc="sm[showroom][rep]['name']"/> Totals: </strong></td>
+										<td align="left"><strong style="font-size:12pt;"><t t-esc="rep_sales_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+										<td align="left"><strong style="font-size:12pt;"><t t-esc="rep_deposits_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+										<td align="left"><strong style="font-size:12pt;"><t t-esc="rep_balance_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+										<t t-set="showroom_amt_total" t-value="showroom_amt_total + rep_sales_total"/>
+										<t t-set="showroom_deposits_total" t-value="showroom_deposits_total + rep_deposits_total"/>
+										<t t-set="showroom_balance_total" t-value="showroom_balance_total + rep_balance_total"/>
+										<td colspan="3" align="left"><span/></td>
+									</tr>
+							  </t>
+								<!-- Showroom totals <tr> -->
+								<tr style="padding:5px;border-bottom: dotted 1px; border-color:#AAA;">
+									<td colspan="4" style="font-size:15pt;" align="center"><strong>Showroom <t t-esc="showroom"/> Totals: </strong></td>
+									<td align="left"><strong><t t-esc="showroom_amt_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+									<td align="left"><strong><t t-esc="showroom_deposits_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+									<td align="left"><strong><t t-esc="showroom_balance_total" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quot;display_currency&quot;: user.company_id.currency_id}"/></strong></td>
+								    <td colspan="3" align="left"><span/></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</t>
+			  </t>
+			</t>
+		  </t>
+      </t>
     </template>
 	<report
 		string="Open Sales Report"
@@ -186,5 +370,25 @@
 		file="qb_opensales_reports.report_opensales_xlsx"
 		attachment_use="False"
 		print_report_name="'Open Sales Excel'"
+	/>
+	<report
+		string="Sales Completion Report"
+		id="action_report_compsales"
+		model="sale.order"
+		report_type="qweb-pdf"
+		name="qb_opensales_reports.report_compsales"
+		file="qb_opensales_reports.report_compsales"
+		print_report_name="'Sales Completion'"
+		menu="False"
+	/>
+	<report
+		id="action_report_compsales_xlsx"
+		model="sale.order"
+		string="Print to Excel"
+		report_type="xlsx"
+		name="qb_opensales_reports.report_compsales_xlsx"
+		file="qb_opensales_reports.report_compsales_xlsx"
+		attachment_use="False"
+		print_report_name="'Sales Completion Excel'"
 	/>
 </odoo>

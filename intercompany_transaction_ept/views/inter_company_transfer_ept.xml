@@ -193,16 +193,16 @@
 						</group>
 					</group>
 					<notebook>
-						<page name="Products" string="Products">
+                        <page name="Products" string="Products">
 							<group>
-								<field name="inter_company_transfer_line_ids"
-									attrs="{'readonly':[('state','!=','draft')]}" nolabel="1">
+								<field name="inter_company_transfer_line_ids" nolabel="1">
+								  
 									<tree editable="top">
-										<field name="product_id" required="True"
-											domain="[('type','=','product')]" />
-										<field name="quantity" />
-										<field name="delivered_qty" />
-										<field name="price" />
+									  <field name="inter_company_transfer_id" invisible="1"/>
+										<field name="product_id" required="True" domain="[('type','=','product')]" attrs="{'readonly':[('inter_company_transfer_id.state','!=','draft')]}"/>
+										<field name="quantity" attrs="{'readonly':[('inter_company_transfer_id.state','=','transferred')]}"/>
+										<field name="delivered_qty" attrs="{'readonly':[('inter_company_transfer_id.state','!=','draft')]}"/>
+										<field name="price" attrs="{'readonly':[('inter_company_transfer_id.state','!=','draft')]}"/>
 									</tree>
 								</field>
 							</group>
