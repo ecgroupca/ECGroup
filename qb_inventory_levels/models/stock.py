@@ -77,7 +77,7 @@ class StockLocation(models.Model):
             loc_dom += [('company_id','in',[False, company_id.id])]
             internal_loc_ids = self.search(loc_dom)
             for internal_loc_id in internal_loc_ids:
-                low_stock_quant_ids = internal_loc_id.quant_ids.filtered(lambda quant:quant.product_id.qty_available <= quant.product_id.reordering_min_qty).sorted(key=lambda r: r.default_code)              
+                low_stock_quant_ids = internal_loc_id.quant_ids.filtered(lambda quant:quant.product_id.qty_available <= quant.product_id.reordering_min_qty).sorted(key=lambda quant: quant.product_id.default_code)              
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: quant.product_id.default_code)
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'art'.upper() not in quant.product_id.default_code.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'misc'.upper() not in quant.product_id.name.upper())
