@@ -130,7 +130,8 @@ class StockLocation(models.Model):
                     _send_mail(internal_loc_id,html_body,company_id,recipient_ids)
 
                 cat_list = ['Accessories','Lamps','Lanterns','Occassional Tables','Sconces']
-                cat_line_quant_ids = quant_ids.filtered(lambda quant: quant.product_id.categ_id.name in cat_list)                                
+                cat_line_quant_ids = quant_ids.filtered(lambda quant: quant.product_id.categ_id.name in cat_list) 
+                cat_line_quant_ids = quant_ids.filtered(lambda quant:'Verano'.upper() not in quant.product_id.name.upper())                
                 if cat_line_quant_ids:
                     item_cat = "Accessories,Lamps,Lanterns,Occassional Tables,and Sconces"
                     html_body = _set_html_body(cat_line_quant_ids,item_cat=item_cat)
