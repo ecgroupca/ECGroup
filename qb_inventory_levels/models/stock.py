@@ -113,8 +113,8 @@ class StockLocation(models.Model):
                         #quant_ids.remove(quant_id)
                         continue
                     else:
-                        product_ids.append(quant_id.product_id)
-                        quant_ids.append(quant_id)
+                        product_ids |= quant_id.product_id
+                        quant_ids |= quant_id
                         
                 if quant_ids:
                     html_body = _set_html_body(quant_ids)
