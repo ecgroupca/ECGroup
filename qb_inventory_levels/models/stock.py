@@ -109,11 +109,11 @@ class StockLocation(models.Model):
                 product_ids = self.env['product.product']
                 quant_ids = self.env['stock.quant']
                 for quant_id in low_stock_quant_ids:
-                    if quant_id.product_id in prod_list:
+                    if quant_id.product_id in product_ids:
                         #quant_ids.remove(quant_id)
                         continue
                     else:
-                        prod_list.append(quant_id.product_id)
+                        product_ids.append(quant_id.product_id)
                         quant_ids.append(quant_id)
                         
                 if quant_ids:
