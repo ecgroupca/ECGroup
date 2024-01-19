@@ -78,7 +78,7 @@ class StockLocation(models.Model):
             internal_loc_ids = self.search(loc_dom)
             for internal_loc_id in internal_loc_ids:
                 low_stock_quant_ids = internal_loc_id.quant_ids.filtered(lambda quant:quant.product_id.qty_available <= quant.product_id.reordering_min_qty)    
-                low_stock_quant_ids.filtered(lambda quant:x for x in low_stock_quant_ids if not quant.product_id in low_stock_quant_ids.mapped('product_id'))
+                
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: quant.product_id.default_code != '')
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'art'.upper() not in quant.product_id.default_code.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'misc'.upper() not in quant.product_id.name.upper())
@@ -105,8 +105,19 @@ class StockLocation(models.Model):
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'inactive'.upper() not in quant.product_id.name.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'do not use'.upper() not in quant.product_id.name.upper())
                 #low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: quant.product_id.reordering_min_qty>0)
-                if low_stock_quant_ids:
-                    html_body = _set_html_body(low_stock_quant_ids)
+                
+                product_ids = self.env['product.product']
+                quant_ids = self.env['stock.quant']
+                for quant_id in low_stock_quant_ids:
+                    if quant_id.product_id in prod_list:
+                        #quant_ids.remove(quant_id)
+                        continue
+                    else:
+                        prod_list.append(quant_id.product_id)
+                        quant_ids.append(quant_id)
+                        
+                if quant_ids:
+                    html_body = _set_html_body(quant_ids)
                     mail_activity = self.env['mail.activity'].create({'activity_type_id': activity_type_id.id,
                                 'date_deadline': datetime.today(),
                                 'summary': "Alert - Low Stock",
@@ -119,7 +130,7 @@ class StockLocation(models.Model):
                     _send_mail(internal_loc_id,html_body,company_id,recipient_ids)
 
                 cat_list = ['Accessories','Lamps','Lanterns','Occassional Tables','Sconces']
-                cat_line_quant_ids = low_stock_quant_ids.filtered(lambda quant: quant.product_id.categ_id.name in cat_list)                                
+                cat_line_quant_ids = quant_ids.filtered(lambda quant: quant.product_id.categ_id.name in cat_list)                                
                 if cat_line_quant_ids:
                     item_cat = "Accessories,Lamps,Lanterns,Occassional Tables,and Sconces"
                     html_body = _set_html_body(cat_line_quant_ids,item_cat=item_cat)
@@ -134,7 +145,7 @@ class StockLocation(models.Model):
                                 })
                     _send_mail(internal_loc_id,html_body,company_id,recipient_ids,item_cat=item_cat)
                     
-                verano_line_quant_ids = low_stock_quant_ids.filtered(lambda quant:'Verano'.upper() in quant.product_id.name.upper())                                
+                verano_line_quant_ids = quant_ids.filtered(lambda quant:'Verano'.upper() in quant.product_id.name.upper())                                
                 if verano_line_quant_ids:
                     item_cat = "Verano"
                     html_body = _set_html_body(verano_line_quant_ids,item_cat=item_cat)
