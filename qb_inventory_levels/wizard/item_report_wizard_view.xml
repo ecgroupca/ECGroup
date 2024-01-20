@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="inv_levels_report_wiz_view" model="ir.ui.view">
+        <field name="name">Inventory Levels Report</field>
+        <field name="model">inventory.levels.report.wizard</field>
+        <field name="arch" type="xml">
+			<form string="Inventory Levels">
+				<group col="4">
+					<field name="category_ids" widget="many2many_tags"/>
+				</group>
+				<footer>
+					<button name="print_report" string="Print" type="object" default_focus="1" class="oe_highlight"/>
+					<button string="Cancel" class="btn btn-secondary" special="cancel" />
+				</footer>
+			</form>
+        </field>
+    </record>
+
+    <record id="action_report_inventory_levels" model="ir.actions.act_window">
+        <field name="name">Reordering Report</field>
+        <field name="res_model">inventory.levels.report.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="inventory_levels_report_wiz_view"/>
+        <field name="target">new</field>
+    </record>
+
+	<menuitem id="menu_action_inventory_levels_report"
+            action="action_report_inventory_levels"
+            parent="stock.menu_warehouse_report"
+            sequence="25"/>
+</odoo>
