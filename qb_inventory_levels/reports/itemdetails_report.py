@@ -20,12 +20,15 @@ class InventoryLevelsXlsx(models.AbstractModel):
         quant = self.env['stock.quant']        
         category_ids = data['form'].get('category_ids', False) 
         company_ids = self.env['res.company'].search([])
+        quants = self.env['stock.quant']
+        internal_loc_ids = self.env['stock.location']
         
         for company_id in company_ids:
             loc_dom = [('usage','=','internal')]
             loc_dom += [('name','in',['Raw','Finished'])]
             loc_dom += [('company_id','in',[False, company_id.id])]
             internal_loc_ids = self.env['stock.location'].search(loc_dom)
+
             for internal_loc_id in internal_loc_ids:
                 quants = internal_loc_ids.quant_ids
                 
@@ -58,9 +61,8 @@ class InventoryLevelsXlsx(models.AbstractModel):
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'template'.upper() not in quant.product_id.name.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'inactive'.upper() not in quant.product_id.name.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'do not use'.upper() not in quant.product_id.name.upper())                    
-                product_groups = {}
                 
-                sheet = workbook.add_worksheet(internal_loc_id.display_name)
+                sheet = workbook.add_worksheet(company_id.name + '-' + internal_loc_id.display_name)
                 bold = workbook.add_format({'bold': True})
                 sheet.write(0, 1, '%s Reordering Report for %s Location'%(company_id.name,internal_loc_id.display_name), bold)
                 i,j = 0,0
@@ -71,7 +73,9 @@ class InventoryLevelsXlsx(models.AbstractModel):
                         continue
                     else:
                         product_ids |= quant_id.product_id
-                        quants |= quant_id                
+                        quants |= quant_id 
+                
+                product_groups = {}                
                 for quant_id in quants:
                 
                     cat_name = 'No_Name'
