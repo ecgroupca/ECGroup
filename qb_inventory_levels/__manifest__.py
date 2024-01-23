@@ -8,7 +8,10 @@
     'author': 'Adam O\'Connor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': ['stock','product'],
-    'data': [],
+    'data': [
+        '/wizard/item_report_wizard_view.xml',
+        '/reports/report_template_itemdetails.xml',
+        ],
     'qweb': [],
     'application': True,
     'installable': True,
