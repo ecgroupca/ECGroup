@@ -93,8 +93,9 @@ class InventoryLevelsXlsx(models.AbstractModel):
                     sheet.write(i+j+5, 2, 'Minimum Quantity', bold)
                     sheet.write(i+j+5, 3, 'Qty Forecasted', bold)
                     sheet.write(i+j+5, 4, 'Qty Reserved', bold)
-                    sheet.write(i+j+5, 5, 'Qty Ordered', bold)
-                    sheet.write(i+j+5, 6, 'Orders', bold)
+                    sheet.write(i+j+5, 5, 'Reserved on Orders', bold)
+                    sheet.write(i+j+5, 6, 'Qty to Receive', bold)
+                    sheet.write(i+j+5, 7, 'PO #s', bold)
                     
                     for prod in product_groups[prod_cat]: 
                         
@@ -112,6 +113,7 @@ class InventoryLevelsXlsx(models.AbstractModel):
                         sheet.write(j+i+5, 2, prod.reordering_min_qty)
                         sheet.write(j+i+5, 3, prod.virtual_available)
                         sheet.write(j+i+5, 4, res_qty)
+                        sheet.write(j+i+5, 5, order_names)
                                 
                         #search for all active PO's for the item
                         domain = [('product_id','=',prod.id),('order_id.state','in',['purchase','to approve','sent'])]
@@ -122,8 +124,8 @@ class InventoryLevelsXlsx(models.AbstractModel):
                         for line in purchase_lines:
                             qty_ordered += line.product_uom_qty
                             order_numbers += line.order_id.name + ', '
-                        sheet.write(j+i+5, 5, qty_ordered)
-                        sheet.write(j+i+5, 6, order_numbers[:-2])
+                        sheet.write(j+i+5, 6, qty_ordered)
+                        sheet.write(j+i+5, 7, order_numbers and order_numbers[:-2] or '')
                         i+=1
                        
             
