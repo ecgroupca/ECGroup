@@ -62,7 +62,7 @@ class InventoryLevelsXlsx(models.AbstractModel):
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'inactive'.upper() not in quant.product_id.name.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'do not use'.upper() not in quant.product_id.name.upper())                    
                 
-                sheet = workbook.add_worksheet(internal_loc_id.display_name)
+                sheet = workbook.add_worksheet(company_id.name + '-' + internal_loc_id.display_name)
                 bold = workbook.add_format({'bold': True})
                 sheet.write(0, 1, '%s Reordering Report for %s Location'%(company_id.name,internal_loc_id.display_name), bold)
                 i,j = 0,0
