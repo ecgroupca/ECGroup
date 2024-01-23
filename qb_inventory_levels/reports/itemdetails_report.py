@@ -6,28 +6,32 @@ from odoo.exceptions import UserError
 import logging
 _logger = logging.getLogger(__name__)
 
+
 class InventoryLevelsXlsx(models.AbstractModel):
 
     _name = 'report.qb_inventory_levels.report_inventory_levels_xlsx'
     _description = 'Inventory Levels Report Xlsx'
     _inherit = 'report.report_xlsx.abstract'
     
-    
+
     def generate_xlsx_report(self, workbook, data, report):
         domain_search = []
         one_year_ago = (datetime.now()-relativedelta(years=1))
         quant = self.env['stock.quant']        
         category_ids = data['form'].get('category_ids', False) 
         company_ids = self.env['res.company'].search([])
+        
         for company_id in company_ids:
             loc_dom = [('usage','=','internal')]
             loc_dom += [('name','in',['Raw','Finished'])]
             loc_dom += [('company_id','in',[False, company_id.id])]
             internal_loc_ids = self.env['stock.location'].search(loc_dom)
             for internal_loc_id in internal_loc_ids:
-                quants = internal_loc_id.quant_ids 
+                quants = internal_loc_ids.quant_ids
+                
                 if category_ids:             
-                    quant_ids.filtered(lambda quant: quant.product_id.categ_id in category_ids) 
+                    quants.filtered(lambda quant: quant.product_id.categ_id in category_ids) 
+                    
                 low_stock_quant_ids = quants.filtered(lambda quant:quant.product_id.qty_available <= quant.product_id.reordering_min_qty)                   
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: quant.product_id.default_code not in ['',False])
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'art'.upper() not in quant.product_id.default_code.upper())
@@ -55,12 +59,20 @@ class InventoryLevelsXlsx(models.AbstractModel):
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'inactive'.upper() not in quant.product_id.name.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'do not use'.upper() not in quant.product_id.name.upper())                    
                 product_groups = {}
-                sheet = workbook.add_worksheet('%s'%internal_loc_id.name)
-                bold = workbook.add_format({'bold': True})
-                sheet.write(0, 1, 'Reordering Report for %s location'%internal_loc_id.name, bold)
-                i,j = 0,0
                 
+                sheet = workbook.add_worksheet(internal_loc_id.display_name)
+                bold = workbook.add_format({'bold': True})
+                sheet.write(0, 1, '%s Reordering Report for %s Location'%(company_id.name,internal_loc_id.display_name), bold)
+                i,j = 0,0
+                product_ids = self.env['product.product']
+                quants = self.env['stock.quant']
                 for quant_id in low_stock_quant_ids:
+                    if quant_id.product_id in product_ids:
+                        continue
+                    else:
+                        product_ids |= quant_id.product_id
+                        quants |= quant_id                
+                for quant_id in quants:
                 
                     cat_name = 'No_Name'
                     product_id = quant_id.product_id
@@ -93,6 +105,7 @@ class InventoryLevelsXlsx(models.AbstractModel):
                             if order and order.name:
                                 order_names += order.name + ', '
                                 res_qty += order.product_uom_qty
+                                
                         order_names = order_names and order_names[:-2] or ''                    
                         sheet.write(j+i+5, 0, prod.display_name, bold)
                         sheet.write(j+i+5, 1, prod.qty_available)
