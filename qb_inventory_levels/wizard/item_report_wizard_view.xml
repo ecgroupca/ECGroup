@@ -17,7 +17,7 @@
         </field>
     </record>
 
-    <record id="action_report_inventory_levels" model="ir.actions.act_window">
+    <record id="action_report_inv_levels" model="ir.actions.act_window">
         <field name="name">Reordering Report</field>
         <field name="res_model">inventory.levels.report.wizard</field>
         <field name="view_mode">form</field>
