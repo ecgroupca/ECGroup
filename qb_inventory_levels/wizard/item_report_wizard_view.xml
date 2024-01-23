@@ -25,8 +25,8 @@
         <field name="target">new</field>
     </record>
 
-	<menuitem id="menu_action_inventory_levels_report"
-            action="action_report_inventory_levels"
+	<menuitem id="menu_action_inv_levels_report"
+            action="action_report_inv_levels"
             parent="stock.menu_warehouse_report"
             sequence="25"/>
 </odoo>
