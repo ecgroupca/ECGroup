@@ -9,8 +9,8 @@
     'website': 'https://quickbeamllc.com',
     'depends': ['stock','product'],
     'data': [
-        '/wizard/item_report_wizard_view.xml',
-        '/reports/report_template_itemdetails.xml',
+        'wizard/item_report_wizard_view.xml',
+        'reports/report_template_itemdetails.xml',
         ],
     'qweb': [],
     'application': True,
