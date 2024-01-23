@@ -21,7 +21,7 @@
         <field name="name">Reordering Report</field>
         <field name="res_model">inventory.levels.report.wizard</field>
         <field name="view_mode">form</field>
-        <field name="view_id" ref="inventory_levels_report_wiz_view"/>
+        <field name="view_id" ref="inv_levels_report_wiz_view"/>
         <field name="target">new</field>
     </record>
 
