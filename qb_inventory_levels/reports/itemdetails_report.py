@@ -27,14 +27,40 @@ class InventoryLevelsXlsx(models.AbstractModel):
             for internal_loc_id in internal_loc_ids:
                 quants = internal_loc_id.quant_ids 
                 if category_ids:             
-                    quant_ids.filtered(lambda quant: quant.product_id.categ_id in category_ids)             
+                    quant_ids.filtered(lambda quant: quant.product_id.categ_id in category_ids) 
+                low_stock_quant_ids = quants.filtered(lambda quant:quant.product_id.qty_available <= quant.product_id.reordering_min_qty)                   
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: quant.product_id.default_code not in ['',False])
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'art'.upper() not in quant.product_id.default_code.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'misc'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'custom'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Prototype'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'model'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'mold'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'counter sample'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Master Sample'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'R&D'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Finish Sample'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'candle'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Pillow'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Fabric'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'leather'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'Limited Edition'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'refinish'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'rework'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'repair'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'pavillion'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'hook'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'foam'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'template'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'inactive'.upper() not in quant.product_id.name.upper())
+                low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'do not use'.upper() not in quant.product_id.name.upper())                    
                 product_groups = {}
                 sheet = workbook.add_worksheet('%s'%internal_loc_id.name)
                 bold = workbook.add_format({'bold': True})
                 sheet.write(0, 1, 'Reordering Report for %s location'%internal_loc_id.name, bold)
                 i,j = 0,0
                 
-                for quant_id in quants:
+                for quant_id in low_stock_quant_ids:
                 
                     cat_name = 'No_Name'
                     product_id = quant_id.product_id
@@ -52,10 +78,11 @@ class InventoryLevelsXlsx(models.AbstractModel):
                     sheet.write(i+j+4, 1, 'Category: ' + prod_cat, bold)
                     sheet.write(i+j+5, 0, 'Item', bold)
                     sheet.write(i+j+5, 1, 'Quantity on Hand', bold)
-                    sheet.write(i+j+5, 2, 'Qty Forecasted', bold)
-                    sheet.write(i+j+5, 3, 'Qty Reserved', bold)
-                    sheet.write(i+j+5, 4, 'Qty Ordered', bold)
-                    sheet.write(i+j+5, 5, 'Orders', bold)
+                    sheet.write(i+j+5, 2, 'Minimum Quantity', bold)
+                    sheet.write(i+j+5, 3, 'Qty Forecasted', bold)
+                    sheet.write(i+j+5, 4, 'Qty Reserved', bold)
+                    sheet.write(i+j+5, 5, 'Qty Ordered', bold)
+                    sheet.write(i+j+5, 6, 'Orders', bold)
                     
                     for prod in product_groups[prod_cat]: 
                         
@@ -64,15 +91,16 @@ class InventoryLevelsXlsx(models.AbstractModel):
                         res_qty = 0
                         for order in prod.reserved_order_ids:
                             if order and order.name:
-                                order_names += str(order and order.name or '') + ','
+                                order_names += order.name + ', '
                                 res_qty += order.product_uom_qty
-                        order_names = order_names and order_names[:-1] or ''                    
+                        order_names = order_names and order_names[:-2] or ''                    
                         sheet.write(j+i+5, 0, prod.display_name, bold)
                         sheet.write(j+i+5, 1, prod.qty_available)
-                        sheet.write(j+i+5, 2, prod.virtual_available)
-                        sheet.write(j+i+5, 3, res_qty)
+                        sheet.write(j+i+5, 2, prod.reordering_min_qty)
+                        sheet.write(j+i+5, 3, prod.virtual_available)
+                        sheet.write(j+i+5, 4, res_qty)
                                 
-                        #search for all sale.order.line objects with the product for the past 365 days
+                        #search for all active PO's for the item
                         domain = [('product_id','=',prod.id),('order_id.state','in',['purchase','to approve','sent'])]
                         purchase_lines = self.env['purchase.order.line'].search(domain)
                         qty_ordered = 0
@@ -80,10 +108,9 @@ class InventoryLevelsXlsx(models.AbstractModel):
                         order_numbers = ''
                         for line in purchase_lines:
                             qty_ordered += line.product_uom_qty
-                            order_numbers += line.order_id.name
-                        sheet.write(j+i+5, 4, qty_ordered)
-                        orders = ', '.join(order_numbers)
-                        sheet.write(j+i+5, 4, orders)
+                            order_numbers += line.order_id.name + ', '
+                        sheet.write(j+i+5, 5, qty_ordered)
+                        sheet.write(j+i+5, 6, order_numbers[:-2])
                         i+=1
                        
             
