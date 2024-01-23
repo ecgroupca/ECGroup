@@ -20,15 +20,14 @@ class InventoryLevelsXlsx(models.AbstractModel):
         quant = self.env['stock.quant']        
         category_ids = data['form'].get('category_ids', False) 
         company_ids = self.env['res.company'].search([])
-        quants = self.env['stock.quant']
-        internal_loc_ids = self.env['stock.location']
         
         for company_id in company_ids:
             loc_dom = [('usage','=','internal')]
             loc_dom += [('name','in',['Raw','Finished'])]
             loc_dom += [('company_id','in',[False, company_id.id])]
             internal_loc_ids = self.env['stock.location'].search(loc_dom)
-
+            quants = self.env['stock.quant']
+            
             for internal_loc_id in internal_loc_ids:
                 quants = internal_loc_ids.quant_ids
                 
