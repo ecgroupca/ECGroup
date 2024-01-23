@@ -7,7 +7,7 @@ class InventoryLevelsReportWizard(models.TransientModel):
     _description = "Inventory Levels Report Wizard"
     
     company_id = fields.Many2one("res.company",string="Company",required=True)
-    category_ids = fields.Many2many("product.category",'itemreport_cat_rel_transient', 'item_report_id', 'categ_id', string="Categories")
+    category_ids = fields.Many2many("product.category",'invreport_cat_rel_transient', 'inv_report_id', 'categ_id', string="Categories")
     print_excel = fields.Boolean("Print in Excel")
     responsible_id = fields.Many2one("res.users",string="Responsible")
     
