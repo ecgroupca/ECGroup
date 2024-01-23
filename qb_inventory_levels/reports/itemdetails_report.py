@@ -17,21 +17,17 @@ class InventoryLevelsXlsx(models.AbstractModel):
         domain_search = []
         one_year_ago = (datetime.now()-relativedelta(years=1))
         quant = self.env['stock.quant']        
-        #company_id = data['form'].get('company_id', False)
-        #company_id = company_id and company_id[0] or None
-        #domain_search = [('company_id','=',company_id)] 
+        category_ids = data['form'].get('category_ids', False) 
         company_ids = self.env['res.company'].search([])
         for company_id in company_ids:
             loc_dom = [('usage','=','internal')]
             loc_dom += [('name','in',['Raw','Finished'])]
             loc_dom += [('company_id','in',[False, company_id.id])]
-            internal_loc_ids = self.search(loc_dom)
+            internal_loc_ids = self.env['stock.location'].search(loc_dom)
             for internal_loc_id in internal_loc_ids:
-                domain_search = [('company_id','=',company_id.id)]
-                category_ids = []
-                if category_ids:        
-                    domain_search.append(('categ_id','in',category_ids))      
-                quants = internal_loc_id.quant_ids               
+                quants = internal_loc_id.quant_ids 
+                if category_ids:             
+                    quant_ids.filtered(lambda quant: quant.product_id.categ_id in category_ids)             
                 product_groups = {}
                 sheet = workbook.add_worksheet('%s'%internal_loc_id.name)
                 bold = workbook.add_format({'bold': True})
