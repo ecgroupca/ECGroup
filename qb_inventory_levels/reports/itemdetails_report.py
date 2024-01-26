@@ -28,7 +28,7 @@ class InventoryLevelsXlsx(models.AbstractModel):
             internal_loc_ids = self.env['stock.location'].search(loc_dom)
             
             for internal_loc_id in internal_loc_ids:
-                location_quants = internal_loc_ids.quant_ids
+                location_quants = internal_loc_id.quant_ids
                 
                 if category_ids:             
                     location_quants.filtered(lambda quant: quant.product_id.categ_id in category_ids) 
