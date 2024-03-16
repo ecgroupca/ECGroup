@@ -7,7 +7,6 @@
         <field name="arch" type="xml">
         <form string="Report Sales">
             <group col="2">
-            	<field name="print_selected" invisible="1"/>
 				<field name="print_excel"/>
             </group>
             <group col="4">

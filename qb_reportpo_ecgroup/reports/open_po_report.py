@@ -22,13 +22,22 @@ class OpenPurchasesXlsx(models.AbstractModel):
         partner_ids = data['form'].get('partner_ids', False)
         company_id = data['form'].get('company_id', False)
         company_id = company_id and company_id[0] or None
-        domain_search = [('date_order','>=',date_from.strftime("%Y-%m-%d 00:00:00")),
+        filter_by = fields.data['form'].get('filter_by','order')
+        
+        if filter_by == 'order':
+            domain_search = [('date_order','>=',date_from.strftime("%Y-%m-%d 00:00:00")),
                          ('date_order','<=',date_to.strftime("%Y-%m-%d 23:59:59")),
                          ('state','=','purchase')]
+        else:
+            domain_search = [('date_scheduled','>=',date_from.strftime("%Y-%m-%d 00:00:00")),
+                         ('date_scheduled','<=',date_to.strftime("%Y-%m-%d 23:59:59")),
+                         ('state','=','purchase')]
+            
         if partner_ids:
             domain_search.append(('partner_id','in',partner_ids))
         if company_id:
-            domain_search.append(('company_id','=',company_id))        
+            domain_search.append(('company_id','=',company_id))
+            
         po_ids = self.env['purchase.order'].search(domain_search,order="date_order asc")  
         sheet = workbook.add_worksheet('Open Purchases')
         bold = workbook.add_format({'bold': True})

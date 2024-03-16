@@ -8,6 +8,11 @@ class VendorPOReportWizard(models.TransientModel):
     
     date_from = fields.Date("Date From", required=False)
     date_to = fields.Date("Date To", required=False)
+    filter_by = fields.Selection(
+       [('scheduled','Date Scheduled'),
+        ('order','Order Date')],
+        string='Date to Filter By',
+        copy=False, store=True)
     partner_ids = fields.Many2many("res.partner",'po_report_vendor_rel_transient', 'vendor_report_id', 'vendor_id', string="Vendor")
     company_id = fields.Many2one("res.company",string="Company",required=True)
     print_excel = fields.Boolean("Print in Excel")
