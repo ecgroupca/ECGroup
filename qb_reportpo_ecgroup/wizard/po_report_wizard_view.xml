@@ -8,6 +8,7 @@
         <form string="Open PO Report">
 		    <group col="1">
 				<field name="print_excel"/>
+				<field name="filter_by"/>
             </group>
             <group col="4">
                 <field name="date_from" required="1"/>
