@@ -64,10 +64,8 @@
                 <field name="order_tags" widget="many2many_tags"/>				
             </field>
             <xpath expr="//field[@name='taxes']" position="before">
-			    <group>
-					<field name="comp_status"/>
-					<field name="comp_status_date"/>
-                </group>				
+				<field name="comp_status"/>
+				<field name="comp_status_date"/>	
             </xpath>
 			
 		</field>

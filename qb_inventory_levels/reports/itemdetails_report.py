@@ -26,15 +26,14 @@ class InventoryLevelsXlsx(models.AbstractModel):
             loc_dom += [('name','in',['Raw','Finished'])]
             loc_dom += [('company_id','in',[False, company_id.id])]
             internal_loc_ids = self.env['stock.location'].search(loc_dom)
-            quants = self.env['stock.quant']
             
             for internal_loc_id in internal_loc_ids:
-                quants = internal_loc_ids.quant_ids
+                location_quants = internal_loc_id.quant_ids
                 
                 if category_ids:             
-                    quants.filtered(lambda quant: quant.product_id.categ_id in category_ids) 
+                    location_quants.filtered(lambda quant: quant.product_id.categ_id in category_ids) 
                     
-                low_stock_quant_ids = quants.filtered(lambda quant:quant.product_id.qty_available <= quant.product_id.reordering_min_qty)                   
+                low_stock_quant_ids = location_quants.filtered(lambda quant:quant.product_id.qty_available <= quant.product_id.reordering_min_qty)                   
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: quant.product_id.default_code not in ['',False])
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'art'.upper() not in quant.product_id.default_code.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'misc'.upper() not in quant.product_id.name.upper())
@@ -61,77 +60,78 @@ class InventoryLevelsXlsx(models.AbstractModel):
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'inactive'.upper() not in quant.product_id.name.upper())
                 low_stock_quant_ids = low_stock_quant_ids.filtered(lambda quant: 'do not use'.upper() not in quant.product_id.name.upper())                    
                 
-                sheet = workbook.add_worksheet(company_id.name + '-' + internal_loc_id.display_name)
-                bold = workbook.add_format({'bold': True})
-                sheet.write(0, 1, '%s Reordering Report for %s Location'%(company_id.name,internal_loc_id.display_name), bold)
-                i,j = 0,0
-                product_ids = self.env['product.product']
-                quants = self.env['stock.quant']
-                for quant_id in low_stock_quant_ids:
-                    if quant_id.product_id in product_ids:
-                        continue
-                    else:
-                        product_ids |= quant_id.product_id
-                        quants |= quant_id 
-                
-                product_groups = {}                
-                for quant_id in quants:
-                
-                    cat_name = 'No_Name'
-                    product_id = quant_id.product_id
-                    categ_id = product_id.categ_id
+                if low_stock_quant_ids:
+                    sheet = workbook.add_worksheet(company_id.name + '-' + internal_loc_id.display_name)
+                    bold = workbook.add_format({'bold': True})
+                    sheet.write(0, 1, '%s Reordering Report for %s Location'%(company_id.name,internal_loc_id.display_name), bold)
+                    i,j = 0,0
+                    product_ids = self.env['product.product']
+                    quants = self.env['stock.quant']
+                    for quant_id in low_stock_quant_ids:
+                        if quant_id.product_id in product_ids:
+                            continue
+                        else:
+                            product_ids |= quant_id.product_id
+                            quants |= quant_id 
                     
-                    if categ_id:
-                        cat_name = categ_id.name.replace(" ","_")           
-                    if cat_name in product_groups:
-                        product_groups[cat_name].append(product_id)
-                    else:
-                        product_groups.update({cat_name:[product_id]})
-                        
-                for prod_cat in product_groups.keys():
-                    j+=2       
-                    sheet.write(i+j+4, 1, 'Category: ' + prod_cat, bold)
-                    sheet.write(i+j+5, 0, 'Item', bold)
-                    sheet.write(i+j+5, 1, 'Quantity on Hand', bold)
-                    sheet.write(i+j+5, 2, 'Minimum Quantity', bold)
-                    sheet.write(i+j+5, 3, 'Qty Forecasted', bold)
-                    sheet.write(i+j+5, 4, 'Qty Reserved', bold)
-                    sheet.write(i+j+5, 5, 'Reserved on Orders', bold)
-                    sheet.write(i+j+5, 6, 'Qty to Receive', bold)
-                    sheet.write(i+j+5, 7, 'PO #s', bold)
+                    product_groups = {}                
+                    for quant_id in quants:
                     
-                    for prod in product_groups[prod_cat]: 
+                        cat_name = 'No_Name'
+                        product_id = quant_id.product_id
+                        categ_id = product_id.categ_id
                         
-                        i+=1 
-                        order_names = ''
-                        res_qty = 0
-                        for order in prod.reserved_order_ids:
-                            if order and order.name:
-                                order_names += order.name + ', '
-                                res_qty += order.product_uom_qty
-                                
-                        order_names = order_names and order_names[:-2] or ''                    
-                        sheet.write(j+i+5, 0, prod.display_name, bold)
-                        sheet.write(j+i+5, 1, prod.qty_available)
-                        sheet.write(j+i+5, 2, prod.reordering_min_qty)
-                        sheet.write(j+i+5, 3, prod.virtual_available)
-                        sheet.write(j+i+5, 4, res_qty)
-                        sheet.write(j+i+5, 5, order_names)
-                                
-                        #search for all active PO's for the item
-                        domain = [('product_id','=',prod.id),('order_id.state','in',['purchase','to approve','sent'])]
-                        purchase_lines = self.env['purchase.order.line'].search(domain)
-                        qty_ordered = 0
-                        qty_delivered = 0
-                        order_numbers = ''
-                        for line in purchase_lines:
-                            qty_ordered += line.product_uom_qty
-                            order_numbers += line.order_id.name + ', '
-                        sheet.write(j+i+5, 6, qty_ordered)
-                        sheet.write(j+i+5, 7, order_numbers and order_numbers[:-2] or '')
-                        i+=1
-                       
-            
+                        if categ_id:
+                            cat_name = categ_id.name.replace(" ","_")           
+                        if cat_name in product_groups:
+                            product_groups[cat_name].append(product_id)
+                        else:
+                            product_groups.update({cat_name:[product_id]})
+                            
+                    for prod_cat in product_groups.keys():
+                        j+=2       
+                        sheet.write(i+j+4, 1, 'Category: ' + prod_cat, bold)
+                        sheet.write(i+j+5, 0, 'Item', bold)
+                        sheet.write(i+j+5, 1, 'Quantity on Hand', bold)
+                        sheet.write(i+j+5, 2, 'Minimum Quantity', bold)
+                        sheet.write(i+j+5, 3, 'Qty Forecasted', bold)
+                        sheet.write(i+j+5, 4, 'Qty Reserved', bold)
+                        sheet.write(i+j+5, 5, 'Reserved on Orders', bold)
+                        sheet.write(i+j+5, 6, 'Qty to Receive', bold)
+                        sheet.write(i+j+5, 7, 'PO #s', bold)
+                        
+                        for prod in product_groups[prod_cat]: 
+                            
+                            i+=1 
+                            order_names = ''
+                            res_qty = 0
+                            for order in prod.reserved_order_ids:
+                                if order and order.name:
+                                    order_names += order.name + ', '
+                                    res_qty += order.product_uom_qty
+                                    
+                            order_names = order_names and order_names[:-2] or ''                    
+                            sheet.write(j+i+5, 0, prod.display_name, bold)
+                            sheet.write(j+i+5, 1, prod.qty_available)
+                            sheet.write(j+i+5, 2, prod.reordering_min_qty)
+                            sheet.write(j+i+5, 3, prod.virtual_available)
+                            sheet.write(j+i+5, 4, res_qty)
+                            sheet.write(j+i+5, 5, order_names)
+                                    
+                            #search for all active PO's for the item
+                            domain = [('product_id','=',prod.id),('order_id.state','in',['purchase','to approve','sent'])]
+                            purchase_lines = self.env['purchase.order.line'].search(domain)
+                            qty_ordered = 0
+                            qty_delivered = 0
+                            order_numbers = ''
+                            for line in purchase_lines:
+                                qty_ordered += line.product_uom_qty
+                                order_numbers += line.order_id.name + ', '
+                            sheet.write(j+i+5, 6, qty_ordered)
+                            sheet.write(j+i+5, 7, order_numbers and order_numbers[:-2] or '')
+                            i+=1
+                           
+                
 class ItemDetailsReport(models.AbstractModel):
 
     _name = 'report.qb_inventory_reports.report_inventory_levels'
