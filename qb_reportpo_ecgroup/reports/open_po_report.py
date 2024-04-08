@@ -22,7 +22,7 @@ class OpenPurchasesXlsx(models.AbstractModel):
         partner_ids = data['form'].get('partner_ids', False)
         company_id = data['form'].get('company_id', False)
         company_id = company_id and company_id[0] or None
-        filter_by = fields.data['form'].get('filter_by','approve')
+        filter_by = data['form'].get('filter_by','approve')
         
         if filter_by == 'approve':
             domain_search = [('date_approve','>=',date_from.strftime("%Y-%m-%d 00:00:00")),
@@ -109,7 +109,7 @@ class ReportOpenPOReport(models.AbstractModel):
         partner_ids = data['form'].get('partner_ids', False)
         company_id = data['form'].get('company_id', False)
         company_id = company_id and company_id[0] or None
-        filter_by = fields.data['form'].get('filter_by','approve')
+        filter_by = data['form'].get('filter_by','approve')
         
         if filter_by == 'approve':
             domain_search = [('date_approve','>=',date_from.strftime("%Y-%m-%d 00:00:00")),
