@@ -22,7 +22,7 @@ class OpenPurchasesXlsx(models.AbstractModel):
         partner_ids = data['form'].get('partner_ids', False)
         company_id = data['form'].get('company_id', False)
         company_id = company_id and company_id[0] or None
-        filter_by = fields.data['form'].get('filter_by','approve')
+        filter_by = data['form'].get('filter_by','approve')
         
         if filter_by == 'approve':
             domain_search = [('date_approve','>=',date_from.strftime("%Y-%m-%d 00:00:00")),
@@ -49,11 +49,25 @@ class OpenPurchasesXlsx(models.AbstractModel):
         i,j = 0,0
         vendors = {}
         for po in po_ids:
-            vendor_name = "%s_%s"%(po.partner_id.name.replace(" ","_"),po.partner_id.id)
-            if vendor_name in vendors:
-                vendors[vendor_name].append(po)
-            else:
-                vendors.update({vendor_name:[po]})     
+        
+            open_order = False
+            order_lines = po.order_line
+            #check that there is at least one 
+            #storable/consumable product that hasn't
+            #been fully received on the order
+            for line in order_lines:
+                if line.qty_received < line.product_qty:
+                    if line.product_id.type != 'service':
+                        open_order = True
+                        break
+            
+            if open_order and order_lines:
+                vendor_name = "%s_%s"%(po.partner_id.name.replace(" ","_"),po.partner_id.id)
+                if vendor_name in vendors:
+                    vendors[vendor_name].append(po)
+                else:
+                    vendors.update({vendor_name:[po]}) 
+                    
         for vendor in vendors.keys():
             j+=2       
             sheet.write(i+j+4, 1, 'Vendor: ', bold)
@@ -95,23 +109,45 @@ class ReportOpenPOReport(models.AbstractModel):
         partner_ids = data['form'].get('partner_ids', False)
         company_id = data['form'].get('company_id', False)
         company_id = company_id and company_id[0] or None
-        domain_search = [('date_order','>=',date_from.strftime("%Y-%m-%d 00:00:00")),
-                         ('date_order','<=',date_to.strftime("%Y-%m-%d 23:59:59")),
+        filter_by = data['form'].get('filter_by','approve')
+        
+        if filter_by == 'approve':
+            domain_search = [('date_approve','>=',date_from.strftime("%Y-%m-%d 00:00:00")),
+                         ('date_approve','<=',date_to.strftime("%Y-%m-%d 23:59:59")),
                          ('state','=','purchase')]
+        else:
+            domain_search = [('date_planned','>=',date_from.strftime("%Y-%m-%d 00:00:00")),
+                         ('date_planned','<=',date_to.strftime("%Y-%m-%d 23:59:59")),
+                         ('state','=','purchase')]
+                         
         if partner_ids:
             domain_search.append(('partner_id','in',partner_ids))
         if company_id:
-            domain_search.append(('company_id','=',company_id))        
+            domain_search.append(('company_id','=',company_id))                         
+                         
         po_ids = self.env['purchase.order'].search(domain_search,order="date_order asc")
         
         sm = {}
         for po in po_ids:
-            vendor_name = "%s_%s"%(po.partner_id.name.replace(" ","_"),po.partner_id.id)
+        
+            open_order = False
+            order_lines = po.order_line
+            #check that there is at least one 
+            #storable/consumable product that hasn't
+            #been fully received on the order
+            for line in order_lines:
+                if line.qty_received < line.product_qty:
+                    if line.product_id.type != 'service':
+                        open_order = True
+                        break
             
-            if vendor_name in sm:
-                sm[vendor_name]['data'].append(po)
-            else:
-                sm.update({vendor_name:{'name':po.partner_id.name,'ref':po.partner_id.ref,'data':[po]}})
+            if open_order and order_lines:
+                vendor_name = "%s_%s"%(po.partner_id.name.replace(" ","_"),po.partner_id.id)
+                
+                if vendor_name in sm:
+                    sm[vendor_name]['data'].append(po)
+                else:
+                    sm.update({vendor_name:{'name':po.partner_id.name,'ref':po.partner_id.ref,'data':[po]}})
         
         return {
             'doc_ids': po_ids.ids,

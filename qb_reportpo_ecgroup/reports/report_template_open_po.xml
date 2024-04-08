@@ -36,7 +36,7 @@
 								</tr>							
 							</thead>
 							<tbody>
-              <t t-foreach="sm[vendor]['data']" t-as="po">
+                                <t t-foreach="sm[vendor]['data']" t-as="po">
 									<t t-foreach="po.order_line" t-as="line">
 									  <t t-if="line.qty_received &lt; line.product_qty">
 		                        		<tr style="border-bottom:1px solid black;">
