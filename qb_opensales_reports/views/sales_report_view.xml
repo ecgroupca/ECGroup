@@ -7,7 +7,9 @@
         <field name="model">crm.team</field>
         <field name="inherit_id" ref="sales_team.crm_team_view_form"/>
         <field name="arch" type="xml">
-            <xpath expr="//notebook/page[@name='members']" position="after">
+            <!-- <xpath expr="//notebook/page[@name='members']" position="after"> -->
+            <!-- <xpath expr="//field[@name='member_ids']/.." position="after"> -->
+            <xpath expr="//notebook" position="inside">
 			  <page name="sales_reps" string="Sales Reps" >
 			    <field name="sales_rep_ids" widget="many2many" options="{'not_delete': True}">
 					<kanban quick_create="false" create="true" delete="true">
@@ -63,10 +65,15 @@
                 <field name="sales_rep_id" options="{'no_create_edit': True}" />
                 <field name="order_tags" widget="many2many_tags"/>				
             </field>
+            <!-- 
+            Note : need to chekc in v16
+            
             <xpath expr="//field[@name='taxes']" position="before">
-				<field name="comp_status"/>
-				<field name="comp_status_date"/>	
-            </xpath>
+			    <group>
+					<field name="comp_status"/>
+					<field name="comp_status_date"/>
+                </group>				
+            </xpath> -->
 			
 		</field>
 	</record>

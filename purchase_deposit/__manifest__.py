@@ -4,20 +4,18 @@
 
 {
     "name": "Purchase Deposit",
-    "version": "15.1.0.3",
+    "version": "16.0.1.0.1",
     "summary": "Option to create deposit from purchase order",
     "author": "Elico Corp, Ecosoft, Odoo Community Association (OCA)",
     "website": "https://github.com/OCA/purchase-workflow",
     "category": "Purchase Management",
     "license": "AGPL-3",
-    "depends": ["sale_purchase"],
+    "depends": ["purchase"],
     "data": [
+        "security/ir.model.access.csv",
         "wizard/purchase_make_invoice_advance_views.xml",
         "views/res_config_settings_views.xml",
         "views/purchase_view.xml",
-        "report/external_layout_ec_logo.xml",
-        "report/report_purchase_ec_logo.xml",
-        "report/report_purchase_ec_logo_document.xml",
     ],
     "installable": True,
     "auto_install": False,
