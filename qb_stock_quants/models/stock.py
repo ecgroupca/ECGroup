@@ -49,7 +49,7 @@ class StockQuant(models.Model):
                                 vals = {
                                     'quant_id': quant.id,
                                     'move_line_id': line.id, 
-                                    'name': trans and trans.name + ': ' + str(line.product_uom_qty),                            
+                                    #'name': trans and trans.name + ': ' + str(line.product_uom_qty),                            
                                 }
                                 reserved_order = self.env['reserved.order'].sudo().create(vals)
                                 quant.reserved_order_ids = [(4, reserved_order.id)]                       
@@ -67,7 +67,7 @@ class ProductProduct(models.Model):
     def _compute_moves(self):
         for product in self:
             domain = [
-                ('product_uom_qty','>',0),
+                #('product_uom_qty','>',0),
                 ('product_id','=',product.id),
             ]
             move_lines = self.env['stock.move.line'].search(domain)
