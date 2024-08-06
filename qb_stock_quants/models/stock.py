@@ -11,7 +11,7 @@ class ReservedOrder(models.Model):
     quant_id = fields.Many2one('stock.quant',string = 'Quant')
     move_line_id = fields.Many2one('stock.move.line',string = 'Product Move')
     product_id = fields.Many2one('product.product',string = 'Product',related='move_line_id.product_id')
-    product_uom_qty = fields.Float('Qty Reserved',related='move_line_id.product_uom_qty')
+    product_uom_qty = fields.Float('Qty Reserved',related='move_line_id.reserved_qty')
     picking_id = fields.Many2one('stock.picking', string = 'Transfer',related='move_line_id.picking_id')
     production_id = fields.Many2one('mrp.production', string = 'Production Order',related='move_line_id.production_id')
 
@@ -49,7 +49,7 @@ class StockQuant(models.Model):
                                 vals = {
                                     'quant_id': quant.id,
                                     'move_line_id': line.id, 
-                                    #'name': trans and trans.name + ': ' + str(line.product_uom_qty),                            
+                                    'name': trans and trans.name + ': ' + str(line.reserved_qty),                            
                                 }
                                 reserved_order = self.env['reserved.order'].sudo().create(vals)
                                 quant.reserved_order_ids = [(4, reserved_order.id)]                       
@@ -67,7 +67,7 @@ class ProductProduct(models.Model):
     def _compute_moves(self):
         for product in self:
             domain = [
-                #('product_uom_qty','>',0),
+                ('reserved_qty','>',0),
                 ('product_id','=',product.id),
             ]
             move_lines = self.env['stock.move.line'].search(domain)
