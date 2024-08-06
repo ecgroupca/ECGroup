@@ -44,7 +44,7 @@ class BarcodeConfigSettings(models.TransientModel):
             'label_width': barcode_config.label_width,
             'label_height': barcode_config.label_height,
             'barcode_currency_id': barcode_config.barcode_currency_id.id,
-            'barcode_currency_position': barcode_config.barcode_currency_position,
+            #'barcode_currency_position': barcode_config.barcode_currency_position,
         }
 
     def set_values(self):
