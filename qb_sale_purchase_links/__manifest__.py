@@ -7,8 +7,8 @@
     'website': 'https://quickbeamllc.com',
     'depends': ['sale_management','purchase','sale_purchase','purchase_mrp'],
     'data': [
-        'views/purchase_order.xml',
-        'views/sale_order.xml'
+        #'views/purchase_order.xml',
+        #'views/sale_order.xml'
     ],
     'qweb': [],
     'application': True,
