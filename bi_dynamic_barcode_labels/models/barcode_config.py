@@ -38,13 +38,13 @@ class BarcodeConfigSettings(models.TransientModel):
         barcode_config = \
                     self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
         return {
-            'barcode_type': barcode_config.barcode_type,
+            'barcode_type': 'EAN13',
             'barcode_width': barcode_config.barcode_width,
             'barcode_height': barcode_config.barcode_height,
             'label_width': barcode_config.label_width,
             'label_height': barcode_config.label_height,
             'barcode_currency_id': barcode_config.barcode_currency_id.id,
-            #'barcode_currency_position': barcode_config.barcode_currency_position,
+            'barcode_currency_position': 'before',
         }
 
     def set_values(self):
@@ -52,13 +52,13 @@ class BarcodeConfigSettings(models.TransientModel):
         barcode_config = \
                     self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
         vals = {
-            'barcode_type': self.barcode_type,
+            'barcode_type': 'EAN13',
             'barcode_width': self.barcode_width,
             'barcode_height': self.barcode_height,
             'label_width': self.label_width,
             'label_height': self.label_height,
             'barcode_currency_id': self.barcode_currency_id.id,
-            'barcode_currency_position': self.barcode_currency_position,
+            'barcode_currency_position': 'before',
         }
         # Update Paperformate
         #paper_formate = self.env['ir.model.data'].xmlid_to_object('bi_dynamic_barcode_labels.barcode_labels_report_paperformate')
