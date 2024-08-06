@@ -40,7 +40,7 @@ class SaleOrder(models.Model):
         compute="_compute_deps_total",
         store = True,
         )
-    approx_lead_time = fields.Float(
+    approx_lead_time = fields.Char(
         'Approximate Lead Time',
         store = True,
         )
