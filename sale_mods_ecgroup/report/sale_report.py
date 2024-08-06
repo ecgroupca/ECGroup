@@ -44,6 +44,10 @@ class SaleOrder(models.Model):
         'Approximate Lead Time',
         store = True,
         )
+    x_studio_approximate_lead_time = fields.Char(
+        'Approximate Lead Time',
+        store = True,
+        )   
     sidemark = fields.Char(
         'Sidemark',
         store = True,
@@ -83,8 +87,6 @@ class SaleOrder(models.Model):
         compute="_compute_bal_due",
         store = True,
         )
-    
-    x_studio_approximate_lead_time = fields.Float('Approximate Lead Time')
     x_taxed_order = fields.Boolean('Taxed Order')
               
     @api.onchange('team_id')
