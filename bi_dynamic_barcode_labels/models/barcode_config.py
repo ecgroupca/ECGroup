@@ -30,10 +30,10 @@ class BarcodeConfigSettings(models.TransientModel):
     @api.model
     def default_get(self, fields):
         settings = super(BarcodeConfigSettings, self).default_get(fields)
-        settings.update(self.get_barcode_label_config(fields))
+        #settings.update(self.get_barcode_label_config(fields))
         return settings
 
-    @api.model
+    """@api.model
     def get_barcode_label_config(self, fields):
         barcode_config = \
                     self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
@@ -45,7 +45,7 @@ class BarcodeConfigSettings(models.TransientModel):
             'label_height': barcode_config.label_height,
             'barcode_currency_id': barcode_config.barcode_currency_id.id,
             'barcode_currency_position': 'before',
-        }
+        }"""
 
     def set_values(self):
         super(BarcodeConfigSettings, self).set_values()
