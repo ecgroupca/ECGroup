@@ -16,7 +16,7 @@ _logger = logging.getLogger(__name__)
 
 
 class SaleOrder(models.Model):
-    _inherit = ["sale.order"]
+    _inherit = "sale.order"
     
     rma_id = fields.Many2one(
         comodel_name="rma",
@@ -25,7 +25,18 @@ class SaleOrder(models.Model):
         tracking=True,
     )    
 
-
+    def action_view_rma(self):
+        self.ensure_one()
+        action = self.env.ref("rma.rma_action").read()[0]
+        rma = self.rma_id
+        action.update(
+            res_id=rma.id, 
+            view_mode="form",
+            view_id=False, 
+            views=False,)
+        return action
+        
+        
 class Rma(models.Model):
     _name = "rma"
     _description = "RMA"
