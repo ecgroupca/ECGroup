@@ -15,6 +15,17 @@ from odoo.addons.stock.models.stock_move import PROCUREMENT_PRIORITIES
 _logger = logging.getLogger(__name__)
 
 
+class SaleOrder(models.Model):
+    _inherit = ["sale.order"]
+    
+    rma_id = fields.Many2one(
+        comodel_name="rma",
+        string="RMA",
+        index=True,
+        tracking=True,
+    )    
+
+
 class Rma(models.Model):
     _name = "rma"
     _description = "RMA"
