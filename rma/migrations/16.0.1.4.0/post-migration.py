@@ -6,7 +6,7 @@ from openupgradelib import openupgrade
 
 @openupgrade.migrate()
 def migrate(env, version):
-    """Similar behavior to create_rma_routes of post_init_hook."""
+    """Similar behavior to create_rma_routes of post_init_hook. update"""
     warehouses = env["stock.warehouse"].search([])
     warehouses = warehouses.with_context(rma_post_init_hook=True)
     for wh in warehouses:
