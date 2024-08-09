@@ -21,7 +21,7 @@
         #'data/inter_company_transfer_config.xml',
 
         #'views/inter_company_transfer_ept.xml',
-        'views/inter_company_transfer_config_ept.xml',
+        #'views/inter_company_transfer_config_ept.xml',
         #'views/res_company.xml',
         #'views/sale.xml',
         #'views/purchase.xml',

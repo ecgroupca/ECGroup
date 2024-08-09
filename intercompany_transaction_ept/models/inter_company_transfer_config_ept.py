@@ -56,12 +56,3 @@ class InterCompanyTransferConfigEpt(models.Model):
                     ict.invoice_ids.filtered(lambda x: x.type == 'out_invoice' and x.state != 'cancel').action_post()
                     ict.invoice_ids.filtered(lambda x: x.type == 'in_invoice' and x.state != 'cancel').action_post()
         return True
-
-    @api.model
-    def unlink(self):
-        """
-        Override method for preventing deletion of configuration.
-        @author: Maulik Barad on Date 24-Sep-2019.
-        @return: Raise Warning.
-        """
-        raise Warning(_("You can not delete this record."))
