@@ -48,7 +48,9 @@ class SaleOrder(models.Model):
         domain="[('id','in',sales_rep_ids)]",
         help='Sales Rep from the Showroom.')
     order_tags = fields.Many2many('order.tags',string='Order Tags',)
-    key_account = fields.Boolean("Key Account")
+    key_account = fields.Boolean("Key Account",
+        compute="_compute_key_account"
+        )
     
     def _write(self, values):
         """ Override of private write method in order to generate activities
@@ -63,7 +65,16 @@ class SaleOrder(models.Model):
                 filtered_self = self.search([('id', 'in', self.ids)])
                 filtered_self.activity_unlink(['sale.mail_act_sale_upsell'])
                 
-        return super(SaleOrder, self)._write(values)    
+        return super(SaleOrder, self)._write(values)
+        
+    @api.depends('partner_id')
+    def _compute_key_account(self):
+        """
+        Update the following fields when the partner is changed:
+        - Key Account
+        """
+        for order in self:
+            order.key_account = order.partner_id.key_account   
     
     @api.depends('order_line','production_ids','picking_ids','state')
     def _compute_open_shipments(self):   
