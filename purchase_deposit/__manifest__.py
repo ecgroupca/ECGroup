@@ -10,7 +10,7 @@
     "website": "https://github.com/OCA/purchase-workflow",
     "category": "Purchase Management",
     "license": "AGPL-3",
-    "depends": ["purchase"],
+    "depends": ["purchase","sale"],
     "data": [
         "security/ir.model.access.csv",
         "wizard/purchase_make_invoice_advance_views.xml",
