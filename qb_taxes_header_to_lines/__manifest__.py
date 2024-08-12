@@ -8,7 +8,6 @@
     'depends': [
         'sale',
         'sale_management',
-        'sale_mods_ecgroup',
         # 'qb_transfer_locations',
     ],
     'data': [
