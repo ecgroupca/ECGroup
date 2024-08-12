@@ -8,10 +8,11 @@
     'depends': [
         'sale',
         'sale_management',
+        'sale_mods_ecgroup',
         # 'qb_transfer_locations',
     ],
     'data': [
-        #'views/sales_views.xml',
+        'views/sales_views.xml',
     ],
     'application': True,
     'installable': True,
