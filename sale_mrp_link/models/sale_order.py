@@ -25,33 +25,3 @@ class SaleOrder(models.Model):
                 (self.env.ref('mrp.mrp_production_form_view').id, 'form')]
             action['res_id'] = self.production_ids.id
         return action
-        
-    purchase_order_ids = fields.Many2many(
-        'purchase.order',
-        string = 'Purchase Orders',
-        compute="_compute_purchase_orders",
-    )
-    
-    purchase_orders_counted = fields.Integer(
-        compute='_compute_purchase_orders_counted', store=True)
-               
-    def action_view_purchases(self):
-        self.ensure_one()
-        # Force active_id to avoid issues when coming from smart buttons
-        # in other models
-        action = (
-            self.env.ref("purchase.purchase_form_action")
-            .with_context(active_id=self.id)
-            .read()[0]
-        )
-        purchases = self.purchase_order_ids
-        if len(purchases) > 1:
-            action["domain"] = [("id", "in", purchases.ids)]
-        elif purchases:
-            action.update(
-                res_id=purchases.id, 
-                view_mode="form", 
-                view_id=False,
-                views=False,
-            )
-        return action
