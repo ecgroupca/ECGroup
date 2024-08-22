@@ -185,7 +185,7 @@ class SaleOrder(models.Model):
         self.ensure_one()
         # ensure a correct context for the _get_default_journal method and company-dependent fields
         self = self.with_context(default_company_id=self.company_id.id, force_company=self.company_id.id)
-        journal = self.env['account.move'].search([('name','=','Vendor Bills')])
+        journal = self.env['account.journal'].search([('name','=','Vendor Bills')])
         journal = journal and journal[0]
         if not journal:
             raise UserError(_('Please define an accounting Vendor Bills journal for the company %s (%s).') % (self.company_id.name, self.company_id.id))
