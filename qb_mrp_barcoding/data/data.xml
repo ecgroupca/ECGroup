@@ -1,0 +1,10 @@
+<odoo>
+    <record id="mrp_barcode_workorder_client_action" model="ir.actions.client">
+        <field name="name">Barcode MRP Work Order Client Action</field>
+        <field name="tag">mrp_barcode_workorder_client_action</field>
+    </record>
+    <record id="mrp_barcode_production_client_action" model="ir.actions.client">
+        <field name="name">Barcode Production Client Action</field>
+        <field name="tag">mrp_barcode_production_client_action</field>
+    </record>
+</odoo>
