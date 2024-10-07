@@ -35,33 +35,19 @@ class InterCompanyTransferEpt(models.Model):
     source_warehouse_id = fields.Many2one("stock.warehouse", string="From Warehouse",
                                           help="Source warehouse to transfer stock from.")
     source_company_id = fields.Many2one(related="source_warehouse_id.company_id", string="From Company", store=True,
-                                                                          
                                         help="Company of Source warehouse.")
     destination_warehouse_id = fields.Many2one("stock.warehouse", string="To Warehouse",
                                                help="Destination warehouse to transfer stock to.")
     destination_company_id = fields.Many2one(related="destination_warehouse_id.company_id", string="To Company",
-                                                                             
                                              store=True, help="Company of Destination warehouse.")
-
-                                                                                        
-                                                                                  
-                                                                              
-                                                                                  
 
     inter_company_transfer_line_ids = fields.One2many("inter.company.transfer.line.ept", "inter_company_transfer_id",
                                                       string="Transfer Lines", help="ICT Lines", copy=True)
-                                                             
-                                                       
-                                                                                               
-                                                                            
-                                                                                  
-                                                         
 
     state = fields.Selection([("draft", "Draft"), ("processed", "Processed"), ("cancel", "Cancelled")], copy=False,
                              default="draft", help="State of ICT.", tracking=True)
     type = fields.Selection([("ict", "ICT"), ("ict_reverse", "Reverse ICT"), ("internal", "Internal"),
                              ("int_reverse", "Reverse Internal")], default="ict",
-                                                                  
                             help="The type of Transfer.")
 
     log_line_ids = fields.One2many("inter.company.transfer.log.line.ept", "inter_company_transfer_id",
@@ -74,18 +60,14 @@ class InterCompanyTransferEpt(models.Model):
                                   help="Sales team")
     pricelist_id = fields.Many2one("product.pricelist", help="Pricelist for prices of Products.")
     currency_id = fields.Many2one(related="pricelist_id.currency_id", help="Currency of company or by pricelist.")
-                                                                              
     group_id = fields.Many2one("procurement.group", string="Procurement Group", copy=False)
     auto_workflow_id = fields.Many2one("inter.company.transfer.config.ept", default=_default_auto_workflow,
                                        ondelete="restrict")
 
     inter_company_transfer_id = fields.Many2one("inter.company.transfer.ept", string="ICT", copy=False)
-                                                           
     reverse_inter_company_transfer_ids = fields.One2many("inter.company.transfer.ept", "inter_company_transfer_id",
-                                                                                     
                                                          string="Reverse ICT", copy=False,
                                                          help="Reverse ICTs generated from current ICT.")
-                                                                        
 
     sale_order_ids = fields.One2many("sale.order", "inter_company_transfer_id", copy=False,
                                      help="Sale orders created by the ICT.")
@@ -95,8 +77,6 @@ class InterCompanyTransferEpt(models.Model):
                                   help="Pickings created by the ICT.")
     invoice_ids = fields.One2many("account.move", "inter_company_transfer_id", copy=False,
                                   help="Invoices and Vendor bills created by the ICT.")
-                                  
-                                                                 
 
     _sql_constraints = [("source_destination_warehouse_unique",
                          "CHECK(source_warehouse_id != destination_warehouse_id)",
@@ -123,7 +103,6 @@ class InterCompanyTransferEpt(models.Model):
                                                          ("default_code", "=", barcode)], limit=1)
         if not product_id:
             return {"warning": {"title": _("Warning"),
-                                      
                                 "message": _("Product Not Found"),
                                 "type": "notification"}}
 
@@ -157,9 +136,7 @@ class InterCompanyTransferEpt(models.Model):
             if self.source_company_id != self.destination_company_id:
                 self.destination_warehouse_id = False
         return {"domain": {"destination_warehouse_id": [("company_id", domain_operator, self.source_company_id.id),
-                                                                                   
                                                         ("id", "!=", self.source_warehouse_id.id)]}}
-                                                         
 
     @api.onchange("destination_warehouse_id")
     def onchange_destination_warehouse_id(self):
@@ -193,14 +170,12 @@ class InterCompanyTransferEpt(models.Model):
         Inherited Method for giving sequence to ICT.
         @author: Maulik Barad.
         @param vals_list: List of values.
-                                    
         """
         for vals in vals_list:
             record_name = "New"
             sequence_id = False
             if vals.get("type", "") in ["ict", ""]:
                 sequence_id = self.env.ref("intercompany_transaction_ept.ir_sequence_inter_company_transaction").ids
-                                                                                         
             elif vals.get("type", "") == "ict_reverse":
                 sequence_id = self.env.ref(
                     "intercompany_transaction_ept.ir_sequence_reverse_inter_company_transaction").ids
@@ -223,8 +198,6 @@ class InterCompanyTransferEpt(models.Model):
         """
         context = self._context
         res = super(InterCompanyTransferEpt, self).get_view(view_id=view_id, view_type=view_type, **options)
-                                                                                       
-                                                                                                    
         doc = etree.XML(res["arch"])
         if view_type in ["form", "tree"]:
             if context.get("default_type", "ict_reverse") in ["ict_reverse", "int_reverse"]:
@@ -245,16 +218,13 @@ class InterCompanyTransferEpt(models.Model):
         if self.state == "processed":
             if pickings.filtered(lambda x: x.state == "done"):
                 raise UserError(_("You can not cancel Inter Company Transfer which has done pickings."))
-                                          
             if invoices.filtered(lambda x: x.state == "post"):
                 raise UserError(_("You can not cancel Inter Company Transfer which has posted invoices."))
-                                          
             self.sale_order_ids.with_context(disable_cancel_warning=True).action_cancel()
             self.purchase_order_ids.button_cancel()
             pickings.action_cancel()
             invoices.button_cancel()
         self.write({"state": "cancel", "message": "ICT has been cancelled by %s" % self.env.user.name})
-                                 
 
     def process_ict(self):
         """
@@ -302,12 +272,6 @@ class InterCompanyTransferEpt(models.Model):
                     _logger.info("Sale and Purchase orders are created for %s." % record.name)
 
                     record.with_context(context).process_ict_by_workflow()
-                                                                   
-                                                                
-                                               
-                                                                                          
-                                                                 
-                                               
 
                 _logger.info("%s is processed." % record.name)
                 record.write({"state": "processed", "processed_date": datetime.today(),
@@ -326,21 +290,7 @@ class InterCompanyTransferEpt(models.Model):
 
         destination_warehouse = self.destination_warehouse_id
 
-                                                                   
-                                                                                                    
-                        
-                                                                        
-
-                                
-                                                             
-                                                              
-                                                                  
-
         group_id, route_ids = self.get_group_and_route(destination_warehouse)
-                                                                                                
-                                                            
-                                                    
-                                                                                              
 
         if not group_id:
             return False
@@ -348,7 +298,6 @@ class InterCompanyTransferEpt(models.Model):
         for line in self.inter_company_transfer_line_ids:
             procurements.append(
                 procurement_group_obj.Procurement(line.product_id, line.quantity, line.product_id.uom_id,
-                                                                       
                                                   destination_warehouse.lot_stock_id, self.name, False,
                                                   destination_warehouse.company_id,
                                                   values={"warehouse_id": destination_warehouse,
@@ -361,11 +310,7 @@ class InterCompanyTransferEpt(models.Model):
         pickings = self.env["stock.picking"].search([("group_id", "=", group_id.id)])
         if not pickings:
             raise UserError(_("No Pickings are created for this record."))
-                                                                                  
-                                                   
         pickings.write({"inter_company_transfer_id": self.id})
-                                                  
-                                    
         picking = pickings.filtered(lambda x: x.location_id.id == self.source_warehouse_id.lot_stock_id.id)
         if picking:
             picking.action_assign()
@@ -398,7 +343,6 @@ class InterCompanyTransferEpt(models.Model):
         """
         Creates sale order for ICT of different companies.
         @author: Maulik Barad on Date 23-Dec-2020.
-                                         
         """
         log_line_obj = self.env["inter.company.transfer.log.line.ept"]
         sale_order_lines = []
@@ -417,7 +361,6 @@ class InterCompanyTransferEpt(models.Model):
                     continue
                 line_vals = record.prepare_ict_sale_order_line_vals(line)
                 sale_order_lines += [(0, 0, line_vals)]
-                                                          
 
             if sale_order_lines:
                 order_vals.update({"order_line": sale_order_lines, "inter_company_transfer_id": record.id})
@@ -426,9 +369,6 @@ class InterCompanyTransferEpt(models.Model):
                 _logger.info("%s is created." % sale_order.name)
 
         return True
-                                                               
-                                                                              
-                                                                                   
 
     def prepare_ict_sale_order_vals(self):
         """
@@ -469,7 +409,6 @@ class InterCompanyTransferEpt(models.Model):
         """
         Creates purchase order for ICT of different companies.
         @author: Maulik Barad on Date 23-Dec-2020.
-                                             
         """
         log_line_obj = self.env["inter.company.transfer.log.line.ept"]
         purchase_order_lines = []
@@ -478,17 +417,8 @@ class InterCompanyTransferEpt(models.Model):
 
         for record in self:
             _logger.info("Creating Purchase Order for %s." % record.name)
-
-                                     
-                                                                               
-                                                                                               
-                                                                                
-                                            
-                                                          
             order_vals = record.prepare_ict_purchase_order_vals()
-                                                                                                 
 
-                                           
             for line in record.inter_company_transfer_line_ids:
                 if dropship_route and dropship_route in line.product_id.route_ids:
                     message = "Dropship Product can not be transferred via Intercompany Transfer. Product: %s" % \
@@ -499,7 +429,6 @@ class InterCompanyTransferEpt(models.Model):
                 purchase_order_lines += [(0, 0, line_vals)]
 
             if purchase_order_lines:
-                                               
                 order_vals.update({"order_line": purchase_order_lines, "inter_company_transfer_id": record.id})
                 purchase_order = purchase_obj.create(order_vals)
                 purchase_order._compute_tax_id()
@@ -547,8 +476,6 @@ class InterCompanyTransferEpt(models.Model):
         """
         This method process the ict record as per passed parameters.
         @author: Maulik Barad on Date 30-Dec-2020.
-                                                            
-                                                    
         """
         self.ensure_one()
         auto_workflow = self.auto_workflow_id
@@ -560,7 +487,6 @@ class InterCompanyTransferEpt(models.Model):
             if auto_workflow.auto_validate_delivery or auto_workflow.auto_validate_receipt:
                 self.auto_validate_ict_pickings()
                 _logger.info("Pickings are validated for %s." % self.name)
-                                                                                
 
             if auto_workflow.auto_create_invoices:
                 self.create_ict_invoices()
@@ -579,30 +505,12 @@ class InterCompanyTransferEpt(models.Model):
             sale_orders = record.sale_order_ids.filtered(lambda x: x.state in ["draft", "sent"])
             sale_orders.write({"origin": record.name or ""})
             sale_orders.with_company(record.source_company_id).action_confirm()
-                                                                                        
 
             purchase_orders = record.purchase_order_ids.filtered(lambda x: x.state in ["draft", "sent"])
             purchase_orders.write({"origin": record.name or ""})
             purchase_orders.with_company(record.destination_company_id).button_confirm()
-                           
-                                     
-                                                                                  
-                                                                       
-                                
-                                                                          
 
         return True
-                                                           
-                    
-                                                                                    
-                                          
-                                                      
-                            
-                                                        
-                                                             
-                           
-                                                                                    
-                                                                          
 
     def auto_validate_ict_pickings(self):
         """
@@ -721,9 +629,6 @@ class InterCompanyTransferEpt(models.Model):
         reverse_ict_line_obj = self.env["reverse.inter.company.transfer.line.ept"]
         reverse_line_vals = []
 
-                                                                                          
-                                                                                               
-
         # reverse_type = "ict_reverse" if self.type == "ict" else "int_reverse"
         # inter_company_transfer_ids = self.search([("inter_company_transfer_id", "=", self.id),
         #                                           ("type", "=", reverse_type),
@@ -732,35 +637,17 @@ class InterCompanyTransferEpt(models.Model):
             if line.delivered_qty != 0.0 and line.delivered_qty <= line.quantity:
                 vals = self.prepare_reverse_ict_line_vals(line)
                 if isinstance(vals, dict) and vals.get("quantity"):
-                                                                                       
-                                                                                     
-
-                                                                                     
-                                              
-                                       
-                                            
-                                                          
-                                                                                          
-                                                                           
-                                                                        
-                                                                           
-                                           
                     reverse_line_vals.append(vals)
-                                                         
-                                                                                          
-                                                                                          
                 else:
                     msg = "Dropship Product is skipped in Reverse ICT as it can not be transferred via Intercompany " \
                           "Transfer. Product: %s" % line.product_id.name
                     self.env["inter.company.transfer.log.line.ept"].post_log_line(msg, self, "reverse", "mismatch")
-                                                                                           
             else:
                 msg = """Line is not considered as there is no product is delivered yet. Product : %s""" % \
                       line.product_id.name
                 self.env["inter.company.transfer.log.line.ept"].post_log_line(msg, self, "reverse", "info")
 
         reverse_ict_lines = reverse_ict_line_obj.create(reverse_line_vals)
-                                    
 
         # Opens wizard if reverse lines are found.
         if reverse_ict_lines:
@@ -839,17 +726,8 @@ class InterCompanyTransferEpt(models.Model):
                 # pickings.write({"inter_company_transfer_id": self.id})
                 self.process_reverse_ict_by_workflow(pickings)
                 processed = True
-                                                                                                 
-                                                                                                                      
-                            
-                                                                                    
 
         return processed
-                                                                 
-                                                                                                    
-                                                                                                   
-                                                                               
-                                                                                                                         
 
     def generate_return_pickings(self, picking, returned_pickings):
         """
@@ -864,37 +742,14 @@ class InterCompanyTransferEpt(models.Model):
         for done_picking in picking.filtered(lambda x: x.state == "done" and x not in returned_pickings):
             move_vals = []
             return_picking_wizard = stock_return_picking_obj.create({"picking_id": done_picking.id})
-                                                           
-                                                                                         
-                                                                           
-                                                             
-                                                                 
-                                                           
-                                                             
 
             if return_picking_wizard.picking_id:
-                                       
-                                                                                 
-                                                                                     
-                                                                                   
-                                                                            
-                                                                                      
                 return_picking_wizard._onchange_picking_id()
                 return_picking_wizard.product_return_moves.unlink()
-                                                                          
-                                                                                                   
-                                                                            
-                                
-                                                                    
-                                
-                                         
 
-                                                                                     
                 reverse_ict_lines = self.inter_company_transfer_line_ids
                 for reverse_line in reverse_ict_lines:
                     move_vals += self.prepare_return_move_vals(reverse_line, done_picking)
-                           
-                        
 
                 # for return_move in return_picking_wizard.product_return_moves:
                 #     reverse_line = reverse_ict_lines.filtered(lambda x: x.product_id == return_move.product_id)
@@ -953,32 +808,14 @@ class InterCompanyTransferEpt(models.Model):
             reverse_move = account_move_reversal_obj.with_context(context, active_ids=invoice.ids,
                                                                   default_journal_id=invoice.journal_id.id).create({})
             reverse_move.reverse_moves()
-                                                               
-                                                  
-                                                                                          
-                                                                                  
-                                                                                             
-                                                                                   
 
             for invoice_line in reverse_move.new_move_ids.invoice_line_ids:
-                                                                                    
-                                                                           
-                                                                                       
-                                                      
-                                                                                      
-                              
-                                                                  
-                                                                    
                 match_line = self.inter_company_transfer_line_ids.filtered(
                     lambda x: x.product_id == invoice_line.product_id)
                 if match_line:
-                                                       
                     invoice_line.with_context(check_move_validity=False).write({
                         "quantity": sum(match_line.mapped("quantity")), "price_unit": match_line.price
                     })
-                                                                                        
-                                                   
-                                                
 
             # reverse_move.new_move_ids.with_context(check_move_validity=False)._recompute_dynamic_lines()
             reverse_moves += reverse_move
@@ -1068,27 +905,10 @@ class InterCompanyTransferEpt(models.Model):
         for record in self:
             if record.source_warehouse_id.company_id not in self.env.user.company_ids:
                 if record.source_warehouse_id.company_id not in self.env.user.company_id.child_ids:
-                                                                                               
                     raise ValidationError(_("""User '%s' can not process this Inter Company Transfer.\n User from
                     Source Warehouse Company can Process it !!!!\n\nPlease Process it with User of Source Warehouse
                     Company.""") % self.env.user.name)
         return True
-
-                                          
-           
-                                                           
-                                                  
-                                                               
-                                      
-           
-                
-                                                                  
-                                              
-                                             
-                                 
-                                    
-             
-                   
 
     def reset_to_draft(self):
         """

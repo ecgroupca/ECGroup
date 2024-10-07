@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # See LICENSE file for full copyright and licensing details.
-   
 from odoo import models, fields, api
-                                   
 
 
 class InterCompanyTransferConfigEpt(models.Model):
@@ -11,21 +9,11 @@ class InterCompanyTransferConfigEpt(models.Model):
     @author: Maulik Barad.
     """
     _name = "inter.company.transfer.config.ept"
-                             
     _description = 'Inter Company Transfer Configuration'
 
     name = fields.Char(help="Name of this Configuration.")
     type = fields.Selection([("ict", "Inter Company"), ("internal", "Internal")], default="ict")
     set_default_flow = fields.Boolean("Set as Default", help="Set this Workflow in ICT record as default.")
-                                                                                     
-                                                                         
-                                                                               
-                                                                                              
-                                                                              
-                                                                                            
-                                                                                   
-                                                                                              
-                                               
 
     auto_confirm_orders = fields.Boolean("Confirm Orders", help="Automatically confirms the Sale and Purchase order.")
     auto_validate_delivery = fields.Boolean("Validate Delivery", help="Automatically validates Delivery Order.")
@@ -57,13 +45,10 @@ class InterCompanyTransferConfigEpt(models.Model):
         @author: Maulik Barad on Date 18-Dec-2020.
         """
         for record in self:
-                                                                                                 
-                                                                                           
             if not record.auto_confirm_orders:
                 record.auto_validate_delivery = False
                 record.auto_validate_receipt = False
                 record.auto_create_invoices = False
-                                               
 
     @api.onchange("auto_validate_delivery", "auto_validate_receipt", "validate_pickings")
     def onchange_validate_pickings(self):

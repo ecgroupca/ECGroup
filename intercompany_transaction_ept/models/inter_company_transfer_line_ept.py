@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 # See LICENSE file for full copyright and licensing details.
-   
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError
 
@@ -44,7 +43,6 @@ class InterCompanyTransferLine(models.Model):
         @author: Maulik Barad.
         """
         for line in self:
-                               
             ict = line.inter_company_transfer_id
             if ict.type == "ict":
                 delivered_qty = 0.0
@@ -54,13 +52,6 @@ class InterCompanyTransferLine(models.Model):
             else:
                 delivered_qty = 0.0
                 for picking in ict.picking_ids.filtered(
-                                   
-                                                      
-                                                         
-                                                  
-                 
-                                   
-                                                        
                         lambda x: x.state == "done" and x.picking_type_id.code == "incoming"):
                     for move_line in picking.move_line_ids.filtered(lambda x: x.product_id == line.product_id):
                         if not line.lot_serial_ids or (line.lot_serial_ids and move_line.lot_id.name in
@@ -79,7 +70,6 @@ class InterCompanyTransferLine(models.Model):
                 pricelist_id = line.inter_company_transfer_id.pricelist_id
                 if pricelist_id:
                     line.price = pricelist_id._get_product_price(line.product_id, line.quantity)
-                                                                           
                 else:
                     line.price = line.product_id.lst_price
             else:
