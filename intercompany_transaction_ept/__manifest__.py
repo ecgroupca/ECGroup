@@ -15,24 +15,24 @@
     'depends': ['delivery', 'purchase_stock', 'barcodes'],
     'external_dependencies': {'python': ['xlrd']},
     'data': [
-        'data/ir_sequence.xml',
-        'data/ir_cron.xml',
+        #'data/ir_sequence.xml',
+        #'data/ir_cron.xml',
 
-        'security/inter_company_transfer_security.xml',
-        'security/ir.model.access.csv',
+        #'security/inter_company_transfer_security.xml',
+        #'security/ir.model.access.csv',
 
-        'wizards/reverse_inter_company_transfer_ept.xml',
-        'wizards/import_export_products_ept.xml',
+        #'wizards/reverse_inter_company_transfer_ept.xml',
+        #'wizards/import_export_products_ept.xml',
 
         #'views/inter_company_transfer_ept.xml',
         #'views/inter_company_transfer_config_ept.xml',
         #'views/inter_company_transfer_log_line_ept.xml',
-        'views/account_move.xml',
-        'views/purchase.xml',
-        'views/res_company.xml',
-        'views/sale.xml',
-        'views/stock_picking.xml',
-        'views/stock_warehouse.xml',
+        #'views/account_move.xml',
+        #'views/purchase.xml',
+        #'views/res_company.xml',
+        #'views/sale.xml',
+        #'views/stock_picking.xml',
+        #'views/stock_warehouse.xml',
     ],
 
     # Odoo Store Specific
