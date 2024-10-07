@@ -212,7 +212,6 @@
 
     <!-- Menus -->
     <menuitem id="inter_company_transfer_ept_main_menu" parent="stock.menu_stock_warehouse_mgmt"
-              groups="inter_company_transfer_user_group,inter_company_transfer_manager_group"
               name="Inter Company &amp; Inter Warehouse Transfers" sequence="170"/>
 
     <menuitem id="inter_company_transfer_ept_child_menu" parent="inter_company_transfer_ept_main_menu" sequence='1'
