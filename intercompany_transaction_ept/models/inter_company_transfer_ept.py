@@ -61,9 +61,7 @@ class InterCompanyTransferEpt(models.Model):
     pricelist_id = fields.Many2one("product.pricelist", help="Pricelist for prices of Products.")
     currency_id = fields.Many2one(related="pricelist_id.currency_id", help="Currency of company or by pricelist.")
     group_id = fields.Many2one("procurement.group", string="Procurement Group", copy=False)
-    auto_workflow_id = fields.Many2one("inter.company.transfer.config.ept", 
-        #default=_default_auto_workflow,
-        ondelete="restrict")
+    auto_workflow_id = fields.Many2one("inter.company.transfer.config.ept",ondelete="restrict")
 
     inter_company_transfer_id = fields.Many2one("inter.company.transfer.ept", string="ICT", copy=False)
     reverse_inter_company_transfer_ids = fields.One2many("inter.company.transfer.ept", "inter_company_transfer_id",
