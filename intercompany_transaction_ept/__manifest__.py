@@ -13,34 +13,35 @@
 
     # Dependencies
     'depends': ['delivery', 'purchase_stock', 'barcodes'],
+    'external_dependencies': {'python': ['xlrd']},
     'data': [
         'data/ir_sequence.xml',
-        'data/inter_company_transfer_config.xml',
+        'data/ir_cron.xml',
 
-        #'views/inter_company_transfer_ept.xml',
-        #'views/inter_company_transfer_config_ept.xml',
-        #'views/res_company.xml',
-        #'views/sale.xml',
-        #'views/purchase.xml',
-        #'views/stock_picking.xml',
-        #'views/account_move.xml',
-        #'views/inter_company_transfer_log_book_ept.xml',
+        'security/inter_company_transfer_security.xml',
+        'security/ir.model.access.csv',
 
-        #'security/inter_company_transfer_security.xml',
-        #'security/ir.model.access.csv',
+        'wizards/reverse_inter_company_transfer_ept.xml',
+        'wizards/import_export_products_ept.xml',
 
-        #'wizards/reverse_inter_company_transfer_ept.xml',
-        #'wizards/import_export_products_ept.xml',
-
-        ],
+        'views/inter_company_transfer_ept.xml',
+        'views/inter_company_transfer_config_ept.xml',
+        'views/inter_company_transfer_log_line_ept.xml',
+        'views/account_move.xml',
+        'views/purchase.xml',
+        'views/res_company.xml',
+        'views/sale.xml',
+        'views/stock_picking.xml',
+        'views/stock_warehouse.xml',
+    ],
 
     # Odoo Store Specific
-    'images': ['static/description/Inter-Company-Transfer-cover.jpg'],
+    'images': ['static/description/Inter-Company-Transfer.jpg'],
 
     # Technical
     'post_init_hook': 'post_init_update_rule',
     'uninstall_hook': 'uninstall_hook_update_rule',
-    'live_test_url': 'https://www.emiprotechnologies.com/free-trial?app=inter-company-transfer-ept&version=13&edition=enterprise',
+    'live_test_url': 'https://www.emiprotechnologies.com/r/4uC',
     'active': True,
     'installable': True,
     'currency': 'EUR',
