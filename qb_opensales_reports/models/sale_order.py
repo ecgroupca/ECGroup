@@ -112,36 +112,27 @@ class SaleOrderLine(models.Model):
     def _compute_qty_delivered(self):
         super(SaleOrderLine, self)._compute_qty_delivered()
         # TODO: do this in SQL
-
         for line in self:
-            
-            if line.order_id.state not in ['draft','cancel','sent']:
-
-                if line.product_id and line.product_id.type != 'service':
-                    picking_ids = line.order_id.picking_ids
-                    domain = ['|',('picking_id','in',picking_ids.ids),('picking_id.sale_id','=',line.order_id.id)]
-                    #domain.append(('picking_id','in',picking_ids.ids))
-                    domain.append(('picking_id.state','!=','cancel'))
-                    domain.append(('state','=','done'))
-                    domain.append(('picking_id.picking_type_id.code','=','incoming'))
-                    #domain.append('|')
-                    #domain.append(('location_id.name','=','Customers')
-                    #domain.append(('location_id.name','=','Vendors')
-                    domain.append(('location_id.name','!=','Vendors'))
-                    domain.append(('location_dest_id.name','!=','Vendors'))
-                    in_moves = env['stock.move'].search(domain)
-                    #remove the 'IN' part of the domain and add the 'OUT' for 'out moves'
-                    domain.remove(('picking_id.picking_type_id.code','=','incoming'))
-                    domain.append(('picking_id.picking_type_id.code','=','outgoing'))
-                    domain.remove(('location_id.name','!=','Vendors'))
-                    out_moves = env['stock.move'].search(domain)
-                    for move in out_moves:
-                        qty += move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom, rounding_method='HALF-UP')                   
-                    for move in in_moves:
-                        qty -= move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom, rounding_method='HALF-UP')
-                    if qty > line.product_qty:
-                        qty = line.product_qty
-                    line.qty_delivered = qty
+            #if line.qty_delivered != line.product_uom_qty:
+            qty = 0.0
+            picking_ids = line.order_id.picking_ids
+            domain = [('picking_id','in',picking_ids.ids),('product_id','=',line.product_id.id)]
+            domain.append(('picking_id.state','!=','cancel'))
+            domain.append(('state','=','done'))
+            domain.append(('picking_id.picking_type_code','=','incoming'))
+            in_moves = self.env['stock.move'].search(domain)
+            #remove the 'IN' part of the domain and add the 'OUT' for 'out moves'
+            domain.remove(('picking_id.picking_type_code','=','incoming'))
+            domain.append(('picking_id.picking_type_code','=','outgoing'))
+            out_moves = self.env['stock.move'].search(domain)
+            #for pick in line.order_id.picking_ids:
+            #    if pick.picking_type_code == 'OUT':
+            for move in out_moves:
+                qty += move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom, rounding_method='HALF-UP')                   
+            for move in in_moves:
+                qty -= move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom, rounding_method='HALF-UP')
+            #line.qty_delivered = qty <= line.product_uom_qty and qty or line.product_uom_qty
+            line.qty_delivered = qty
                     
                         
                 
