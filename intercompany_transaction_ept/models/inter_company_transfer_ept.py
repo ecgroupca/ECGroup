@@ -21,14 +21,14 @@ class InterCompanyTransferEpt(models.Model):
     _order = "id desc"
     _inherit = ["barcodes.barcode_events_mixin", "mail.thread", "mail.activity.mixin"]
 
-    def _default_auto_workflow(self):
+    #def _default_auto_workflow(self):
         """
         This method used to set default workflow for the ict record.
         @author: Maulik Barad on Date 22-Dec-2020.
         """
-        default_workflow = self.env["inter.company.transfer.config.ept"].search(
-            [("set_default_flow", "=", True), ("type", "=", self._context.get("default_type"))], limit=1)
-        return default_workflow
+        #default_workflow = self.env["inter.company.transfer.config.ept"].search(
+        #    [("set_default_flow", "=", True), ("type", "=", self._context.get("default_type"))], limit=1)
+        #return default_workflow
 
     name = fields.Char(help="Name of Inter company transfer.")
 
