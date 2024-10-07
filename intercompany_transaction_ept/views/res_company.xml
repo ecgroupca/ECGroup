@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="inter_company_transfer_ept_res_company_form_view" model="ir.ui.view">
-        <field name="name">inter.company.transfer.ept.res.company.form.view</field>
-        <field name="model">res.company</field>
-        <field name="inherit_id" ref="base.view_company_form"/>
-        <field name="arch" type="xml">
-            <xpath expr="//notebook/page[@name='general_info']" position="after">
-                <page string="ICT Configuration">
-                    <group>
-                        <group>
-                            <field name="sale_journal_id" domain="[('type','=','sale'),('company_id','=',id)]"
-                                   options="{'no_create':True,'no_create_edit': True}"/>
-                            <field name="purchase_journal_id" domain="[('type','=','purchase'),('company_id','=',id)]"
-                                   options="{'no_create':True,'no_create_edit': True}"/>
-                        </group>
-                    </group>
-                </page>
-            </xpath>
-        </field>
-    </record>
+	<!-- Form View added by Maulik Barad on Date 26-Sep-2019. -->
+	<record id="inter_company_transfer_ept_res_company_form_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.ept.res.company.form.view
+		</field>
+		<field name="model">res.company</field>
+		<field name="inherit_id" ref="base.view_company_form" />
+		<field name="arch" type="xml">
+			<xpath expr="//notebook/page[1]" position="after">
+				<page string="ICT Configuration">
+					<group>
+						<field name="sale_journal_id"
+							domain="[('type','=','sale'),('company_id','=',id)]" />
+						<field name="purchase_journal_id"
+							domain="[('type','=','purchase'),('company_id','=',id)]" />
+					</group>
+				</page>
+			</xpath>
+		</field>
+	</record>
 
 </odoo>

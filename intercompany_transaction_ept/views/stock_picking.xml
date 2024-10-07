@@ -1,31 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="inter_company_transfer_ept_pickings_form_view" model="ir.ui.view">
-        <field name="name">inter.company.transfer.ept.pickings.form.view</field>
-        <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.view_picking_form"/>
-        <field name="arch" type="xml">
-            <field name="backorder_id" position="after">
-                <field name="inter_company_transfer_id" readonly="1"
-                       attrs="{'invisible':[('inter_company_transfer_id','=',False)]}"/>
-            </field>
-        </field>
-    </record>
+	<!-- Form View added by Maulik Barad on Date 26-Sep-2019. -->
+	<record id="inter_company_transfer_ept_pickings_form_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.ept.pickings.form.view
+		</field>
+		<field name="model">stock.picking</field>
+		<field name="inherit_id" ref="stock.view_picking_form" />
+		<field name="arch" type="xml">
+			<field name="location_dest_id" position="after">
+				<field name="inter_company_transfer_id"
+					attrs="{'invisible':[('inter_company_transfer_id','=',False)]}"
+					readonly="1" />
+			</field>
+		</field>
+	</record>
 
-    <record id="inter_company_transfer_ept_picking_search_view" model="ir.ui.view">
-        <field name="name">inter.company.transfer.ept.picking.search.view</field>
-        <field name="model">stock.picking</field>
-        <field name="inherit_id" ref="stock.view_picking_internal_search"/>
-        <field name="arch" type="xml">
-            <field name="picking_type_id" position="after">
-                <field name="inter_company_transfer_id"/>
-            </field>
-            <xpath expr="//filter[@name='starred']" position="after">
-                <filter string="ICT Pickings" name="inter_company_transfer_id"
-                        domain="[('inter_company_transfer_id','!=', False)]"/>
-            </xpath>
-        </field>
-    </record>
+	<!-- Search View added by Maulik Barad on Date 26-Sep-2019. -->
+	<record id="inter_company_transfer_ept_picking_search_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.ept.picking.search.view
+		</field>
+		<field name="model">stock.picking</field>
+		<field name="inherit_id"
+			ref="stock.view_picking_internal_search" />
+		<field name="arch" type="xml">
+			<xpath expr="//filter[@name='activities_overdue']"
+				position="before">
+				<field name="inter_company_transfer_id" />
+				<filter string="ICT Pickings"
+					name="inter_company_transfer_id"
+					domain="[('inter_company_transfer_id','!=', False)]" />
+				<separator />
+			</xpath>
+		</field>
+	</record>
 
 </odoo>
+       

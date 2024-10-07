@@ -1,10 +1,13 @@
 {
     # App information
-    'name': 'Inter Company Transfer and Warehouse',
-    'version': '16.0.1.0.2',
+    'name': 'Inter Company Transfer and Warehouse Transfer',
+    'version': '13.0.1.0',
     'category': 'Operations/Inventory',
     'license': 'OPL-1',
-    'summary': 'Manages Inter Company and Inter Warehouse Transfer along with all required documents with the easiest way by just simple configurations.Customer will get easy interface to exchange stock as well as to return stock.Emipro is also having integration for well known ecommerce solutions or applications named as Woocommerce connector , Shopify connector , magento connector and also we have solutions for Marketplace Integration such as Odoo Amazon connector , Odoo eBay connector , Odoo walmart Connector , Odoo Bol.com connector.Aside from ecommerce integration and ecommerce marketplace integration, we also provide solutions for various operations, such as shipping , logistics , shipping labels , and shipping carrier management with our shipping integration , known as the Shipstation connector.For the customers who are into Dropship business, we do provide EDI Integration that can help them manage their Dropshipping business with our Dropshipping integration or Dropshipper integration It is listed as Dropshipping EDI integration and Dropshipper EDI integration.Emipro applications can be searched with different keywords like Amazon integration , Shopify integration , Woocommerce integration, Magento integration , Amazon vendor center module , Amazon seller center module , Inter company transfer , eBay integration , Bol.com integration , inventory management , warehouse transfer module , dropship and dropshipper integration and other Odoo integration application or module',
+    'summary' : 'Manages Inter Company and Inter Warehouse Transfer.',
+    'description':"""
+        Module to manage Inter Company Transfer and Inter Warehouse Transfer along with all required documents with easiest way by just simple configurations.
+        """,
 
     # Author
     'author': 'Emipro Technologies Pvt. Ltd.',
@@ -13,9 +16,9 @@
 
     # Dependencies
     'depends': ['delivery', 'purchase_stock', 'barcodes'],
-    'external_dependencies': {'python': ['xlrd']},
     'data': [
         #'data/ir_sequence.xml',
+<<<<<<< HEAD
         #'data/ir_cron.xml',
 
         'security/inter_company_transfer_security.xml',
@@ -34,14 +37,34 @@
         'views/stock_picking.xml',
         'views/stock_warehouse.xml',
     ],
+=======
+        #'data/inter_company_transfer_config.xml',
+
+        #'views/inter_company_transfer_ept.xml',
+        #'views/inter_company_transfer_config_ept.xml',
+        #'views/res_company.xml',
+        #'views/sale.xml',
+        #'views/purchase.xml',
+        #'views/stock_picking.xml',
+        #'views/account_move.xml',
+        #'views/inter_company_transfer_log_book_ept.xml',
+
+        #'security/inter_company_transfer_security.xml',
+        #'security/ir.model.access.csv',
+
+        #'wizards/reverse_inter_company_transfer_ept.xml',
+        #'wizards/import_export_products_ept.xml',
+
+        ],
+>>>>>>> parent of cdc7b02 (updgrade to ICT module to v16)
 
     # Odoo Store Specific
-    'images': ['static/description/Inter-Company-Transfer.jpg'],
+    'images': ['static/description/Inter-Company-Transfer-cover.jpg'],
 
     # Technical
     'post_init_hook': 'post_init_update_rule',
     'uninstall_hook': 'uninstall_hook_update_rule',
-    'live_test_url': 'https://www.emiprotechnologies.com/r/4uC',
+    'live_test_url': 'https://www.emiprotechnologies.com/free-trial?app=inter-company-transfer-ept&version=13&edition=enterprise',
     'active': True,
     'installable': True,
     'currency': 'EUR',

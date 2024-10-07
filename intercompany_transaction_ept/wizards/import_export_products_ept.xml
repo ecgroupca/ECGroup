@@ -1,113 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <odoo>
 
-    <record id="import_product_lot_scan_form_view" model="ir.ui.view">
-        <field name="name">import.product.lot.scan.form</field>
-        <field name="model">import.export.products.ept</field>
-        <field name="arch" type="xml">
-            <form string="Scan Lot/Serial">
-                <field name="loose_lot_transfer" invisible="1"/>
-                <field name="_barcode_scanned" widget="barcode_handler"/>
-                <strong>
-                    <field name="message" class="alert alert-warning" role="alert" readonly="1"
-                           attrs="{'invisible':[('message','=',False)]}"/>
-                </strong>
-                <h3>Scanned Products</h3>
-                <field name="lot_serial_scan_line_ids">
-                    <tree create="0" default_order="id desc" editable="bottom">
-                        <field name="product_id" readonly="1" force_save="1"/>
-                        <field name="lot_serial_ids" widget="many2many_tags" readonly="1" force_save="1"/>
-                        <field name="quantity" attrs="{'readonly':[('parent.loose_lot_transfer','=',False)]}"
-                               force_save="1"/>
-                    </tree>
-                </field>
-                <footer>
-                    <button name="create_ict_lines" type="object" string="Create ICT Lines" class="oe_highlight"/>
-                    <button string="Cancel" class="oe_link" special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
-
-    <record id="import_export_product_list_ept_form_view" model="ir.ui.view">
-        <field name="name">import.export.product.list.view.form</field>
-        <field name="model">import.export.products.ept</field>
-        <field name="arch" type="xml">
-            <form string="Import Export Product List">
-                <group>
-                    <group>
-                        <field name="report_type" required="1"/>
-                    </group>
-                    <group>
-                        <field name="loose_lot_transfer"/>
-                    </group>
-                    <group>
-                        <field name="file" filename="file_name"/>
-                        <field name="file_name" invisible="1"/>
-                    </group>
-                    <group>
-                        <field name="update_existing"/>
-                    </group>
-                    <group>
-                        <field name="file_delimiter"
-                               attrs="{'invisible':[('report_type','=','xls')],'required':[('report_type','=','csv')]}"/>
-                    </group>
-                    <group>
-                        <field name="update_existing_by"
-                               attrs="{'invisible':[('update_existing', '=', False)], 'required':[('update_existing', '!=', False)]}"/>
-                    </group>
-                </group>
-                <div class="container">
-                    <div class="row">
-                        <div class="col-md-6 alert alert-info" role="alert">
-                            <a href="/intercompany_transaction_ept/static/demo_data/importproductlist.csv"
-                               target="_blank">
-                                <strong>Download Sample product list CSV file</strong>
-                            </a>
-                        </div>
-                        <div class="col-md-6 alert alert-info" role="alert">
-                            <a href="/intercompany_transaction_ept/static/demo_data/importproductlist.xls"
-                               target="_blank">
-                                <strong>Download Sample product list Excel file</strong>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div groups="stock.group_production_lot">
-                    <div class="alert alert-warning" role="alert">
-                        <strong>Note:</strong>
-                        <br/>
-                        1. Default code and Barcode can be used to import products. It will search first by Default
-                        Code.
-                        <br/>
-                        If Default Code is not found in the file, it will search by Barcode.
-                        <br/>
-                        If both values are provided, then it will only search with Default Code.
-                        <br/>
-                        2. If there are multiple Lot/Serial numbers for a product, they need to be separated by Comma
-                        (,). <strong>For ex.</strong> LOT/001,LOT/002,LOT/003,...
-                        <br/>
-                        3. If there are loose Lot transfers of a product, then they should be added as separate lines
-                        with quantity of Lot.
-                        <br/>
-                        <strong>For ex.</strong>
-                        Need to transfer 5 qty from the Lot having 8 qty and 5 qty from the Lot having 14 qty.
-                    </div>
-                </div>
-                <footer>
-                    <button name="import_product_list" type="object" string="Import Product List" class="oe_highlight"/>
-                    <button name="export_product_list" class="oe_highlight" string="Export Product List" type="object"/>
-                    <button string="Cancel" class="oe_link" special="cancel"/>
-                </footer>
-            </form>
-        </field>
-    </record>
-
-    <record id="import_or_export_products" model="ir.actions.act_window">
-        <field name="name">Import/Export Products</field>
-        <field name="res_model">import.export.products.ept</field>
-        <field name="view_mode">form</field>
-        <field name="target">new</field>
-    </record>
+	<record id="import_export_product_list_ept_form_view"
+		model="ir.ui.view">
+		<field name="name">import.export.product.list.view.form</field>
+		<field name="model">import.export.products.ept</field>
+		<field name="arch" type="xml">
+			<form string="Import Export Product List">
+				<group>
+					<group>
+						<field name="report_type" />
+					</group>
+					<group>
+						<field name="update_existing" />
+						<!--Updated by Udit on 18th December 2019-->
+						<field name="update_existing_by" attrs="{'invisible':[('update_existing', '=', False)], 'required':[('update_existing', '!=', False)]}"/>
+					</group>
+					<group>
+						<field name="file" filename="file_name" />
+						<field name="file_name" invisible="1" />
+					</group>
+					<group>
+						<!--Updated by Udit on 18th December 2019-->
+						<field name="file_delimiter"
+							attrs="{'invisible':[('report_type','=','xls')],'required':[('report_type','=','csv')]}" />
+					</group>
+				</group>
+				<group>
+					<div class="alert alert-info" role="alert">
+						<a
+							href="/inter_company_transfer_ept/static/demo_data/importproductlist.csv"
+							target="_blank">
+							<strong>Download Sample product list CSV file</strong>
+						</a>
+					</div>
+					<div class="alert alert-info" role="alert">
+						<a
+							href="/inter_company_transfer_ept/static/demo_data/importproductlist.xls"
+							target="_blank">
+							<strong>Download Sample product list Excel file</strong>
+						</a>
+					</div>
+				</group>
+				<footer>
+					<button name="import_product_list" type="object"
+						string="Import Product List" class="oe_highlight" />
+					<button name="export_product_list" class="oe_highlight"
+						string="Export Product List" type="object" />
+					<button string="_Cancel" class="oe_link" special="cancel" />
+				</footer>
+			</form>
+		</field>
+	</record>
 
 </odoo>
