@@ -1,50 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
-<odoo>
-	<data noupdate="1">
+<odoo noupdate="1">
 
-		<!-- Sequences -->
-		<!-- ICT -->
-		<record id="ir_sequence_inter_company_transaction"
-			model="ir.sequence">
-			<field name="name">Inter Company Transfer</field>
-			<field name="prefix">ICT</field>
-			<field name="padding">3</field>
-			<field name="number_increment">1</field>
-			<field name="number_next">1</field>
-			<field name="company_id" ref="base.main_company"></field>
-		</record>
+    <!-- Inter Company Transfer-->
+    <record id="ir_sequence_inter_company_transaction" model="ir.sequence">
+        <field name="name">Inter Company Transfer</field>
+        <field name="prefix">ICT</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="number_next">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
 
-		<!-- RICT -->
-		<record id="ir_sequence_reverse_inter_company_transaction"
-			model="ir.sequence">
-			<field name="name">Reverse Inter Company Transaction</field>
-			<field name="prefix">RICT</field>
-			<field name="padding">3</field>
-			<field name="number_increment">1</field>
-			<field name="number_next">1</field>
-			<field name="company_id" ref="base.main_company"></field>
-		</record>
+    <!-- Reverse ICT -->
+    <record id="ir_sequence_reverse_inter_company_transaction" model="ir.sequence">
+        <field name="name">Reverse Inter Company Transaction</field>
+        <field name="prefix">RICT</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="number_next">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
 
-		<!-- INT -->
-		<record id="ir_sequence_internal_transfer" model="ir.sequence">
-			<field name="name">Internal Transfer</field>
-			<field name="prefix">INTICT</field>
-			<field name="padding">3</field>
-			<field name="number_increment">1</field>
-			<field name="number_next">1</field>
-			<field name="company_id" ref="base.main_company"></field>
-		</record>
+    <!-- Internal Transfer -->
+    <record id="ir_sequence_internal_transfer" model="ir.sequence">
+        <field name="name">Internal Transfer</field>
+        <field name="prefix">INTICT</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="number_next">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
 
-		<!-- LOG -->
-		<record id="inter_company_process_log_seq" model="ir.sequence">
-			<field name="name">Inter Company Transfer LOG</field>
-			<field name="prefix">LOG</field>
-			<field name="padding">4</field>
-			<field name="code">ict_log</field>
-			<field name="number_increment">1</field>
-			<field name="number_next">1</field>
-			<field name="company_id" eval="False" />
-		</record>
+    <!-- Reverse IWT -->
+    <record id="ir_sequence_reverse_internal_transaction" model="ir.sequence">
+        <field name="name">Reverse Internal Transaction</field>
+        <field name="prefix">RINT</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="number_next">1</field>
+        <field name="company_id" eval="False"/>
+    </record>
 
-	</data>
 </odoo>
