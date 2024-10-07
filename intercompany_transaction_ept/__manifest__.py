@@ -14,8 +14,8 @@
     # Dependencies
     'depends': ['delivery', 'purchase_stock', 'barcodes'],
     'data': [
-        #'data/ir_sequence.xml',
-        #'data/inter_company_transfer_config.xml',
+        'data/ir_sequence.xml',
+        'data/inter_company_transfer_config.xml',
 
         #'views/inter_company_transfer_ept.xml',
         #'views/inter_company_transfer_config_ept.xml',
