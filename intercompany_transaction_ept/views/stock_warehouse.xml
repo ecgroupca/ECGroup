@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="ict_stock_warehouse_form_view" model="ir.ui.view">
+        <field name="name">inherited.ict.stock.warehouse.form</field>
+        <field name="model">stock.warehouse</field>
+        <field name="inherit_id" ref="stock.view_warehouse"/>
+        <field name="arch" type="xml">
+            <xpath expr="//notebook/page[@name='technical_info']" position="after">
+                <page name="ict_config" string="ICT Configuration">
+                    <div>
+                        <label for="auto_create_ict" class="mr-5"/>
+                        <field name="auto_create_ict"/>
+                    </div>
+                    <group>
+                        <group attrs="{'invisible':[('auto_create_ict','=',False)]}">
+                            <field name="ict_resupply_wh_id" domain="[('id','!=',id)]"
+                                   attrs="{'required':[('auto_create_ict','=',True)]}"
+                                   options="{'no_create':True,'no_create_edit': True}"/>
+                            <label for="ict_interval_number" string="Execute at every"/>
+                            <div>
+                                <field name="ict_interval_number" class="oe_inline"
+                                       attrs="{'required':[('auto_create_ict','=',True)]}"/>
+                                <field name="ict_interval_type" class="oe_inline"
+                                       attrs="{'required':[('auto_create_ict','=',True)]}"/>
+                            </div>
+                            <field name="ict_user_id" class="oe_inline" string="With User"
+                                   options="{'no_create':True,'no_create_edit': True}"
+                                   attrs="{'required':[('auto_create_ict','=',True)]}"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

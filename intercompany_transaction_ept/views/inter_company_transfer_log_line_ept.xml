@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+
+    <!-- Search View of Log Book. -->
+    <record id="inter_company_transfer_log_line_search_view" model="ir.ui.view">
+        <field name="name">Inter Company Transfer Log Search View</field>
+        <field name="model">inter.company.transfer.log.line.ept</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="operation"/>
+                <field name="ict_message"/>
+                <field name="inter_company_transfer_id"/>
+                <group expand="0" string="Group By">
+                    <filter string="Log Type" name="ict_log_type" context="{'group_by':'ict_log_type'}"/>
+                    <filter string="Operation" name="operation" context="{'group_by':'operation'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Form View of Log Book Line -->
+    <record id="inter_company_transfer_log_line_form_view" model="ir.ui.view">
+        <field name="name">inter.company.transfer.log.line.form.view</field>
+        <field name="model">inter.company.transfer.log.line.ept</field>
+        <field name="arch" type="xml">
+            <form create="false" edit="false">
+                <sheet>
+                    <div>
+                        <h1>
+                            <field name="ict_message"/>
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="operation"/>
+                            <field name="ict_log_type"/>
+                        </group>
+                        <group>
+                            <field name="inter_company_transfer_id"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View of Log Book Line -->
+    <record id="inter_company_transfer_log_line_tree_view" model="ir.ui.view">
+        <field name="name">inter.company.transfer.log.line.tree.view</field>
+        <field name="model">inter.company.transfer.log.line.ept</field>
+        <field name="arch" type="xml">
+            <tree decoration-success="ict_log_type=='info'" decoration-danger="ict_log_type=='error'"
+                  default_order="create_date desc" create="false">
+                <field name="ict_log_type"/>
+                <field name="operation"/>
+                <field name="ict_message"/>
+                <field name="inter_company_transfer_id"/>
+                <field name="create_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Action of Logs. -->
+    <record id="inter_company_transfer_process_log_action" model="ir.actions.act_window">
+        <field name="name">Operation Logs</field>
+        <field name="res_model">inter.company.transfer.log.line.ept</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <!-- Menu for Logs. -->
+    <menuitem id="inter_company_transfer_log_ept_menu" action="inter_company_transfer_process_log_action"
+              parent="inter_company_transfer_ept_main_menu" name="Logs" sequence='17'/>
+
+</odoo>
