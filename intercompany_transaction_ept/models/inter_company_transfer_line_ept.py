@@ -54,6 +54,13 @@ class InterCompanyTransferLine(models.Model):
             else:
                 delivered_qty = 0.0
                 for picking in ict.picking_ids.filtered(
+                                   
+                                                      
+                                                         
+                                                  
+                 
+                                   
+                                                        
                         lambda x: x.state == "done" and x.picking_type_id.code == "incoming"):
                     for move_line in picking.move_line_ids.filtered(lambda x: x.product_id == line.product_id):
                         if not line.lot_serial_ids or (line.lot_serial_ids and move_line.lot_id.name in
