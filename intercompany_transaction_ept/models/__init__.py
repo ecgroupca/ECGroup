@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # See LICENSE file for full copyright and licensing details.
+from . import inter_company_transfer_log_line_ept
 from . import inter_company_transfer_config_ept
 from . import inter_company_transfer_ept
-from . import inter_company_transfer_log_line_ept
 from . import account_move
 from . import purchase
 from . import sale
