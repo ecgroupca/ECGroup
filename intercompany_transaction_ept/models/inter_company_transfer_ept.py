@@ -21,6 +21,15 @@ class InterCompanyTransferEpt(models.Model):
     _order = "id desc"
     _inherit = ["barcodes.barcode_events_mixin", "mail.thread", "mail.activity.mixin"]
 
+    def _default_auto_workflow(self):
+        """
+        This method used to set default workflow for the ict record.
+        @author: Maulik Barad on Date 22-Dec-2020.
+        """
+        default_workflow = self.env["inter.company.transfer.config.ept"].search(
+            [("set_default_flow", "=", True), ("type", "=", self._context.get("default_type"))], limit=1)
+        return default_workflow
+
     name = fields.Char(help="Name of Inter company transfer.")
 
     source_warehouse_id = fields.Many2one("stock.warehouse", string="From Warehouse",
@@ -52,7 +61,8 @@ class InterCompanyTransferEpt(models.Model):
     pricelist_id = fields.Many2one("product.pricelist", help="Pricelist for prices of Products.")
     currency_id = fields.Many2one(related="pricelist_id.currency_id", help="Currency of company or by pricelist.")
     group_id = fields.Many2one("procurement.group", string="Procurement Group", copy=False)
-    auto_workflow_id = fields.Many2one("inter.company.transfer.config.ept",ondelete="restrict")
+    auto_workflow_id = fields.Many2one("inter.company.transfer.config.ept", default=_default_auto_workflow,
+                                       ondelete="restrict")
 
     inter_company_transfer_id = fields.Many2one("inter.company.transfer.ept", string="ICT", copy=False)
     reverse_inter_company_transfer_ids = fields.One2many("inter.company.transfer.ept", "inter_company_transfer_id",
