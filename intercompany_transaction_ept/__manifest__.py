@@ -18,7 +18,7 @@
         'data/ir_sequence.xml',
         'data/ir_cron.xml',
 
-        'security/inter_company_transfer_security.xml',
+        #'security/inter_company_transfer_security.xml',
         'security/ir.model.access.csv',
 
         'wizards/reverse_inter_company_transfer_ept.xml',
