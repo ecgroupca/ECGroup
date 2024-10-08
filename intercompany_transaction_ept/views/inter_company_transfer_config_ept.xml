@@ -102,7 +102,6 @@
 
     <!-- Menu added by Maulik Barad. -->
     <menuitem id="inter_company_transfer_config_main_menu" parent="stock.menu_stock_config_settings"
-              groups="inter_company_transfer_user_group,inter_company_transfer_manager_group"
               name="ICT Configuration" sequence="3"/>
 
     <menuitem id="inter_company_transfer_config_ept_menu" action="inter_company_transfer_config_ept_action"

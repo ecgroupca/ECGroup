@@ -36,8 +36,7 @@
         <field name="arch" type="xml">
             <xpath expr="//filter[@name='Sales']" position="after">
                 <filter name="inter_company_transfer_id" string="ICT Sales"
-                        domain="[('inter_company_transfer_id','!=', False)]"
-                        groups="intercompany_transaction_ept.inter_company_transfer_user_group,intercompany_transaction_ept.inter_company_transfer_manager_group"/>
+                        domain="[('inter_company_transfer_id','!=', False)]"/>
             </xpath>
         </field>
     </record>
@@ -48,8 +47,7 @@
         <field name="inherit_id" ref="sale.view_order_product_pivot"/>
         <field name="arch" type="xml">
             <field name="team_id" position="after">
-                <field name="inter_company_transfer_id" type="row"
-                       groups="intercompany_transaction_ept.inter_company_transfer_user_group,intercompany_transaction_ept.inter_company_transfer_manager_group"/>
+                <field name="inter_company_transfer_id" type="row"/>
             </field>
         </field>
     </record>
