@@ -2,12 +2,12 @@
 # See LICENSE file for full copyright and licensing details.
 from odoo import models, fields
 
-class InterCompanyTransferLogBook(models.Model):
+class InterCompanyTransferLogBookEpt(models.Model):
     """
     For managing the Log details of Inter Company and Internal Warehouse Transfers.
     @author: Maulik Barad.
     """
-    _name = "inter.company.transfer.log.book"
+    _name = "inter.company.transfer.log.book.ept"
     _description = "Inter Company Transfer Log Book"
     
 
