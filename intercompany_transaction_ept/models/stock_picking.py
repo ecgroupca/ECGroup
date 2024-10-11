@@ -28,6 +28,7 @@ class Picking(models.Model):
         """
         Inherited for adding ICT relation to backorder also.
         @author: Maulik Barad.
+        @updates: Adam O'Connor
         """
         res = super(Picking, self)._create_backorder()
         for backorder in res:
@@ -36,6 +37,10 @@ class Picking(models.Model):
         return res
         
     def action_done(self):
+        """
+        Inherited for assigning transferred state
+        @updates: Adam O'Connor
+        """
         res = super().action_done()
         for pick in self:
             if pick.inter_company_transfer_id:
