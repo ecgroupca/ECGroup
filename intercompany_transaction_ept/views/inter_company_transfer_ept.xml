@@ -117,9 +117,6 @@
                             <field name="destination_warehouse_id" required="True"
                                    options="{'no_create':True,'no_create_edit': True}"
                                    attrs="{'readonly':['|',('state','!=','draft'),('source_warehouse_id','=',False)]}"/>
-                            <field name="auto_workflow_id" domain="[('type', '=', type)]" required="1"
-                                   attrs="{'readonly':[('state','!=','draft')]}"
-                                   options="{'no_create':True,'no_create_edit': True}"/>
                             <field name="currency_id" invisible="1"/>
                             <field name="processed_date" readonly="1"/>
                         </group>
