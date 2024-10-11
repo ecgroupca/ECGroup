@@ -8,7 +8,8 @@
         <field name="arch" type="xml">
             <search string="Inter Company Transfer">
                 <filter name="Draft" string="Draft" domain="[('state','=', 'draft')]"/>
-                <filter name="Processed" string="Processed" domain="[('state','=', 'processed')]"/>
+                <filter name="Awaiting" string="Awaiting" domain="('state', '=', 'processed')"/>
+				<filter name="Transferred" string="Transferred" domain="('state', '=', 'transferred')"/>
                 <filter name="Cancel" string="Cancel" domain="[('state','=', 'cancel')]"/>
                 <field name="name" string="Name" filter_domain="[('name','ilike',self)]"/>
                 <field name="source_warehouse_id"/>
@@ -45,14 +46,14 @@
                             attrs="{'invisible':[('state','not in',['cancel'])]}"/>
                     <button name="%(import_or_export_products)d" type="action" string="Import/Export Product List"
                             class="oe_highlight"
-                            attrs="{'invisible':['|',('type','in',['ict_reverse','int_reverse']),('state','in',['cancel','processed'])]}"/>
+                            attrs="{'invisible':['|',('type','in',['ict_reverse','int_reverse']),('state','in',['cancel','processed','transferred'])]}"/>
                     <button string="Lot/Serial Scan" type="object" name="open_lot_serial_scan_wizard"
                             class="oe_highlight" context="{'loose_lot':False}"
                             attrs="{'invisible':[('state','!=','draft')]}"/>
                     <button string="Loose Lot Scan" type="object" name="open_lot_serial_scan_wizard"
                             class="oe_highlight" context="{'loose_lot':True}"
                             attrs="{'invisible':[('state','!=','draft')]}"/>
-                    <field name="state" widget="statusbar" statusbar_visible="draft,processed"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,processed,transferred"/>
                 </header>
                 <sheet>
                     <div class="oe_button_box" name="button_box">
@@ -64,20 +65,20 @@
                         </button>
 
                         <button type="object" name="open_related_records" string="Sales Orders"
-                                attrs="{'invisible':['|',('state', '!=', 'processed'),('sale_order_ids','=',[])]}"
+                                attrs="{'invisible':['|',('state', 'not in', ['processed','transferred']),('sale_order_ids','=',[])]}"
                                 class="oe_stat_button" icon="fa-usd" context="{'view_model':'sale.order'}">
                             <field name="sale_order_ids" invisible="1"/>
                         </button>
 
                         <button type="object" name="open_related_records" string="Purchase Orders"
-                                attrs="{'invisible':['|',('state', '!=', 'processed'),('purchase_order_ids','=',[])]}"
+                                attrs="{'invisible':['|',('state', 'not in', ['processed','transferred']),('purchase_order_ids','=',[])]}"
                                 class="oe_stat_button" icon="fa-shopping-cart"
                                 context="{'view_model':'purchase.order'}">
                             <field name="purchase_order_ids" invisible="1"/>
                         </button>
 
                         <button type="object" name="open_related_records" string="Pickings"
-                                attrs="{'invisible':['|',('state', '!=', 'processed'),('picking_ids','=',[])]}"
+                                attrs="{'invisible':['|',('state', 'not in', ['processed','transferred']),('picking_ids','=',[])]}"
                                 class="oe_stat_button" icon="fa-truck" context="{'view_model':'stock.picking'}">
                             <field name="picking_ids" invisible="1"/>
                         </button>

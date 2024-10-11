@@ -44,7 +44,7 @@ class InterCompanyTransferEpt(models.Model):
     inter_company_transfer_line_ids = fields.One2many("inter.company.transfer.line.ept", "inter_company_transfer_id",
                                                       string="Transfer Lines", help="ICT Lines", copy=True)
 
-    state = fields.Selection([("draft", "Draft"), ("processed", "Processed"), ("cancel", "Cancelled")], copy=False,
+    state = fields.Selection([("draft", "Draft"), ("processed", "Awaiting Transfer"), ("transferred", "Transferred"), ("cancel", "Cancelled")], copy=False,
                              default="draft", help="State of ICT.", tracking=True)
     type = fields.Selection([("ict", "ICT"), ("ict_reverse", "Reverse ICT"), ("internal", "Internal"),
                              ("int_reverse", "Reverse Internal")], default="ict",
