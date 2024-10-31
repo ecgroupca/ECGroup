@@ -31,7 +31,7 @@
             <t t-call="portal.portal_docs_entry">
                 <t t-set="title">RMA Orders</t>
                 <t t-set="url" t-value="'/my/rmas'" />
-                <t t-set="count" t-value="rma_count" />
+                <t t-set="placeholder_count" t-value="'rma_count'" />
             </t>
         </xpath>
     </template>
@@ -46,7 +46,7 @@
                     <tr class="active">
                         <th>RMA #</th>
                         <th class='d-none d-md-table-cell'>Date</th>
-                        <th>Product</th>
+                        <th name="th_product">Product</th>
                         <th class='text-right'>Quantity</th>
                         <th class='d-none d-md-table-cell'>Status</th>
                     </tr>
@@ -66,7 +66,7 @@
                                 <span t-field="rma.date" />
                             </td>
                             <!-- Portal users don't have access to unpublished products -->
-                            <td>
+                            <td name="td_product">
                                 <span t-esc="rma.sudo().product_id.display_name" />
                             </td>
                             <td class='text-right'>
@@ -97,7 +97,8 @@
                 <t t-set="card_header">
                     <h5 class="mb-0">
                         <span>
-                            RMA Order - <span t-field="rma.name" />
+                            RMA Order -
+                            <span t-field="rma.name" />
                         </span>
                         <span
                             style="position: absolute; left: 50%;"
@@ -115,6 +116,18 @@
                             </a>
                         </span>
                         <span class="float-right">
+                            <!-- Tags -->
+                            <t
+                                t-set="tags"
+                                t-value="rma.tag_ids.filtered('is_public')"
+                            />
+                            <!-- We don't have the color o_tag_color_# classes available in the frontend -->
+                            <t t-foreach="tags" t-as="tag">
+                                <span
+                                    class="badge badge-pill badge-info label-text-align"
+                                    t-esc="tag.name"
+                                />
+                            </t>
                             <t t-if="rma.state in ['refunded', 'returned', 'replaced']">
                                 <span
                                     class="small text-success orders_label_text_align"
@@ -147,6 +160,7 @@
                 <t t-set="card_body">
                     <div id="general_information">
                         <div class="row mt4">
+                            <!-- Customer -->
                             <div
                                 t-if="rma.partner_id"
                                 class="col-12 col-md-6 mb-4 mb-md-0"
@@ -177,6 +191,38 @@
                                     </div>
                                 </div>
                             </div>
+                            <!-- Shipping Address -->
+                            <div
+                                t-if="rma.partner_shipping_id"
+                                class="col-12 col-md-6 mb-4 mb-md-0"
+                            >
+                                <h6>
+                                    <strong>Shipping address:</strong>
+                                </h6>
+                                <div class="row">
+                                    <div class="col flex-grow-0 pr-3">
+                                        <img
+                                            t-if="rma.partner_shipping_id.image_1024"
+                                            class="rounded-circle mt-1 o_portal_contact_img"
+                                            t-att-src="image_data_uri(rma.partner_shipping_id.image_1024)"
+                                            alt="Contact"
+                                        />
+                                        <img
+                                            t-else=""
+                                            class="rounded-circle mt-1 o_portal_contact_img"
+                                            src="/web/static/src/img/user_menu_avatar.png"
+                                            alt="Contact"
+                                        />
+                                    </div>
+                                    <div class="col pl-sm-0">
+                                        <address
+                                            t-field="rma.partner_shipping_id"
+                                            t-options='{"widget": "contact", "fields": ["name", "email", "phone", "address"]}'
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- RMA Info -->
                             <div t-if="rma.user_id" class="col-12 col-md-6">
                                 <h6>
                                     <strong>Responsible:</strong>
@@ -308,32 +354,36 @@
                                     title="Download"
                                 />
                                 <span t-esc="picking.name" class="mr-lg-3" />
-                                <div class="d-lg-inline-block">Date: <span
-                                        class="text-muted"
-                                        t-field="picking.date"
-                                    /></div>
+                                <div class="d-lg-inline-block">
+                                    Date:
+                                    <span class="text-muted" t-field="picking.date" />
+                                </div>
                             </div>
                             <t t-if="picking.state == 'done'">
-                                <span class="badge badge-success label-text-align"><i
-                                        class="fa fa-fw fa-truck"
-                                    /> Shipped</span>
+                                <span class="badge badge-success label-text-align">
+                                    <i class="fa fa-fw fa-truck" />
+                                    Shipped
+                                </span>
                             </t>
                             <t t-if="picking.state == 'partially_available'">
-                                <span class="badge badge-warning label-text-align"><i
-                                        class="fa fa-fw fa-clock-o"
-                                    /> Partially Available</span>
+                                <span class="badge badge-warning label-text-align">
+                                    <i class="fa fa-fw fa-clock-o" />
+                                    Partially Available
+                                </span>
                             </t>
                             <t t-if="picking.state == 'cancel'">
-                                <span class="badge badge-danger label-text-align"><i
-                                        class="fa fa-fw fa-times"
-                                    /> Cancelled</span>
+                                <span class="badge badge-danger label-text-align">
+                                    <i class="fa fa-fw fa-times" />
+                                    Cancelled
+                                </span>
                             </t>
                             <t
                                 t-if="picking.state in ['draft', 'waiting', 'confirmed', 'assigned']"
                             >
-                                <span class="badge badge-info label-text-align"><i
-                                        class="fa fa-fw fa-clock-o"
-                                    /> Preparation</span>
+                                <span class="badge badge-info label-text-align">
+                                    <i class="fa fa-fw fa-clock-o" />
+                                    Preparation
+                                </span>
                             </t>
                         </a>
                     </section>
@@ -361,10 +411,13 @@
                                     title="Download"
                                 />
                                 <span t-esc="refund.name" class="mr-lg-3" />
-                                <div class="d-lg-inline-block">Date: <span
+                                <div class="d-lg-inline-block">
+                                    Date:
+                                    <span
                                         class="text-muted"
                                         t-field="refund.invoice_date"
-                                    /></div>
+                                    />
+                                </div>
                             </div>
                             <span
                                 t-if="refund.state == 'paid'"
@@ -410,38 +463,45 @@
                                             title="Download"
                                         />
                                         <span t-esc="picking.name" class="mr-lg-3" />
-                                        <div class="d-lg-inline-block">Date: <span
+                                        <div class="d-lg-inline-block">
+                                            Date:
+                                            <span
                                                 class="text-muted"
                                                 t-field="picking.date"
-                                            /></div>
+                                            />
+                                        </div>
                                     </div>
                                     <t t-if="picking.state == 'done'">
                                         <span
                                             class="badge badge-success label-text-align"
-                                        ><i class="fa fa-fw fa-truck" /> Shipped</span>
+                                        >
+                                            <i class="fa fa-fw fa-truck" />
+                                            Shipped
+                                        </span>
                                     </t>
                                     <t t-if="picking.state == 'partially_available'">
                                         <span
                                             class="badge badge-warning label-text-align"
-                                        ><i
-                                                class="fa fa-fw fa-clock-o"
-                                            /> Partially Available</span>
+                                        >
+                                            <i class="fa fa-fw fa-clock-o" />
+                                            Partially Available
+                                        </span>
                                     </t>
                                     <t t-if="picking.state == 'cancel'">
                                         <span
                                             class="badge badge-danger label-text-align"
-                                        ><i
-                                                class="fa fa-fw fa-times"
-                                            /> Cancelled</span>
+                                        >
+                                            <i class="fa fa-fw fa-times" />
+                                            Cancelled
+                                        </span>
                                     </t>
                                     <t
                                         t-if="picking.state in ['draft', 'waiting', 'confirmed', 'assigned']"
                                     >
-                                        <span
-                                            class="badge badge-info label-text-align"
-                                        ><i
-                                                class="fa fa-fw fa-clock-o"
-                                            /> Preparation</span>
+                                        <span class="badge badge-info label-text-align">
+                                            <i class="fa fa-fw fa-clock-o" />
+                                            Preparation
+                                        </span>
                                     </t>
                                 </a>
                             </t>
@@ -450,7 +510,7 @@
                     <section id="description" class="mt-5" t-if="rma.description">
                         <h3 class="">Description</h3>
                         <hr class="mt-0 mb-1" />
-                        <t t-raw="rma.description" />
+                        <t t-out="rma.description" />
                     </section>
                 </t>
             </t>

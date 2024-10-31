@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-  <odoo>
+<odoo>
   	<!-- Add Reserved Order Many2many as Column in Editable "Update Qty" Stock Quants Tree View -->
  	<record id="view_quants_editable_inherit" model="ir.ui.view">
         <field name="name">quants.editable.inherit</field>
@@ -22,4 +22,4 @@
 			</field>
         </field>
     </record>
-  </odoo>
+</odoo>

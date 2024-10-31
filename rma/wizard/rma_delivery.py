@@ -12,19 +12,27 @@ class RmaReDeliveryWizard(models.TransientModel):
     rma_count = fields.Integer()
     type = fields.Selection(
         selection=[("replace", "Replace"), ("return", "Return to customer")],
-        string="Type",
         required=True,
     )
     product_id = fields.Many2one(
-        comodel_name="product.product", string="Replace Product",
+        comodel_name="product.product",
+        string="Replace Product",
     )
     product_uom_qty = fields.Float(
-        string="Product qty", digits="Product Unit of Measure",
+        string="Product qty",
+        digits="Product Unit of Measure",
     )
     product_uom = fields.Many2one(comodel_name="uom.uom", string="Unit of measure")
-    scheduled_date = fields.Datetime(required=True, default=fields.Datetime.now())
+    scheduled_date = fields.Datetime(required=True, default=fields.Datetime.now)
     warehouse_id = fields.Many2one(
-        comodel_name="stock.warehouse", string="Warehouse", required=True,
+        comodel_name="stock.warehouse",
+        string="Warehouse",
+        required=True,
+    )
+    uom_category_id = fields.Many2one(related="product_id.uom_id.category_id")
+    rma_return_grouping = fields.Boolean(
+        string="Group RMA returns by customer address and warehouse",
+        default=lambda self: self.env.company.rma_return_grouping,
     )
 
     @api.constrains("product_uom_qty")
@@ -46,7 +54,7 @@ class RmaReDeliveryWizard(models.TransientModel):
         )
         delivery_type = self.env.context.get("rma_delivery_type")
         product_id = False
-        if len(rma) == 1:
+        if len(rma) == 1 and delivery_type == "return":
             product_id = rma.product_id.id
         product_uom_qty = 0.0
         if len(rma) == 1 and rma.remaining_qty > 0.0:
@@ -62,14 +70,9 @@ class RmaReDeliveryWizard(models.TransientModel):
 
     @api.onchange("product_id")
     def _onchange_product_id(self):
-        domain_product_uom = []
         if self.product_id:
-            domain_product_uom = [
-                ("category_id", "=", self.product_id.uom_id.category_id.id)
-            ]
             if not self.product_uom or self.product_id.uom_id.id != self.product_uom.id:
                 self.product_uom = self.product_id.uom_id
-        return {"domain": {"product_uom": domain_product_uom}}
 
     def action_deliver(self):
         self.ensure_one()
@@ -87,4 +90,6 @@ class RmaReDeliveryWizard(models.TransientModel):
             qty = uom = None
             if self.rma_count == 1:
                 qty, uom = self.product_uom_qty, self.product_uom
-            rma.create_return(self.scheduled_date, qty, uom)
+            rma.with_context(
+                rma_return_grouping=self.rma_return_grouping
+            ).create_return(self.scheduled_date, qty, uom)

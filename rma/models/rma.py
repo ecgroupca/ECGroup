@@ -1,16 +1,42 @@
 # Copyright 2020 Tecnativa - Ernesto Tejeda
+# Copyright 2023 Tecnativa - Pedro M. Baeza
+# Copyright 2023 Michael Tietz (MT Software) <mtietz@mt-software.de>
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
-
-from collections import Counter
+import logging
+from collections import defaultdict
+from itertools import groupby
 
 from odoo import _, api, fields, models
-from odoo.exceptions import ValidationError
-from odoo.tests import Form
+from odoo.exceptions import AccessError, ValidationError
 from odoo.tools import html2plaintext
 
 from odoo.addons.stock.models.stock_move import PROCUREMENT_PRIORITIES
 
+_logger = logging.getLogger(__name__)
 
+
+class SaleOrder(models.Model):
+    _inherit = "sale.order"
+    
+    rma_id = fields.Many2one(
+        comodel_name="rma",
+        string="RMA",
+        index=True,
+        tracking=True,
+    )    
+
+    def action_view_rma(self):
+        self.ensure_one()
+        action = self.env.ref("rma.rma_action").read()[0]
+        rma = self.rma_id
+        action.update(
+            res_id=rma.id, 
+            view_mode="form",
+            view_id=False, 
+            views=False,)
+        return action
+        
+        
 class Rma(models.Model):
     _name = "rma"
     _description = "RMA"
@@ -18,13 +44,19 @@ class Rma(models.Model):
     _inherit = ["mail.thread", "portal.mixin", "mail.activity.mixin"]
 
     def _domain_location_id(self):
-        rma_loc = self.env["stock.warehouse"].search([]).mapped("rma_loc_id")
+        # this is done with sudo, intercompany rules are not applied by default so we
+        # add company in domain explicitly to avoid multi-company rule error when
+        # the user will try to choose a location
+        rma_loc = (
+            self.env["stock.warehouse"]
+            .search([("company_id", "in", self.env.companies.ids)])
+            .mapped("rma_loc_id")
+        )
         return [("id", "child_of", rma_loc.ids)]
 
     # General fields
     sent = fields.Boolean()
     name = fields.Char(
-        string="Name",
         index=True,
         readonly=True,
         states={"draft": [("readonly", False)]},
@@ -33,38 +65,65 @@ class Rma(models.Model):
     )
     origin = fields.Char(
         string="Source Document",
-        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
+        states={
+            "locked": [("readonly", True)],
+            "cancelled": [("readonly", True)],
+        },
         help="Reference of the document that generated this RMA.",
     )
     date = fields.Datetime(
-        default=lambda self: fields.Datetime.now(),
+        default=fields.Datetime.now,
         index=True,
         required=True,
         readonly=True,
         states={"draft": [("readonly", False)]},
     )
     deadline = fields.Date(
-        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
+        states={
+            "locked": [("readonly", True)],
+            "cancelled": [("readonly", True)],
+        },
     )
     user_id = fields.Many2one(
         comodel_name="res.users",
         string="Responsible",
         index=True,
-        default=lambda self: self.env.user,
         tracking=True,
-        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
+        states={
+            "locked": [("readonly", True)],
+            "cancelled": [("readonly", True)],
+        },
     )
     team_id = fields.Many2one(
         comodel_name="rma.team",
         string="RMA team",
         index=True,
-        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
+        states={
+            "locked": [("readonly", True)],
+            "cancelled": [("readonly", True)],
+        },
+        compute="_compute_team_id",
+        store=True,
+        readonly=False,
+    )
+    tag_ids = fields.Many2many(comodel_name="rma.tag", string="Tags")
+    finalization_id = fields.Many2one(
+        string="Finalization Reason",
+        comodel_name="rma.finalization",
+        copy=False,
+        readonly=True,
+        domain=(
+            "['|', ('company_id', '=', False), ('company_id', '='," " company_id)]"
+        ),
+        tracking=True,
     )
     company_id = fields.Many2one(
         comodel_name="res.company",
-        #default=lambda self: self.picking_id.company_id or self.product_id.company_id,
-        compute = "_compute_company",
-        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
+        default=lambda self: self.env.company,
+        states={
+            "locked": [("readonly", True)],
+            "cancelled": [("readonly", True)],
+        },
     )
     partner_id = fields.Many2one(
         string="Customer",
@@ -74,60 +133,79 @@ class Rma(models.Model):
         index=True,
         tracking=True,
     )
+    partner_shipping_id = fields.Many2one(
+        string="Shipping Address",
+        comodel_name="res.partner",
+        help="Shipping address for current RMA.",
+        compute="_compute_partner_shipping_id",
+        store=True,
+        readonly=False,
+    )
     partner_invoice_id = fields.Many2one(
         string="Invoice Address",
         comodel_name="res.partner",
-        readonly=True,
-        states={"draft": [("readonly", False)]},
-        domain="['|', ('company_id', '=', False), ('company_id', '=', company_id)]",
+        domain=(
+            "['|', ('company_id', '=', False), ('company_id', '='," " company_id)]"
+        ),
         help="Refund address for current RMA.",
+        compute="_compute_partner_invoice_id",
+        store=True,
+        readonly=False,
     )
     commercial_partner_id = fields.Many2one(
-        comodel_name="res.partner", related="partner_id.commercial_partner_id",
+        comodel_name="res.partner",
+        related="partner_id.commercial_partner_id",
     )
     picking_id = fields.Many2one(
         comodel_name="stock.picking",
         string="Origin Delivery",
-        domain="["
-        "    ('state', '=', 'done'),"
-        "    ('picking_type_id.code', '=', 'outgoing'),"
-        "    ('sale_id.partner_id', '=', partner_id),"
-        "]",
+        domain=(
+            "["
+            "    ('state', '=', 'done'),"
+            "    ('picking_type_id.code', '=', 'outgoing'),"
+            "    ('partner_id', 'child_of', commercial_partner_id),"
+            "]"
+        ),
         readonly=True,
         states={"draft": [("readonly", False)]},
     )
     move_id = fields.Many2one(
         comodel_name="stock.move",
         string="Origin move",
-        domain="["
-        "    ('picking_id', '=', picking_id),"
-        "    ('picking_id', '!=', False)"
-        "]",
-        readonly=True,
-        states={"draft": [("readonly", False)]},
+        domain=(
+            "["
+            "    ('picking_id', '=', picking_id),"
+            "    ('picking_id', '!=', False)"
+            "]"
+        ),
+        compute="_compute_move_id",
+        store=True,
+        readonly=False,
     )
     product_id = fields.Many2one(
-        comodel_name="product.product", domain=[("type", "in", ["consu", "product"])],
-    )
-    mrp_prod_id = fields.Many2one(
-        comodel_name="mrp.production",
-        copy = False,
+        comodel_name="product.product",
+        domain=[("type", "in", ["consu", "product"])],
+        compute="_compute_product_id",
+        store=True,
+        readonly=False,
     )
     product_uom_qty = fields.Float(
         string="Quantity",
         required=True,
         default=1.0,
         digits="Product Unit of Measure",
-        readonly=True,
-        states={"draft": [("readonly", False)]},
+        compute="_compute_product_uom_qty",
+        store=True,
+        readonly=False,
     )
     product_uom = fields.Many2one(
         comodel_name="uom.uom",
         string="UoM",
         required=True,
-        readonly=True,
-        states={"draft": [("readonly", False)]},
         default=lambda self: self.env.ref("uom.product_uom_unit").id,
+        compute="_compute_product_uom",
+        store=True,
+        readonly=False,
     )
     procurement_group_id = fields.Many2one(
         comodel_name="procurement.group",
@@ -140,30 +218,26 @@ class Rma(models.Model):
         },
     )
     priority = fields.Selection(
-        string="Priority",
         selection=PROCUREMENT_PRIORITIES,
         default="1",
         readonly=True,
         states={"draft": [("readonly", False)]},
     )
     operation_id = fields.Many2one(
-        comodel_name="rma.operation", string="Requested operation",
-    )
-    sale_ids = fields.One2many(
-        comodel_name='sale.order', inverse_name="rma_id", string="Sale Orders",
+        comodel_name="rma.operation",
+        string="Requested operation",
     )
     state = fields.Selection(
         [
             ("draft", "Draft"),
             ("confirmed", "Confirmed"),
             ("received", "Received"),
-            ("waiting_replacement", "Waiting for replacement"),
-            ("replaced", "Replaced"),
-            ("refunded", "Refunded"),
-            ("waiting_repair", "Waiting for repair"),
-            ("repaired", "Repaired"),
             ("waiting_return", "Waiting for return"),
+            ("waiting_replacement", "Waiting for replacement"),
+            ("refunded", "Refunded"),
             ("returned", "Returned"),
+            ("replaced", "Replaced"),
+            ("finished", "Finished"),
             ("locked", "Locked"),
             ("cancelled", "Canceled"),
         ],
@@ -172,36 +246,37 @@ class Rma(models.Model):
         tracking=True,
     )
     description = fields.Html(
-        states={"locked": [("readonly", True)], "cancelled": [("readonly", True)]},
-    )
-    finished_location_id = fields.Many2one(
-        string="Return From Location",
-        comodel_name="stock.location",
-        readonly=True,
-        states={"draft": [("readonly", False)]},
+        states={
+            "locked": [("readonly", True)],
+            "cancelled": [("readonly", True)],
+        },
     )
     # Reception fields
     location_id = fields.Many2one(
-        string="Receive Into Location",
         comodel_name="stock.location",
         domain=_domain_location_id,
-        readonly=True,
-        required=True,
-        states={"draft": [("readonly", False)]},
+        compute="_compute_location_id",
+        store=True,
+        readonly=False,
     )
     warehouse_id = fields.Many2one(
-        comodel_name="stock.warehouse", compute="_compute_warehouse_id", store=True,
+        comodel_name="stock.warehouse",
+        compute="_compute_warehouse_id",
+        store=True,
     )
     reception_move_id = fields.Many2one(
-        comodel_name="stock.move", string="Reception move", copy=False,
+        comodel_name="stock.move",
+        string="Reception move",
+        copy=False,
     )
     # Refund fields
     refund_id = fields.Many2one(
-        comodel_name="account.move", string="Refund", readonly=True, copy=False,
+        comodel_name="account.move",
+        readonly=True,
+        copy=False,
     )
     refund_line_id = fields.Many2one(
         comodel_name="account.move.line",
-        string="Refund line",
         readonly=True,
         copy=False,
     )
@@ -214,28 +289,32 @@ class Rma(models.Model):
         readonly=True,
         copy=False,
     )
-    sales_count = fields.Integer(
-        string="Sales count", compute="_compute_sales_count",
-    )
     delivery_picking_count = fields.Integer(
-        string="Delivery count", compute="_compute_delivery_picking_count",
+        string="Delivery count",
+        compute="_compute_delivery_picking_count",
     )
     delivered_qty = fields.Float(
-        string="Delivered qty",
         digits="Product Unit of Measure",
         compute="_compute_delivered_qty",
         store=True,
     )
     delivered_qty_done = fields.Float(
-        string="Delivered qty done",
         digits="Product Unit of Measure",
         compute="_compute_delivered_qty",
         compute_sudo=True,
     )
-    can_be_returned = fields.Boolean(compute="_compute_can_be_returned",)
-    can_be_replaced = fields.Boolean(compute="_compute_can_be_replaced",)
-    can_be_repaired = fields.Boolean(compute="_compute_can_be_repaired",)
-    can_be_locked = fields.Boolean(compute="_compute_can_be_locked",)
+    can_be_returned = fields.Boolean(
+        compute="_compute_can_be_returned",
+    )
+    can_be_replaced = fields.Boolean(
+        compute="_compute_can_be_replaced",
+    )
+    can_be_locked = fields.Boolean(
+        compute="_compute_can_be_locked",
+    )
+    can_be_finished = fields.Boolean(
+        compute="_compute_can_be_finished",
+    )
     remaining_qty = fields.Float(
         string="Remaining delivered qty",
         digits="Product Unit of Measure",
@@ -246,37 +325,23 @@ class Rma(models.Model):
         digits="Product Unit of Measure",
         compute="_compute_remaining_qty",
     )
-    # Split fields
-    can_be_split = fields.Boolean(compute="_compute_can_be_split",)
-    origin_split_rma_id = fields.Many2one(
-        comodel_name="rma", string="Extracted from", readonly=True, copy=False,
+    uom_category_id = fields.Many2one(
+        related="product_id.uom_id.category_id", string="Category UoM"
     )
-    def _compute_company(self):
-        for rma in self:
-            rma.company_id = self.env.company
-            if rma.picking_id:
-                rma.company_id = rma.picking_id.company_id
-            elif rma.product_id:
-                rma.company_id = rma.product_id.company_id
-                
-    def _compute_sales_count(self):
-        #find all sales in the sale_ids field
-        sale_ids = self.sale_ids
-        self.sales_count = len(sale_ids)
-    
+    # Split fields
+    can_be_split = fields.Boolean(
+        compute="_compute_can_be_split",
+    )
+    origin_split_rma_id = fields.Many2one(
+        comodel_name="rma",
+        string="Extracted from",
+        readonly=True,
+        copy=False,
+    )
+
     def _compute_delivery_picking_count(self):
-        # It is enough to count the moves to know how many pickings
-        # there are because there will be a unique move linked to the
-        # same picking and the same rma.
-        rma_data = self.env["stock.move"].read_group(
-            [("rma_id", "in", self.ids)],
-            ["rma_id", "picking_id"],
-            ["rma_id", "picking_id"],
-            lazy=False,
-        )
-        mapped_data = Counter(map(lambda r: r["rma_id"][0], rma_data))
-        for record in self:
-            record.delivery_picking_count = mapped_data.get(record.id, 0)
+        for rma in self:
+            rma.delivery_picking_count = len(rma.delivery_move_ids.picking_id)
 
     @api.depends(
         "delivery_move_ids",
@@ -289,7 +354,7 @@ class Rma(models.Model):
         "product_uom",
     )
     def _compute_delivered_qty(self):
-        """ Compute 'delivered_qty' and 'delivered_qty_done' fields.
+        """Compute 'delivered_qty' and 'delivered_qty_done' fields.
 
         delivered_qty: represents the quantity delivery or to be
         delivery. For each move in delivery_move_ids the quantity done
@@ -327,7 +392,7 @@ class Rma(models.Model):
 
     @api.depends("product_uom_qty", "delivered_qty", "delivered_qty_done")
     def _compute_remaining_qty(self):
-        """ Compute 'remaining_qty' and 'remaining_qty_to_done' fields.
+        """Compute 'remaining_qty' and 'remaining_qty_to_done' fields.
 
         remaining_qty: is used to set a default quantity of replacing
         or returning of product to the customer.
@@ -342,19 +407,20 @@ class Rma(models.Model):
             r.remaining_qty = r.product_uom_qty - r.delivered_qty
             r.remaining_qty_to_done = r.product_uom_qty - r.delivered_qty_done
 
-    @api.depends("state",)
+    @api.depends(
+        "state",
+    )
     def _compute_can_be_refunded(self):
-        """ Compute 'can_be_refunded'. This field controls the visibility
+        """Compute 'can_be_refunded'. This field controls the visibility
         of 'Refund' button in the rma form view and determinates if
         an rma can be refunded. It is used in rma.action_refund method.
         """
         for record in self:
-            record.can_be_refunded = record.state == "received" and not record.refund_id
-            
+            record.can_be_refunded = record.state == "received"
 
     @api.depends("remaining_qty", "state")
     def _compute_can_be_returned(self):
-        """ Compute 'can_be_returned'. This field controls the visibility
+        """Compute 'can_be_returned'. This field controls the visibility
         of the 'Return to customer' button in the rma form
         view and determinates if an rma can be returned to the customer.
         This field is used in:
@@ -363,12 +429,12 @@ class Rma(models.Model):
         """
         for r in self:
             r.can_be_returned = (
-                r.state in ["received", "waiting_return", "repaired", "waiting_repair"] and r.remaining_qty > 0
+                r.state in ["received", "waiting_return"] and r.remaining_qty > 0
             )
 
     @api.depends("state")
     def _compute_can_be_replaced(self):
-        """ Compute 'can_be_replaced'. This field controls the visibility
+        """Compute 'can_be_replaced'. This field controls the visibility
         of 'Replace' button in the rma form
         view and determinates if an rma can be replaced.
         This field is used in:
@@ -381,24 +447,18 @@ class Rma(models.Model):
                 "waiting_replacement",
                 "replaced",
             ]
-            
-    @api.depends("state")
-    def _compute_can_be_repaired(self):
-        """ Compute 'can_be_repaired'. This field controls the visibility
-        of 'Repair' button in the rma form
-        view and determinates if an rma can be replaced.
-        This field is used in:
-        rma._compute_can_be_split
-        rma._ensure_can_be_replaced.
-        """
-        for r in self:
-            r.can_be_repaired = r.state in [
-                "received",
-            ]
+
+    @api.depends("state", "remaining_qty")
+    def _compute_can_be_finished(self):
+        for rma in self:
+            rma.can_be_finished = (
+                rma.state in {"received", "waiting_replacement", "waiting_return"}
+                and rma.remaining_qty > 0
+            )
 
     @api.depends("product_uom_qty", "state", "remaining_qty", "remaining_qty_to_done")
     def _compute_can_be_split(self):
-        """ Compute 'can_be_split'. This field controls the
+        """Compute 'can_be_split'. This field controls the
         visibility of 'Split' button in the rma form view and
         determinates if an rma can be split.
         This field is used in:
@@ -429,91 +489,102 @@ class Rma(models.Model):
                 [("rma_loc_id", "parent_of", record.location_id.id)], limit=1
             )
 
-    def _compute_access_url(self):
-        for record in self:
-            record.access_url = "/my/rmas/{}".format(record.id)
-
-    # Constrains methods (@api.constrains)
-    @api.constrains("state", "partner_id", "partner_invoice_id", "product_id")
-    def _check_required_after_draft(self):
-        """ Check that RMAs are being created or edited with the
-        necessary fields filled out. Only applies to 'Draft' and
-        'Cancelled' states.
-        """
-        rma = self.filtered(lambda r: r.state not in ["draft", "cancelled"])
-        rma._ensure_required_fields()
-
-    # onchange methods (@api.onchange)
-    @api.onchange("user_id")
-    def _onchange_user_id(self):
-        if self.user_id:
-            self.team_id = (
+    @api.depends("user_id")
+    def _compute_team_id(self):
+        self.team_id = False
+        for record in self.filtered("user_id"):
+            record.team_id = (
                 self.env["rma.team"]
                 .sudo()
                 .search(
                     [
                         "|",
-                        ("user_id", "=", self.user_id.id),
-                        ("member_ids", "=", self.user_id.id),
+                        ("user_id", "=", record.user_id.id),
+                        ("member_ids", "=", record.user_id.id),
                         "|",
                         ("company_id", "=", False),
-                        ("company_id", "child_of", self.company_id.ids),
+                        ("company_id", "child_of", record.company_id.ids),
                     ],
                     limit=1,
                 )
             )
-        else:
-            self.team_id = False
 
-    @api.onchange("partner_id")
-    def _onchange_partner_id(self):
-        self.picking_id = False
-        partner_invoice_id = False
-        if self.partner_id:
-            address = self.partner_id.address_get(["invoice"])
-            partner_invoice_id = address.get("invoice", False)
-        self.partner_invoice_id = partner_invoice_id
+    @api.depends("partner_id")
+    def _compute_partner_shipping_id(self):
+        self.partner_shipping_id = False
+        for record in self.filtered("partner_id"):
+            address = record.partner_id.address_get(["delivery"])
+            record.partner_shipping_id = address.get("delivery", False)
 
-    @api.onchange("picking_id")
-    def _onchange_picking_id(self):
-        location = False
-        if self.picking_id:
-            warehouse = self.picking_id.picking_type_id.warehouse_id
-            location = warehouse.rma_loc_id.id
-        self.location_id = location
+    @api.depends("partner_id")
+    def _compute_partner_invoice_id(self):
+        self.partner_invoice_id = False
+        for record in self.filtered("partner_id"):
+            address = record.partner_id.address_get(["invoice"])
+            record.partner_invoice_id = address.get("invoice", False)
+
+    @api.depends("picking_id")
+    def _compute_move_id(self):
+        """Empty move on picking change, but selecting the move in it if it's single."""
         self.move_id = False
+        for record in self.filtered("picking_id"):
+            if len(record.picking_id.move_ids) == 1:
+                record.move_id = record.picking_id.move_ids.id
+
+    @api.depends("move_id")
+    def _compute_product_id(self):
         self.product_id = False
+        for record in self.filtered("move_id"):
+            record.product_id = record.move_id.product_id.id
 
-    @api.onchange("move_id")
-    def _onchange_move_id(self):
-        if self.move_id:
-            self.product_id = self.move_id.product_id
-            self.product_uom_qty = self.move_id.product_uom_qty
-            self.product_uom = self.move_id.product_uom
+    @api.depends("move_id")
+    def _compute_product_uom_qty(self):
+        self.product_uom_qty = False
+        for record in self.filtered("move_id"):
+            record.product_uom_qty = record.move_id.product_uom_qty
 
-    @api.onchange("product_id")
-    def _onchange_product_id(self):
-        domain_product_uom = []
-        if self.product_id:
-            # Set UoM and UoM domain (product_uom)
-            domain_product_uom = [
-                ("category_id", "=", self.product_id.uom_id.category_id.id)
-            ]
-            if not self.product_uom or self.product_id.uom_id.id != self.product_uom.id:
-                self.product_uom = self.product_id.uom_id
-            # Set stock location (location_id)
-            user = self.env.user
-            if (
-                not user.has_group("stock.group_stock_multi_locations")
-                and not self.location_id
-            ):
-                # If this condition is True, it is because a picking is not set
-                company = self.company_id or self.env.company
+    @api.depends("move_id", "product_id")
+    def _compute_product_uom(self):
+        for record in self:
+            if record.move_id:
+                record.product_uom = record.move_id.product_uom.id
+            elif record.product_id:
+                record.product_uom = record.product_id.uom_id
+            else:
+                record.product_uom = False
+
+    @api.depends("picking_id", "product_id", "company_id")
+    def _compute_location_id(self):
+        for record in self:
+            if record.picking_id:
+                warehouse = record.picking_id.picking_type_id.warehouse_id
+                record.location_id = warehouse.rma_loc_id.id
+            elif not record.location_id:
+                company = record.company_id or self.env.company
                 warehouse = self.env["stock.warehouse"].search(
                     [("company_id", "=", company.id)], limit=1
                 )
-                self.location_id = warehouse.rma_loc_id.id
-        return {"domain": {"product_uom": domain_product_uom}}
+                record.location_id = warehouse.rma_loc_id.id
+
+    def _compute_access_url(self):
+        for record in self:
+            record.access_url = "/my/rmas/{}".format(record.id)
+
+    # Constrains methods (@api.constrains)
+    @api.constrains(
+        "state",
+        "partner_id",
+        "partner_shipping_id",
+        "partner_invoice_id",
+        "product_id",
+    )
+    def _check_required_after_draft(self):
+        """Check that RMAs are being created or edited with the
+        necessary fields filled out. Only applies to 'Draft' and
+        'Cancelled' states.
+        """
+        rma = self.filtered(lambda r: r.state not in ["draft", "cancelled"])
+        rma._ensure_required_fields()
 
     # CRUD methods (ORM overrides)
     @api.model_create_multi
@@ -522,14 +593,18 @@ class Rma(models.Model):
             if vals.get("name", _("New")) == _("New"):
                 ir_sequence = self.env["ir.sequence"]
                 if "company_id" in vals:
-                    ir_sequence = ir_sequence.with_context(
-                        force_company=vals["company_id"]
-                    )
+                    ir_sequence = ir_sequence.with_company(vals["company_id"])
                 vals["name"] = ir_sequence.next_by_code("rma")
             # Assign a default team_id which will be the first in the sequence
-            if "team_id" not in vals:
+            if not vals.get("team_id"):
                 vals["team_id"] = self.env["rma.team"].search([], limit=1).id
-        return super().create(vals_list)
+        rmas = super().create(vals_list)
+        # Send acknowledge when the RMA is created from the portal and the
+        # company has the proper setting active. This context is set by the
+        # `rma_sale` module.
+        if self.env.context.get("from_portal"):
+            rmas._send_draft_email()
+        return rmas
 
     def copy(self, default=None):
         team = super().copy(default)
@@ -547,13 +622,47 @@ class Rma(models.Model):
             )
         return super().unlink()
 
+    def _send_draft_email(self):
+        """Send customer notifications they place the RMA from the portal"""
+        for rma in self.filtered("company_id.send_rma_draft_confirmation"):
+            rma_template_id = rma.company_id.rma_mail_draft_confirmation_template_id.id
+            rma.with_context(
+                force_send=True,
+                mark_rma_as_sent=True,
+                default_subtype_id=self.env.ref("rma.mt_rma_notification").id,
+            ).message_post_with_template(rma_template_id)
+
+    def _send_confirmation_email(self):
+        """Auto send notifications"""
+        for rma in self.filtered(lambda p: p.company_id.send_rma_confirmation):
+            rma_template_id = rma.company_id.rma_mail_confirmation_template_id.id
+            rma.with_context(
+                force_send=True,
+                mark_rma_as_sent=True,
+                default_subtype_id=self.env.ref("rma.mt_rma_notification").id,
+            ).message_post_with_template(rma_template_id)
+
+    def _send_receipt_confirmation_email(self):
+        """Send customer notifications when the products are received"""
+        for rma in self.filtered("company_id.send_rma_receipt_confirmation"):
+            rma_template_id = (
+                rma.company_id.rma_mail_receipt_confirmation_template_id.id
+            )
+            rma.with_context(
+                force_send=True,
+                mark_rma_as_sent=True,
+                default_subtype_id=self.env.ref("rma.mt_rma_notification").id,
+            ).message_post_with_template(rma_template_id)
+
     # Action methods
     def action_rma_send(self):
         self.ensure_one()
         template = self.env.ref("rma.mail_template_rma_notification", False)
+        template = self.company_id.rma_mail_confirmation_template_id or template
         form = self.env.ref("mail.email_compose_message_wizard_form", False)
         ctx = {
             "default_model": "rma",
+            "default_subtype_id": self.env.ref("rma.mt_rma_notification").id,
             "default_res_id": self.ids[0],
             "default_use_template": bool(template),
             "default_template_id": template and template.id or False,
@@ -573,19 +682,86 @@ class Rma(models.Model):
             "context": ctx,
         }
 
+    def _add_message_subscribe_partner(self):
+        self.ensure_one()
+        if self.partner_id and self.partner_id not in self.message_partner_ids:
+            self.message_subscribe([self.partner_id.id])
+
+    def _product_is_storable(self, product=None):
+        product = product or self.product_id
+        return product.type in ["product", "consu"]
+
+    def _prepare_procurement_group_vals(self):
+        return {
+            "move_type": "direct",
+            "partner_id": self and self.partner_shipping_id.id or False,
+            "name": self and ", ".join(self.mapped("name")) or False,
+        }
+
+    def _prepare_common_procurement_vals(
+        self, warehouse=None, scheduled_date=None, group=None
+    ):
+        self.ensure_one()
+        group = group or self.procurement_group_id
+        if not group:
+            group = self.env["procurement.group"].create(
+                self._prepare_procurement_group_vals()
+            )
+        return {
+            "company_id": self.company_id,
+            "group_id": group,
+            "date_planned": scheduled_date or fields.Datetime.now(),
+            "warehouse_id": warehouse or self.warehouse_id,
+            "partner_id": group.partner_id.id,
+            "priority": self.priority,
+        }
+
+    def _prepare_reception_procurement_vals(self, group=None):
+        """This method is used only for reception and a specific RMA IN route."""
+        vals = self._prepare_common_procurement_vals(group=group)
+        vals["route_ids"] = self.warehouse_id.rma_in_route_id
+        vals["rma_receiver_ids"] = [(6, 0, self.ids)]
+        if self.move_id:
+            vals["origin_returned_move_id"] = self.move_id.id
+        return vals
+
+    def _prepare_reception_procurements(self):
+        procurements = []
+        group_model = self.env["procurement.group"]
+        for rma in self:
+            if not rma._product_is_storable():
+                continue
+            group = rma.procurement_group_id
+            if not group:
+                group = group_model.create(rma._prepare_procurement_group_vals())
+            procurements.append(
+                group_model.Procurement(
+                    rma.product_id,
+                    rma.product_uom_qty,
+                    rma.product_uom,
+                    rma.location_id,
+                    rma.product_id.display_name,
+                    group.name,
+                    rma.company_id,
+                    rma._prepare_reception_procurement_vals(group),
+                )
+            )
+        return procurements
+
     def action_confirm(self):
         """Invoked when 'Confirm' button in rma form view is clicked."""
-        self.ensure_one()
         self._ensure_required_fields()
-        if self.state == "draft":
-            reception_move = self._create_receptions_from_product()
-            """if self.picking_id:
-                reception_move = self._create_receptions_from_picking()
-            else:
-                reception_move = self._create_receptions_from_product()"""
-            self.write({"reception_move_id": reception_move.id, "state": "confirmed"})
-            if self.partner_id not in self.message_partner_ids:
-                self.message_subscribe([self.partner_id.id])
+        self = self.filtered(lambda rma: rma.state == "draft")
+        if not self:
+            return
+        procurements = self._prepare_reception_procurements()
+        if procurements:
+            self.env["procurement.group"].run(procurements)
+        self.reception_move_id.picking_id.action_assign()
+        self.write({"state": "confirmed"})
+        for rma in self:
+            rma._add_message_subscribe_partner()
+        self._send_confirmation_email()
 
     def action_refund(self):
         """Invoked when 'Refund' button in rma form view is clicked
@@ -598,38 +774,25 @@ class Rma(models.Model):
             group_dict[key] |= record
         for rmas in group_dict.values():
             origin = ", ".join(rmas.mapped("name"))
-            invoice_form = Form(
-                self.env["account.move"].with_context(
-                    default_type="out_refund", company_id=rmas[0].company_id.id,
-                ),
-                "account.view_move_form",
-            )
-            rmas[0]._prepare_refund(invoice_form, origin)
-            refund = invoice_form.save()
+            refund_vals = rmas[0]._prepare_refund_vals(origin)
             for rma in rmas:
-                # For each iteration the Form is edited, a new invoice line
-                # is added and then saved. This is to generate the other
-                # lines of the accounting entry and to specify the associated
-                # RMA to that new invoice line.
-                invoice_form = Form(refund)
-                with invoice_form.invoice_line_ids.new() as line_form:
-                    rma._prepare_refund_line(line_form)
-                refund = invoice_form.save()
-                line = refund.invoice_line_ids.filtered(lambda r: not r.rma_id)
-                line.rma_id = rma.id
-                rma.write(
+                refund_vals["invoice_line_ids"].append(
+                    (0, 0, rma._prepare_refund_line_vals())
+                )
+            refund = self.env["account.move"].sudo().create(refund_vals)
+            refund.with_user(self.env.uid).message_post_with_view(
+                "mail.message_origin_link",
+                values={"self": refund, "origin": rmas},
+                subtype_id=self.env.ref("mail.mt_note").id,
+            )
+            for line in refund.invoice_line_ids:
+                line.rma_id.write(
                     {
                         "refund_line_id": line.id,
                         "refund_id": refund.id,
                         "state": "refunded",
                     }
                 )
-            refund.invoice_origin = origin
-            refund.message_post_with_view(
-                "mail.message_origin_link",
-                values={"self": refund, "origin": rmas},
-                subtype_id=self.env.ref("mail.mt_note").id,
-            )
 
     def action_replace(self):
         """Invoked when 'Replace' button in rma form view is clicked."""
@@ -637,147 +800,17 @@ class Rma(models.Model):
         self._ensure_can_be_replaced()
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
-        action = (
-            self.env.ref("rma.rma_delivery_wizard_action")
-            .with_context(active_id=self.id)
-            .read()[0]
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "rma.rma_delivery_wizard_action"
         )
         action["name"] = "Replace product(s)"
         action["context"] = dict(self.env.context)
         action["context"].update(
-            active_id=self.id, active_ids=self.ids, rma_delivery_type="replace",
+            active_id=self.id,
+            active_ids=self.ids,
+            rma_delivery_type="replace",
         )
         return action
-        
-    def action_sale(self):
-        #create sale with a service product for the line and customer as RMA customer
-        #it should reference the customer as well.
-        company_id = self.company_id
-        if not company_id:
-            raise ValidationError(
-                _("Must have a company on the RMA.")
-            )
-        vals = {
-            'partner_id': self.partner_id and self.partner_id.id or False,
-            'rma_id': self.id,
-            'company_id': company_id and company_id.id,
-            'warehouse_id': self.warehouse_id and self.warehouse_id.id or False}
-        #,('company_id','=',company_id.id)
-        domain = ['|',('name','=','Service'),('default_code','=','Service')]        
-        service_prod = self.env['product.product'].search(domain)    
-        service_prod = service_prod and service_prod[0] or None
-        if not service_prod:
-            raise ValidationError(
-                _("Must have a \'service\' type product called \"Service\"")
-            )
-        sale_id = self.env['sale.order'].create(vals)
-        if not sale_id:
-            raise ValidationError(
-                _("Something went wrong with creating the sale order.")
-            )
-        vals = {
-            'product_uom_qty': 1,
-            'name': 'Service charge for RMA #%s'%self.name,
-            'product_id': service_prod.id,
-            'order_id': sale_id.id,
-        }
-        sale_line_id = self.env['sale.order.line'].create(vals)
-        if not sale_line_id:
-            raise ValidationError(
-                _("Something went wrong with creating a sale order line.")
-            )             
-        self.sale_ids = [(4, sale_id.id)]
-        
-    def action_repair(self):
-        """Invoked when 'Repair' button in rma form view is clicked."""
-        self.ensure_one()
-        self._ensure_can_be_replaced()
-        #prepare vals for mrp.production create() method.
-        rma = self
-        if rma.move_id:
-            product = rma.move_id.product_id
-        else:
-            product = rma.product_id
-        mrp_bom_id = (
-            self.env['mrp.bom']
-           .search([('product_tmpl_id','=',product.product_tmpl_id.id)], limit=1)
-        )
-        if not mrp_bom_id:
-            raise ValidationError(
-                _("Item to repair must have BoM.")
-            )            
-        company = rma.company_id
-        if not company:
-            if rma.move_id:
-                company = rma.move_id.company_id
-                
-        vals = {
-            'date_planned_start': rma.date,
-            'product_id': product and product.id or False,
-            'product_qty': rma.product_uom_qty,
-            'bom_id': mrp_bom_id and mrp_bom_id.id or False,
-            'product_uom_id': rma.product_uom and rma.product_uom.id or False,
-            'origin': 'RMA: ' + rma.name,
-            'x_repair_order': True,
-            'rma_id': rma.id,
-            'company_id': company and company.id or False,
-            }
-        src_loc_id = rma.location_id and rma.location_id.id      
-        #add a finished good location to the RMA form and use it for finished good location on repair order
-        #and as the source location on the return to customer.
-        rma_mrp_type = rma.warehouse_id and rma.warehouse_id.rma_mrp_type_id or False        
-        if rma_mrp_type:
-            vals['picking_type_id'] = rma_mrp_type and rma_mrp_type.id or False
-            vals['location_dest_id'] = rma_mrp_type and rma_mrp_type.default_location_dest_id and rma_mrp_type.default_location_dest_id.id or False
-        if src_loc_id:
-            vals['location_src_id'] = src_loc_id        
-        mrp_prod = self.env['mrp.production'].create(vals)
-        rma.mrp_prod_id = mrp_prod
-        production_loc = product.property_stock_production
-        if not production_loc:
-            production_loc = (
-            self.env['stock.location']
-           .search([('company_id','=',company.id),('usage','=','production')], limit=1)
-           .id
-        )
-        #src_loc_id = rma.move_id and rma.move_id.location_id and rma.move_id.location_id.id
-        
-        #create the MRP consumption line with the main product as the component with the serial number.
-        vals = {
-            'product_id': product and product.id or False,
-            'product_uom_qty': rma.product_uom_qty,
-            'raw_material_production_id': mrp_prod.id,
-            'name': product and product.name,
-            'product_uom': rma.product_uom and rma.product_uom.id or False,
-            'location_id': src_loc_id,
-            'location_dest_id': production_loc and production_loc.id or False,
-            }
-        if src_loc_id and not rma_mrp_type:
-            vals['location_id'] = src_loc_id
-        res = self.env['stock.move'].create(vals)
-        #for workorder in mrp_bom_id.workorder_ids:
-        #mrp_prod._create_workorder()        
-        mrp_prod.action_confirm()
-        mrp_prod.action_assign()
-        move_line_ids = rma.move_id and rma.move_id.move_line_nosuggest_ids
-        if not move_line_ids:
-             move_line_ids = rma.move_id and rma.move_id.move_line_ids_without_package or []
-        for move_line in move_line_ids:
-            #create a new move line for the consumption moves with their corresponding lot#s
-            vals = {
-                'company_id': company and company.id or False,
-                'product_id': product and product.id or False,
-                'product_uom_qty': rma.product_uom_qty,
-                'date': rma.date,
-                'lot_id': move_line.lot_id and move_line.lot_id.id or False,
-                'product_uom_id': rma.product_uom and rma.product_uom.id or False,
-                'location_id': src_loc_id,
-                'location_dest_id': production_loc and production_loc.id or False,         
-            }
-             
-            res = self.env['stock.move.line'].create(vals)
-        if mrp_prod:
-            rma.write({"state": "waiting_repair"})
 
     def action_return(self):
         """Invoked when 'Return to customer' button in rma form
@@ -787,14 +820,14 @@ class Rma(models.Model):
         self._ensure_can_be_returned()
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
-        action = (
-            self.env.ref("rma.rma_delivery_wizard_action")
-            .with_context(active_id=self.id)
-            .read()[0]
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "rma.rma_delivery_wizard_action"
         )
         action["context"] = dict(self.env.context)
         action["context"].update(
-            active_id=self.id, active_ids=self.ids, rma_delivery_type="return",
+            active_id=self.id,
+            active_ids=self.ids,
+            rma_delivery_type="return",
         )
         return action
 
@@ -804,10 +837,21 @@ class Rma(models.Model):
         self._ensure_can_be_split()
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
-        action = (
-            self.env.ref("rma.rma_split_wizard_action")
-            .with_context(active_id=self.id)
-            .read()[0]
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "rma.rma_split_wizard_action"
+        )
+        action["context"] = dict(self.env.context)
+        action["context"].update(active_id=self.id, active_ids=self.ids)
+        return action
+
+    def action_finish(self):
+        """Invoked when a user wants to manually finalize the RMA"""
+        self.ensure_one()
+        self._ensure_can_be_returned()
+        # Force active_id to avoid issues when coming from smart buttons
+        # in other models
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "rma.rma_finalization_wizard_action"
         )
         action["context"] = dict(self.env.context)
         action["context"].update(active_id=self.id, active_ids=self.ids)
@@ -815,7 +859,7 @@ class Rma(models.Model):
 
     def action_cancel(self):
         """Invoked when 'Cancel' button in rma form view is clicked."""
-        self.mapped("reception_move_id")._action_cancel()
+        self.reception_move_id._action_cancel()
         self.write({"state": "cancelled"})
 
     def action_draft(self):
@@ -839,42 +883,28 @@ class Rma(models.Model):
             "target": "self",
             "url": self.get_portal_url(),
         }
-        
-    def action_view_repair(self):
-        """Invoked when 'Receipt' smart button in rma form view is clicked."""
+
+    def _action_view_pickings(self, pickings):
         self.ensure_one()
         # Force active_id to avoid issues when coming from smart buttons
         # in other models
-        action = (
-            self.env.ref("mrp.action_mrp_production_form")
-            .with_context(active_id=self.id)
-            .read()[0]
+        action = self.env["ir.actions.act_window"]._for_xml_id(
+            "stock.action_picking_tree_all"
         )
-        action.update(
-            res_id=self.mrp_prod_id.id,
-            view_mode="form",
-            view_id=False,
-            views=False,
-        )
+        if len(pickings) > 1:
+            action["domain"] = [("id", "in", pickings.ids)]
+        elif pickings:
+            action.update(
+                res_id=pickings.id,
+                view_mode="form",
+                view_id=False,
+                views=False,
+            )
         return action
 
     def action_view_receipt(self):
         """Invoked when 'Receipt' smart button in rma form view is clicked."""
-        self.ensure_one()
-        # Force active_id to avoid issues when coming from smart buttons
-        # in other models
-        action = (
-            self.env.ref("stock.action_picking_tree_all")
-            .with_context(active_id=self.id)
-            .read()[0]
-        )
-        action.update(
-            res_id=self.reception_move_id.picking_id.id,
-            view_mode="form",
-            view_id=False,
-            views=False,
-        )
-        return action
+        return self._action_view_pickings(self.mapped("reception_move_id.picking_id"))
 
     def action_view_refund(self):
         """Invoked when 'Refund' smart button in rma form view is clicked."""
@@ -891,57 +921,47 @@ class Rma(models.Model):
 
     def action_view_delivery(self):
         """Invoked when 'Delivery' smart button in rma form view is clicked."""
-        action = (
-            self.env.ref("stock.action_picking_tree_all")
-            .with_context(active_id=self.id)
-            .read()[0]
-        )
-        picking = self.delivery_move_ids.mapped("picking_id")
-        if len(picking) > 1:
-            action["domain"] = [("id", "in", picking.ids)]
-        elif picking:
-            action.update(
-                res_id=picking.id, view_mode="form", view_id=False, views=False,
-            )
-        return action
-        
-    def action_view_sales(self):
-        """Invoked when 'Sale Orders' smart button in rma form view is clicked."""
-        action = (
-            self.env.ref("sale.action_quotations")
-            .with_context(active_id=self.id)
-            .read()[0]
-        )
-        sales = self.sale_ids
-        if len(sales) > 1:
-            action["domain"] = [("id", "in", sales.ids)]
-        elif sales:
-            action.update(
-                res_id=sales.id, view_mode="form", view_id=False, views=False,
-            )
-        return action
+        return self._action_view_pickings(self.mapped("delivery_move_ids.picking_id"))
 
     # Validation business methods
     def _ensure_required_fields(self):
-        """ This method is used to ensure the following fields are not empty:
-        ['partner_id', 'partner_invoice_id', 'product_id', 'location_id']
+        """This method is used to ensure the following fields are not empty:
+        [
+            'partner_id', 'partner_invoice_id', 'partner_shipping_id',
+            'product_id', 'location_id'
+        ]
 
         This method is intended to be called on confirm RMA action and is
         invoked by:
         rma._check_required_after_draft
         rma.action_confirm
         """
-        ir_translation = self.env["ir.translation"]
-        required = ["partner_id", "partner_invoice_id", "product_id", "location_id"]
+        required = [
+            "partner_id",
+            "partner_shipping_id",
+            "partner_invoice_id",
+            "product_id",
+            "location_id",
+        ]
         for record in self:
             desc = ""
             for field in filter(lambda item: not record[item], required):
-                desc += "\n%s" % ir_translation.get_field_string("rma")[field]
+                field_record = (
+                    self.env["ir.model.fields"]
+                    .sudo()
+                    .search(
+                        [
+                            ("model_id.model", "=", record._name),
+                            ("name", "=", field),
+                        ]
+                    )
+                )
+                desc += f"\n{field_record.field_description}"
             if desc:
                 raise ValidationError(_("Required field(s):%s") % desc)
 
     def _ensure_can_be_returned(self):
-        """ This method is intended to be invoked after user click on
+        """This method is intended to be invoked after user click on
         'Replace' or 'Return to customer' button (before the delivery wizard
         is launched) and after confirm the wizard.
 
@@ -958,7 +978,7 @@ class Rma(models.Model):
             raise ValidationError(_("None of the selected RMAs can perform a return."))
 
     def _ensure_can_be_replaced(self):
-        """ This method is intended to be invoked after user click on
+        """This method is intended to be invoked after user click on
         'Replace' button (before the delivery wizard
         is launched) and after confirm the wizard.
 
@@ -985,7 +1005,7 @@ class Rma(models.Model):
             raise ValidationError(_("This RMA cannot be split."))
 
     def _ensure_qty_to_return(self, qty=None, uom=None):
-        """ This method is intended to be invoked after confirm the wizard.
+        """This method is intended to be invoked after confirm the wizard.
         invoked by: rma.create_return
         """
         if qty and uom:
@@ -997,7 +1017,7 @@ class Rma(models.Model):
                 )
 
     def _ensure_qty_to_extract(self, qty, uom):
-        """ This method is intended to be invoked after confirm the wizard.
+        """This method is intended to be invoked after confirm the wizard.
         invoked by: rma.extract_quantity
         """
         to_split_uom_qty = qty
@@ -1006,75 +1026,16 @@ class Rma(models.Model):
         if to_split_uom_qty > self.remaining_qty:
             raise ValidationError(
                 _(
-                    "Quantity to extract cannot be greater than remaining "
-                    "delivery quantity (%s %s)"
+                    "Quantity to extract cannot be greater than remaining"
+                    " delivery quantity (%(remaining_qty)s %(product_uom)s)"
                 )
-                % (self.remaining_qty, self.product_uom.name)
+                % (
+                    {
+                        "remaining_qty": self.remaining_qty,
+                        "product_uom": self.product_uom.name,
+                    }
+                )
             )
-
-    # Reception business methods
-    def _create_receptions_from_picking(self):
-        self.ensure_one()
-        create_vals = {}
-        if self.location_id:
-            create_vals.update(
-                location_id=self.location_id.id, picking_id=self.picking_id.id,
-            )
-        return_wizard = (
-            self.env["stock.return.picking"]
-            .with_context(active_id=self.picking_id.id, active_ids=self.picking_id.ids,)
-            .create(create_vals)
-        )
-        return_wizard._onchange_picking_id()
-        return_wizard.product_return_moves.filtered(
-            lambda r: r.move_id != self.move_id
-        ).unlink()
-        return_line = return_wizard.product_return_moves
-        return_line.quantity = self.product_uom_qty
-        # set_rma_picking_type is to override the copy() method of stock
-        # picking and change the default picking type to rma picking type.
-        picking_action = return_wizard.with_context(
-            set_rma_picking_type=True
-        ).create_returns()
-        picking_id = picking_action["res_id"]
-        picking = self.env["stock.picking"].browse(picking_id)
-        picking.origin = "{} ({})".format(self.name, picking.origin)
-        move = picking.move_lines
-        move.priority = self.priority
-        return move
-
-    def _create_receptions_from_product(self):
-        self.ensure_one()
-        picking_form = Form(
-            recordp=self.env["stock.picking"].with_context(
-                default_picking_type_id=self.warehouse_id.rma_in_type_id.id
-            ),
-            view="stock.view_picking_form",
-        )
-        self._prepare_picking(picking_form)
-        picking = picking_form.save()
-        picking.action_confirm()
-        picking.action_assign()
-        picking.message_post_with_view(
-            "mail.message_origin_link",
-            values={"self": picking, "origin": self},
-            subtype_id=self.env.ref("mail.mt_note").id,
-        )
-        return picking.move_lines
-
-    def _prepare_picking(self, picking_form):
-        return_origin = self.picking_id and '(Return of ' + self.picking_id.name + ')' or ''
-        picking_form.origin = self.name + return_origin
-        sale_id = self.picking_id and self.picking_id.sale_id or False
-        if sale_id:
-            picking_form.sale_id = sale_id
-        picking_form.partner_id = self.partner_id
-        picking_form.location_dest_id = self.location_id
-        #picking_form.picking_type_id = self.warehouse_id.rma_in_type_id
-        with picking_form.move_ids_without_package.new() as move_form:
-            move_form.product_id = self.product_id
-            move_form.product_uom_qty = self.product_uom_qty
-            move_form.product_uom = self.product_uom
 
     # Extract business methods
     def extract_quantity(self, qty, uom):
@@ -1105,15 +1066,15 @@ class Rma(models.Model):
         self.message_post(
             body=_(
                 'Split: <a href="#" data-oe-model="rma" '
-                'data-oe-id="%d">%s</a> has been created.'
+                'data-oe-id="%(id)d">%(name)s</a> has been created.'
             )
-            % (extracted_rma.id, extracted_rma.name,)
+            % ({"id": extracted_rma.id, "name": extracted_rma.name})
         )
         return extracted_rma
 
     # Refund business methods
-    def _prepare_refund(self, invoice_form, origin):
-        """ Hook method for preparing the refund Form.
+    def _prepare_refund_vals(self, origin=False):
+        """Hook method for preparing the refund Form.
 
         This method could be override in order to add new custom field
         values in the refund creation.
@@ -1122,10 +1083,17 @@ class Rma(models.Model):
         rma.action_refund
         """
         self.ensure_one()
-        invoice_form.partner_id = self.partner_invoice_id
+        return {
+            "move_type": "out_refund",
+            "company_id": self.company_id.id,
+            "partner_id": self.partner_invoice_id.id,
+            "invoice_payment_term_id": False,
+            "invoice_origin": origin,
+            "invoice_line_ids": [],
+        }
 
-    def _prepare_refund_line(self, line_form):
-        """ Hook method for preparing a refund line Form.
+    def _prepare_refund_line_vals(self):
+        """Hook method for preparing a refund line Form.
 
         This method could be override in order to add new custom field
         values in the refund line creation.
@@ -1134,78 +1102,108 @@ class Rma(models.Model):
         rma.action_refund
         """
         self.ensure_one()
-        line_form.product_id = self.product_id
-        line_form.quantity = self.product_uom_qty
-        line_form.product_uom_id = self.product_uom
-        line_form.price_unit = self._get_refund_line_price_unit()
+        return {
+            "product_id": self.product_id.id,
+            "quantity": self.product_uom_qty,
+            "product_uom_id": self.product_uom.id,
+            "price_unit": self.product_id.lst_price,
+            "rma_id": self.id,
+        }
 
-    def _get_refund_line_price_unit(self):
-        """To be overriden in a third module with the proper origin values
-        in case a sale order is linked to the original move"""
-        return self.product_id.lst_price
+    def _delivery_should_be_grouped(self):
+        """Checks if the rmas should be grouped for the delivery process"""
+        group_returns = self.env.company.rma_return_grouping
+        if "rma_return_grouping" in self.env.context:
+            group_returns = self.env.context.get("rma_return_grouping")
+        return group_returns
+
+    def _delivery_group_key(self):
+        """Returns a key by which the rmas should be grouped for the delivery process"""
+        self.ensure_one()
+        return (self.partner_shipping_id.id, self.company_id.id, self.warehouse_id.id)
+
+    def _group_delivery_if_needed(self):
+        """Groups the given rmas by the returned key from _delivery_group_key
+        by setting the procurement_group_id on the each rma if there is not yet on set"""
+        if not self._delivery_should_be_grouped():
+            return
+        grouped_rmas = groupby(
+            sorted(self, key=lambda rma: rma._delivery_group_key()),
+            key=lambda rma: [rma._delivery_group_key()],
+        )
+        for _group, rmas in grouped_rmas:
+            rmas = (
+                self.browse()
+                .concat(*list(rmas))
+                .filtered(lambda rma: not rma.procurement_group_id)
+            )
+            if not rmas:
+                continue
+            proc_group = self.env["procurement.group"].create(
+                rmas._prepare_procurement_group_vals()
+            )
+            rmas.write({"procurement_group_id": proc_group.id})
+
+    def _prepare_delivery_procurement_vals(self, scheduled_date=None):
+        """This method is used only for Delivery (not replace). It is important to set
+        RMA Out route."""
+        vals = self._prepare_common_procurement_vals(scheduled_date=scheduled_date)
+        vals["rma_id"] = self.id
+        vals["route_ids"] = self.warehouse_id.rma_out_route_id
+        vals["move_orig_ids"] = [(6, 0, self.reception_move_id.ids)]
+        return vals
+
+    def _prepare_delivery_procurements(self, scheduled_date=None, qty=None, uom=None):
+        self._group_delivery_if_needed()
+        procurements = []
+        group_model = self.env["procurement.group"]
+        for rma in self:
+            if not rma.procurement_group_id:
+                rma.procurement_group_id = group_model.create(
+                    rma._prepare_procurement_group_vals()
+                )
+
+            vals = rma._prepare_delivery_procurement_vals(scheduled_date)
+            group = vals.get("group_id")
+            procurements.append(
+                group_model.Procurement(
+                    rma.product_id,
+                    qty or rma.product_uom_qty,
+                    uom or rma.product_uom,
+                    rma.partner_shipping_id.property_stock_customer,
+                    rma.product_id.display_name,
+                    group.name,
+                    rma.company_id,
+                    vals,
+                )
+            )
+        return procurements
 
     # Returning business methods
     def create_return(self, scheduled_date, qty=None, uom=None):
         """Intended to be invoked by the delivery wizard"""
         self._ensure_can_be_returned()
         self._ensure_qty_to_return(qty, uom)
-        group_dict = {}
-        rmas_to_return = self.filtered("can_be_returned")
-        for record in rmas_to_return:
-            key = (record.partner_id.id, record.company_id.id, record.warehouse_id)
-            group_dict.setdefault(key, self.env["rma"])
-            group_dict[key] |= record
-        for rmas in group_dict.values():
-            origin = ", ".join(rmas.mapped("name"))
-            rma_out_type = rmas[0].warehouse_id.rma_out_type_id
-            picking_form = Form(
-                recordp=self.env["stock.picking"].with_context(
-                    default_picking_type_id=rma_out_type.id
-                ),
-                view="stock.view_picking_form",
+        rmas_to_return = self.filtered(
+            lambda rma: rma.can_be_returned and rma._product_is_storable()
+        )
+        procurements = rmas_to_return._prepare_delivery_procurements(
+            scheduled_date, qty, uom
+        )
+        if procurements:
+            self.env["procurement.group"].run(procurements)
+        pickings = defaultdict(lambda: self.browse())
+        for rma in rmas_to_return:
+            picking = rma.delivery_move_ids.picking_id.sorted("id", reverse=True)[0]
+            pickings[picking] |= rma
+            rma.message_post(
+                body=_(
+                    'Return: <a href="#" data-oe-model="stock.picking" '
+                    'data-oe-id="%(id)d">%(name)s</a> has been created.'
+                )
+                % ({"id": picking.id, "name": picking.name})
             )
-            rmas[0]._prepare_returning_picking(picking_form, origin)
-            picking = picking_form.save()
-            for rma in rmas:
-                with picking_form.move_ids_without_package.new() as move_form:
-                    rma._prepare_returning_move(move_form, scheduled_date, qty, uom)
-                # rma_id is not present in the form view, so we need to get
-                # the 'values to save' to add the rma id and use the
-                # create method intead of save the form.
-                picking_vals = picking_form._values_to_save(all_fields=True)                
-                move_vals = picking_vals["move_ids_without_package"][-1][2]
-                move_vals.update(
-                    #location_id = rma.finished_location_id and rma.finished_location_id.id or False,                
-                    picking_id=picking.id,
-                    rma_id=rma.id,
-                    move_orig_ids=[(4, rma.reception_move_id.id)],
-                    company_id=picking.company_id.id,
-                )
-                move_id = self.env["stock.move"].sudo().create(move_vals)
-                rma.message_post(
-                    body=_(
-                        'Return: <a href="#" data-oe-model="stock.picking" '
-                        'data-oe-id="%d">%s</a> has been created.'
-                    )
-                    % (picking.id, picking.name)
-                )
-                #get lot_id from repair if there is one, otherwise, get from the receipt.
-                finished_lines = rma.mrp_prod_id and rma.mrp_prod_id.finished_move_line_ids
-                loc_customers = self.env['stock.location'].search([('name','=','Customers')])
-                for line in finished_lines:
-                    move_line_vals = {
-                        'company_id': rma.company_id and rma.company_id.id or False,
-                        'product_id': line.product_id and line.product_id.id or False,
-                        'qty_done': line.qty_done,
-                        'date': scheduled_date,
-                        'lot_id': line.lot_id and line.lot_id.id or False,
-                        'product_uom_id': line.product_uom_id and line.product_uom_id.id or False,  
-                        'location_id': line.location_dest_id and line.location_dest_id.id or False,
-                        'location_dest_id': loc_customers and loc_customers.id or False,
-                        'picking_id': picking.id,
-                        'move_id': move_id.id,
-                    }
-                    self.env["stock.move.line"].sudo().create(move_line_vals)
+        for picking, rmas in pickings.items():
             picking.action_confirm()
             picking.action_assign()
             picking.message_post_with_view(
@@ -1215,180 +1213,117 @@ class Rma(models.Model):
             )
         rmas_to_return.write({"state": "waiting_return"})
 
-    def _prepare_returning_picking(self, picking_form, origin=None):
-        wh_rma_out_type = self.warehouse_id.rma_out_type_id
-        picking_form.picking_type_id = wh_rma_out_type
-        if wh_rma_out_type:
-            picking_form.location_id = wh_rma_out_type.default_location_src_id           
-        picking_form.origin = origin or self.name
-        picking_form.partner_id = self.partner_id
+    def _prepare_replace_procurement_vals(self, warehouse=None, scheduled_date=None):
+        """This method is used only for Replace (not Delivery). We do not use any
+        specific route here."""
+        vals = self._prepare_common_procurement_vals(warehouse, scheduled_date)
+        vals["rma_id"] = self.id
+        return vals
 
-    def _prepare_returning_move(self, move_form, scheduled_date, quantity=None, uom=None):
-        #move_form.location_id = self.finished_location_id
-        move_form.product_id = self.product_id
-        move_form.product_uom_qty = quantity or self.product_uom_qty
-        move_form.product_uom = uom or self.product_uom
-        move_form.date_expected = scheduled_date
-        
-   # Repair business methods
-    def create_repair(self, scheduled_date, product, qty, uom, company, mrp_bom_id, rma_move_id):
-        """Intended to be invoked by the production wizard"""
-        self.ensure_one()
-        #prepare vals for mrp.production create() method.
-        vals = {
-            'date_planned_start': scheduled_date,
-            'product_id': product and product.id or False,
-            'product_qty': qty,
-            'bom_id': mrp_bom_id and mrp_bom_id.id or False,
-            'product_uom_id': uom and uom.id or False,
-            'origin': 'RMA',
-            'company_id': company and company.id or False,
-            }
-        mrp_prod = self.env['mrp.production'].create(vals)
-        self.mrp_prod_id = mrp_prod
-        src_loc_id = rma_move_id and rma_move_id.location_id and rma_move_id.location_id.id
-        #create the bom line with the main product as the component with the serial number.
-        vals = {
-            'product_id': product and product.id or False,
-            'product_uom_qty': qty,
-            'raw_material_production_id': mrp_prod.id,
-            'name': product and product.name,
-            'product_uom': uom and uom.id or False,
-            'location_id': src_loc_id,
-            'location_dest_id': mrp_prod.location_dest_id and mrp_prod.location_dest_id.id,
-            }
+    def _prepare_replace_procurements(
+        self, warehouse, scheduled_date, product, qty, uom
+    ):
+        procurements = []
+        group_model = self.env["procurement.group"]
+        for rma in self:
+            if not rma._product_is_storable(product):
+                continue
 
-        res = self.env['stock.move'].create(vals)
-        
-        mrp_prod.action_confirm()
-        mrp_prod.action_assign()
-        move_line_ids = rma_move_id.move_line_nosuggest_ids
-        if not move_line_ids:
-            move_line_ids = rma_move_id.move_line_ids_without_package
-        for move_line in move_line_ids:
-            #create a new move line for the consumption moves with their corresponding lot#s
-            vals = {
-                'company_id': company and company.id or False,
-                'product_id': product and product.id or False,
-                'product_uom_qty': qty,
-                'date': scheduled_date,
-                'lot_id': move_line.lot_id and move_line.lot_id.id or False,
-                'product_uom_id': uom and uom.id or False,
-                'location_id': src_loc_id,
-                'location_dest_id': mrp_prod.location_dest_id and mrp_prod.location_dest_id.id,           
-            }
-             
-            res = self.env['stock.move.line'].create(vals)
-        
-        """self.message_post(
-            body=_(
-                "Repair created for:<br/>"
-                'Product <a href="#" data-oe-model="product.product" '
-                    'data-oe-id="%d">%s</a> (Production order <a href="#" '
-                    'data-oe-model="mrp.production" data-oe-id="%d">%s</a>) '
-                "Quantity %f %s<br/>"
-                "This repair created a production order."
+            if not rma.procurement_group_id:
+                rma.procurement_group_id = group_model.create(
+                    rma._prepare_procurement_group_vals()
+                )
+
+            vals = rma._prepare_replace_procurement_vals(warehouse, scheduled_date)
+            group = vals.get("group_id")
+            procurements.append(
+                group_model.Procurement(
+                    product,
+                    qty,
+                    uom,
+                    rma.partner_shipping_id.property_stock_customer,
+                    product.display_name,
+                    group.name,
+                    rma.company_id,
+                    vals,
+                )
             )
-            % (product.id, product.display_name, res, res.name,)
-            )"""
+        return procurements
 
     # Replacing business methods
     def create_replace(self, scheduled_date, warehouse, product, qty, uom):
         """Intended to be invoked by the delivery wizard"""
-        self.ensure_one()
         self._ensure_can_be_replaced()
         moves_before = self.delivery_move_ids
-        self._action_launch_stock_rule(scheduled_date, warehouse, product, qty, uom)
-        new_move = self.delivery_move_ids - moves_before
-        if new_move:
-            self.reception_move_id.move_dest_ids = [(4, new_move.id)]
-            self.message_post(
-                body=_(
-                    "Replacement: "
-                    'Move <a href="#" data-oe-model="stock.move" '
-                    'data-oe-id="%d">%s</a> (Picking <a href="#" '
-                    'data-oe-model="stock.picking" data-oe-id="%d">%s</a>) '
-                    "has been created."
+        procurements = self._prepare_replace_procurements(
+            warehouse, scheduled_date, product, qty, uom
+        )
+        if procurements:
+            self.env["procurement.group"].run(procurements)
+        new_moves = self.delivery_move_ids - moves_before
+        body = ""
+        # The product replacement could explode into several moves like in the case of
+        # MRP BoM Kits
+        for new_move in new_moves:
+            body += (
+                _(
+                    'Replacement: Move <a href="#" data-oe-model="stock.move"'
+                    ' data-oe-id="%(move_id)d">%(move_name)s</a> (Picking <a'
+                    ' href="#" data-oe-model="stock.picking"'
+                    ' data-oe-id="%(picking_id)d"> %(picking_name)s</a>) has'
+                    " been created."
                 )
                 % (
-                    new_move.id,
-                    new_move.name_get()[0][1],
-                    new_move.picking_id.id,
-                    new_move.picking_id.name,
-                )
-            )
-        else:
-            self.message_post(
-                body=_(
-                    "Replacement:<br/>"
-                    'Product <a href="#" data-oe-model="product.product" '
-                    'data-oe-id="%d">%s</a><br/>'
-                    "Quantity %f %s<br/>"
-                    "This replacement did not create a new move, but one of "
-                    "the previously created moves was updated with this data."
-                )
-                % (product.id, product.display_name, qty, uom.name)
-            )
-        if self.state != "waiting_replacement":
-            self.state = "waiting_replacement"
-
-    def _action_launch_stock_rule(
-        self, scheduled_date, warehouse, product, qty, uom,
-    ):
-        """ Creates a delivery picking and launch stock rule. It is invoked by:
-        rma.create_replace
-        """
-        self.ensure_one()
-        if self.product_id.type not in ("consu", "product"):
-            return
-        if not self.procurement_group_id:
-            self.procurement_group_id = (
-                self.env["procurement.group"]
-                .create(
                     {
-                        "name": self.name,
-                        "move_type": "direct",
-                        "partner_id": self.partner_id.id,
+                        "move_id": new_move.id,
+                        "move_name": new_move.name_get()[0][1],
+                        "picking_id": new_move.picking_id.id,
+                        "picking_name": new_move.picking_id.name,
                     }
                 )
-                .id
+                + "\n"
             )
-        values = self._prepare_procurement_values(
-            self.procurement_group_id, scheduled_date, warehouse
-        )
-        procurement = self.env["procurement.group"].Procurement(
-            product,
-            qty,
-            uom,
-            self.partner_id.property_stock_customer,
-            self.product_id.display_name,
-            self.procurement_group_id.name,
-            self.company_id,
-            values,
-        )
-        self.env["procurement.group"].run([procurement])
-        return True
+        for rma in self:
+            rma._add_replace_message(body, qty, uom)
+        self.write({"state": "waiting_replacement"})
 
-    def _prepare_procurement_values(
-        self, group_id, scheduled_date, warehouse,
-    ):
+    def _add_replace_message(self, body, qty, uom):
         self.ensure_one()
-        return {
-            "company_id": self.company_id,
-            "group_id": group_id,
-            "date_planned": scheduled_date,
-            "warehouse_id": warehouse,
-            "partner_id": self.partner_id.id,
-            "rma_id": self.id,
-            "priority": self.priority,
-        }
+        self.message_post(
+            body=body
+            or _(
+                "Replacement:<br/>"
+                'Product <a href="#" data-oe-model="product.product" '
+                'data-oe-id="%(id)d">%(name)s</a><br/>'
+                "Quantity %(qty)s %(uom)s<br/>"
+                "This replacement did not create a new move, but one of "
+                "the previously created moves was updated with this data."
+            )
+            % (
+                {
+                    "id": self.id,
+                    "name": self.display_name,
+                    "qty": qty,
+                    "uom": uom.name,
+                }
+            )
+        )
 
     # Mail business methods
     def _creation_subtype(self):
-        if self.state in ("draft", "confirmed"):
+        if self.state in ("draft"):
             return self.env.ref("rma.mt_rma_draft")
         else:
             return super()._creation_subtype()
+
+    def _track_subtype(self, init_values):
+        self.ensure_one()
+        if "state" in init_values:
+            if self.state == "draft":
+                return self.env.ref("rma.mt_rma_draft")
+            elif self.state == "confirmed":
+                return self.env.ref("rma.mt_rma_notification")
+        return super()._track_subtype(init_values)
 
     def message_new(self, msg_dict, custom_values=None):
         """Extract the needed values from an incoming rma emails data-set
@@ -1398,10 +1333,10 @@ class Rma(models.Model):
             custom_values = {}
         subject = msg_dict.get("subject", "")
         body = html2plaintext(msg_dict.get("body", ""))
-        desc = _("<b>E-mail subject:</b> %s<br/><br/><b>E-mail body:</b><br/>%s") % (
-            subject,
-            body,
-        )
+        desc = _(
+            "<b>E-mail subject:</b> %(subject)s<br/><br/><b>E-mail"
+            " body:</b><br/>%(body)s"
+        ) % ({"subject": subject, "body": body})
         defaults = {
             "description": desc,
             "name": _("New"),
@@ -1425,7 +1360,7 @@ class Rma(models.Model):
 
     @api.returns("mail.message", lambda value: value.id)
     def message_post(self, **kwargs):
-        """ Set 'sent' field to True when an email is sent from rma form
+        """Set 'sent' field to True when an email is sent from rma form
         view. This field (sent) is used to set the appropriate style to the
         'Send by Email' button in the rma form view.
         """
@@ -1436,27 +1371,48 @@ class Rma(models.Model):
         self_with_context = self.with_context(mail_post_autofollow=True)
         return super(Rma, self_with_context).message_post(**kwargs)
 
+    def _message_get_suggested_recipients(self):
+        recipients = super()._message_get_suggested_recipients()
+        try:
+            for record in self.filtered("partner_id"):
+                record._message_add_suggested_recipient(
+                    recipients, partner=record.partner_id, reason=_("Customer")
+                )
+        except AccessError as e:  # no read access rights
+            _logger.debug(e)
+        return recipients
+
     # Reporting business methods
     def _get_report_base_filename(self):
         self.ensure_one()
         return "RMA Report - %s" % self.name
 
     # Other business methods
+
+    def update_received_state_on_reception(self):
+        """Invoked by:
+        [stock.move]._action_done
+        Here we can attach methods to trigger when the customer products
+        are received on the RMA location, such as automatic notifications
+        """
+        self.write({"state": "received"})
+        self._send_receipt_confirmation_email()
+
     def update_received_state(self):
-        """ Invoked by:
-         [stock.move].unlink
-         [stock.move]._action_cancel
-         """
+        """Invoked by:
+        [stock.move].unlink
+        [stock.move]._action_cancel
+        """
         rma = self.filtered(lambda r: r.delivered_qty == 0)
         if rma:
             rma.write({"state": "received"})
 
     def update_replaced_state(self):
-        """ Invoked by:
-         [stock.move]._action_done
-         [stock.move].unlink
-         [stock.move]._action_cancel
-         """
+        """Invoked by:
+        [stock.move]._action_done
+        [stock.move].unlink
+        [stock.move]._action_cancel
+        """
         rma = self.filtered(
             lambda r: (
                 r.state == "waiting_replacement"
@@ -1467,17 +1423,9 @@ class Rma(models.Model):
             rma.write({"state": "replaced"})
 
     def update_returned_state(self):
-        """ Invoked by [stock.move]._action_done"""
+        """Invoked by [stock.move]._action_done"""
         rma = self.filtered(
             lambda r: (r.state == "waiting_return" and r.remaining_qty_to_done <= 0)
         )
         if rma:
             rma.write({"state": "returned"})
-            
-    def update_repaired_state(self):
-        """ Invoked by [mrp.production]._action_done"""
-        rma = self.filtered(
-            lambda r: (r.state == "waiting_repair" and r.remaining_qty_to_done <= 0)
-        )
-        if rma:
-            rma.write({"state": "repaired"})      

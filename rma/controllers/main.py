@@ -1,4 +1,5 @@
 # Copyright 2020 Tecnativa - Ernesto Tejeda
+# Copyright 2022 Tecnativa - Víctor Martínez
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
 from odoo import _, exceptions, http
@@ -10,12 +11,16 @@ from odoo.addons.portal.controllers.portal import CustomerPortal, pager as porta
 
 
 class PortalRma(CustomerPortal):
-    def _prepare_portal_layout_values(self):
-        values = super()._prepare_portal_layout_values()
-        if request.env["rma"].check_access_rights("read", raise_exception=False):
-            values["rma_count"] = request.env["rma"].search_count([])
-        else:
-            values["rma_count"] = 0
+    def _prepare_home_portal_values(self, counters):
+        values = super()._prepare_home_portal_values(counters)
+        if "rma_count" in counters:
+            rma_model = request.env["rma"]
+            rma_count = (
+                rma_model.search_count([])
+                if rma_model.check_access_rights("read", raise_exception=False)
+                else 0
+            )
+            values["rma_count"] = rma_count
         return values
 
     def _rma_get_page_view_values(self, rma, access_token, **kwargs):
@@ -36,6 +41,9 @@ class PortalRma(CustomerPortal):
     def portal_my_rmas(self, page=1, date_begin=None, date_end=None, sortby=None, **kw):
         values = self._prepare_portal_layout_values()
         rma_obj = request.env["rma"]
+        # Avoid error if the user does not have access.
+        if not rma_obj.check_access_rights("read", raise_exception=False):
+            return request.redirect("/my")
         domain = self._get_filter_domain(kw)
         searchbar_sortings = {
             "date": {"label": _("Date"), "order": "date desc"},
@@ -46,7 +54,6 @@ class PortalRma(CustomerPortal):
         if not sortby:
             sortby = "date"
         order = searchbar_sortings[sortby]["order"]
-        archive_groups = self._get_archive_groups("rma", domain)
         if date_begin and date_end:
             domain += [
                 ("create_date", ">", date_begin),
@@ -77,7 +84,6 @@ class PortalRma(CustomerPortal):
                 "rmas": rmas,
                 "page_name": "RMA",
                 "pager": pager,
-                "archive_groups": archive_groups,
                 "default_url": "/my/rmas",
                 "searchbar_sortings": searchbar_sortings,
                 "sortby": sortby,
@@ -118,7 +124,7 @@ class PortalRma(CustomerPortal):
         except exceptions.AccessError:
             return request.redirect("/my")
         report_sudo = request.env.ref("stock.action_report_delivery").sudo()
-        pdf = report_sudo.render_qweb_pdf([picking_sudo.id])[0]
+        pdf = report_sudo._render_qweb_pdf([picking_sudo.id])[0]
         pdfhttpheaders = [
             ("Content-Type", "application/pdf"),
             ("Content-Length", len(pdf)),

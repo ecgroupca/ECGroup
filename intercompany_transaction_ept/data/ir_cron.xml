@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="ir_cron_auto_create_ict" model="ir.cron">
+        <field name="name">Auto Generate Inter Company/Warehouse Transfer</field>
+        <field eval="False" name="active"/>
+        <field name="user_id" ref="base.user_root"/>
+        <field name="interval_number">1</field>
+        <field name="interval_type">minutes</field>
+        <field name="numbercall">-1</field>
+        <field name="state">code</field>
+        <field name="doall">False</field>
+        <field name="model_id" ref="model_stock_warehouse"/>
+        <field name="code">model.create_ict_for_unassigned_moves(0)</field>
+    </record>
+
+</odoo>

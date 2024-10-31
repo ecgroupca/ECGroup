@@ -1,6 +1,8 @@
 # Copyright 2020 Tecnativa - Ernesto Tejeda
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl).
 
+import ast
+
 from odoo import _, fields, models
 
 
@@ -11,7 +13,10 @@ class RmaTeam(models.Model):
     _order = "sequence, name"
 
     sequence = fields.Integer()
-    name = fields.Char(required=True, translate=True,)
+    name = fields.Char(
+        required=True,
+        translate=True,
+    )
     active = fields.Boolean(
         default=True,
         help="If the active field is set to false, it will allow you "
@@ -29,7 +34,9 @@ class RmaTeam(models.Model):
         default=lambda self: self.env.user,
     )
     member_ids = fields.One2many(
-        comodel_name="res.users", inverse_name="rma_team_id", string="Team Members",
+        comodel_name="res.users",
+        inverse_name="rma_team_id",
+        string="Team Members",
     )
 
     def copy(self, default=None):
@@ -46,10 +53,12 @@ class RmaTeam(models.Model):
             )
         return team
 
-    def get_alias_model_name(self, vals):
-        return vals.get("alias_model", "rma")
-
-    def get_alias_values(self):
-        values = super().get_alias_values()
-        values["alias_defaults"] = {"team_id": self.id}
+    def _alias_get_creation_values(self):
+        values = super()._alias_get_creation_values()
+        values["alias_model_id"] = self.env.ref("rma.model_rma").id
+        if self.id:
+            values["alias_defaults"] = defaults = ast.literal_eval(
+                self.alias_defaults or "{}"
+            )
+            defaults["team_id"] = self.id
         return values

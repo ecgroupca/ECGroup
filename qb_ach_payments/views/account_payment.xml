@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="view_pmt_register" model="ir.ui.view">
+        <field name="name">view.pmt.register</field>
+        <field name="model">account.payment</field>
+        <field name="arch" type="xml">
+            <tree decoration-info="state == 'draft'" decoration-muted="state in ['reconciled', 'cancelled']" edit="false">
+				<field name="routing_number"/>
+				<field name="account_number"/>
+				<field name="payment_date"/>
+				<field name="name"/>
+				<field name="journal_id"/>
+				<field name="amount" sum="Amount"/>
+				<field name="partner_id" string="Payee"/>
+				<field name="state"/>
+				<field name="company_id" groups="base.group_multi_company"/>
+			</tree>
+		</field>
+    </record>
+	
+    <record id="view_ach_tree" model="ir.ui.view">
+        <field name="name">view.ach.tree</field>
+        <field name="model">ach.payment</field>
+        <field name="arch" type="xml">
+            <tree decoration-info="state == 'draft'" decoration-muted="state in ['canceled']" edit="false">
+				<field name="payment_date"/>
+				<field name="name"/>
+				<field name="journal_id"/>
+				<field name="amount" sum="Amount"/>
+				<field name="partner_id" string="Payee"/>
+				<field name="state"/>
+				<field name="company_id" groups="base.group_multi_company"/>
+			</tree>
+		</field>
+    </record>
+	
+    <record id="view_ach_form" model="ir.ui.view">
+        <field name="name">view.ach.form</field>
+        <field name="model">ach.payment</field>
+        <field name="arch" type="xml">
+			<form string="ACH Payment">
+				<header>
+				    <button name="validate_ach" states="draft" string="Validate" type="object" default_focus="1" class="oe_highlight"/>
+					<button name="reset_ach" states="posted" string="Reset to Draft" type="object" default_focus="1" class="oe_highlight"/>
+				    <button name="send_ach" states="posted" string="Send" type="object" default_focus="1" class="oe_highlight"/>
+					<field name="state" widget="statusbar"
+						statusbar_visible="draft,posted,sent" />
+				</header>
+				<sheet>
+				  <div class="oe_button_box" name="button_box">
+				  </div>
+			      <div>
+					<group>
+						<field name="payment_date"/>
+						<field name="name"/>
+						<field name="journal_id"/>
+					</group>
+					<group>
+					    <field name="payment_id" string="Payment" attrs="{'readonly':[('state','!=','draft')]}"/>
+						<field name="amount" sum="Amount"/>
+						<field name="partner_id" string="Payee"/>
+					</group>
+					<group>
+						<field name="ach_pmt_date" attrs="{'readonly':[('state','!=','draft')]}"/>
+						<field name="company_id" groups="base.group_multi_company"/>
+					</group>
+                  </div>
+                </sheet>				  
+			</form>
+		</field>
+    </record>
+	
+    <record id="act_window_ach_payments" model="ir.actions.act_window">
+        <field name="name">ACH Pmts</field>
+        <field name="res_model">ach.payment</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+	<!-- account.menu_finance_payables -->
+	
+    <menuitem
+        id="menu_ach_payments"
+        parent="account.menu_finance_payables"
+        sequence="22"
+        name="ACH Pmts"
+		action="act_window_ach_payments"	
+    />	
+</odoo>

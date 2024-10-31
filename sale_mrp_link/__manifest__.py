@@ -16,6 +16,7 @@
     'installable': True,
     'depends': [
         'sale_mrp',
+        'purchase',
     ],
     'data': [
         'views/mrp_production.xml',

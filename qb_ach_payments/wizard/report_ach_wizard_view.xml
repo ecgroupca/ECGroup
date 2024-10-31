@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="ach_payments_wiz_view" model="ir.ui.view">
+        <field name="name">ACH Payments</field>
+        <field name="model">ach.payments.wizard</field>
+        <field name="arch" type="xml">
+        <form string="ACH Pmts Report">
+            <!--group col="2">
+				<field name="print_excel"/>
+            </group-->
+            <group col="4">
+                <field name="date_from"/>
+                <field name="date_to"/>
+            </group>
+            <group col="4">
+			    <field name="company_id"/>
+            </group>
+            <group>
+            </group>
+            <footer>
+                <button name="print_report" string="Print" type="object" default_focus="1" class="oe_highlight"/>
+                <button string="Cancel" class="btn btn-secondary" special="cancel" />
+            </footer>
+        </form>
+        </field>
+    </record>
+    <record id="act_window_pmt_register" model="ir.actions.act_window">
+        <field name="name">ACH Payments</field>
+        <field name="res_model">ach.payments.wizard</field>
+        <field name="view_mode">form</field>
+		<field name="view_id" ref="ach_payments_wiz_view"/>
+	    <field name="target">new</field>
+    </record>
+	<!-- account.menu_finance_payables -->
+	
+    <menuitem
+        id="menu_pmt_register"
+        parent="account.menu_finance_reports"
+        sequence="22"
+        name="ACH Payments"
+		action="act_window_pmt_register"	
+    />
+	
+  <report id="report_ach_payments_xlsx"	
+	string="Payment Register Xlsx"
+	model="account.payment"
+	report_type="xlsx"
+	name="qb_ach_payments.report_ach_payments_xlsx"
+	file="qb_ach_payments.report_ach_payments_xlsx"
+	menu="True"/>	
+</odoo>

@@ -19,6 +19,7 @@ class ResPartner(models.Model):
     reseller_id = fields.Char(
         'Reseller ID'
         )
+    x_studio_reseller_id = fields.Char('Reseller ID')
     
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
@@ -39,10 +40,14 @@ class SaleOrder(models.Model):
         compute="_compute_deps_total",
         store = True,
         )
-    approx_lead_time = fields.Float(
+    approx_lead_time = fields.Char(
         'Approximate Lead Time',
         store = True,
         )
+    x_studio_approximate_lead_time = fields.Char(
+        'Approximate Lead Time',
+        store = True,
+        )   
     sidemark = fields.Char(
         'Sidemark',
         store = True,
@@ -82,6 +87,7 @@ class SaleOrder(models.Model):
         compute="_compute_bal_due",
         store = True,
         )
+    x_taxed_order = fields.Boolean('Taxed Order')
               
     @api.onchange('team_id')
     def _onchange_sales_team(self):
@@ -103,8 +109,8 @@ class SaleOrder(models.Model):
             dep_product = setting and setting.value or None
             for invoice in sale.invoice_ids:
                 if invoice.state=='posted':
-                  amt_res += invoice.amount_residual
-                  amt_inv += invoice.amount_total
+                    amt_res += invoice.amount_residual
+                    amt_inv += invoice.amount_total
             total_deps = amt_inv - amt_res
             sale.comm_total = total_comm        
             sale.deposit_total = total_deps
@@ -112,11 +118,11 @@ class SaleOrder(models.Model):
     @api.depends('order_line')     
     def _compute_bal_due(self):
         for sale in self:
-          amt_res = 0.00
-          amt_inv = 0.00
-          for invoice in sale.invoice_ids:
-            if invoice.state=='posted':
-              amt_res += invoice.amount_residual
-              amt_inv += invoice.amount_total
-          amt_due = (sale.amount_total - amt_inv) + amt_res
-          sale.inv_bal_due = amt_due
+            amt_res = 0.00
+            amt_inv = 0.00
+            for invoice in sale.invoice_ids:
+                if invoice.state=='posted':
+                    amt_res += invoice.amount_residual
+                    amt_inv += invoice.amount_total
+            amt_due = (sale.amount_total - amt_inv) + amt_res
+            sale.inv_bal_due = amt_due

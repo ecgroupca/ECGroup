@@ -10,6 +10,7 @@
                 <field name="name" />
                 <field name="user_id" />
                 <field name="company_id" groups="base.group_multi_company" />
+                <field name="company_id" invisible="1" />
             </tree>
         </field>
     </record>
@@ -19,20 +20,6 @@
         <field name="arch" type="xml">
             <form>
                 <sheet>
-                    <div class="oe_button_box" name="button_box">
-                        <button
-                            name="toggle_active"
-                            type="object"
-                            class="oe_stat_button"
-                            icon="fa-archive"
-                        >
-                            <field
-                                name="active"
-                                widget="boolean_button"
-                                options='{"terminology": "archive"}'
-                            />
-                        </button>
-                    </div>
                     <div class="oe_title">
                         <label for="name" class="oe_edit_only" string="RMA Team" />
                         <h1>
@@ -47,6 +34,7 @@
                                 options="{'no_create': True}"
                                 groups="base.group_multi_company"
                             />
+                            <field name="company_id" invisible="1" />
                         </group>
                     </group>
                     <notebook>
@@ -71,7 +59,7 @@
                                             >
                                                 <div class="o_kanban_record_top">
                                                     <img
-                                                        t-att-src="kanban_image('res.users', 'image_small', record.id.raw_value)"
+                                                        t-att-src="kanban_image('res.users', 'avatar_128', record.id.raw_value)"
                                                         height="40"
                                                         width="40"
                                                         class="oe_avatar oe_kanban_avatar_smallbox mb0"
