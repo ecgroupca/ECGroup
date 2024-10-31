@@ -7,6 +7,7 @@
 # Copyright 2018-2019 ACSONE SA/NV
 # Copyright 2020-2021 Tecnativa - Pedro M. Baeza
 # Copyright 2020 Tecnativa - Víctor Martínez
+# Copyright 2023 Quickbeam - Adam O'Connor
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 {
