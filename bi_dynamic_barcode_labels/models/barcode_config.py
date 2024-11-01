@@ -16,7 +16,16 @@ class BarcodeConfigSettings(models.TransientModel):
                                      ('QR', 'QR'),
                                      ('Standard39', 'Standard39'),
                                      ('Standard93', 'Standard93')],
-                                     string='Type', default='EAN13')
+                                     string='Type', default='EAN13',
+                                     ondelete={'EAN13': 'set_default',
+                                     'Code11': 'set_default',
+                                     'Code128': 'set_default',
+                                     'EAN8': 'set_default',
+                                     'Extended39': 'set_default',
+                                     'Extended93': 'set_default',
+                                     'QR': 'set_default',
+                                     'Standard39': 'set_default',
+                                     'Standard93': 'set_default'})
     barcode_width = fields.Integer('Barcode Width')
     barcode_height = fields.Integer('Barcode Height')
     label_width = fields.Integer('Label Width(MM)')
@@ -25,7 +34,10 @@ class BarcodeConfigSettings(models.TransientModel):
     barcode_currency_position = fields.Selection([
         ('after', _('After')),
         ('before', _('Before')),
-    ], string='Position', translate=True)
+    ], default='before',
+    string='Position', translate=True,
+    ondelete={'after': 'set_default',
+        'before': 'set_default'})
 
     @api.model
     def default_get(self, fields):
@@ -79,7 +91,17 @@ class BarcodeLabelsConfig(models.Model):
                                      ('Extended93', 'Extended93'),
                                      ('QR', 'QR'),
                                      ('Standard39', 'Standard39'),
-                                     ('Standard93', 'Standard93')], string='Type')
+                                     ('Standard93', 'Standard93')],
+                                     string='Type', default='EAN13',
+                                     ondelete={'EAN13': 'set_default',
+                                     'Code11': 'set_default',
+                                     'Code128': 'set_default',
+                                     'EAN8': 'set_default',
+                                     'Extended39': 'set_default',
+                                     'Extended93': 'set_default',
+                                     'QR': 'set_default',
+                                     'Standard39': 'set_default',
+                                     'Standard93': 'set_default'})
 
     barcode_width = fields.Integer('Barcode Width')
     barcode_height = fields.Integer('Barcode Height')
@@ -89,4 +111,7 @@ class BarcodeLabelsConfig(models.Model):
     barcode_currency_position = fields.Selection([
         ('after', _('After')),
         ('before', _('Before')),
-    ], string='Position', translate=True)
+    ], default='before',
+    string='Position', translate=True,
+    ondelete={'after': 'set_default',
+        'before': 'set_default'})
