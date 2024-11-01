@@ -1,115 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <!-- Form View added by Maulik Barad. -->
-    <record id="inter_company_transfer_config_ept_form_view" model="ir.ui.view">
-        <field name="name">inter.company.transfer.config.ept.form.view</field>
-        <field name="model">inter.company.transfer.config.ept</field>
-        <field name="arch" type="xml">
-            <form string="Inter Company Transfer Configuration">
-                <sheet>
-                    <field name="type" invisible="1"/>
-                    <group>
-                        <group>
-                            <field name="name" required="1"/>
-                        </group>
-                        <group>
-                            <field name="set_default_flow" widget="boolean_toggle"/>
-                        </group>
-                    </group>
-                    <group>
-                        <group string="Transfer Configuration" attrs="{'invisible':[('type','=','internal')]}">
-                            <field name="auto_confirm_orders" widget="boolean_toggle"/>
-                            <field name="auto_validate_delivery" widget="boolean_toggle"
-                                   attrs="{'invisible':[('auto_confirm_orders','=',False)]}"/>
-                            <field name="auto_validate_receipt" widget="boolean_toggle"
-                                   attrs="{'invisible':[('auto_confirm_orders','=',False)]}"/>
-                            <field name="create_backorder" widget="boolean_toggle"
-                                   attrs="{'invisible':[('auto_validate_delivery','=',False),('auto_validate_receipt','=',False)]}"/>
-                            <field name="auto_create_invoices" widget="boolean_toggle"
-                                   attrs="{'invisible':[('auto_confirm_orders','=',False)]}"/>
-                            <field name="auto_validate_invoices" widget="boolean_toggle"
-                                   attrs="{'invisible':[('auto_create_invoices','=',False)]}"/>
-                        </group>
-                        <group string="Transfer Configuration" attrs="{'invisible':[('type','=','ict')]}">
-                            <field name="validate_pickings" widget="boolean_toggle"/>
-                            <field name="create_backorder" widget="boolean_toggle"
-                                   attrs="{'invisible':[('validate_pickings','=',False)]}"/>
-                        </group>
-                        <group string="Reverse Transfer Configuration">
-                            <field name="validate_pickings_reverse" widget="boolean_toggle"
-                                   string="Validate Transfers"/>
-                            <field name="create_backorder_reverse" widget="boolean_toggle" string="Create Backorder"
-                                   attrs="{'invisible':[('validate_pickings_reverse','=',False)]}"/>
-                            <field name="create_invoices_reverse" widget="boolean_toggle" string="Create Credit Notes"
-                                   attrs="{'invisible':[('type','=','internal')]}"/>
-                            <field name="validate_invoices_reverse" widget="boolean_toggle"
-                                   string="Validate Credit Notes"
-                                   attrs="{'invisible':[('create_invoices_reverse','=',False)]}"/>
-                        </group>
-                    </group>
-                </sheet>
-            </form>
-        </field>
-    </record>
+	<!-- Form View added by Maulik Barad on Date 26-Sep-2019. -->
+	<record id="inter_company_transfer_config_ept_form_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.config.ept.form.view</field>
+		<field name="model">inter.company.transfer.config.ept</field>
+		<field name="arch" type="xml">
+			<form string="Inter Company Transfer Configuration" create="0">
+				<sheet>
+					<group string="ICT Configuration">
+						<field name="sequence_id" invisible="1" />
+						<field name="auto_confirm_orders" />
+						<field name="auto_create_invoices" />
+						<field name="auto_validate_invoices"
+							attrs="{'invisible':[('auto_create_invoices','=',False)]}" />
+					</group>
+					<group string="Reverse ICT Configuration">
+						<field name="refund_method" required="True" widget='radio' />
+						<field name="description" />
+					</group>
+				</sheet>
+			</form>
+		</field>
+	</record>
 
-    <!-- Tree View added by Maulik Barad. -->
-    <record id="inter_company_transfer_config_ept_tree_view" model="ir.ui.view">
-        <field name="name">inter.company.transfer.config.ept.tree.view</field>
-        <field name="model">inter.company.transfer.config.ept</field>
-        <field name="arch" type="xml">
-            <tree>
-                <field name="name"/>
-                <field name="type" invisible="1"/>
+	<!-- Tree View added by Maulik Barad on Date 26-Sep-2019. -->
+	<record id="inter_company_transfer_config_ept_tree_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.config.ept.tree.view</field>
+		<field name="model">inter.company.transfer.config.ept</field>
+		<field name="arch" type="xml">
+			<tree string="Inter Company Transfer Configuration" create="0">
+				<field name="sequence_id" />
+				<field name="auto_confirm_orders" />
+				<field name="auto_create_invoices" />
+				<field name="auto_validate_invoices"
+					attrs="{'invisible':[('auto_create_invoices','=',False)]}" />
+			</tree>
+		</field>
+	</record>
 
-                <!-- For ICT type.-->
-                <field name="auto_confirm_orders" widget="boolean_toggle" readonly="1"
-                       invisible="context.get('default_type')=='internal'"/>
-                <field name="auto_validate_delivery" widget="boolean_toggle" readonly="1"
-                       invisible="context.get('default_type')=='internal'"/>
-                <field name="auto_validate_receipt" widget="boolean_toggle" readonly="1"
-                       invisible="context.get('default_type')=='internal'"/>
-                <field name="auto_create_invoices" widget="boolean_toggle" readonly="1"
-                       invisible="context.get('default_type')=='internal'"/>
-                <field name="auto_validate_invoices" widget="boolean_toggle" readonly="1"
-                       invisible="context.get('default_type')=='internal'"/>
+	<!-- Action added by Maulik Barad on Date 26-Sep-2019. -->
+	<record id="inter_company_transfer_config_ept_action"
+		model="ir.actions.act_window">
+		<field name="name">ICT Configuration</field>
+		<field name="res_model">inter.company.transfer.config.ept</field>
+		<field name="view_mode">tree,form</field>
+	</record>
 
-                <!-- For Internal type.-->
-                <field name="validate_pickings" widget="boolean_toggle" readonly="1"
-                       invisible="context.get('default_type')=='ict'"/>
-                <field name="create_backorder" widget="boolean_toggle" readonly="1"
-                       invisible="context.get('default_type')=='ict'"/>
-            </tree>
-        </field>
-    </record>
-
-    <!-- Action added by Maulik Barad. -->
-    <record id="inter_company_transfer_config_ept_action" model="ir.actions.act_window">
-        <field name="name">Inter Company Configuration</field>
-        <field name="res_model">inter.company.transfer.config.ept</field>
-        <field name="view_mode">tree,form</field>
-        <field name="domain">[('type','=','ict')]</field>
-        <field name="context">{'default_type':'ict'}</field>
-    </record>
-
-    <record id="internal_transfer_config_ept_action" model="ir.actions.act_window">
-        <field name="name">Inter Warehouse Configuration</field>
-        <field name="res_model">inter.company.transfer.config.ept</field>
-        <field name="view_mode">tree,form</field>
-        <field name="domain">[('type','=','internal')]</field>
-        <field name="context">{'default_type':'internal'}</field>
-    </record>
-
-    <!-- Menu added by Maulik Barad. -->
-    <menuitem id="inter_company_transfer_config_main_menu" parent="stock.menu_stock_config_settings"
-              name="ICT Configuration" sequence="3"/>
-
-    <menuitem id="inter_company_transfer_config_ept_menu" action="inter_company_transfer_config_ept_action"
-              parent="intercompany_transaction_ept.inter_company_transfer_config_main_menu"
-              sequence="1"/>
-
-    <menuitem id="internal_transfer_config_ept_menu" action="internal_transfer_config_ept_action"
-              parent="intercompany_transaction_ept.inter_company_transfer_config_main_menu"
-              sequence="3"/>
+	<!-- Menu added by Maulik Barad on Date 26-Sep-2019. -->
+	<menuitem id="internal_inter_company_transfer_config_ept_menu"
+		action="inter_company_transfer_config_ept_action"
+		parent="intercompany_transaction_ept.inter_company_transfer_ept_main_menu"
+		sequence='4' />
 
 </odoo>

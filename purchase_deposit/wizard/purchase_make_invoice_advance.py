@@ -16,7 +16,7 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
 
     advance_payment_method = fields.Selection(
         [
-            ("percentage", "Deposit payment (percentage)"),
+            ("percentage", "Down payment (percentage)"),
             ("fixed", "Deposit payment (fixed amount)"),
         ],
         string="What do you want to invoice?",
@@ -27,7 +27,6 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
         comodel_name="product.product",
         string="Deposit Payment Product",
         domain=[("type", "=", "service")],
-        default=lambda self: self.env.company.purchase_deposit_product_id,
     )
     amount = fields.Float(
         string="Deposit Payment Amount",
@@ -37,28 +36,31 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
     deposit_account_id = fields.Many2one(
         comodel_name="account.account",
         string="Expense Account",
-        compute="_compute_deposit_account_id",
-        store=True,
-        readonly=False,
         domain=[("deprecated", "=", False)],
         help="Account used for deposits",
     )
     deposit_taxes_id = fields.Many2many(
         comodel_name="account.tax",
         string="Vendor Taxes",
-        compute="_compute_deposit_account_id",
-        store=True,
-        readonly=False,
         help="Taxes used for deposits",
     )
 
-    @api.depends("purchase_deposit_product_id")
-    def _compute_deposit_account_id(self):
+    @api.model
+    def view_init(self, fields):
+        active_id = self._context.get("active_id")
+        purchase = self.env["purchase.order"].browse(active_id)
+        if purchase.state != "purchase":
+            raise UserError(_("This action is allowed only in Purchase Order sate"))
+        return super().view_init(fields)
+
+    @api.onchange("purchase_deposit_product_id")
+    def _onchagne_purchase_deposit_product_id(self):
         product = self.purchase_deposit_product_id
         self.deposit_account_id = product.property_account_expense_id
         self.deposit_taxes_id = product.supplier_taxes_id
 
-    def _prepare_deposit_val(self, order, po_line, amount):
+    def _create_invoice(self, order, po_line, amount):
+        Invoice = self.env["account.move"]
         ir_property_obj = self.env["ir.property"]
         account_id = False
         product = self.purchase_deposit_product_id
@@ -68,7 +70,7 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
                 or product.categ_id.property_account_expense_categ_id.id
             )
         if not account_id:
-            inc_acc = ir_property_obj._get(
+            inc_acc = ir_property_obj.get(
                 "property_account_expense_categ_id", "product.category"
             )
             account_id = (
@@ -102,40 +104,37 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
         else:
             tax_ids = taxes.ids
 
-        deposit_val = {
-            "invoice_origin": order.name,
-            "move_type": "in_invoice",
-            "partner_id": order.partner_id.id,
-            "invoice_line_ids": [
-                (
-                    0,
-                    0,
-                    {
-                        "name": name,
-                        "account_id": account_id,
-                        "price_unit": amount,
-                        "quantity": 1.0,
-                        "product_uom_id": product.uom_id.id,
-                        "product_id": product.id,
-                        "purchase_line_id": po_line.id,
-                        "tax_ids": [(6, 0, tax_ids)],
-                        "analytic_distribution": po_line.analytic_distribution,
-                    },
-                )
-            ],
-            "currency_id": order.currency_id.id,
-            "invoice_payment_term_id": order.payment_term_id.id,
-            "fiscal_position_id": order.fiscal_position_id.id
-            or order.partner_id.property_account_position_id.id,
-            "purchase_id": order.id,
-            "narration": order.notes,
-        }
-        return deposit_val
-
-    def _create_invoice(self, order, po_line, amount):
-        Invoice = self.env["account.move"]
-        deposit_val = self._prepare_deposit_val(order, po_line, amount)
-        invoice = Invoice.create(deposit_val)
+        invoice = Invoice.create(
+            {
+                "invoice_origin": order.name,
+                "type": "in_invoice",
+                "partner_id": order.partner_id.id,
+                "invoice_line_ids": [
+                    (
+                        0,
+                        0,
+                        {
+                            "name": name,
+                            "account_id": account_id,
+                            "price_unit": amount,
+                            "quantity": 1.0,
+                            "product_uom_id": product.uom_id.id,
+                            "product_id": product.id,
+                            "purchase_line_id": po_line.id,
+                            "tax_ids": [(6, 0, tax_ids)],
+                            "analytic_account_id": po_line.account_analytic_id.id
+                            or False,
+                        },
+                    )
+                ],
+                "currency_id": order.currency_id.id,
+                "invoice_payment_term_id": order.payment_term_id.id,
+                "fiscal_position_id": order.fiscal_position_id.id
+                or order.partner_id.property_account_position_id.id,
+                "purchase_id": order.id,
+                "narration": order.notes,
+            }
+        )
         invoice.message_post_with_view(
             "mail.message_origin_link",
             values={"self": invoice, "origin": order},
@@ -143,21 +142,9 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
         )
         return invoice
 
-    def _prepare_advance_purchase_line(self, order, product, tax_ids, amount):
-        return {
-            "name": _("Advance: %s") % (time.strftime("%m %Y"),),
-            "price_unit": amount,
-            "product_qty": 0.0,
-            "order_id": order.id,
-            "product_uom": product.uom_id.id,
-            "product_id": product.id,
-            "taxes_id": [(6, 0, tax_ids)],
-            "date_planned": datetime.today().strftime(DEFAULT_SERVER_DATETIME_FORMAT),
-            "is_deposit": True,
-        }
-
     def create_invoices(self):
         Purchase = self.env["purchase.order"]
+        IrDefault = self.env["ir.default"].sudo()
         purchases = Purchase.browse(self._context.get("active_ids", []))
         # Create deposit product if necessary
         product = self.purchase_deposit_product_id
@@ -166,7 +153,11 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
             product = self.purchase_deposit_product_id = self.env[
                 "product.product"
             ].create(vals)
-            self.env.company.purchase_deposit_product_id = product
+            IrDefault.set(
+                "purchase.advance.payment.inv",
+                "purchase_deposit_product_id",
+                product.id,
+            )
         PurchaseLine = self.env["purchase.order.line"]
         for order in purchases:
             amount = self.amount
@@ -197,14 +188,25 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
             else:
                 tax_ids = taxes.ids
             context = {"lang": order.partner_id.lang}
-            adv_po_line_dict = self._prepare_advance_purchase_line(
-                order, product, tax_ids, amount
+            po_line = PurchaseLine.create(
+                {
+                    "name": _("Advance: %s") % (time.strftime("%m %Y"),),
+                    "price_unit": amount,
+                    "product_qty": 0.0,
+                    "order_id": order.id,
+                    "product_uom": product.uom_id.id,
+                    "product_id": product.id,
+                    "taxes_id": [(6, 0, tax_ids)],
+                    "date_planned": datetime.today().strftime(
+                        DEFAULT_SERVER_DATETIME_FORMAT
+                    ),
+                    "is_deposit": True,
+                }
             )
-            po_line = PurchaseLine.create(adv_po_line_dict)
             del context
             self._create_invoice(order, po_line, amount)
-            if self._context.get("open_bills", False):
-                return purchases.action_view_invoice()
+        if self._context.get("open_invoices", False):
+            return purchases.action_view_invoice()
         return {"type": "ir.actions.act_window_close"}
 
     def _prepare_deposit_product(self):

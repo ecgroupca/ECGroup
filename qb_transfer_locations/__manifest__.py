@@ -9,6 +9,7 @@
     'data': [
         'views/sale.xml',
         'views/mrp_views.xml',
+        'views/stock_views.xml'
     ],
     'qweb': [],
     'application': True,

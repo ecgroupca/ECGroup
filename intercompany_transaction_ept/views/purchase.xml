@@ -1,32 +1,40 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-    <record id="inter_company_transfer_ept_purchase_form_view" model="ir.ui.view">
-        <field name="name">inter.company.transfer.ept.purchase.form.view</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.purchase_order_form"/>
-        <field name="arch" type="xml">
-            <field name="origin" position="after">
-                <field name="inter_company_transfer_id" readonly="1"
-                       attrs="{'invisible':[('inter_company_transfer_id','=',False)]}"/>
-            </field>
-        </field>
-    </record>
+	<!-- Form View added by Maulik Barad on Date 26-Sep-2019. -->
+	<record id="inter_company_transfer_ept_purchase_form_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.ept.purchase.form.view
+		</field>
+		<field name="model">purchase.order</field>
+		<field name="inherit_id" ref="purchase.purchase_order_form" />
+		<field name="arch" type="xml">
+			<field name="origin" position="after">
+				<field name="inter_company_transfer_id"
+					attrs="{'invisible':[('inter_company_transfer_id','=',False)]}"
+					readonly="1" />
+			</field>
+		</field>
+	</record>
 
-    <record id="inter_company_transfer_ept_purchase_search_view" model="ir.ui.view">
-        <field name="name">inter.company.transfer.ept.purchase.search.view</field>
-        <field name="model">purchase.order</field>
-        <field name="inherit_id" ref="purchase.purchase_order_view_search"/>
-        <field name="arch" type="xml">
-            <field name="product_id" position="after">
-                <field name="inter_company_transfer_id"/>
-            </field>
-            <xpath expr="//filter[@name='invoiced']" position="after">
-                <filter string="ICT Purchases" name='inter_company_transfer_id'
-                        domain="[('inter_company_transfer_id','!=', False)]"/>
-                <separator/>
-            </xpath>
-        </field>
-    </record>
+	<!-- Search View added by Maulik Barad on Date 26-Sep-2019. -->
+	<record id="inter_company_transfer_ept_purchase_search_view"
+		model="ir.ui.view">
+		<field name="name">inter.company.transfer.ept.purchase.search.view
+		</field>
+		<field name="model">purchase.order</field>
+		<field name="inherit_id"
+			ref="purchase.purchase_order_view_search" />
+		<field name="arch" type="xml">
+			<xpath expr="//filter[@name='not_invoiced']" position="before">
+				<field name="inter_company_transfer_id" />
+				<filter string="ICT Purchase"
+					name='inter_company_transfer_id'
+					domain="[('inter_company_transfer_id','!=', False)]" />
+				<separator />
+			</xpath>
+		</field>
+	</record>
 
 </odoo>
+       

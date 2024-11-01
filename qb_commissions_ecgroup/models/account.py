@@ -33,7 +33,7 @@ class AccountPayment(models.Model):
         compute = '_get_related'
     )
     
-    @api.depends('invoice_line_ids')
+    @api.depends('invoice_ids')
     def _get_related(self):
         for payment in self:
             sale_id = False

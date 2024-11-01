@@ -140,7 +140,7 @@ class SaleOrder(models.Model):
             #for line in sale.order_line:
             #    if line.product_id and not line.product_id.no_commissions: 
             #        if line.product_id.type not in ['service','consu']:
-            #            line.comm_rate = def_comm_rate123
+            #            line.comm_rate = def_comm_rate
             sale._compute_comm_total()
             for line in sale.order_line:
                 if not line.tax_id and line.product_id.type not in ['service',]:
@@ -185,10 +185,9 @@ class SaleOrder(models.Model):
         self.ensure_one()
         # ensure a correct context for the _get_default_journal method and company-dependent fields
         self = self.with_context(default_company_id=self.company_id.id, force_company=self.company_id.id)
-        journal = self.env['account.journal'].search([('name','=','Vendor Bills')])
-        journal = journal and journal[0]
+        journal = self.env['account.move'].with_context(default_type='in_invoice')._get_default_journal()
         if not journal:
-            raise UserError(_('Please define an accounting Vendor Bills journal for the company %s (%s).') % (self.company_id.name, self.company_id.id))
+            raise UserError(_('Please define an accounting sales journal for the company %s (%s).') % (self.company_id.name, self.company_id.id))
         team =  self.team_id
         team_id = team and team.id or False
         invoice_vals = {

@@ -172,9 +172,6 @@
 										<span t-field="doc.amount_untaxed"/>
 									</td>
 								</tr>
-								<!-- 
-								Note : below code is not in odoo v16, need to check and fix
-								
 								<t t-foreach="doc.amount_by_group" t-as="amount_by_group">
 									<tr style="border-bottom:dotted 1px; border-color:#AAA; color:#333;">
 										<t t-if="amount_by_group[5] == 1 and doc.amount_untaxed == amount_by_group[2]">
@@ -195,7 +192,7 @@
 											</td>
 										</t>
 									</tr>
-								</t> -->
+								</t>
 								<tr style="border-bottom:dotted 1px; border-color:#AAA;color:#333;">
 									<td name="td_amount_total_label"><strong style="color:#333;">Total</strong></td>
 									<td name="td_amount_total" class="text-right">
@@ -232,7 +229,7 @@
 				</div>
 
 				<div class="oe_structure"/>
-				<p t-if="doc.payment_term_id.note" name="order_note">
+				<p t-if="doc.payment_term_id.note">
 					<span t-field="doc.payment_term_id.note"/>
 				</p>
 				<p id="fiscal_position_remark" t-if="doc.fiscal_position_id and doc.fiscal_position_id.sudo().note">

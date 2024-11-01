@@ -11,7 +11,6 @@
             </field>
 			<field name="payment_term_id" position="after">
 			   <field name="approx_lead_time"/>
-			   <field name="x_studio_approximate_lead_time"/>
 			   <field name="deposit_total"/> 
                <field name="inv_bal_due"/>			   
 			</field>

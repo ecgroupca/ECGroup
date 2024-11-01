@@ -30,7 +30,7 @@ class SaleOrder(models.Model):
             #for line in purchase_lines:
             #    purchase_orders |= line.order_id           
             sale.purchase_order_ids = [(6, 0, purchases.ids)]
-               
+            
     def action_view_purchases(self):
         self.ensure_one()
         # Force active_id to avoid issues when coming from smart buttons

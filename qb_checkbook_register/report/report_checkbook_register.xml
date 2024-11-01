@@ -5,7 +5,7 @@
 		<t t-call="qb_checkbook_register.report_checkbook_reg_document" t-lang="o.partner_id.lang"/>
 	</t>
   </template-->
-  <template id="report_checkbook_register">
+  <template id="report_checkbook_reg">
       <t t-call="web.html_container">
         <t t-call="web.external_layout">
           <div class="page" style="font-name:Calibri">
@@ -62,8 +62,8 @@
 	string="Checkbook Register"
 	model="account.payment"
 	report_type="qweb-pdf"
-	name="qb_checkbook_register.report_checkbook_register"
-	file="qb_checkbook_register.report_checkbook_register"
+	name="qb_checkbook_register.report_checkbook_reg"
+	file="qb_checkbook_register.report_checkbook_reg"
 	menu="True"/>	
   <report id="report_checkbook_reg_xlsx"	
 	string="Checkbook Register Xlsx"

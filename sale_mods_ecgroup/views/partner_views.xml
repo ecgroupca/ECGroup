@@ -6,8 +6,7 @@
         <field name="inherit_id" ref="base.view_partner_form"/>
         <field name="arch" type="xml">
             <field name="website" position="after">
-               <field name="reseller_id"/>
-               <field name="x_studio_reseller_id"/> 
+               <field name="reseller_id"/> 
             </field>
         </field>
     </record>

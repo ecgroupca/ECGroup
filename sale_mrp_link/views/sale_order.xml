@@ -11,19 +11,12 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//div[@name='button_box']" position="inside">
-                <!--button type="object"
+                <button type="object"
                     name="action_view_production"
                     class="oe_stat_button"  
                     icon="fa-gears"
                     attrs="{'invisible': [('production_count', '=', 0)]}">
                     <field name="production_count" widget="statinfo" string="Production"/>
-                </button-->
-                <button type="object"
-                    name="action_view_purchases"
-                    class="oe_stat_button"
-                    icon="fa-credit-card"
-                    attrs="{'invisible': [('purchase_orders_counted', '=', 0)]}">
-                    <field name="purchase_orders_counted" widget="statinfo" string="Purchases"/>
                 </button>
             </xpath>
         </field>
