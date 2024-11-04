@@ -23,7 +23,8 @@ class InterCompanyTransferConfigEpt(models.Model):
                                       ('cancel', 'Cancel: create credit note and reconcile')],
                                      default='refund', string="Refund Method",
                                      help="Refund base on this type. You can not Modify and"
-                                     "Cancel if the invoice is already reconciled")
+                                     "Cancel if the invoice is already reconciled",
+                                         ondelete={'refund': 'set_default','cancel': 'set_default'})
     company_id = fields.Many2one('res.company', default=lambda self: self.env.user.company_id,
                                  readonly=True)
 
