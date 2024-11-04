@@ -1,66 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
-	<!-- Form View added by Maulik Barad on Date 26-Sep-2019. -->
-	<record id="inter_company_transfer_ept_sale_form_view"
-		model="ir.ui.view">
-		<field name="name">inter.company.transfer.ept.sale.form.view</field>
-		<field name="model">sale.order</field>
-		<field name="inherit_id" ref="sale.view_order_form" />
-		<field name="arch" type="xml">
-			<field name="pricelist_id" position="after">
-				<field name="inter_company_transfer_id"
-					attrs="{'invisible':[('inter_company_transfer_id','=',False)]}"
-					readonly="1" />
-			</field>
-		</field>
-	</record>
+    <record id="inter_company_transfer_ept_sale_form_view" model="ir.ui.view">
+        <field name="name">inter.company.transfer.ept.sale.form.view</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <field name="arch" type="xml">
+            <field name="payment_term_id" position="after">
+                <field name="inter_company_transfer_id" readonly="1"
+                       attrs="{'invisible':[('inter_company_transfer_id','=',False)]}"/>
+            </field>
+        </field>
+    </record>
 
-	<!-- Search View added by Maulik Barad on Date 26-Sep-2019. -->
-	<record id="inter_company_transfer_ept_sale_search_view"
-		model="ir.ui.view">
-		<field name="name">inter.company.transfer.ept.sale.search.view</field>
-		<field name="model">sale.order</field>
-		<field name="inherit_id" ref="sale.view_sales_order_filter" />
-		<field name="arch" type="xml">
-			<xpath expr="//filter[@name='my_sale_orders_filter']"
-				position="after">
-				<separator />
-				<field name="inter_company_transfer_id" />
-				<filter string="ICT Sales" name='inter_company_transfer_id'
-					domain="[('inter_company_transfer_id','!=', False)]" />
-			</xpath>
-		</field>
-	</record>
+    <record id="inter_company_transfer_ept_sale_search_view" model="ir.ui.view">
+        <field name="name">inter.company.transfer.ept.sale.search.view</field>
+        <field name="model">sale.order</field>
+        <field name="inherit_id" ref="sale.view_sales_order_filter"/>
+        <field name="arch" type="xml">
+            <field name="order_line" position="after">
+                <field name="inter_company_transfer_id"/>
+            </field>
+            <xpath expr="//filter[@name='my_sale_orders_filter']" position="after">
+                <separator/>
+                <filter string="ICT Sales" name='inter_company_transfer_id'
+                        domain="[('inter_company_transfer_id','!=', False)]"/>
+            </xpath>
+        </field>
+    </record>
 
-	<!-- Search View(Sale Report) added by Maulik Barad on Date 26-Sep-2019. -->
-	<record id="inter_company_transfer_ept_sale_order_search_view"
-		model="ir.ui.view">
-		<field name="name">inter.company.transfer.ept.sale.order.view.search
-		</field>
-		<field name="model">sale.report</field>
-		<field name="inherit_id" ref="sale.view_order_product_search" />
-		<field name="arch" type="xml">
-			<xpath expr="//group[@expand='0']" position="inside">
-				<filter name="inter_company_transfer_id" string="ICT Sales"
-					domain="[('inter_company_transfer_id','!=', False)]" />
-			</xpath>
-		</field>
-	</record>
+    <record id="inter_company_transfer_ept_sale_order_search_view" model="ir.ui.view">
+        <field name="name">inter.company.transfer.ept.sale.order.view.search</field>
+        <field name="model">sale.report</field>
+        <field name="inherit_id" ref="sale.view_order_product_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='Sales']" position="after">
+                <filter name="inter_company_transfer_id" string="ICT Sales"
+                        domain="[('inter_company_transfer_id','!=', False)]"/>
+            </xpath>
+        </field>
+    </record>
 
-	<!-- Search View(Sale Report) added by Maulik Barad on Date 26-Sep-2019. -->
-	<record
-		id="inter_company_transfer_ept_sale_order_pivot_search_view"
-		model="ir.ui.view">
-		<field name="name">inter.company.transfer.ept.sale.order.pivot.search.view
-		</field>
-		<field name="model">sale.report</field>
-		<field name="inherit_id" ref="sale.view_order_product_pivot" />
-		<field name="arch" type="xml">
-			<xpath expr="//field[@name='team_id']" position="after">
-				<field name="inter_company_transfer_id" type="row" />
-			</xpath>
-		</field>
-	</record>
+    <record id="inter_company_transfer_ept_sale_order_pivot_search_view" model="ir.ui.view">
+        <field name="name">inter.company.transfer.ept.sale.order.pivot.search.view</field>
+        <field name="model">sale.report</field>
+        <field name="inherit_id" ref="sale.view_order_product_pivot"/>
+        <field name="arch" type="xml">
+            <field name="team_id" position="after">
+                <field name="inter_company_transfer_id" type="row"/>
+            </field>
+        </field>
+    </record>
 
 </odoo>

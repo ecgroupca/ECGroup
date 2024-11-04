@@ -1,13 +1,12 @@
-"""
-For inter_company_transfer_ept module.
-"""
+# -*- coding: utf-8 -*-
+# See LICENSE file for full copyright and licensing details.
 from odoo import fields, models
 
 
 class ResCompany(models.Model):
     """
     Inherited for adding configuration for inter company transfers.
-    @author: Maulik Barad on Date 24-Sep-2019.
+    @author: Maulik Barad.
     """
     _inherit = "res.company"
 
