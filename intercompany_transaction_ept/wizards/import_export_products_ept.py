@@ -29,14 +29,17 @@ class ImportExportProducts(models.TransientModel):
     datas = fields.Binary('File')
     file_name = fields.Char()
 
-    report_type = fields.Selection(selection=[('csv', 'CSV'), ('xls', 'Xls')], string='Report Type',
-                                   required=True)
-    file_delimiter = fields.Selection([(',', ',')], string="Delimiter",
-                                      help="Select a delimiter to process CSV file.")
+    report_type = fields.Selection(selection=[('csv', 'CSV'), ('xls', 'Xls')], default='xls', 
+        string='Report Type',ondelete={'xls': 'set_default', 'csv': 'set_default'},required=True)
+    file_delimiter = fields.Selection([(',', ',')], default=",", string="Delimiter",
+                                      help="Select a delimiter to process CSV file.",
+                                      ondelete={',': 'set_default'})
     update_existing = fields.Boolean("Do you want to update existing record?")
     # Updated by Udit on 18th December 2019
     update_existing_by = fields.Selection([('add', 'Add quantity to existing'),
-                                           ('replace', 'Replace with file quantity')])
+                                           ('replace', 'Replace with file quantity')],
+                                           default="add",
+                                           ondelete={'add': 'set_default', 'replace': 'set_default'},)
     # replace_product_qty = fields.Boolean("Do you want to replace product quantity?",
     #                                      help="If you select this option then it will replace "
     #                                      "product quantity by csv quantity field data, it will not "

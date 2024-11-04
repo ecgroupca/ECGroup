@@ -19,6 +19,7 @@ class PurchaseAdvancePaymentInv(models.TransientModel):
             ("percentage", "Down payment (percentage)"),
             ("fixed", "Deposit payment (fixed amount)"),
         ],
+        ondelete = {'percentage': 'set_default','fixed': 'set_default'},
         string="What do you want to invoice?",
         default="percentage",
         required=True,
