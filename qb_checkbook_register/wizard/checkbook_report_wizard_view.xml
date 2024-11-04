@@ -25,16 +25,6 @@
         </form>
         </field>
     </record>
-	<report
-		string="Checkbook Report"
-		id="action_report_checkbook_reg"
-		model="account.payment"
-		report_type="qweb-pdf"
-		name="qb_checkbook_register.report_checkbook_reg"
-		file="qb_checkbook_register.report_checkbook_reg"
-		print_report_name="'Checkbook Report'"
-		menu="False"
-	/>
     <record id="act_checkbook_register" model="ir.actions.act_window">
         <field name="name">Checkbook Register</field>
         <field name="res_model">checkbook.report.wizard</field>

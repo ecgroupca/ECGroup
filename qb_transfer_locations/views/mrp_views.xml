@@ -15,27 +15,4 @@
 			</field>
         </field>
     </record>
-	
-    <!-- mrp.mrp_product_produce_line_form - add bypass_reservation field for user to see quickly 		
-    <record id="view_mrp_product_produce_mod" model="ir.ui.view">
-        <field name="name">mrp.product.produce.mod</field>
-        <field name="model">mrp.product.produce.line</field>
-        <field name="inherit_id" ref="mrp.mrp_product_produce_line_form"/>
-        <field name="arch" type="xml">
-            <field name="product_id" position="before">
-                <field name="bypass_reservation"/>
-			</field>
-        </field>
-    </record-->
-
-    <record id="view_mrp_move_lots_bypass" model="ir.ui.view">
-        <field name="name">mrp.move.lots.bypass</field>
-        <field name="model">stock.move</field>
-        <field name="inherit_id" ref="mrp.view_stock_move_lots"/>
-        <field name="arch" type="xml">
-            <field name="product_id" position="before">
-                <field name="bypass_reservation"/>
-			</field>
-        </field>
-    </record>
 </odoo>

@@ -44,14 +44,14 @@
                 <footer>
                     <button
                         name="create_invoices"
-                        string="Create and View Invoices"
+                        string="Create and View bills"
                         type="object"
-                        context="{'open_invoices': True}"
+                        context="{'open_bills': True}"
                         class="btn-primary"
                     />
                     <button
                         name="create_invoices"
-                        string="Create Invoices"
+                        string="Create Bill"
                         type="object"
                         class="btn-primary"
                     />
