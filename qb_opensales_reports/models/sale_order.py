@@ -129,12 +129,12 @@ class SaleOrderLine(models.Model):
                     #domain.append(('location_id.name','=','Vendors')
                     domain.append(('location_id.name','!=','Vendors'))
                     domain.append(('location_dest_id.name','!=','Vendors'))
-                    in_moves = env['stock.move'].search(domain)
+                    in_moves = self.env['stock.move'].search(domain)
                     #remove the 'IN' part of the domain and add the 'OUT' for 'out moves'
                     domain.remove(('picking_id.picking_type_id.code','=','incoming'))
                     domain.append(('picking_id.picking_type_id.code','=','outgoing'))
                     domain.remove(('location_id.name','!=','Vendors'))
-                    out_moves = env['stock.move'].search(domain)
+                    out_moves = self.env['stock.move'].search(domain)
                     for move in out_moves:
                         qty += move.product_uom._compute_quantity(move.product_uom_qty, line.product_uom, rounding_method='HALF-UP')                   
                     for move in in_moves:
