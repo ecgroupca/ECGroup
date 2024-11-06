@@ -118,6 +118,7 @@ class SaleOrderLine(models.Model):
             if line.order_id.state not in ['draft','cancel','sent']:
 
                 if line.product_id and line.product_id.type != 'service':
+                    qty = 0
                     picking_ids = line.order_id.picking_ids
                     domain = ['|',('picking_id','in',picking_ids.ids),('picking_id.sale_id','=',line.order_id.id)]
                     #domain.append(('picking_id','in',picking_ids.ids))

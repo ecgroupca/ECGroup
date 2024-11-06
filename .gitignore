@@ -27,6 +27,7 @@ status
 /src/
 
 #PyDev
+.pyc
 .project
 .pydevproject
 qb_ach_payments/__init__.py
