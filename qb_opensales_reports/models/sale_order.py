@@ -55,6 +55,7 @@ class SaleOrder(models.Model):
     date_order = fields.Datetime(
         string="Order Date",
         required=True, readonly=False, copy=False,
+        states = READONLY_FIELD_STATES,
         help="Creation date of draft/sent orders,\nConfirmation date of confirmed orders.",
         default=fields.Datetime.now
         )
