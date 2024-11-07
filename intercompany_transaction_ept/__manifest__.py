@@ -21,12 +21,12 @@
         #'security/inter_company_transfer_security.xml',
         #'security/ir.model.access.csv',
 
-        #'wizards/reverse_inter_company_transfer_ept.xml',
-        #'wizards/import_export_products_ept.xml',
+        'wizards/reverse_inter_company_transfer_ept.xml',
+        'wizards/import_export_products_ept.xml',
 
-        #'views/inter_company_transfer_ept.xml',
-        #'views/inter_company_transfer_config_ept.xml',
-        #'views/inter_company_transfer_log_line_ept.xml',
+        'views/inter_company_transfer_ept.xml',
+        'views/inter_company_transfer_config_ept.xml',
+        'views/inter_company_transfer_log_line_ept.xml',
         #'views/account_move.xml',
         #'views/purchase.xml',
         #'views/res_company.xml',
