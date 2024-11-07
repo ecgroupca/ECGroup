@@ -24,7 +24,7 @@
         #'wizards/reverse_inter_company_transfer_ept.xml',
         #'wizards/import_export_products_ept.xml',
 
-        #'views/inter_company_transfer_ept.xml',
+        'views/inter_company_transfer_ept.xml',
         #'views/inter_company_transfer_config_ept.xml',
         #'views/inter_company_transfer_log_line_ept.xml',
         #'views/account_move.xml',
