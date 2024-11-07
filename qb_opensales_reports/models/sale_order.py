@@ -54,7 +54,7 @@ class SaleOrder(models.Model):
         
     READONLY_FIELD_STATES = {
         state: [('readonly', True)]
-        for state in {'sale', 'done', 'cancel'}
+        for state in {'done', 'cancel'}
     }
         
     date_order = fields.Datetime(
