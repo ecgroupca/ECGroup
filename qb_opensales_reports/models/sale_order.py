@@ -51,6 +51,13 @@ class SaleOrder(models.Model):
     key_account = fields.Boolean("Key Account",
         compute="_compute_key_account"
         )
+        
+    date_order = fields.Datetime(
+        string="Order Date",
+        required=True, readonly=False, copy=False,
+        help="Creation date of draft/sent orders,\nConfirmation date of confirmed orders.",
+        default=fields.Datetime.now
+        )
     
     def _write(self, values):
         """ Override of private write method in order to generate activities
