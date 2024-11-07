@@ -52,6 +52,11 @@ class SaleOrder(models.Model):
         compute="_compute_key_account"
         )
         
+    READONLY_FIELD_STATES = {
+        state: [('readonly', True)]
+        for state in {'sale', 'done', 'cancel'}
+    }
+        
     date_order = fields.Datetime(
         string="Order Date",
         required=True, readonly=False, copy=False,
