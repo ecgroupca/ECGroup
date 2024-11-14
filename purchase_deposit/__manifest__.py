@@ -19,6 +19,7 @@
         "report/report_purchase_ec_logo.xml",
         "report/report_purchase_ec_logo_document.xml",
         "report/external_layout_ec_logo.xml",
+        "report/external_layout.xml",
     ],
     "installable": True,
     "auto_install": False,

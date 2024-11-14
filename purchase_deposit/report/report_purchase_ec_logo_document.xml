@@ -119,7 +119,7 @@
 </template>
 
 <template id="report_purchase_no_logo_document">
-    <t t-call="purchase_deposit.external_layout_ec_logo">
+    <t t-call="purchase_deposit.external_layout">
         <t t-set="o" t-value="o.with_context(lang=o.partner_id.lang)"/>
         <t t-set="address">
             <div t-field="o.partner_id" t-options="{&quot;widget&quot;: &quot;contact&quot;, &quot;fields&quot;: [&quot;address&quot;, &quot;name&quot;, &quot;phone&quot;], &quot;no_marker&quot;: True, &quot;phone_icons&quot;: True}"/>
