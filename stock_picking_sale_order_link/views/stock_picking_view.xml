@@ -20,7 +20,7 @@
                 </button>
             </xpath>
 			<xpath expr="//field[@name='user_id']" position="after">
-			    <field name="sale_user_id"/>
+			    <field string="Sale Order Responsible" name="sale_user_id"/>
 			</xpath>
         </field>
     </record>
