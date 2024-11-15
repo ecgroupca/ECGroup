@@ -18,8 +18,8 @@ class StockPicking(models.Model):
     carrier_id = fields.Many2one('delivery.carrier',
         'Carrier',
         related='sale_id.carrier_id'
-        )   
-
+        )        
+        
     def action_view_sale_order(self):
         """This function returns an action that display existing sales order
         of given picking.
