@@ -13,7 +13,7 @@
     ],
     'data': [
         #'views/templates.xml',
-        'views/shipping_report_view.xml',
+        #'views/shipping_report_view.xml',
         'reports/report_template_shipping.xml',
         'reports/report_shipping.xml',
         'wizard/shipping_report_wizard_view.xml',
