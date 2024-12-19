@@ -202,7 +202,7 @@ class SaleOrder(models.Model):
             'invoice_user_id': self.user_id and self.user_id.id,
             'team_id': team_id,
             #'partner_id': team and team.user_id and team.user_id.partner_id and team.user_id.partner_id.id or False,
-            'partner_id': team and team.comm_inv_partner and team.comm_inv_partner or False,
+            'partner_id': team and team.comm_inv_partner and team.comm_inv_partner.id or False,
             #'invoice_partner_bank_id': self.company_id.partner_id.bank_ids[:1].id,
             'fiscal_position_id': self.fiscal_position_id.id or self.partner_invoice_id.property_account_position_id.id,
             'journal_id': journal.id,  # company comes from the journal
