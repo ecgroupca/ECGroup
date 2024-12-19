@@ -122,7 +122,7 @@ class SaleCommission(models.Model):
                 'name': 'Commissions for sale: ' + line.order_id.name + ' | item:' + line.name,
                 'quantity': 1,
                 'price_unit': line.comm_rate*line.price_unit*line.product_uom_qty/100,
-                'analytic_account_id': line.order_id.analytic_account_id.id,
+                #'analytic_account_id': line.order_id.analytic_account_id.id,
                 #'analytic_tag_ids': [(6, 0, line.analytic_tag_ids.ids)],
                 'sale_line_ids': [(4, line.id)],
                 'product_id': product_id and product_id.id or False,
