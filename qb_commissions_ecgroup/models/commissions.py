@@ -117,7 +117,7 @@ class SaleCommission(models.Model):
             product_id = product_id and product_id[0] or False
             account_id = product_id and product_id.property_account_expense_id or False
             res = {
-                'display_type': False,
+                'display_type': 'product',
                 'sequence': line.sequence,
                 'name': 'Commissions for sale: ' + line.order_id.name + ' | item:' + line.name,
                 'quantity': 1,
