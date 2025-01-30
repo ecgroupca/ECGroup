@@ -16,7 +16,7 @@ class DynamicBarcodeMRPLabelsParser(models.AbstractModel):
 			'barcode_width': barcode_config.barcode_width,
 			'barcode_height': barcode_config.barcode_height,
 			'barcode_currency_id': barcode_config.barcode_currency_id,
-			'barcode_currency_position': barcode_config.barcode_currency_position,
+			#'barcode_currency_position': barcode_config.barcode_currency_position,
 		}
 
 	@api.model
