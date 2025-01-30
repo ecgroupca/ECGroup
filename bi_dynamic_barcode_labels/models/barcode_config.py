@@ -10,6 +10,7 @@ class BarcodeConfigSettings(models.TransientModel):
     default_purchase_deposit_product_id = fields.Many2one(
         related="company_id.purchase_deposit_product_id",
         readonly=False,
+        default_model=purchase.order,
     )
 
     barcode_type = fields.Selection([('EAN13', 'EAN13'),
