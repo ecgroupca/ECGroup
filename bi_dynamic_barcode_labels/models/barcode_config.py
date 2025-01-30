@@ -6,6 +6,11 @@ from odoo import api, fields, models, _
 
 class BarcodeConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
+    
+    default_purchase_deposit_product_id = fields.Many2one(
+        related="company_id.purchase_deposit_product_id",
+        readonly=False,
+    )
 
     barcode_type = fields.Selection([('EAN13', 'EAN13'),
                                      ('Code11', 'Code11'),
