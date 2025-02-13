@@ -2,6 +2,8 @@
 # Part of BrowseInfo. See LICENSE file for full copyright and licensing details.
 
 from odoo import api, fields, models
+import logging
+logger = logging.getLogger(__name__)
 
 
 class DynamicBarcodeProductLabelsParser(models.AbstractModel):
