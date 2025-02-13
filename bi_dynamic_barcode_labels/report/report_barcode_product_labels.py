@@ -30,7 +30,7 @@ class DynamicBarcodeProductLabelsParser(models.AbstractModel):
         if barcode_labels:
             barcode_labels = self.env['barcode.product.labels.wiz.line'].browse(barcode_labels)
             
-		return {
+        return {
             'doc_ids': barcode_labels,
             'doc_model': barcode_labels_report.model,
             'docs': barcode_labels,
