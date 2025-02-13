@@ -13,11 +13,14 @@ class DynamicBarcodeProductLabelsParser(models.AbstractModel):
     def _get_barcode_details_info(self):
         barcode_config = \
         self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
+        barcode_config = barcode_config and barcode_config[0] or None
+        width = barcode_config.barcode_width or 0
+        height = barcode_config.barcode_height or 0
         
         return {
             'barcode_type': 'EAN13',
-            'barcode_width': barcode_config.barcode_width,
-            'barcode_height': barcode_config.barcode_height,
+            'barcode_width': width,
+            'barcode_height': height,
             'barcode_currency_id': barcode_config.barcode_currency_id.id,
             'barcode_currency_position': 'before',
             }
