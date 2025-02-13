@@ -26,8 +26,8 @@ class DynamicBarcodeProductLabelsParser(models.AbstractModel):
     def _get_report_values(self, docids, data=None):
         barcode_labels_report = self.env['ir.actions.report']._get_report_from_name('bi_dynamic_barcode_labels.product_barcode_labels')
         barcode_labels = 'form' in data
-        barcode_labels = barcode_labels and 'barcode_labels' in data['form'] or []
-        logger.info('Data: ' + str(data['form']))
+        barcode_labels = barcode_labels and 'barcode_labels' in data or []
+        logger.info('Data: ' + str(data))
         
         if barcode_labels:
             barcode_labels = self.env['barcode.product.labels.wiz.line'].browse(barcode_labels)
