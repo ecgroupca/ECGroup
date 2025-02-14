@@ -12,16 +12,16 @@ class DynamicBarcodeMRPLabelsParser(models.AbstractModel):
 		barcode_config = \
 			self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
 		return {
-			'barcode_type': barcode_config.barcode_type,
-			'barcode_width': barcode_config.barcode_width,
-			'barcode_height': barcode_config.barcode_height,
-			'barcode_currency_id': barcode_config.barcode_currency_id.id,
-			#'barcode_currency_position': barcode_config.barcode_currency_position,
+            'barcode_type': 'EAN13',
+            'barcode_width': 80,
+            'barcode_height': 120,
+            'barcode_currency_id': 1,
+            'barcode_currency_position': 'before',
 		}
 
 	@api.model
 	def _get_report_values(self, docids, data=None):
-		barcode_labels_report = self.env['ir.actions.report']._get_report_from_name('bi_dynamic_barcode_labels.mrp_dynamic_barcode_labels_id')
+		barcode_labels_report = self.env['ir.actions.report']._get_report_from_name('bi_dynamic_barcode_labels.mrp_dynamic_barcode_labels')
 		barcode_labels = data['form']['barcode_labels']
 		barcode_labels = self.env['barcode.mrp.labels.wiz.line'].browse(barcode_labels)
 		return {
