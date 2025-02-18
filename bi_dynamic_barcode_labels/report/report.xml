@@ -20,7 +20,7 @@
 
     <!-- Product Variant Report -->
     <report 
-        id="printed_barcode_labels_id" 
+        id="printed_barcode_labels" 
         model="product.product" 
         string="External Product Labels"
         report_type="qweb-pdf"
@@ -32,7 +32,7 @@
 
     <!-- Product Template Report -->
     <report 
-        id="printed_product_temp_barcode_labels_id" 
+        id="printed_product_temp_barcode_labels" 
         model="product.template" 
         string="External Product Labels"
         report_type="qweb-pdf"
@@ -44,7 +44,7 @@
 
     <!-- Sale Order Report -->
     <report 
-        id="printed_sale_order_barcode_labels_id" 
+        id="printed_sale_order_barcode_labels" 
         model="sale.order" 
         string="External Product Labels"
         report_type="qweb-pdf"
@@ -56,7 +56,7 @@
 
     <!-- Purchase Order Report -->
     <report 
-        id="printed_purchase_order_barcode_labels_id" 
+        id="printed_purchase_order_barcode_labels" 
         model="purchase.order" 
         string="External Product Labels"
         report_type="qweb-pdf"
@@ -68,7 +68,7 @@
 
     <!-- Stock Picking Report -->
     <report 
-        id="printed_stock_picking_barcode_labels_id" 
+        id="printed_stock_picking_barcode_labels" 
         model="stock.picking" 
         string="External Product Labels"
         report_type="qweb-pdf"
@@ -80,7 +80,7 @@
 	
     <!-- Sale Order Report -->
     <report 
-        id="printed_mrp_order_barcode_labels_id" 
+        id="printed_mrp_order_barcode_labels" 
         model="mrp.production" 
         string="External Product Labels"
         report_type="qweb-pdf"

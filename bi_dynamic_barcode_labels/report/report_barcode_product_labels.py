@@ -18,15 +18,15 @@ class DynamicBarcodeProductLabelsParser(models.AbstractModel):
         
         return {
             'barcode_type': 'EAN13',
-            'barcode_width': 80,
-            'barcode_height': 120,
+            'barcode_width': 120,
+            'barcode_height': 25,
             'barcode_currency_id': 1,
             'barcode_currency_position': 'before',
             }
 
     @api.model
     def _get_report_values(self, docids, data=None):
-        barcode_labels_report = self.env['ir.actions.report']._get_report_from_name('bi_dynamic_barcode_labels.product_barcode_labels')
+        barcode_labels_report = self.env['ir.actions.report']._get_report_from_name('product_barcode_labels')
         barcode_labels = 'form' in data
         barcode_labels = barcode_labels and 'barcode_labels' in data or []
         logger.info('Data: ' + str(data))

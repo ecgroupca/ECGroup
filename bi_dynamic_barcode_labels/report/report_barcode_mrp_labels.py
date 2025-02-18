@@ -14,8 +14,8 @@ class DynamicBarcodeMRPLabelsParser(models.AbstractModel):
         self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
         return {
             'barcode_type': 'EAN13',
-            'barcode_width': 80,
-            'barcode_height': 120,
+            'barcode_width': 120,
+            'barcode_height': 25,
             'barcode_currency_id': 1,
             'barcode_currency_position': 'before',
             }
