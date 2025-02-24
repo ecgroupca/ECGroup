@@ -5,12 +5,12 @@ from odoo import api, fields, models
 
 
 class DynamicBarcodeSaleLabelsParser(models.AbstractModel):
-	_name = 'report.bi_dynamic_barcode_labels.sale_dynamic_barcode_labels'
-	_description = "Sale Product variant barcode labels Report"
+    _name = 'report.bi_dynamic_barcode_labels.sale_dynamic_barcode_labels'
+    _description = "Sale Product variant barcode labels Report"
 
-	def _get_barcode_details_info(self):
-		barcode_config = \
-			self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
+    def _get_barcode_details_info(self):
+        barcode_config = \
+            self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
         return {
             'barcode_type': 'EAN13',
             'barcode_width': 120,
