@@ -19,9 +19,9 @@ class DynamicBarcodeSaleLabelsParser(models.AbstractModel):
             'barcode_currency_position': 'before',
             }
 
-	@api.model
-	def _get_report_values(self, docids, data=None):
-		barcode_labels_report = self.env['ir.actions.report']._get_report_from_name('bi_dynamic_barcode_labels.sale_dynamic_barcode_labels')
+    @api.model
+    def _get_report_values(self, docids, data=None):
+        barcode_labels_report = self.env['ir.actions.report']._get_report_from_name('bi_dynamic_barcode_labels.sale_dynamic_barcode_labels')
         barcode_labels = 'form' in data
         barcode_labels = barcode_labels and 'barcode_labels' in data or []
         logger.info('Data: ' + str(data))
