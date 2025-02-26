@@ -1,0 +1,11 @@
+16.0.0.2 ==>fixed issue of multi company for currency and position.
+
+16.0.0.3 ==> Fixed issue of when printed report at that time table not show proper.
+
+16.0.0.4 ==> Fixed issue of when user change label width and height from inventory configuration at that time no changes in label width and height for Purchase, Product, Product Variants, Sales, and Stocks.
+
+16.0.0.5 ==> Fixed issue of when set dynamic value for label it can't set properly.
+
+16.0.0.6 ==> Add hide price functionality in printing barcode lable if hidden is true then it should not be printed on the barcode label.
+
+=> 16.0.0.7 : Improved an index as per latest improvement points. 

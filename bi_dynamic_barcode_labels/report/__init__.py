@@ -4,7 +4,6 @@
 from . import report_barcode_product_labels
 from . import report_barcode_product_temp_labels
 from . import report_barcode_sale_labels
-from . import report_barcode_mrp_labels
 from . import report_barcode_purchase_labels
 from . import report_barcode_stock_labels
 

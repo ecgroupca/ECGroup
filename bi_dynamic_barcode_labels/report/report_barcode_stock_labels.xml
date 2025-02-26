@@ -2,60 +2,62 @@
 <odoo>
     <template id="stock_dynamic_barcode_labels">
         <t t-call="web.basic_layout">
-            <t t-foreach="docs" t-as="barcode">
-                <t t-foreach="range(barcode.qty)" t-as="l">
+            <t t-foreach="docs" t-as="doc">
+                <t t-foreach="range(doc.qty)" t-as='l'>
                     <div class="page">
-						<t t-translation="off">
-							<div style="display: inline-table; height: 288px; width:454px;">
-								<table class="table table-bordered">
-								  <tr>
-									<td class="text-center align-middle">
-									  <img align="center" t-if="barcode.company_id.logo" t-att-src="image_data_uri(barcode.company_id.logo)" style="max-width:454px;max-height:75px;" alt="Logo"/>
-									</td>
-								  </tr>
-									<tr>
-										<th class="table-active text-left">
-											<div>
-											  Transfer: <span t-esc="barcode.name"/>
-											   |  Date: <span t-esc="barcode.scheduled_date" t-options="{&quot;widget&quot;: &quot;date&quot;}"/>
-											</div>
-											<div>
-											  Origin: <span t-esc="barcode.picking_id.origin"/>
-											</div>
-											<div> 
-												<span t-if="barcode.picking_type_code=='incoming'">Receive From: </span>
-												<span t-if="barcode.picking_type_code=='outgoing'">Ship To: </span>
-												<span t-esc="barcode.partner_name"/>
-											</div>
-											<t t-if="barcode.product_id">
-												<t t-if="barcode.product_id.description">
-												  <div>Item: 
-													<span t-esc="'\n'.join(barcode.product_id.description.split('\n', 2)[:2])"/>
-												  </div>
-												</t>
-												<t t-else="barcode.product_id.name">
-												  <div>Item: 
-													<span t-esc="'\n'.join(barcode.product_id.name.split('\n', 2)[:2])"/>
-												  </div>
-												</t>
-											</t>
-										</th>
-									</tr>
-										<tr>
-											<td class="text-center align-middle">
-												<t t-if="not barcode.label_text and barcode.product_id and barcode.product_id.barcode">
-														<img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', barcode.product_id.barcode, 600, 110)" style="max-width:288px;max-height:100px" alt="Barcode"/>
-														<div t-esc="barcode.product_id.barcode"/>
-												</t>
-												<t t-else="">
-													<div t-esc="barcode.label_text"/>
-												</t>
-											</td>
-										</tr>
-								</table>
-							</div>
-						</t>
-					</div>
+                        <div class="col-4" style="padding:0;">
+                            <t t-set="barcode_info" t-value="get_barcode_details_info"/>
+                            <table class="table table-sm table-borderless" t-attf-style="border: 2px solid black;width: #{barcode_info['label_width']}px;height: #{barcode_info['label_height']}px;">
+                                <tr>
+                                    <th style="text-align: center;">
+                                        <strong t-field="doc.product_id.name"/>
+                                    </th>
+                                </tr>
+                                <t t-if="doc.product_id.attribute_line_ids">
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <span t-foreach="doc.product_id.product_template_attribute_value_ids" t-as="attribute_value1">
+                                                <span t-esc="attribute_value1.name+','"/>
+                                            </span>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <tr>
+                                    <td style="text-align: center;">
+                                        <span t-field="doc.product_id.default_code"/>
+                                    </td>
+                                </tr>
+                                <t t-if="doc.product_id.barcode">
+                                    <tr>
+                                        <td style="text-align: center; vertical-align: middle;" class="col-5">
+                                            <img alt="Barcode" t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % (barcode_info['barcode_type'], doc.product_id.barcode, 600, 100)"
+                                            t-attf-style="width: #{barcode_info['barcode_width']}px;height: #{barcode_info['barcode_height']}px;"
+                                                   />
+                                            <br />
+                                            <span t-field="doc.product_id.barcode"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                                <tr style="line-height:5px" t-if="not barcode_info['hide_price']">
+                                    <td style="padding:10px; font-size:15px;text-align:center">
+                                        <t t-if="barcode_info['barcode_currency_position'] == 'before'">
+                                            <strong>
+                                                <span t-esc="barcode_info['barcode_currency_id'].symbol" />
+                                                <span t-field="doc.product_id.list_price"/>
+                                            </strong>
+                                        </t>
+                                        <t t-if="barcode_info['barcode_currency_position'] != 'before'">
+                                            <strong>
+                                                <span t-field="doc.product_id.list_price"/>
+                                                <span t-esc="barcode_info['barcode_currency_id'].symbol" />
+                                            </strong>
+                                        </t>
+
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
                     <div style="page-break-before:always;"/>
                 </t>
                 <div style="page-break-before:always;"/>
