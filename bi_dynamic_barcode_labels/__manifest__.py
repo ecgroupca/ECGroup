@@ -55,7 +55,7 @@ Barcode Labels for Products,Templates,Sale,Purchase,Picking
     "website" : "https://www.browseinfo.com/demo-request?app=bi_dynamic_barcode_labels&version=16&edition=Community",
     'price': 25,
     "currency": 'EUR',
-    "depends" : ['base','web','sale_management','stock', 'purchase'],
+    "depends" : ['base','web','sale_management','stock','purchase','purchase_deposit'],
     "data": [
         'security/ir.model.access.csv',
         'data/barcode_config_data.xml',
