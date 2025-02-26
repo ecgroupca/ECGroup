@@ -3,92 +3,74 @@
 
     <!-- Barcode Labels Paperformate Report -->
     <record id="barcode_labels_report_paperformate" model="report.paperformat">
-        <field name="name">Barcode Labels Report Paperformat</field>
+        <field name="name">Barcode Labels Report Paperformate</field>
         <field name="default" eval="True" />
         <field name="format">custom</field>
-        <field name="page_height">109</field>
-        <field name="page_width">88</field>
+        <field name="page_height">50</field>
+        <field name="page_width">70</field>
         <field name="orientation">Portrait</field>
-        <field name="margin_top">5.30</field>
-        <field name="margin_bottom">0</field>
-        <field name="margin_left">1</field>
-        <field name="margin_right">3</field>
+        <field name="margin_top">4</field>
+        <field name="margin_bottom">4</field>
+        <field name="margin_left">4</field>
+        <field name="margin_right">4</field>
         <field name="header_line" eval="False" />
         <field name="header_spacing">0</field>
         <field name="dpi">90</field>
     </record>
 
     <!-- Product Variant Report -->
-    <report 
-        id="printed_barcode_labels" 
-        model="product.product" 
-        string="External Product Labels"
-        report_type="qweb-pdf"
-        name="bi_dynamic_barcode_labels.product_barcode_labels" 
-        file="bi_dynamic_barcode_labels.product_barcode_labels"
-        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
-        menu="False"
-    />
+
+    <record id="printed_barcode_labels_id" model="ir.actions.report">
+        <field name="name">Printed Barcode Labels</field>
+        <field name="model">product.product</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bi_dynamic_barcode_labels.product_barcode_labels</field>
+        <field name="report_file">bi_dynamic_barcode_labels.product_barcode_labels</field>
+        <field name="paperformat_id" ref="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"/>
+    </record>
 
     <!-- Product Template Report -->
-    <report 
-        id="printed_product_temp_barcode_labels" 
-        model="product.template" 
-        string="External Product Labels"
-        report_type="qweb-pdf"
-        name="bi_dynamic_barcode_labels.product_temp_barcode_labels" 
-        file="bi_dynamic_barcode_labels.product_temp_barcode_labels"
-        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
-        menu="False"
-    />
+
+    <record id="printed_product_temp_barcode_labels_id" model="ir.actions.report">
+        <field name="name">Printed Barcode Labels</field>
+        <field name="model">product.template</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bi_dynamic_barcode_labels.product_temp_barcode_labels</field>
+        <field name="report_file">bi_dynamic_barcode_labels.product_temp_barcode_labels</field>
+        <field name="paperformat_id" ref="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"/>
+    </record>
 
     <!-- Sale Order Report -->
-    <report 
-        id="printed_sale_order_barcode_labels" 
-        model="sale.order" 
-        string="External Product Labels"
-        report_type="qweb-pdf"
-        name="bi_dynamic_barcode_labels.sale_dynamic_barcode_labels" 
-        file="bi_dynamic_barcode_labels.sale_dynamic_barcode_labels"
-        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
-        menu="False"
-    />
+    <record id="printed_sale_order_barcode_labels_id" model="ir.actions.report">
+        <field name="name">Printed Barcode Labels</field>
+        <field name="model">sale.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bi_dynamic_barcode_labels.sale_dynamic_barcode_labels</field>
+        <field name="report_file">bi_dynamic_barcode_labels.sale_dynamic_barcode_labels</field>
+        <field name="paperformat_id" ref="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"/>
+    </record>
 
     <!-- Purchase Order Report -->
-    <report 
-        id="printed_purchase_order_barcode_labels" 
-        model="purchase.order" 
-        string="External Product Labels"
-        report_type="qweb-pdf"
-        name="bi_dynamic_barcode_labels.pur_dynamic_barcode_labels" 
-        file="bi_dynamic_barcode_labels.pur_dynamic_barcode_labels"
-        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
-        menu="False"
-    />
+
+    <record id="printed_purchase_order_barcode_labels_id" model="ir.actions.report">
+        <field name="name">Printed Barcode Labels</field>
+        <field name="model">purchase.order</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bi_dynamic_barcode_labels.pur_dynamic_barcode_labels</field>
+        <field name="report_file">bi_dynamic_barcode_labels.pur_dynamic_barcode_labels</field>
+        <field name="paperformat_id" ref="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"/>
+    </record>
 
     <!-- Stock Picking Report -->
-    <report 
-        id="printed_stock_picking_barcode_labels" 
-        model="stock.picking" 
-        string="External Product Labels"
-        report_type="qweb-pdf"
-        name="bi_dynamic_barcode_labels.stock_dynamic_barcode_labels" 
-        file="bi_dynamic_barcode_labels.stock_dynamic_barcode_labels"
-        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
-        menu="False"
-    />
-	
-    <!-- Sale Order Report -->
-    <report 
-        id="printed_mrp_order_barcode_labels" 
-        model="mrp.production" 
-        string="External Product Labels"
-        report_type="qweb-pdf"
-        name="bi_dynamic_barcode_labels.mrp_dynamic_barcode_labels" 
-        file="bi_dynamic_barcode_labels.mrp_dynamic_barcode_labels"
-        paperformat="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"
-        menu="False"
-    />
+
+    <record id="printed_stock_picking_barcode_labels_id" model="ir.actions.report">
+        <field name="name">Printed Barcode Labels</field>
+        <field name="model">stock.picking</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bi_dynamic_barcode_labels.stock_dynamic_barcode_labels</field>
+        <field name="report_file">bi_dynamic_barcode_labels.stock_dynamic_barcode_labels</field>
+        <field name="paperformat_id" ref="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"/>
+    </record>
 
 
 </odoo>
