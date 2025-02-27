@@ -9,7 +9,11 @@ class BarcodeStockLabelsWiz(models.TransientModel):
     _name = "barcode.stock.labels.wiz"
     _description = 'Barcode Product Labels Wizard'
 
-    product_barcode_ids = fields.One2many('barcode.stock.labels.wiz.line', 'label_id', string='Product Barcode')
+    product_barcode_ids = fields.One2many(
+        'barcode.stock.labels.wiz.line', 
+        'label_id', 
+        string='Product Barcode'
+    )
 
     @api.model
     def default_get(self, fields):
@@ -23,6 +27,12 @@ class BarcodeStockLabelsWiz(models.TransientModel):
                     'label_id' : self.id,
                     'product_id' : line.product_id.id, 
                     'qty' : line.product_uom_qty or 1,
+                    'company_id': order.company_id.id,
+                    'name': order.name,
+                    'scheduled_date': order.scheduled_date,
+                    'picking_type_code': order.picking_type_code,
+                    'partner_name': order.partner_id.name,
+                    'picking_id': order.id,
                 }))
         res.update({
             'product_barcode_ids': barcode_order_lines
@@ -32,10 +42,10 @@ class BarcodeStockLabelsWiz(models.TransientModel):
     def print_barcode_labels(self):
         self.ensure_one()
         [data] = self.read()
-        company = self.env.company
+                                                                                                                                   
         barcode_config = \
                     self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
-        if not company.barcode_currency_id or not company.barcode_currency_position:
+        if not barcode_config.barcode_currency_id or not barcode_config.barcode_currency_position:
             raise UserError(_('Barcode Configuration fields are not set in data (Inventory -> Settings -> Barcode Configuration)'))
         data['barcode_labels'] = data['product_barcode_ids']
         barcode_lines = self.env['barcode.stock.labels.wiz.line'].browse(data['barcode_labels'])
@@ -52,5 +62,12 @@ class BarcodeStockLabelsLine(models.TransientModel):
     _description = 'Barcode Product Labels Line'
     
     label_id = fields.Many2one('barcode.stock.labels.wiz', 'Barcode labels')
-    product_id = fields.Many2one('product.product',' Product')
+    product_id = fields.Many2one('product.product','Product')
     qty = fields.Integer('Barcode', default=1)
+    label_text = fields.Text('Free Text')
+    company_id = fields.Many2one('res.company','Company')
+    name = fields.Char('Partner Name')
+    scheduled_date = fields.Datetime('Scheduled Date')
+    picking_type_code = fields.Char('Picking Type Code')
+    partner_name = fields.Char('Partner Name')
+    picking_id = fields.Many2one('stock.picking','Transfer')

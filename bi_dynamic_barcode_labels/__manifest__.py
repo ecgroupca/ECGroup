@@ -72,6 +72,7 @@ Barcode Labels for Products,Templates,Sale,Purchase,Picking
         'wizard/barcode_sales_labels_view.xml',
         'wizard/barcode_purchase_labels_view.xml',
         'wizard/barcode_stock_labels_view.xml',
+        'wizard/barcode_barcode_labels_view.xml',
          ],
     "license":'OPL-1',
     "auto_install": False,

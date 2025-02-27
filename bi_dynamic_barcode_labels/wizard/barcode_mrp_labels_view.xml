@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <record id="view_barcode_sale_labels" model="ir.ui.view">
-        <field name="name">Barcode Product Labels</field>
-        <field name="model">barcode.sale.labels.wiz</field>
+    <record id="view_barcode_mrp_labels" model="ir.ui.view">
+        <field name="name">Print External Labels</field>
+        <field name="model">barcode.mrp.labels.wiz</field>
         <field name="arch" type="xml">
-            <form string="Barcode Product Labels">
+            <form string="External Product Labels">
                 <sheet>
                     <group>
-                        <separator string="Products To Print" colspan="4"/>
+                        <separator string="Product Labels to Print" colspan="4"/>
                         <field name="product_barcode_ids" nolabel="1">
                             <tree editable="bottom">
 							    <field name="sale_id" style="max-width:15%;"/>
@@ -28,12 +28,12 @@
         </field>
     </record>
 
-    <record id="action_sale_view_barcode_product_labels" model="ir.actions.act_window">
-        <field name="name">Barcode Product Labels</field>
-        <field name="type">ir.actions.act_window</field>
-        <field name="res_model">barcode.sale.labels.wiz</field>
-        <field name="view_mode">form</field>
-        <field name='target'>new</field>
-        <field name="binding_model_id" ref="sale.model_sale_order"/>
-    </record>
+    <act_window name="External Product Labels"
+        res_model="barcode.mrp.labels.wiz"
+        binding_model="mrp.production"
+        view_mode="form"
+        target="new"
+        id="action_mrp_view_barcode_product_labels"
+    />
+
 </odoo>
