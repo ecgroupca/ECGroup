@@ -65,6 +65,7 @@ Barcode Labels for Products,Templates,Sale,Purchase,Picking
         'report/report_barcode_sale_labels.xml',
         'report/report_barcode_purchase_labels.xml',
         'report/report_barcode_stock_labels.xml',
+        'report/report_barcode_mrp_labels.xml',
         'report/report.xml',
         'wizard/barcode_product_labels_view.xml',
         'wizard/barcode_product_temp_labels_view.xml',

@@ -71,6 +71,15 @@
         <field name="report_file">bi_dynamic_barcode_labels.stock_dynamic_barcode_labels</field>
         <field name="paperformat_id" ref="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"/>
     </record>
+	
+    <!-- MRP Production Report -->
 
-
+    <record id="printed_mrp_production_barcode_labels_id" model="ir.actions.report">
+        <field name="name">Printed Barcode Labels</field>
+        <field name="model">mrp.production</field>
+        <field name="report_type">qweb-pdf</field>
+        <field name="report_name">bi_dynamic_barcode_labels.mrp_dynamic_barcode_labels</field>
+        <field name="report_file">bi_dynamic_barcode_labels.mrp_dynamic_barcode_labels</field>
+        <field name="paperformat_id" ref="bi_dynamic_barcode_labels.barcode_labels_report_paperformate"/>
+    </record>
 </odoo>
