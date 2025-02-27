@@ -18,6 +18,14 @@ class ResCompany(models.Model):
 
 class BarcodeConfigSettings(models.TransientModel):
     _inherit = 'res.config.settings'
+    
+    default_purchase_deposit_product_id = fields.Many2one(
+        comodel_name="product.product",
+        string="Purchase Deposit Product",
+        default_model="purchase.advance.payment.inv",
+        domain=[("type", "=", "service")],
+        help="Default product used for payment advances.",
+    )
 
     barcode_type = fields.Selection([('EAN13', 'EAN13'),
                                      ('Code11', 'Code11'),
