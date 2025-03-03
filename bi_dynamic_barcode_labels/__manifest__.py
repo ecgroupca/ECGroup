@@ -58,7 +58,7 @@ Barcode Labels for Products,Templates,Sale,Purchase,Picking
     "depends" : ['base','web','sale_management','stock','purchase'],
     "data": [
         'security/ir.model.access.csv',
-        #'data/barcode_config_data.xml',
+        'data/barcode_config_data.xml',
         #'views/barcode_config_views.xml',
         #'report/report_barcode_product_labels_temp.xml',
         #'report/report_barcode_product_temp_labels.xml',
