@@ -9,7 +9,7 @@ class BarcodeProductLabelsTempWiz(models.TransientModel):
     _name = "barcode.product.template.labels.wiz"
     _description = 'Barcode Product Template Labels Wizard'
 
-    product_barcode_ids = fields.One2many('barcode.product.template.labels.wiz.line', 'label_id', 'Product Barcode')
+    product_barcode_ids = fields.One2many('barcode.product.template.labels.wiz.line', 'label_id', string='Product Barcode')
 
     @api.model
     def default_get(self, fields):
@@ -31,9 +31,10 @@ class BarcodeProductLabelsTempWiz(models.TransientModel):
     def print_barcode_labels(self):
         self.ensure_one()
         [data] = self.read()
+        company = self.env.company
         barcode_config = \
                     self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
-        if not barcode_config.barcode_currency_id or not barcode_config.barcode_currency_position:
+        if not company.barcode_currency_id or not company.barcode_currency_position:
             raise UserError(_('Barcode Configuration fields are not set in data (Inventory -> Settings -> Barcode Configuration)'))
         data['barcode_labels'] = data['product_barcode_ids']
         barcode_lines = self.env['barcode.product.template.labels.wiz.line'].browse(data['barcode_labels'])

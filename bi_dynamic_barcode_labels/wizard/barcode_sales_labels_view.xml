@@ -28,12 +28,12 @@
         </field>
     </record>
 
-    <act_window name="Barcode Product Labels"
-        res_model="barcode.sale.labels.wiz"
-        binding_model="sale.order"
-        view_mode="form"
-        target="new"
-        id="action_sale_view_barcode_product_labels"
-    />
-
+    <record id="action_sale_view_barcode_product_labels" model="ir.actions.act_window">
+        <field name="name">Barcode Product Labels</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">barcode.sale.labels.wiz</field>
+        <field name="view_mode">form</field>
+        <field name='target'>new</field>
+        <field name="binding_model_id" ref="sale.model_sale_order"/>
+    </record>
 </odoo>

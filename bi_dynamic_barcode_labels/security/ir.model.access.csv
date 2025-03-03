@@ -1,2 +1,12 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_barcode_labels_config_manager,barcode.labels.config.manager,model_barcode_labels_config,stock.group_stock_manager,1,1,1,1
+access_barcode_product_labels_wiz,barcode.product.labels.wiz,model_barcode_product_labels_wiz,,1,1,1,1
+access_barcode_product_labels_wiz_line,barcode.product.labels.wiz.line,model_barcode_product_labels_wiz_line,,1,1,1,1
+access_barcode_product_template_labels_wiz,barcode.product.template.labels.wiz,model_barcode_product_template_labels_wiz,,1,1,1,1
+access_barcode_product_template_labels_wiz_line,barcode.product.template.labels.wiz.line,model_barcode_product_template_labels_wiz_line,,1,1,1,1
+access_barcode_purchase_labels_wiz,barcode.purchase.labels.wiz,model_barcode_purchase_labels_wiz,,1,1,1,1
+access_barcode_purchase_labels_wiz_line,barcode.purchase.labels.wiz.line,model_barcode_purchase_labels_wiz_line,,1,1,1,1
+access_barcode_sale_labels_wiz,barcode.sale.labels.wiz,model_barcode_sale_labels_wiz,,1,1,1,1
+access_barcode_sale_labels_wiz_line,barcode.sale.labels.wiz.line,model_barcode_sale_labels_wiz_line,,1,1,1,1
+access_barcode_stock_labels_wiz,barcode.stock.labels.wiz,model_barcode_stock_labels_wiz,,1,1,1,1
+access_barcode_stock_labels_wiz_line,barcode.stock.labels.wiz.line,model_barcode_stock_labels_wiz_line,,1,1,1,1

@@ -9,7 +9,13 @@ class BarcodeSaleLabelsWiz(models.TransientModel):
     _name = "barcode.sale.labels.wiz"
     _description = 'Barcode Product Labels Wizard'
 
-    product_barcode_ids = fields.One2many('barcode.sale.labels.wiz.line', 'label_id', 'Product Barcode')
+
+    product_barcode_ids = fields.One2many(
+        'barcode.sale.labels.wiz.line', 
+        'label_id',
+        string='Product Barcode'
+    )
+
     
     @api.model
     def default_get(self, fields):
@@ -34,6 +40,7 @@ class BarcodeSaleLabelsWiz(models.TransientModel):
     def print_barcode_labels(self):
         self.ensure_one()
         [data] = self.read()
+                                                                                               
         #barcode_config = \
         #            self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
         #if not barcode_config.barcode_currency_id or not barcode_config.barcode_currency_position:

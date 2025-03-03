@@ -68,6 +68,14 @@
                             </div>
                         </div>
                     </div>
+                    <div id="barcode_configuration2" class="col-12 col-lg-6 o_setting_box">
+                        <div class="o_setting_right_pane">
+                            <span class="o_form_label">Hide Price</span>
+                            <div class="text-muted">
+                                <field name="hide_price"/>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </xpath>
         </field>

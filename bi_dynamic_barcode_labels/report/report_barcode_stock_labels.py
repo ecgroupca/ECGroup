@@ -9,14 +9,18 @@ class DynamicBarcodeStockLabelsParser(models.AbstractModel):
 	_description = "Stock Product variant barcode labels Report"
 
 	def _get_barcode_details_info(self):
+		company = self.env.company
 		barcode_config = \
 			self.env.ref('bi_dynamic_barcode_labels.barcode_labels_config_data')
 		return {
 			'barcode_type': barcode_config.barcode_type,
 			'barcode_width': barcode_config.barcode_width,
 			'barcode_height': barcode_config.barcode_height,
-			'barcode_currency_id': barcode_config.barcode_currency_id,
-			'barcode_currency_position': barcode_config.barcode_currency_position,
+			'label_width': barcode_config.label_width,
+			'label_height': barcode_config.label_height,
+			'barcode_currency_id': company.barcode_currency_id,
+			'barcode_currency_position': company.barcode_currency_position,
+			'hide_price' : barcode_config.hide_price,
 		}
 
 	@api.model
