@@ -29,7 +29,7 @@ class StockPicking(models.Model):
         for pick in self:            
             if pick.sale_id:
                 sale_carrier = pick.sale_id.carrier_id
-                sale_shipvia = pick.sale_id.x_shipper_id
+                sale_shipvia = pick.sale_id.ship_name
                 
                 if sale_carrier:
                     if not pick.carrier_id:
