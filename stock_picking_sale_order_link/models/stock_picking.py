@@ -20,7 +20,7 @@ class StockPicking(models.Model):
         compute = '_compute_shipper'
         )   
     x_shipper_id = fields.Char(
-        "Ship Via"
+        'Ship Via',
         compute = '_compute_shipper'
         )         
         
