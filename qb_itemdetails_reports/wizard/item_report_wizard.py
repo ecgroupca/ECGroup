@@ -16,13 +16,26 @@ class itemReportWizard(models.TransientModel):
     
     def print_report(self):
         self.ensure_one()
-        data = {}
-        #data['ids'] = self.env.context.get('active_ids', [])
-        data['model'] = self.env.context.get('active_model', 'ir.ui.menu')
-        data['form'] = self.read(['category_ids','responsible_id','company_id','date_from', 'date_to', 'showroom'])[0]
-        print_excel = self.read(['print_excel'])[0]
-        print_excel = 'print_excel' in print_excel and print_excel['print_excel'] or False
+        fields = ['category_ids',
+           'responsible_id',
+           'company_id',
+           'date_from',
+           'date_to',
+           'showroom'
+        ]
+        
+        [data] = self.read(fields)
+        
+        datas = {
+            'ids': [1],
+            'model': 'item.report.wizard',
+            'form': data,
+        }
+
+        print_excel = self.read(['print_excel'])
+        print_excel = print_excel.get('print_excel',False)
+        
         if print_excel:
-            return self.env.ref('qb_itemdetails_reports.action_report_itemdetails_xlsx').report_action(self, data=data)        
+            return self.env.ref('qb_itemdetails_reports.action_report_itemdetails_xlsx').report_action(self, data=datas)        
         else:
-            return self.env.ref('qb_itemdetails_reports.action_report_itemdetails').report_action(self, data=data)
+            return self.env.ref('qb_itemdetails_reports.action_report_itemdetails').report_action(self, data=datas)
