@@ -11,4 +11,6 @@ class SaleOrder(models.Model):
             header_taxes = sale.taxes and sale.taxes.ids or []
             if header_taxes:
                 for line in sale.order_line:
-                    line.tax_id = [(6, 0, header_taxes)]
+                    product = line.product_id
+                    if product.name != 'FREIGHT':
+                        line.tax_id = [(6, 0, header_taxes)]
