@@ -12,5 +12,5 @@ class SaleOrder(models.Model):
             if header_taxes:
                 for line in sale.order_line:
                     product = line.product_id
-                    if product.name != 'FREIGHT':
+                    if product.default_code != 'Freight':
                         line.tax_id = [(6, 0, header_taxes)]
