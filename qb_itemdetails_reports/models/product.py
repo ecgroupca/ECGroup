@@ -26,7 +26,7 @@ class ProductProduct(models.Model):
                             vals = {
                                 'product_id': prod.id,
                                 'move_line_id': line.id,                      
-                                'product_uom_qty': line.product_uom_qty,                        
+                                'product_uom_qty': line.qty_done,                        
                                 'name': trans and trans.name or 'No order',                            
                             }
                             reserved_order = self.env['reserved.order'].sudo().create(vals)
