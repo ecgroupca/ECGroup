@@ -1,0 +1,21 @@
+Manage MO Workorders with Barcode Scanner
+
+Goal:  Scan a manufacturing order and the next workorder to be done in the sequence pops up and is managed by the barcode scanner.
+
+Workflows and Details:
+ 1. If there are no workorders or all workorders are done.
+           a. The MO comes up and the "Mark as Todo, Plan, Check Availability, Scrap, Cancel" barcodes to click those buttons could be scanned to move the MO forward.
+           b. If "Plan" is clicked, then the next screen will be the first workorder in the sequence.
+                      
+2. Once a Workorder is opened
+           a. "Process" button is scanned 
+                     i. Barcoded lots are then scanned for the assignment of lots and quantities to consume for them*.
+           b. If there is an item consumed in this WO then, if a lot number is scanned, it will be assigned to the consumed stock move*.
+           c. If a lot number for the finished good is scanned, it will be assigned to the finished item*.
+           d. "Validate, Continue Consumption, Mark as Done, Mark as Done and Close MO" buttons are scannable to move the WO and MO forward.        
+
+3. All workorders are done
+             a. Barcode scan "Mark as Done, Check Availability, Post Inventory, Scrap, Cancel" buttons
+               i. If the "Mark as Done" or "Post Inventory" button is clicked, then the inventory is posted and the MO is done.
+
+*each scan increases the quantity to consume by 1

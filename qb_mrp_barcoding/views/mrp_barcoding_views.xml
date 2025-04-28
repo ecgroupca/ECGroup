@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Kanban view to access operations by operation type -->
+
+    <record id="stock_picking_type_kanban" model="ir.ui.view">
+        <field name="name">stock.picking.type.kanban</field>
+        <field name="model">stock.picking.type</field>
+        <field name="mode">primary</field>
+        <field name="priority">20</field>
+        <field name="arch" type="xml">
+            <kanban class="o_kanban_mobile oe_background_grey o_emphasize_colors" create="0">
+                <field name="display_name"/>
+                <field name="color"/>
+                <field name="count_picking_ready"/>
+                <field name="code"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-if="['incoming', 'outgoing', 'internal','mrp_operation'].indexOf(record.code.raw_value) > -1" t-attf-class="oe_kanban_card #{!selection_mode ? kanban_color(record.color.raw_value) : ''} oe_kanban_global_click">
+                            <span class="oe_kanban_color_help" t-attf-title="In #{kanban_getcolorname(record.color.raw_value)}" role="img" t-attf-aria-label="In #{kanban_getcolorname(record.color.raw_value)}"/>
+                                <div class="o_kanban_card_header">
+                                        <div class="o_primary o_kanban_record_title">
+                                            <field name="name"/>
+                                        </div>
+                                        <div class="o_secondary">
+                                            <field name="warehouse_id" readonly="1"/>
+                                        </div>
+                                </div>
+                            <div class="container o_kanban_card_content o_kanban_button">
+                                <div class="row text-muted">
+                                    <button class="btn btn-primary" name="get_action_picking_tree_ready_kanban" type="object">
+                                        <span t-if="record.code.raw_value =='incoming'"><t t-esc="record.count_picking_ready.value"/> To Process</span>
+                                        <span t-if="record.code.raw_value =='outgoing'"><t t-esc="record.count_picking_ready.value"/> To Process</span>
+                                        <span t-if="record.code.raw_value =='internal'"><t t-esc="record.count_picking_ready.value"/> To Process</span>
+										<span t-if="record.code.raw_value =='mrp_operation'"><t t-esc="record.count_picking_ready.value"/> To Process</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="stock_picking_type_action_kanban" model="ir.actions.act_window">
+        <field name="name">Operations</field>
+        <field name="res_model">stock.picking.type</field>
+        <field name="view_mode">kanban,form</field>
+        <field name="domain">[('code', 'in', ('mrp_operation','incoming', 'outgoing', 'internal'))]</field>
+        <field name="view_id" ref="stock_picking_type_kanban"/>
+        <field name="context">{
+            'form_view_initial_mode': 'edit',
+            'force_detailed_view': True,
+        }</field>
+    </record>
+
+</odoo>
