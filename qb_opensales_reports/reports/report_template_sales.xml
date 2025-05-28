@@ -35,7 +35,7 @@
 								    <td colspan="4" style="font-size:12pt;" align="center"><strong><t t-esc="sm[showroom][rep]['name']"/></strong></td>
 							    </tr>
 							    <t t-set="rep_sales_total" t-value="0.00"/>
-							    <t t-set="rep_deposits_total" t-value="0.00" t-options="{&quot;widget&quot;: &quot;monetary&quot;, &quotisplay_currency&quot;: user.company_id.currency_id}"/>
+							    <t t-set="rep_deposits_total" t-value="0.00"/>
 							    <t t-set="rep_balance_total" t-value="0.00"/>
 								  <t t-set="is_previous" t-value="name"/>
 								  <t t-foreach="sm[showroom][rep]['data']" t-as="o">
