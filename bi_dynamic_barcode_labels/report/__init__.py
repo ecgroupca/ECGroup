@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-# Part of BrowseInfo. See LICENSE file for full copyright and licensing details.
+# Part of BrowseInfo., Quickbeam ERP customized in 2021,2022,2025
+# See LICENSE file for full copyright and licensing details.
 
 from . import report_barcode_product_labels
 from . import report_barcode_product_temp_labels
