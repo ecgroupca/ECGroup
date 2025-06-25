@@ -17,11 +17,13 @@ class StockPicking(models.Model):
         )
     carrier_id = fields.Many2one('delivery.carrier',
         'Carrier',
-        compute = '_compute_shipper'
-        )   
+        compute = '_compute_shipper',
+        store=True,
+        )  
     x_shipper_id = fields.Char(
         'Ship Via',
-        compute = '_compute_shipper'
+        compute = '_compute_shipper',
+        store=True,
         )         
         
     def _compute_shipper(self):
