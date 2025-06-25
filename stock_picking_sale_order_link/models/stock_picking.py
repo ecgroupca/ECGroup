@@ -27,7 +27,11 @@ class StockPicking(models.Model):
     def compute_shipper(self):
         #only do this for one
          
-        for pick in self:            
+        for pick in self:    
+            
+            pick.carrier_id = False
+            pick.x_shipper_id = sale_shipvia 
+            
             if pick.sale_id:
                 sale_carrier = pick.sale_id.carrier_id
                 sale_shipvia = pick.sale_id.ship_name
