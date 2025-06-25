@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--comments for new commit-->
 <odoo>
 	<template id="product_barcode_labels">
 		<t t-call="web.basic_layout">
