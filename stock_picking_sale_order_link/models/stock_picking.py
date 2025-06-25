@@ -17,29 +17,28 @@ class StockPicking(models.Model):
         )
     carrier_id = fields.Many2one('delivery.carrier',
         'Carrier',
-        compute = '_compute_shipper',
+        compute = 'compute_shipper',
         )  
     x_shipper_id = fields.Char(
         'Ship Via',
-        compute = '_compute_shipper',
+        compute = 'compute_shipper',
         )         
         
-    def _compute_shipper(self):
+    def compute_shipper(self):
         #only do this for one
-        
-        if len(self) == 1:          
-            for pick in self:            
-                if pick.sale_id:
-                    sale_carrier = pick.sale_id.carrier_id
-                    sale_shipvia = pick.sale_id.ship_name
-                    
-                    if sale_carrier:
-                        if not pick.carrier_id:
-                            pick.carrier_id = sale_carrier
-                    
-                    if sale_shipvia:
-                        if not pick.x_shipper_id:
-                            pick.x_shipper_id = sale_shipvia
+         
+        for pick in self:            
+            if pick.sale_id:
+                sale_carrier = pick.sale_id.carrier_id
+                sale_shipvia = pick.sale_id.ship_name
+                
+                if sale_carrier:
+                    if not pick.carrier_id:
+                        pick.carrier_id = sale_carrier
+                
+                if sale_shipvia:
+                    if not pick.x_shipper_id:
+                        pick.x_shipper_id = sale_shipvia
                         
 
     def action_view_sale_order(self):
