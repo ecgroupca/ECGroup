@@ -26,21 +26,21 @@ class StockPicking(models.Model):
         
     def _compute_shipper(self):
         #only do this for one
-        self.ensure_one()
         
-        for pick in self:            
-            if pick.sale_id:
-                sale_carrier = pick.sale_id.carrier_id
-                sale_shipvia = pick.sale_id.ship_name
-                
-                if sale_carrier:
-                    if not pick.carrier_id:
-                        pick.carrier_id = sale_carrier
-                
-                if sale_shipvia:
-                    if not pick.x_shipper_id:
-                        pick.x_shipper_id = sale_shipvia
+        if len(self) == 1:          
+            for pick in self:            
+                if pick.sale_id:
+                    sale_carrier = pick.sale_id.carrier_id
+                    sale_shipvia = pick.sale_id.ship_name
                     
+                    if sale_carrier:
+                        if not pick.carrier_id:
+                            pick.carrier_id = sale_carrier
+                    
+                    if sale_shipvia:
+                        if not pick.x_shipper_id:
+                            pick.x_shipper_id = sale_shipvia
+                        
 
     def action_view_sale_order(self):
         """This function returns an action that display existing sales order
