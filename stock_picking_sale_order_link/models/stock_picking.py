@@ -25,6 +25,8 @@ class StockPicking(models.Model):
         )         
         
     def _compute_shipper(self):
+        #only do this for one
+        self.ensure_one()
         
         for pick in self:            
             if pick.sale_id:
