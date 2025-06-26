@@ -44,7 +44,7 @@
 										<tr>
 											<td class="text-center align-middle">
 												<t t-if="not barcode.label_text and barcode.product_id and barcode.product_id.barcode">
-														<img t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', barcode.product_id.barcode, 600, 110)" style="max-width:288px;max-height:100px" alt="Barcode"/>
+														<img t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % ('Code128', barcode.product_id.barcode, 600, 110)" style="max-width:288px;max-height:100px" alt="Barcode"/>
 														<div t-esc="barcode.product_id.barcode"/>
 												</t>
 												<t t-else="">

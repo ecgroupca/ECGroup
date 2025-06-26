@@ -31,7 +31,7 @@
 								<t t-if="doc.product_id.barcode">
 									<tr>
 										<td style="text-align: center; vertical-align: middle;" class="col-5">
-											<img alt="Barcode" t-att-src="'/report/barcode/?type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % (barcode_info['barcode_type'], doc.product_id.barcode, barcode_info['barcode_width'], barcode_info['barcode_height'])"/>
+											<img alt="Barcode" t-att-src="'/report/barcode/?barcode_type=%s&amp;value=%s&amp;width=%s&amp;height=%s' % (barcode_info['barcode_type'], doc.product_id.barcode, barcode_info['barcode_width'], barcode_info['barcode_height'])"/>
 											<br />
 											<span t-field="doc.product_id.barcode"/>
 										</td>
