@@ -47,7 +47,7 @@ class BarcodeMRPLabelsWiz(models.TransientModel):
              'model': 'barcode.mrp.labels.wiz',
              'form': data
         }
-        return self.env.ref('bi_dynamic_barcode_labels.printed_mrp_order_barcode_labels').report_action(barcode_lines, data=datas)
+        return self.env.ref('bi_dynamic_barcode_labels.printed_mrp_barcode_labels_id').report_action(barcode_lines, data=datas)
 
 
 class BarcodeMRPLabelsLine(models.TransientModel):

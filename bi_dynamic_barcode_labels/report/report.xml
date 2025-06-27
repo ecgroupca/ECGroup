@@ -74,7 +74,7 @@
 	
     <!-- MRP Production Report -->
 
-    <record id="printed_mrp_production_barcode_labels_id" model="ir.actions.report">
+    <record id="printed_mrp_barcode_labels_id" model="ir.actions.report">
         <field name="name">Printed Barcode Labels</field>
         <field name="model">mrp.production</field>
         <field name="report_type">qweb-pdf</field>
