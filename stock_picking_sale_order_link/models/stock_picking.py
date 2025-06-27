@@ -1,4 +1,5 @@
-# © 2017 Sergio Teruel <sergio.teruel@tecnativa.com>
+# © 2017 Sergio Teruel <sergio.teruel@tecnativa.com>, 
+# © 2025 Adam O'Connor <aoconnor@quickbeamllc.com>
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl).
 
 from odoo import models,fields
@@ -25,7 +26,6 @@ class StockPicking(models.Model):
         )         
         
     def compute_shipper(self):
-        #only do this for one
          
         for pick in self:    
             

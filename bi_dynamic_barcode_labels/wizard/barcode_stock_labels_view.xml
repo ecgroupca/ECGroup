@@ -7,14 +7,20 @@
             <form string="Barcode Product Labels">
                 <sheet>
                     <group>
-                        <separator string="Products To Print" colspan="4"/>
-                        <field name="product_barcode_ids" nolabel="1">
-                            <tree editable="bottom">
-                              <field name="product_id" style="max-width:40px;"/>
-							  <field name="label_text" style="width:50%;"/>
-                              <field name="qty" style="max-width:10%;"/>
-                            </tree>
+                     <separator string="Products To Print" colspan="4"/>
+					 <group>
+				       <field name="product_barcode_ids" widget="section_and_note_one2many">
+                          <tree editable="bottom" width="100%">
+							<field name="name" style="max-width:30px;" invisible="1"/>
+							<field name="picking_type_code" style="max-width:30px;" invisible="1"/>
+							<field name="partner_name" style="max-width:30px;" invisible="1"/>
+							<field name="product_id" style="max-width:80px;"/>
+							<field name="picking_id" style="max-width:50px;" invisible="1"/>
+							<field name="label_text" style="max-width:50%;"/>
+                            <field name="qty" style="max-width:20px;"/>
+                          </tree>
                         </field>
+					  </group>
                     </group>
                     <span class="o_form_label" style="font-weight:bold;">More Information about barcode configuration data, please navigate to Inventory -> Settings -> Barcode Configuration</span>
                 </sheet>

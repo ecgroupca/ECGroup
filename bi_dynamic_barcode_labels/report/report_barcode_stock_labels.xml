@@ -30,7 +30,7 @@
 											<t t-if="barcode.product_id">
 												<t t-if="barcode.product_id.description">
 												  <div>Item: 
-													<span t-esc="'\n'.join(barcode.product_id.description.split('\n', 2)[:2])"/>
+													<span t-raw="'\n'.join(barcode.product_id.description.split('\n', 2)[:2])"/>
 												  </div>
 												</t>
 												<t t-else="barcode.product_id.name">
