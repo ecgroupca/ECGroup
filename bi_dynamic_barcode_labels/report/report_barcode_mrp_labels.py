@@ -23,9 +23,9 @@ class DynamicBarcodeMRPLabelsParser(models.AbstractModel):
     @api.model
     def _get_report_values(self, docids, data=None):
         barcode_labels_report = self.env['ir.actions.report']._get_report_from_name('bi_dynamic_barcode_labels.mrp_dynamic_barcode_labels')
-        #barcode_labels = data['form']['barcode_labels']
-        barcode_labels = 'form' in data
-        barcode_labels = barcode_labels and 'barcode_labels' in data or []
+        barcode_labels = data['form']['barcode_labels']
+        #barcode_labels = 'form' in data
+        #barcode_labels = barcode_labels and 'barcode_labels' in data or []
 
         if barcode_labels:
             barcode_labels = self.env['barcode.mrp.labels.wiz.line'].browse(barcode_labels)
