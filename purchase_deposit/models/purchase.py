@@ -7,12 +7,11 @@ from odoo import fields, models
 
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
-    
-    
+      
     date_planned = fields.Datetime(
         string='Expected Arrival', index=True, 
         copy=False, store=True, readonly=False,
-        help="""Delivery date promised by vendor. 
+        help="""Delivery date promised by vendor1. 
         This date is used to determine expected 
         arrival of products.""")
 
