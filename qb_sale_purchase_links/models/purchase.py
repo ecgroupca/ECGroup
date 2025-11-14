@@ -18,6 +18,13 @@ class PurchaseOrder(models.Model):
     state = fields.Selection(
         selection_add=[('received', 'Received')],
     )
+    
+    date_planned = fields.Datetime(
+        string='Expected Arrival', index=True, 
+        copy=False, store=True, readonly=False,
+        help="""Delivery date promised by vendor. 
+        This date is used to determine expected 
+        arrival of products.""")
 
     sale_orders_counted = fields.Integer(
         "Sale Order Count",
