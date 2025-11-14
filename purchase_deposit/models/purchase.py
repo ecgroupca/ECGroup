@@ -7,6 +7,14 @@ from odoo import fields, models
 
 class PurchaseOrder(models.Model):
     _inherit = "purchase.order"
+    
+    
+    date_planned = fields.Datetime(
+        string='Expected Arrival', index=True, 
+        copy=False, store=True, readonly=False,
+        help="""Delivery date promised by vendor. 
+        This date is used to determine expected 
+        arrival of products.""")
 
     def copy_data(self, default=None):
         if default is None:
