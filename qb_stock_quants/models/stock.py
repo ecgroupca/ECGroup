@@ -85,7 +85,8 @@ class ProductProduct(models.Model):
             raise ValidationError("You cannot edit products with your current access.")
                 
         return super().write(vals)
-        
+    
+    @api.model_create_multi    
     def create(self, vals):
         
         user = self.env.user
@@ -104,7 +105,7 @@ class ProductProduct(models.Model):
             
             raise ValidationError("You cannot delete products with your current access.")
                 
-        return super().unlink(vals)
+        return super().unlink()
         
         
 class ProductTemplate(models.Model):
@@ -120,7 +121,8 @@ class ProductTemplate(models.Model):
             raise ValidationError("You cannot edit products with your current access.")
                 
         return super().write(vals)
-        
+    
+    @api.model_create_multi    
     def create(self, vals):
         
         user = self.env.user
@@ -139,6 +141,6 @@ class ProductTemplate(models.Model):
             
             raise ValidationError("You cannot delete products with your current access.")
                 
-        return super().unlink(vals)
+        return super().unlink()
         
         
