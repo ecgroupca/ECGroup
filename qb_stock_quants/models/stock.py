@@ -80,7 +80,7 @@ class ProductProduct(models.Model):
                
         user = self.env.user
         
-        if user.has_group("qb_stock_quants.products_no_cud"):
+        if user.has_group("qb_stock_quants.group_products_no_cud"):
             
             raise ValidationError("You cannot edit products with your current access.")
                 
@@ -91,7 +91,7 @@ class ProductProduct(models.Model):
         
         user = self.env.user
         
-        if user.has_group("qb_stock_quants.products_no_cud"):
+        if user.has_group("qb_stock_quants.group_products_no_cud"):
             
             raise ValidationError("You cannot create products with your current access.")
                 
@@ -101,7 +101,7 @@ class ProductProduct(models.Model):
         
         user = self.env.user
         
-        if user.has_group("qb_stock_quants.products_no_cud"):
+        if user.has_group("qb_stock_quants.group_products_no_cud"):
             
             raise ValidationError("You cannot delete products with your current access.")
                 
@@ -116,7 +116,7 @@ class ProductTemplate(models.Model):
                
         user = self.env.user
         
-        if user.has_group("qb_stock_quants.products_no_cud"):
+        if user.has_group("qb_stock_quants.group_products_no_cud"):
             
             raise ValidationError("You cannot edit products with your current access.")
                 
@@ -127,7 +127,7 @@ class ProductTemplate(models.Model):
         
         user = self.env.user
         
-        if user.has_group("qb_stock_quants.products_no_cud"):
+        if user.has_group("qb_stock_quants.group_products_no_cud"):
             
             raise ValidationError("You cannot create products with your current access.")
                 
@@ -137,7 +137,7 @@ class ProductTemplate(models.Model):
         
         user = self.env.user
         
-        if user.has_group("qb_stock_quants.products_no_cud"):
+        if user.has_group("qb_stock_quants.group_products_no_cud"):
             
             raise ValidationError("You cannot delete products with your current access.")
                 
