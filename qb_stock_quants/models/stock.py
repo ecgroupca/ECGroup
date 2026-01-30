@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 from odoo import models, fields, api
+from odoo.exceptions import ValidationError
 
 
 class ReservedOrder(models.Model):
@@ -14,6 +15,7 @@ class ReservedOrder(models.Model):
     product_uom_qty = fields.Float('Qty Reserved',related='move_line_id.reserved_qty')
     picking_id = fields.Many2one('stock.picking', string = 'Transfer',related='move_line_id.picking_id')
     production_id = fields.Many2one('mrp.production', string = 'Production Order',related='move_line_id.production_id')
+    
 
 class StockQuant(models.Model):
     """Stock Quant"""
@@ -52,7 +54,8 @@ class StockQuant(models.Model):
                                     'name': trans and trans.name + ': ' + str(line.reserved_qty),                            
                                 }
                                 reserved_order = self.env['reserved.order'].sudo().create(vals)
-                                quant.reserved_order_ids = [(4, reserved_order.id)]                       
+                                quant.reserved_order_ids = [(4, reserved_order.id)]  
+                                
                 
 class ProductProduct(models.Model):
     _inherit = 'product.product'
@@ -72,3 +75,70 @@ class ProductProduct(models.Model):
             ]
             move_lines = self.env['stock.move.line'].search(domain)
             product.reserved_line_ids = [(6, 0, move_lines.ids)]
+                        
+    def write(self, vals):
+               
+        user = self.env.user
+        
+        if user.has_group("qb_stock_quants.products_no_cud"):
+            
+            raise ValidationError("You cannot edit products with your current access.")
+                
+        return super().write(vals)
+        
+    def create(self, vals):
+        
+        user = self.env.user
+        
+        if user.has_group("qb_stock_quants.products_no_cud"):
+            
+            raise ValidationError("You cannot create products with your current access.")
+                
+        return super().create(vals)
+        
+    def unlink(self):
+        
+        user = self.env.user
+        
+        if user.has_group("qb_stock_quants.products_no_cud"):
+            
+            raise ValidationError("You cannot delete products with your current access.")
+                
+        return super().unlink(vals)
+        
+        
+class ProductTemplate(models.Model):
+    _inherit = 'product.template'
+               
+            
+    def write(self, vals):
+               
+        user = self.env.user
+        
+        if user.has_group("qb_stock_quants.products_no_cud"):
+            
+            raise ValidationError("You cannot edit products with your current access.")
+                
+        return super().write(vals)
+        
+    def create(self, vals):
+        
+        user = self.env.user
+        
+        if user.has_group("qb_stock_quants.products_no_cud"):
+            
+            raise ValidationError("You cannot create products with your current access.")
+                
+        return super().create(vals)
+        
+    def unlink(self):
+        
+        user = self.env.user
+        
+        if user.has_group("qb_stock_quants.products_no_cud"):
+            
+            raise ValidationError("You cannot delete products with your current access.")
+                
+        return super().unlink(vals)
+        
+        
