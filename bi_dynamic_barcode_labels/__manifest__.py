@@ -3,7 +3,7 @@
 
 {
     "name" : "Odoo Barcode Labels for All(Products,Templates,Sale,Purchase,Picking)",
-    "version" : "16.0.0.7",
+    "version" : "16.0.0.8",
     "category" : "Sales",
     'summary': 'All in one Barcode Labels Product Template barcode label for product barcode label for sale barcode label for purchase barcode label for picking barcode label print Dynamic Barcode Label print product labels print label from sales order print barcode label',
     "description": """
