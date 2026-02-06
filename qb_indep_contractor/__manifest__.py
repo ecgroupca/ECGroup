@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# (c) 2021 Quickbeam ERP
+# (c) 2026 Quickbeam ERP
 # License AGPL-3 - See http://www.gnu.org/licenses/agpl-3.0.html
 
 {
@@ -9,7 +9,7 @@
         Also maybe a report creation.
         Report - PDF - Vendor | Tax ID | Total Paid for the Year (1/1 - 12/31) | Billing Address*
            *first one in the list or the one used in invoices""",
-    'version': '1.0',
+    'version': '18.0.1',
     'author': 'Quickbeam ERP: Adam O\'Connor',
     'license': 'AGPL-3',
     'depends': ['base','account','purchase'],

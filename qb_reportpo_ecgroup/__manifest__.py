@@ -2,7 +2,7 @@
     'name': 'Vendor PO Report',
     'description': 'Vendor PO Report',
     'sequence': 1,
-    'version': '1.0.0',
+    'version': '18.0.1',
     'author': 'Quickbeam ERP: Sahil Navadiya <nsahil@quickbeamllc.com>, Adam OConnor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': ['purchase','report_xlsx'],

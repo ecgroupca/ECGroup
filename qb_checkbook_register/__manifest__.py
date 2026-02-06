@@ -1,9 +1,9 @@
-# Copyright 2022 Quickbeam, LLC - Adam O'Connor <aoconnor@quickbeamllc.com>  
+# Copyright 2026 Quickbeam, LLC - Adam O'Connor <aoconnor@quickbeamllc.com>  
 # License AGPL-3.0 or later (https://www.gnu.org/licenses/agpl.html).
 
 {
     "name": "Checkbook Register",
-    "version": "13.0.2.0.1",
+    "version": "18.0.2",
     "summary": "Extends account payment view to include routing # and account #, a special tree view with register as well as pdf report.",
     "author": "Adam OConnor, Quickbeam ERP",
     "category": "Accounting",
