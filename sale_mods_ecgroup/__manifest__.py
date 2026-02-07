@@ -4,7 +4,7 @@
 
 {
     'name': 'Sale Modifications for EC Group',
-    'version': '1.1',
+    'version': '1.0',
     'author': 'Quickbeam ERP: Adam O\'Connor',
     'license': 'AGPL-3',
     'depends': ['sale'],

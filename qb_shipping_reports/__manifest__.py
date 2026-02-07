@@ -2,7 +2,7 @@
     'name': 'EC Group Shipping Reports',
     'description': 'EC Group Shipping Reports',
     'sequence': 1,
-    'version': '18.1.0',
+    'version': '1.0',
     'author': 'Adam OConnor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': [

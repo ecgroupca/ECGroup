@@ -9,7 +9,7 @@
         Also maybe a report creation.
         Report - PDF - Vendor | Tax ID | Total Paid for the Year (1/1 - 12/31) | Billing Address*
            *first one in the list or the one used in invoices""",
-    'version': '18.0.1',
+    'version': '1.0',
     'author': 'Quickbeam ERP: Adam O\'Connor',
     'license': 'AGPL-3',
     'depends': ['base','account','purchase'],

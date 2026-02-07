@@ -1,6 +1,6 @@
 {
     'name': "Parallel Routing Steps",
-    'version': '18.0.1',
+    'version': '1.0',
     'author': "Jake Robinson",
     'website': "https://programmedbyjake.com",
     'category': 'Manufacturing',

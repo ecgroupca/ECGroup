@@ -2,7 +2,7 @@
     'name': 'EC Group Top Accounts Sales Report',
     'description': 'EC Group Top Accounts Sales Report.',
     'sequence': 1,
-    'version': '18.0.1',
+    'version': '1.0',
     'author': 'Adam OConnor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': [

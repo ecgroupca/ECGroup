@@ -3,7 +3,7 @@
 
 {
     "name": "Checkbook Register",
-    "version": "18.0.2",
+    "version": "1.0",
     "summary": "Extends account payment view to include routing # and account #, a special tree view with register as well as pdf report.",
     "author": "Adam OConnor, Quickbeam ERP",
     "category": "Accounting",

@@ -2,7 +2,7 @@
     'name': 'QB Purchase Approvals',
     'description': 'QB Purchase Approvals',
     'sequence': 1,
-    'version': '18.0.3',
+    'version': '1.0',
     'author': 'Adam OConnor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': [

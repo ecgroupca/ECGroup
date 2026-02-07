@@ -4,7 +4,7 @@
 
 {
     'name': 'Sale Commissions for EC Group',
-    "version": "18.0.2",
+    "version": "1.0",
     'author': 'Quickbeam ERP: Adam O\'Connor',
     'license': 'AGPL-3',
     'depends': ['sale','sale_mods_ecgroup','qb_opensales_reports','qb_transfer_locations'],
