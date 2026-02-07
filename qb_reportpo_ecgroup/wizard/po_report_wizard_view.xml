@@ -16,6 +16,7 @@
             </group>
             <group col="4">
 			    <field name="company_id"/>
+				<field name="buyer_id"/>
                 <field name="partner_ids" widget="many2many_tags" context="{'res_partner_search_mode': 'supplier'}"/>
             </group>
             <group>
