@@ -2,7 +2,7 @@
     'name': 'EC Group Item Details Reports',
     'description': 'EC Group Item Details Reports',
     'sequence': 1,
-    'version': '18.0.1',
+    'version': '1.0',
     'author': 'Adam OConnor <aoconnor@quickbeamllc.com>',
     'website': 'https://quickbeamllc.com',
     'depends': [
