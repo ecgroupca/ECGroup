@@ -84,14 +84,14 @@ class SaleOrder(models.Model):
                         line.comm_rate = header_rate"""
             
     @api.onchange('comm_rate')
-    def _onchange_comm_rate(self):   
-        for sale in self:
-            header_rate = sale.comm_rate
-            if header_rate:
-                for line in sale.order_line:
-                    if line.product_id and not line.product_id.no_commissions: 
-                        if line.product_id.type not in ['service','consu']:
-                            line.comm_rate = header_rate
+    def _onchange_comm_rate(self):
+        for line in self.order_line:
+            if (
+                line.product_id
+                and not line.product_id.no_commissions
+                and line.product_id.type not in ['service', 'consu']
+            ):
+                line.comm_rate = self.comm_rate
                             
     @api.onchange('team_id')
     def _onchange_sales_team(self):
