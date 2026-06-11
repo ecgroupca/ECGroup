@@ -76,16 +76,6 @@ class ProductProduct(models.Model):
             move_lines = self.env['stock.move.line'].search(domain)
             product.reserved_line_ids = [(6, 0, move_lines.ids)]
                         
-    def write(self, vals):
-               
-        user = self.env.user
-        
-        if user.has_group("qb_stock_quants.group_products_no_cud"):
-            
-            raise ValidationError("You cannot edit products with your current access.")
-                
-        return super().write(vals)
-    
     @api.model_create_multi    
     def create(self, vals):
         
@@ -111,16 +101,6 @@ class ProductProduct(models.Model):
 class ProductTemplate(models.Model):
     _inherit = 'product.template'
                
-            
-    def write(self, vals):
-               
-        user = self.env.user
-        
-        if user.has_group("qb_stock_quants.group_products_no_cud"):
-            
-            raise ValidationError("You cannot edit products with your current access.")
-                
-        return super().write(vals)
     
     @api.model_create_multi    
     def create(self, vals):

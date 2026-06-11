@@ -20,6 +20,8 @@ class OpenPurchasesXlsx(models.AbstractModel):
         date_from_display = date_from.strftime("%m-%d-%Y")
         date_to_display = date_to.strftime("%m-%d-%Y")
         partner_ids = data['form'].get('partner_ids', False)
+        buyer_id = data['form'].get('buyer_id', False)
+        buyer_id = buyer_id and buyer_id[0] or None
         company_id = data['form'].get('company_id', False)
         company_id = company_id and company_id[0] or None
         filter_by = data['form'].get('filter_by','approve')
@@ -35,8 +37,12 @@ class OpenPurchasesXlsx(models.AbstractModel):
             
         if partner_ids:
             domain_search.append(('partner_id','in',partner_ids))
+            
         if company_id:
             domain_search.append(('company_id','=',company_id))
+            
+        if buyer_id:
+            domain_search.append(('user_id','=',buyer_id))
             
         po_ids = self.env['purchase.order'].search(domain_search,order="date_order asc")  
         sheet = workbook.add_worksheet('Open Purchases')
@@ -48,6 +54,7 @@ class OpenPurchasesXlsx(models.AbstractModel):
         sheet.write(1, 5, date_to_display, bold)
         i,j = 0,0
         vendors = {}
+        
         for po in po_ids:
         
             open_order = False
@@ -73,28 +80,30 @@ class OpenPurchasesXlsx(models.AbstractModel):
             sheet.write(i+j+4, 1, 'Vendor: ', bold)
             sheet.write(i+j+4, 2, vendor, bold)
             sheet.write(i+j+5, 0, 'PO#', bold)
-            sheet.write(i+j+5, 1, 'Date', bold)
-            sheet.write(i+j+5, 2, 'Sidemark (SO)', bold)
-            sheet.write(i+j+5, 3, 'Required', bold)
-            sheet.write(i+j+5, 4, 'Order QTY', bold)
-            sheet.write(i+j+5, 5, 'Received QTY', bold)
-            sheet.write(i+j+5, 6, 'Item #', bold)
-            sheet.write(i+j+5, 7, 'Item', bold)
-            sheet.write(i+j+5, 8, 'Description', bold)
-            sheet.write(i+j+5, 9, 'Vendor Comments', bold)
+            sheet.write(i+j+5, 1, 'Buyer', bold)
+            sheet.write(i+j+5, 2, 'Date', bold)
+            sheet.write(i+j+5, 3, 'Sidemark (SO)', bold)
+            sheet.write(i+j+5, 4, 'Required', bold)
+            sheet.write(i+j+5, 5, 'Order QTY', bold)
+            sheet.write(i+j+5, 6, 'Received QTY', bold)
+            sheet.write(i+j+5, 7, 'Item #', bold)
+            sheet.write(i+j+5, 8, 'Item', bold)
+            sheet.write(i+j+5, 9, 'Description', bold)
+            sheet.write(i+j+5, 10, 'Vendor Comments', bold)
             
             for purchase in vendors[vendor]: 
                 i+=1            
                 sheet.write(j+i+5, 0, purchase.name, bold)
-                sheet.write(j+i+5, 1, purchase.date_order.strftime("%m-%d-%Y"))               
-                sheet.write(j+i+5, 2, purchase.partner_ref)
+                sheet.write(j+i+5, 1, purchase.user_id.name, bold)
+                sheet.write(j+i+5, 2, purchase.date_order.strftime("%m-%d-%Y"))               
+                sheet.write(j+i+5, 3, purchase.partner_ref)
                 for line in purchase.order_line:
-                    sheet.write(j+i+5, 3, line.date_planned and line.date_planned.strftime('%m/%d/%y') or '')
-                    sheet.write(j+i+5, 4, line.product_qty)
-                    sheet.write(j+i+5, 5, line.qty_received)
-                    sheet.write(j+i+5, 6, line.product_id.default_code)
-                    sheet.write(j+i+5, 7, line.product_id.name)
-                    sheet.write(j+i+5, 8, line.name.split('\n', 2)[:2][0])
+                    sheet.write(j+i+5, 4, line.date_planned and line.date_planned.strftime('%m/%d/%y') or '')
+                    sheet.write(j+i+5, 5, line.product_qty)
+                    sheet.write(j+i+5, 6, line.qty_received)
+                    sheet.write(j+i+5, 7, line.product_id.default_code)
+                    sheet.write(j+i+5, 8, line.product_id.name)
+                    sheet.write(j+i+5, 9, line.name.split('\n', 2)[:2][0])
                     i+=1
 
 class ReportOpenPOReport(models.AbstractModel):
@@ -109,6 +118,9 @@ class ReportOpenPOReport(models.AbstractModel):
         partner_ids = data['form'].get('partner_ids', False)
         company_id = data['form'].get('company_id', False)
         company_id = company_id and company_id[0] or None
+        buyer_id = data['form'].get('buyer_id', False)
+        buyer_id = buyer_id and buyer_id[0] or None
+        
         filter_by = data['form'].get('filter_by','approve')
         
         if filter_by == 'approve':
@@ -122,9 +134,13 @@ class ReportOpenPOReport(models.AbstractModel):
                          
         if partner_ids:
             domain_search.append(('partner_id','in',partner_ids))
+            
         if company_id:
             domain_search.append(('company_id','=',company_id))                         
-                         
+            
+        if buyer_id:
+            domain_search.append(('user_id','=',buyer_id))
+            
         po_ids = self.env['purchase.order'].search(domain_search,order="date_order asc")
         
         sm = {}

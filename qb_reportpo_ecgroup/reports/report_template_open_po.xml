@@ -25,6 +25,7 @@
 							<thead>
 								<tr style="border-bottom:2px solid black;">
 									<th style="text-align:left" width="10%">PO #</th>
+									<th style="text-align:left" width="10%">Buyer</th>
 									<th style="text-align:left" width="10%">Date</th>
 									<th style="text-align:left" width="10%">Required<br/>Date</th>
 									<th style="text-align:left" width="10%">Sidemark<br/>SO #</th>
@@ -41,6 +42,7 @@
 									  <t t-if="line.qty_received &lt; line.product_qty">
 		                        		<tr style="border-bottom:1px solid black;">
 		                        			<td><span t-field="line.order_id.name"/></td>
+											<td><span t-field="line.order_id.user_id.name"/></td>
 		                        			<td align="left">
 		                        			  <t t-if="line.order_id.date_order">
 		                        			    <span t-esc="line.order_id.date_order.strftime('%m/%d/%y')"/>
