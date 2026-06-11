@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Menu item under Inventory > Reporting -->
+    <menuitem
+        id="menu_stock_valuation_onhand"
+        name="Valuation On-Hand Inventory"
+        parent="stock.menu_warehouse_report"
+        action="stock_valuation_onhand.action_stock_valuation_onhand_wizard"
+        sequence="25"
+        groups="stock.group_stock_manager,stock_account.group_stock_account_manager"
+    />
+
+</odoo>
