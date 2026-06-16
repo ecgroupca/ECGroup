@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_stock_valuation_onhand_wizard" model="ir.ui.view">
+        <field name="name">stock.valuation.onhand.wizard.form</field>
+        <field name="model">stock.valuation.onhand.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Inventory Valuation – On-Hand Report">
+                <group>
+                    <group string="Report Parameters">
+                        <field name="date" />
+                        <field name="company_id"
+                               groups="base.group_multi_company" />
+                    </group>
+                    <group string="Filters (optional)">
+                        <field name="warehouse_ids"
+                               widget="many2many_tags"
+                               domain="[('company_id','=',company_id)]" />
+                        <field name="categ_ids"
+                               widget="many2many_tags" />
+                    </group>
+                </group>
+                <footer>
+                    <button name="action_print_report"
+                            string="Print / Download PDF"
+                            type="object"
+                            class="btn-primary" />
+                    <button string="Cancel"
+                            class="btn-secondary"
+                            special="cancel" />
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_stock_valuation_onhand_wizard" model="ir.actions.act_window">
+        <field name="name">Valuation On-Hand Inventory</field>
+        <field name="res_model">stock.valuation.onhand.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+</odoo>

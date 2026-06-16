@@ -1,0 +1,3 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_stock_valuation_onhand_wizard_manager,stock.valuation.onhand.wizard manager,model_stock_valuation_onhand_wizard,stock.group_stock_manager,1,1,1,1
+access_stock_valuation_onhand_wizard_accountant,stock.valuation.onhand.wizard accountant,model_stock_valuation_onhand_wizard,stock_account.group_stock_account_manager,1,1,1,1
