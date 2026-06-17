@@ -5,15 +5,9 @@
         <field name="name">Inventory Valuation On-Hand</field>
         <field name="model">stock.valuation.onhand.wizard</field>
         <field name="report_type">qweb-pdf</field>
-        <field name="report_name">
-            stock_valuation_onhand.report_stock_valuation_onhand_template
-        </field>
-        <field name="report_file">
-            stock_valuation_onhand.report_stock_valuation_onhand_template
-        </field>
-        <field name="print_report_name">
-            'Inventory_Valuation_OnHand_%s' % (object.date)
-        </field>
+        <field name="report_name">stock_valuation_onhand.report_stock_valuation_onhand_template</field>
+        <field name="report_file">stock_valuation_onhand.report_stock_valuation_onhand_template</field>
+        <field name="print_report_name">'Inventory_Valuation_OnHand_%s' % (object.date)</field>
         <field name="paperformat_id" ref="base.paperformat_us" />
     </record>
 
@@ -21,15 +15,9 @@
         <field name="name">Inventory Valuation On-Hand (Excel)</field>
         <field name="model">stock.valuation.onhand.wizard</field>
         <field name="report_type">xlsx</field>
-        <field name="report_name">
-            stock_valuation_onhand.onhand_xlsx
-        </field>
-        <field name="report_file">
-            stock_valuation_onhand.onhand_xlsx
-        </field>
-        <field name="print_report_name">
-            'Inventory_Valuation_OnHand_%s' % (object.date)
-        </field>
+        <field name="report_name">stock_valuation_onhand.onhand_xlsx</field>
+        <field name="report_file">stock_valuation_onhand.onhand_xlsx</field>
+        <field name="print_report_name">'Inventory_Valuation_OnHand_%s' % (object.date)</field>
     </record>
 
 </odoo>
