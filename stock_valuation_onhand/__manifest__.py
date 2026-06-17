@@ -9,7 +9,7 @@
     """,
     'category': 'Inventory/Reporting',
     'author': 'Adam O\'Connor <aoconnor@quickbeamllc.com>, Quickbeam ERP ',
-    'depends': ['stock', 'stock_account'],
+    'depends': ['stock', 'stock_account', 'report_xlsx'],
     'data': [
         'security/ir.model.access.csv',
         'wizard/stock_valuation_onhand_wizard_views.xml',

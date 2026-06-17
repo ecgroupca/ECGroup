@@ -14,9 +14,22 @@
         <field name="print_report_name">
             'Inventory_Valuation_OnHand_%s' % (object.date)
         </field>
-        <field name="binding_model_id"
-               ref="stock_valuation_onhand.model_stock_valuation_onhand_wizard" />
         <field name="paperformat_id" ref="base.paperformat_us" />
+    </record>
+
+    <record id="action_report_stock_valuation_onhand_xlsx" model="ir.actions.report">
+        <field name="name">Inventory Valuation On-Hand (Excel)</field>
+        <field name="model">stock.valuation.onhand.wizard</field>
+        <field name="report_type">xlsx</field>
+        <field name="report_name">
+            stock_valuation_onhand.report_stock_valuation_onhand_xlsx
+        </field>
+        <field name="report_file">
+            stock_valuation_onhand.report_stock_valuation_onhand_xlsx
+        </field>
+        <field name="print_report_name">
+            'Inventory_Valuation_OnHand_%s' % (object.date)
+        </field>
     </record>
 
 </odoo>

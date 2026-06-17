@@ -168,7 +168,8 @@ class StockValuationOnhandWizard(models.TransientModel):
         lines.sort(key=lambda l: (l['category'], l['product']))
         return lines
 
-    def action_print_report(self):
+    def _prepare_report_values(self):
+        """Build the data dict consumed by both the PDF and XLSX report templates."""
         self.ensure_one()
         lines = self._get_report_data()
         if not lines:
@@ -178,7 +179,7 @@ class StockValuationOnhandWizard(models.TransientModel):
 
         grand_total = sum(l['total_value'] for l in lines)
 
-        data = {
+        return {
             'date': fields.Date.to_string(self.date),
             'company': self.company_id.name,
             'currency_symbol': self.company_id.currency_id.symbol,
@@ -186,6 +187,17 @@ class StockValuationOnhandWizard(models.TransientModel):
             'lines': lines,
             'grand_total': grand_total,
         }
+
+    def action_print_report(self):
+        self.ensure_one()
+        data = self._prepare_report_values()
         return self.env.ref(
             'stock_valuation_onhand.action_report_stock_valuation_onhand'
+        ).report_action(self, data=data)
+
+    def action_print_xlsx(self):
+        self.ensure_one()
+        data = self._prepare_report_values()
+        return self.env.ref(
+            'stock_valuation_onhand.action_report_stock_valuation_onhand_xlsx'
         ).report_action(self, data=data)

@@ -24,6 +24,10 @@
                             string="Print / Download PDF"
                             type="object"
                             class="btn-primary" />
+                    <button name="action_print_xlsx"
+                            string="Print to Excel"
+                            type="object"
+                            class="btn-primary" />
                     <button string="Cancel"
                             class="btn-secondary"
                             special="cancel" />
