@@ -13,8 +13,8 @@
     'data': [
         'security/ir.model.access.csv',
         'wizard/stock_valuation_onhand_wizard_views.xml',
-        'report/stock_valuation_onhand_report_template.xml',
-        'report/stock_valuation_onhand_report.xml',
+        'reports/stock_valuation_onhand_report_template.xml',
+        'reports/stock_valuation_onhand_report.xml',
         'views/stock_menu.xml',
     ],
     'installable': True,
