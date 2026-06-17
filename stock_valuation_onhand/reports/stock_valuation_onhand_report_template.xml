@@ -43,35 +43,60 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <t t-foreach="data.get('lines', [])" t-as="line">
-                                    <tr>
-                                        <td><t t-esc="line['company']" /></td>
-                                        <td><t t-esc="line['reference']" /></td>
-                                        <td><t t-esc="line['created_by']" /></td>
-                                        <td><t t-esc="line['created_on']" /></td>
-                                        <td><t t-esc="line['product']" /></td>
-                                        <td><t t-esc="line['category']" /></td>
-                                        <td style="font-size:10px;">
-                                            <t t-esc="line['valuation_account']" />
+                                <t t-foreach="data.get('groups', [])" t-as="group">
+                                    <!-- Warehouse / parent stock location header -->
+                                    <tr style="background-color:#dde7ef;">
+                                        <td colspan="11" style="font-weight:700; font-size:12px;">
+                                            <t t-esc="group['warehouse']" />
+                                            <span style="font-weight:400; color:#555;">
+                                                &#160;(<t t-esc="group['location']" />)
+                                            </span>
                                         </td>
-                                        <td class="text-right">
-                                            <t t-esc="'%.4f' % line['qty']" />
+                                    </tr>
+                                    <t t-foreach="group.get('lines', [])" t-as="line">
+                                        <tr>
+                                            <td><t t-esc="line['company']" /></td>
+                                            <td><t t-esc="line['reference']" /></td>
+                                            <td><t t-esc="line['created_by']" /></td>
+                                            <td><t t-esc="line['created_on']" /></td>
+                                            <td><t t-esc="line['product']" /></td>
+                                            <td><t t-esc="line['category']" /></td>
+                                            <td style="font-size:10px;">
+                                                <t t-esc="line['valuation_account']" />
+                                            </td>
+                                            <td class="text-right">
+                                                <t t-esc="'%.4f' % line['qty']" />
+                                            </td>
+                                            <td><t t-esc="line['uom']" /></td>
+                                            <td class="text-right">
+                                                <t t-if="data.get('currency_position') == 'before'">
+                                                    <t t-esc="data.get('currency_symbol','')" />&#160;<t t-esc="'%.2f' % line['unit_cost']" />
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-esc="'%.2f' % line['unit_cost']" />&#160;<t t-esc="data.get('currency_symbol','')" />
+                                                </t>
+                                            </td>
+                                            <td class="text-right">
+                                                <t t-if="data.get('currency_position') == 'before'">
+                                                    <t t-esc="data.get('currency_symbol','')" />&#160;<t t-esc="'%.2f' % line['total_value']" />
+                                                </t>
+                                                <t t-else="">
+                                                    <t t-esc="'%.2f' % line['total_value']" />&#160;<t t-esc="data.get('currency_symbol','')" />
+                                                </t>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                    <!-- Warehouse subtotal -->
+                                    <tr style="font-weight:700;">
+                                        <td colspan="10" class="text-right">
+                                            Subtotal – <t t-esc="group['warehouse']" />
                                         </td>
-                                        <td><t t-esc="line['uom']" /></td>
                                         <td class="text-right">
                                             <t t-if="data.get('currency_position') == 'before'">
-                                                <t t-esc="data.get('currency_symbol','')" />&#160;<t t-esc="'%.2f' % line['unit_cost']" />
+                                                <t t-esc="data.get('currency_symbol','')" />&#160;<t t-esc="'%.2f' % (group.get('subtotal') or 0)" />
                                             </t>
                                             <t t-else="">
-                                                <t t-esc="'%.2f' % line['unit_cost']" />&#160;<t t-esc="data.get('currency_symbol','')" />
-                                            </t>
-                                        </td>
-                                        <td class="text-right">
-                                            <t t-if="data.get('currency_position') == 'before'">
-                                                <t t-esc="data.get('currency_symbol','')" />&#160;<t t-esc="'%.2f' % line['total_value']" />
-                                            </t>
-                                            <t t-else="">
-                                                <t t-esc="'%.2f' % line['total_value']" />&#160;<t t-esc="data.get('currency_symbol','')" />
+                                                <t t-esc="'%.2f' % (group.get('subtotal') or 0)" />&#160;<t t-esc="data.get('currency_symbol','')" />
                                             </t>
                                         </td>
                                     </tr>
