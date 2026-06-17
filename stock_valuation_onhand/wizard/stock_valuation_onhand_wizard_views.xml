@@ -9,8 +9,7 @@
                 <group>
                     <group string="Report Parameters">
                         <field name="date" />
-                        <field name="company_id"
-                               groups="base.group_multi_company" />
+                        <field name="company_id" />
                     </group>
                     <group string="Filters (optional)">
                         <field name="warehouse_ids"
