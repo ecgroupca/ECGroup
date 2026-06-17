@@ -8,7 +8,7 @@
         have already been shipped or sold.
     """,
     'category': 'Inventory/Reporting',
-    'author': 'Custom',
+    'author': 'Adam O\'Connor <aoconnor@quickbeamllc.com>, Quickbeam ERP ',
     'depends': ['stock', 'stock_account'],
     'data': [
         'security/ir.model.access.csv',
