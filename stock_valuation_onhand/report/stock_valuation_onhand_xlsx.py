@@ -2,7 +2,7 @@ from odoo import models
 
 
 class StockValuationOnhandXlsx(models.AbstractModel):
-    _name = 'report.stock_valuation_onhand.report_stock_valuation_onhand_xlsx'
+    _name = 'report.stock_valuation_onhand.onhand_xlsx'
     _inherit = 'report.report_xlsx.abstract'
     _description = 'Stock Valuation On-Hand XLSX Report'
 
