@@ -8,7 +8,7 @@
         parent="stock.menu_warehouse_report"
         action="stock_valuation_onhand.action_stock_valuation_onhand_wizard"
         sequence="25"
-        groups="stock.group_stock_manager,stock_account.group_stock_account_manager"
+        groups="stock.group_stock_manager"
     />
 
 </odoo>
