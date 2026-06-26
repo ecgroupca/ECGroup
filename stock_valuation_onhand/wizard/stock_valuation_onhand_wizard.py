@@ -111,16 +111,22 @@ class StockValuationOnhandWizard(models.TransientModel):
 
         product_ids = list({r[0] for r in qty_rows})
 
-        # 3. Filter by product category if requested
+        # 3. Filter by product type (always) and category (if requested)
         Product = self.env['product.product']
+        excluded_types = {'service', 'consu'}
+        allowed = set(
+            Product.browse(product_ids)
+            .filtered(lambda p: p.detailed_type not in excluded_types)
+            .ids
+        )
         if self.categ_ids:
-            allowed = set(
-                Product.browse(product_ids)
+            allowed &= set(
+                Product.browse(list(allowed))
                 .filtered(lambda p: p.categ_id.id in self.categ_ids.ids)
                 .ids
             )
-            qty_rows = [r for r in qty_rows if r[0] in allowed]
-            product_ids = list({r[0] for r in qty_rows})
+        qty_rows = [r for r in qty_rows if r[0] in allowed]
+        product_ids = list({r[0] for r in qty_rows})
 
         if not qty_rows:
             return []
