@@ -131,7 +131,13 @@ class StockValuationOnhandWizard(models.TransientModel):
         if not qty_rows:
             return []
 
-        # 4. Weighted-average unit cost from SVL as of date_end
+        # 4. Weighted-average unit cost from SVL as of date_end.
+        #    Exclude entries where quantity = 0 — these are MO cost analysis
+        #    postings and other pure value adjustments that have no physical
+        #    stock movement behind them. Including them inflates the average
+        #    (e.g. an MO cost posting of 17,600 with qty=0 added to a receipt
+        #    of 560 with qty=1 produces a false average of 9,080).
+        #    We only average over entries where actual units moved (quantity > 0).
         self.env.cr.execute("""
             SELECT
                 product_id,
@@ -143,6 +149,7 @@ class StockValuationOnhandWizard(models.TransientModel):
             WHERE product_id = ANY(%(pids)s)
               AND company_id = %(company_id)s
               AND create_date <= %(date_end)s
+              AND quantity > 0
             GROUP BY product_id
         """, {
             'pids': product_ids,
