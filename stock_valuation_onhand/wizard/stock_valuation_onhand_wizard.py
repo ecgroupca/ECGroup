@@ -131,25 +131,24 @@ class StockValuationOnhandWizard(models.TransientModel):
         if not qty_rows:
             return []
 
-        # 4. Weighted-average unit cost from SVL as of date_end.
-        #    Exclude entries where quantity = 0 — these are MO cost analysis
-        #    postings and other pure value adjustments that have no physical
-        #    stock movement behind them. Including them inflates the average
-        #    (e.g. an MO cost posting of 17,600 with qty=0 added to a receipt
-        #    of 560 with qty=1 produces a false average of 9,080).
-        #    We only average over entries where actual units moved (quantity > 0).
+        # 4. Unit cost from SVL remaining_value / remaining_qty as of date_end.
+        #    We use remaining_value and remaining_qty rather than a historical
+        #    weighted average of all positive entries. This correctly reflects
+        #    the current on-hand cost after deliveries have consumed specific
+        #    layers — e.g. if an inflated MO layer was already fully consumed
+        #    by a later delivery, it won't skew the reported unit cost.
         self.env.cr.execute("""
             SELECT
                 product_id,
-                CASE WHEN SUM(quantity) > 0
-                     THEN SUM(value) / SUM(quantity)
+                CASE WHEN SUM(remaining_qty) > 0
+                     THEN SUM(remaining_value) / SUM(remaining_qty)
                      ELSE 0
                 END AS unit_cost
             FROM stock_valuation_layer
             WHERE product_id = ANY(%(pids)s)
               AND company_id = %(company_id)s
               AND create_date <= %(date_end)s
-              AND quantity > 0
+              AND remaining_qty > 0
             GROUP BY product_id
         """, {
             'pids': product_ids,
