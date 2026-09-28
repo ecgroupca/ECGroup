@@ -19,7 +19,9 @@ class ResPartner(models.Model):
     reseller_id = fields.Char(
         'Reseller ID'
         )
-    x_studio_reseller_id = fields.Char('Reseller ID')
+    x_studio_reseller_id = fields.Char(
+        'Reseller ID'
+        )
     
 class SaleOrderLine(models.Model):
     _inherit = 'sale.order.line'
