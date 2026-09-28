@@ -74,14 +74,17 @@ class StockValuationOnhandWizard(models.TransientModel):
         self.env.cr.execute("""
             SELECT
                 product_id,
-                SUM(remaining_qty)   AS qty,
-                SUM(remaining_value) AS total_value
+                COALESCE(SUM(remaining_qty), 0.0)   AS qty,
+                COALESCE(SUM(remaining_value), 0.0) AS total_value
             FROM stock_valuation_layer
             WHERE company_id = %(company_id)s
               AND create_date <= %(date_end)s
             GROUP BY product_id
-            HAVING SUM(remaining_qty) != 0
-        """, {'company_id': self.company_id.id, 'date_end': date_end})
+            HAVING COALESCE(SUM(remaining_qty), 0.0) != 0
+        """, {
+            'company_id': self.company_id.id,
+            'date_end': date_end,
+        })
         svl_rows = self.env.cr.fetchall()  # [(product_id, qty, total_value), ...]
 
         if not svl_rows:
@@ -213,9 +216,10 @@ class StockValuationOnhandWizard(models.TransientModel):
         lines = []
         for product_id in product_ids:
             product = products[product_id]
-            qty = product_qty[product_id]
-            total_value = product_value[product_id]
-            unit_cost = (total_value / qty) if qty else 0.0
+            qty = product_qty[product_id] or 0.0
+            total_value = product_value[product_id] or 0.0
+            #now divide to get unit_cost
+            unit_cost = total_value / qty if qty else 0.0
 
             categ = product.categ_id
             valuation_account = ''
