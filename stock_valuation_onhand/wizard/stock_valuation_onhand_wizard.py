@@ -1,5 +1,9 @@
+import logging
+
 from odoo import fields, models, _
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 class StockValuationOnhandWizard(models.TransientModel):
@@ -31,19 +35,37 @@ class StockValuationOnhandWizard(models.TransientModel):
 
     def _get_report_data(self):
         """
-        On-hand inventory value as of self.date, computed the same way
-        Odoo 16's own Inventory > Reporting > Valuation does: qty and
-        value both come straight from stock_valuation_layer
-        (remaining_qty / remaining_value), summed per product for the
-        company as of date_end. That's the whole calculation - one
-        source of truth for both numbers, same as Odoo's own report.
+        On-hand inventory value as of self.date. qty and value both
+        come straight from stock_valuation_layer, summed per product
+        for the company for every layer with create_date <= date_end -
+        one source of truth for both numbers, matching how Odoo 16's
+        own Inventory > Reporting > Valuation computes a CURRENT total.
 
-        This deliberately replaces the previous approach, which derived
+        This deliberately replaced an earlier approach that derived
         qty from a separate stock_move_line query and only pulled cost
         from stock_valuation_layer - two independently-tracked numbers
-        that can drift apart (manual quant adjustments, negative stock,
-        non-owned stock, etc.), which is what caused this report's
-        total to run ~$200k under Odoo's own valuation report.
+        that can drift apart (manual quant adjustments, negative
+        stock, non-owned stock, etc.), which is what caused this
+        report's total to run ~$200k under Odoo's own valuation
+        report.
+
+        IMPORTANT: this sums quantity/value (each layer's original,
+        immutable amount as recorded at creation), NOT
+        remaining_qty/remaining_value (Odoo's live running balance,
+        which gets decremented on an OLD layer by a NEWER
+        delivery/consumption regardless of that consumption's own
+        date). Using remaining_qty/remaining_value made this report's
+        "as of a past date" totals silently drift every day forward as
+        ordinary business activity kept consuming older layers -
+        running the same date_end on two different days could give two
+        different answers. quantity/value never change after a layer
+        is created, so summing them for everything up to date_end is a
+        standard ledger-balance calculation that gives the same answer
+        no matter when you run it. (For date_end = today, this and the
+        remaining_*-based total should normally match anyway, since
+        both describe the same current on-hand position - only a
+        report for a PAST date_end actually depends on which of the
+        two you use.)
 
         IMPORTANT BEHAVIOR CHANGE: stock_valuation_layer has no
         location field - Odoo's own valuation is a company-wide,
@@ -71,21 +93,67 @@ class StockValuationOnhandWizard(models.TransientModel):
         # 1. Core valuation numbers - straight from stock_valuation_layer,
         #    grouped by product, same as Odoo's own valuation report.
         #    No location involved at all here.
+        #IMPORTANT: this deliberately sums quantity/value, NOT
+        #remaining_qty/remaining_value. remaining_qty/remaining_value
+        #are LIVE running balances - Odoo decrements them on an old
+        #layer whenever ANY later delivery/consumption (FIFO/AVCO)
+        #draws from it, regardless of what date that consumption
+        #itself happened on. So a report run "as of 8/31" that reads
+        #remaining_qty/remaining_value keeps drifting every day
+        #forward, because a delivery next week that consumes from an
+        #8/20 layer reduces that layer's remaining_* TODAY - even
+        #though we're asking what was on hand back on 8/31. That's
+        #what was causing this report to return different numbers for
+        #the exact same as-of date depending on which day you ran it.
+        #
+        #quantity/value, by contrast, are each layer's original
+        #amounts as recorded when it was created (positive for
+        #receipts, negative for deliveries/consumption) - they never
+        #get mutated after the fact. Summing quantity/value for every
+        #layer with create_date <= date_end is a standard ledger-
+        #balance calculation: it reconstructs on-hand qty/value at
+        #that exact point in time, and stays stable no matter when you
+        #run the report afterward, since it only ever reads immutable,
+        #already-final numbers.
+        #
+        #COALESCE is still on the individual value column (not
+        #wrapped around the whole SUM), so one layer with a null value
+        #contributes 0 rather than poisoning the entire product's SUM
+        #(NULL + anything = NULL in SQL) - see products_with_null_layers.
         self.env.cr.execute("""
             SELECT
                 product_id,
-                COALESCE(SUM(remaining_qty), 0.0)   AS qty,
-                COALESCE(SUM(remaining_value), 0.0) AS total_value
+                SUM(quantity) AS qty,
+                SUM(COALESCE(value,0)) AS total_value,
+                COUNT(*) FILTER (WHERE quantity != 0 AND value IS NULL) AS null_value_layers
             FROM stock_valuation_layer
             WHERE company_id = %(company_id)s
               AND create_date <= %(date_end)s
             GROUP BY product_id
-            HAVING COALESCE(SUM(remaining_qty), 0.0) != 0
-        """, {
-            'company_id': self.company_id.id,
-            'date_end': date_end,
-        })
-        svl_rows = self.env.cr.fetchall()  # [(product_id, qty, total_value), ...]
+            HAVING SUM(quantity) != 0
+        """, {'company_id': self.company_id.id, 'date_end': date_end})
+        svl_rows = self.env.cr.fetchall()  # [(product_id, qty, total_value, null_value_layers), ...]
+
+        #Products where at least one layer up to date_end has no
+        #recorded value at all - their total_value is understated by
+        #whatever that layer's real value should have been. Surfaced
+        #in the warning below rather than silently masked.
+        products_with_null_layers = {r[0]: r[3] for r in svl_rows if r[3]}
+        if products_with_null_layers:
+            #Not raised as a UserError - the report should still
+            #generate, just understated for these specific products -
+            #but this needs to be visible somewhere, since it's very
+            #likely the same root cause behind day-to-day total
+            #swings: which products have a null-valued layer, and how
+            #many, can change from one day's data to the next.
+            _logger.warning(
+                "Stock Valuation On-Hand: %d product(s) have on-hand "
+                "stock_valuation_layer rows with remaining_qty != 0 but "
+                "remaining_value IS NULL - their reported value is "
+                "understated by whatever those layers should have been "
+                "worth. product_id: null-valued layer count = %s",
+                len(products_with_null_layers), products_with_null_layers,
+            )
 
         if not svl_rows:
             return []
@@ -216,10 +284,9 @@ class StockValuationOnhandWizard(models.TransientModel):
         lines = []
         for product_id in product_ids:
             product = products[product_id]
-            qty = product_qty[product_id] or 0.0
-            total_value = product_value[product_id] or 0.0
-            #now divide to get unit_cost
-            unit_cost = total_value / qty if qty else 0.0
+            qty = product_qty[product_id]
+            total_value = product_value[product_id]
+            unit_cost = (total_value / qty) if qty else 0.0
 
             categ = product.categ_id
             valuation_account = ''
