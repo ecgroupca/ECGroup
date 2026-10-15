@@ -13,7 +13,7 @@ class StockValuationOnhandXlsx(models.AbstractModel):
     def _generate_sheet(self, workbook, data):
         sheet = workbook.add_worksheet('On-Hand Valuation')
 
-        lines = data.get('lines', [])
+        groups = data.get('groups', [])
         date = data.get('date', '')
         company = data.get('company', '')
         grand_total = data.get('grand_total', 0.0)
@@ -32,6 +32,16 @@ class StockValuationOnhandXlsx(models.AbstractModel):
         })
         fmt_money = workbook.add_format({
             'border': 1, 'num_format': '#,##0.00', 'align': 'right', 'valign': 'vcenter',
+        })
+        fmt_group = workbook.add_format({
+            'bold': True, 'border': 1, 'bg_color': '#DCE6F1', 'valign': 'vcenter',
+        })
+        fmt_sub_label = workbook.add_format({
+            'bold': True, 'border': 1, 'align': 'right', 'bg_color': '#EEF3F9',
+        })
+        fmt_sub_money = workbook.add_format({
+            'bold': True, 'border': 1, 'num_format': '#,##0.00',
+            'align': 'right', 'bg_color': '#EEF3F9',
         })
         fmt_total_label = workbook.add_format({
             'bold': True, 'border': 1, 'align': 'right', 'bg_color': '#F0F0F0',
@@ -68,24 +78,39 @@ class StockValuationOnhandXlsx(models.AbstractModel):
         for col, label in enumerate(headers):
             sheet.write(header_row, col, label, fmt_header)
 
-        # ── Data rows ───────────────────────────────────────────────────────
+        # ── Data rows, grouped by location ──────────────────────────────────
+        # Each location gets a header row, its product rows (outline
+        # level 1, so Excel's +/- buttons can collapse them) and a
+        # subtotal row.
         row = header_row + 1
-        for line in lines:
-            sheet.write(row, 0,  line.get('company', ''),           fmt_text)
-            sheet.write(row, 1,  line.get('location', ''),          fmt_text_wrap)
-            sheet.write(row, 2,  line.get('po_numbers', ''),        fmt_text_wrap)
-            sheet.write(row, 3,  line.get('reference', ''),         fmt_text)
-            sheet.write(row, 4,  line.get('created_by', ''),        fmt_text)
-            sheet.write(row, 5,  line.get('created_on', ''),        fmt_text)
-            sheet.write(row, 6,  line.get('product', ''),           fmt_text_wrap)
-            sheet.write(row, 7,  line.get('category', ''),          fmt_text)
-            sheet.write(row, 8,  line.get('valuation_account', ''), fmt_text_wrap)
-            sheet.write_number(row, 9,  line.get('qty', 0.0),        fmt_qty)
-            sheet.write(row, 10, line.get('uom', ''),               fmt_text)
-            sheet.write_number(row, 11, line.get('unit_cost', 0.0),  fmt_money)
-            sheet.write_number(row, 12, line.get('total_value', 0.0),fmt_money)
-            sheet.write_number(row, 13, line.get('sales_price', 0.0),fmt_money)
-            sheet.write_number(row, 14, line.get('cost', 0.0),       fmt_money)
+        last_col = len(headers) - 1
+        for group in groups:
+            sheet.merge_range(row, 0, row, last_col,
+                              'Location: %s' % group['location'], fmt_group)
+            row += 1
+            for line in group['lines']:
+                sheet.set_row(row, None, None, {'level': 1})
+                sheet.write(row, 0,  line.get('company', ''),           fmt_text)
+                sheet.write(row, 1,  line.get('location', ''),          fmt_text_wrap)
+                sheet.write(row, 2,  line.get('po_numbers', ''),        fmt_text_wrap)
+                sheet.write(row, 3,  line.get('reference', ''),         fmt_text)
+                sheet.write(row, 4,  line.get('created_by', ''),        fmt_text)
+                sheet.write(row, 5,  line.get('created_on', ''),        fmt_text)
+                sheet.write(row, 6,  line.get('product', ''),           fmt_text_wrap)
+                sheet.write(row, 7,  line.get('category', ''),          fmt_text)
+                sheet.write(row, 8,  line.get('valuation_account', ''), fmt_text_wrap)
+                sheet.write_number(row, 9,  line.get('qty', 0.0),        fmt_qty)
+                sheet.write(row, 10, line.get('uom', ''),               fmt_text)
+                sheet.write_number(row, 11, line.get('unit_cost', 0.0),  fmt_money)
+                sheet.write_number(row, 12, line.get('total_value', 0.0),fmt_money)
+                sheet.write_number(row, 13, line.get('sales_price', 0.0),fmt_money)
+                sheet.write_number(row, 14, line.get('cost', 0.0),       fmt_money)
+                row += 1
+            sheet.merge_range(row, 0, row, 11,
+                              'Total – %s' % group['location'], fmt_sub_label)
+            sheet.write_number(row, 12, group['total_value'], fmt_sub_money)
+            sheet.write(row, 13, '', fmt_sub_label)
+            sheet.write(row, 14, '', fmt_sub_label)
             row += 1
 
         # ── Grand total row ─────────────────────────────────────────────────
@@ -111,4 +136,5 @@ class StockValuationOnhandXlsx(models.AbstractModel):
         sheet.set_column(13, 13, 14)   # N  Sales Price
         sheet.set_column(14, 14, 14)   # O  Cost
 
+        sheet.outline_settings(True, False, True, False)  # subtotal row below detail
         sheet.freeze_panes(header_row + 1, 0)
