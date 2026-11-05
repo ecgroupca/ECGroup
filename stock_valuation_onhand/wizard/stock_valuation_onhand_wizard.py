@@ -1,9 +1,14 @@
 import logging
+import re
 
 from odoo import fields, models, _
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
+
+# Locations left out of the report: any location with an "RMA" path
+# segment in its complete name (e.g. "RMA", "WH/RMA", "WH/Stock/RMA").
+RMA_LOCATION_RE = re.compile(r'(^|/)\s*RMA\s*(/|$)', re.IGNORECASE)
 
 
 class StockValuationOnhandWizard(models.TransientModel):
@@ -368,6 +373,9 @@ class StockValuationOnhandWizard(models.TransientModel):
 
         result = []
         for loc_name in sorted(groups, key=lambda n: (n == UNALLOCATED, n)):
+            # RMA locations and the Unallocated bucket are not shown.
+            if loc_name == UNALLOCATED or RMA_LOCATION_RE.search(loc_name):
+                continue
             loc_lines = sorted(
                 groups[loc_name],
                 key=lambda l: (l['category'], l['reference'], l['product']))
