@@ -1,14 +1,9 @@
 import logging
-import re
 
 from odoo import fields, models, _
 from odoo.exceptions import UserError
 
 _logger = logging.getLogger(__name__)
-
-# Locations left out of the report: any location with an "RMA" path
-# segment in its complete name (e.g. "RMA", "WH/RMA", "WH/Stock/RMA").
-RMA_LOCATION_RE = re.compile(r'(^|/)\s*RMA\s*(/|$)', re.IGNORECASE)
 
 
 class StockValuationOnhandWizard(models.TransientModel):
@@ -94,7 +89,8 @@ class StockValuationOnhandWizard(models.TransientModel):
         warehouse_ids restricts which locations are listed, so with a
         warehouse filter the totals are that warehouse's share of the
         value (no Unallocated line, since leftovers belong to other
-        locations).
+        locations). Only an unfiltered run (no warehouse, no category)
+        is expected to equal Odoo's Valuation report for the same date.
 
         Returns a list of groups, one per location, sorted by location:
           [{'location': str, 'total_value': float, 'lines': [line, ...]}]
@@ -149,7 +145,8 @@ class StockValuationOnhandWizard(models.TransientModel):
             WHERE company_id = %(company_id)s
               AND create_date <= %(date_end)s
             GROUP BY product_id
-            HAVING SUM(quantity) != 0
+            HAVING ROUND(SUM(quantity)::numeric, 4) != 0
+                OR ROUND(SUM(COALESCE(value,0))::numeric, 4) != 0
         """, {'company_id': self.company_id.id, 'date_end': date_end})
         svl_rows = self.env.cr.fetchall()  # [(product_id, qty, total_value, null_value_layers), ...]
 
@@ -181,18 +178,12 @@ class StockValuationOnhandWizard(models.TransientModel):
         product_value = {r[0]: r[2] for r in svl_rows}
         product_ids = list(product_qty.keys())
 
-        # 2. Product type filter (always) + active filter (Odoo's own
-        #    valuation views default to active products only, and this
-        #    was previously an outstanding gap in this report - closing
-        #    it here since it's now a one-line addition).
-        Product = self.env['product.product']
-        excluded_types = {'service', 'consu'}
-        products_all = Product.browse(product_ids)
-        allowed = set(
-            products_all
-            .filtered(lambda p: p.active and p.detailed_type not in excluded_types)
-            .ids
-        )
+        # 2. No product type / active filter: Odoo 16's own valuation
+        #    report (Inventory > Reporting > Valuation) lists every
+        #    product that has valuation layers, archived ones included,
+        #    so excluding any here would make the total drift from it.
+        Product = self.env['product.product'].with_context(active_test=False)
+        allowed = set(product_ids)
 
         # 3. Category filter, if requested.
         if self.categ_ids:
@@ -223,7 +214,7 @@ class StockValuationOnhandWizard(models.TransientModel):
         scope_location_ids = scope_locations.ids
 
         product_ids = [pid for pid in product_ids if pid in allowed]
-        if not product_ids or not scope_location_ids:
+        if not product_ids or (self.warehouse_ids and not scope_location_ids):
             return []
 
         # 5. On-hand qty per product PER LOCATION as of date_end, from
@@ -367,15 +358,13 @@ class StockValuationOnhandWizard(models.TransientModel):
             # the leftover belongs to locations outside the selection.
             if not self.warehouse_ids:
                 diff_qty = svl_qty - allocated_qty
-                if round(diff_qty, 4) != 0:
+                diff_value = svl_value - allocated_value
+                if round(diff_qty, 4) != 0 or round(diff_value, 4) != 0:
                     groups.setdefault(UNALLOCATED, []).append(
-                        make_line(UNALLOCATED, diff_qty, svl_value - allocated_value))
+                        make_line(UNALLOCATED, diff_qty, diff_value))
 
         result = []
         for loc_name in sorted(groups, key=lambda n: (n == UNALLOCATED, n)):
-            # RMA locations and the Unallocated bucket are not shown.
-            if loc_name == UNALLOCATED or RMA_LOCATION_RE.search(loc_name):
-                continue
             loc_lines = sorted(
                 groups[loc_name],
                 key=lambda l: (l['category'], l['reference'], l['product']))
