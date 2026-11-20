@@ -92,10 +92,26 @@ class StockValuationOnhandWizard(models.TransientModel):
         locations). Only an unfiltered run (no warehouse, no category)
         is expected to equal Odoo's Valuation report for the same date.
 
+        LOT / SERIAL and MO COLUMNS: each product's per-location qty is
+        split further by the lot/serial on the done move lines
+        (stock_move_line.lot_id), so a lot-tracked product gets one
+        row per (location, lot). Stock moved without a lot (purchased,
+        untracked, RMA, ...) stays on a row with a blank lot. This is
+        only a finer split of the SAME location qty, valued at the same
+        product unit cost, so location/product/grand totals and the
+        Unallocated reconciliation are unchanged.
+        The MO # is the manufacturing order(s) that PRODUCED the lot
+        (done finished/by-product move lines with stock_move.production_id
+        set). It is looked up per lot, because only the production move
+        carries the MO - later transfers and deliveries of that lot do
+        not. Rows without a lot (or whose lot was not manufactured) have
+        a blank MO #.
+
         Returns a list of groups, one per location, sorted by location:
           [{'location': str, 'total_value': float, 'lines': [line, ...]}]
         where each line has:
-          company, location, po_numbers, reference, created_by, created_on,
+          company, location, po_numbers, lot_name, mo_numbers,
+          reference, created_by, created_on,
           product, category, valuation_account, qty, uom,
           unit_cost, total_value, sales_price, cost,
           currency_symbol, currency_position
@@ -222,10 +238,11 @@ class StockValuationOnhandWizard(models.TransientModel):
         #    sent out of it. Converted to the product's own UoM. Moves
         #    inside the same scope net to zero.
         self.env.cr.execute("""
-            SELECT product_id, location_id, SUM(qty) AS qty
+            SELECT product_id, location_id, lot_id, SUM(qty) AS qty
             FROM (
                 SELECT sml.product_id,
                        sml.location_dest_id AS location_id,
+                       sml.lot_id,
                        sml.qty_done / su.factor * pu.factor AS qty
                 FROM stock_move_line sml
                 JOIN product_product pp  ON pp.id = sml.product_id
@@ -240,6 +257,7 @@ class StockValuationOnhandWizard(models.TransientModel):
                 UNION ALL
                 SELECT sml.product_id,
                        sml.location_id AS location_id,
+                       sml.lot_id,
                        -(sml.qty_done / su.factor * pu.factor) AS qty
                 FROM stock_move_line sml
                 JOIN product_product pp  ON pp.id = sml.product_id
@@ -252,7 +270,7 @@ class StockValuationOnhandWizard(models.TransientModel):
                   AND sml.product_id = ANY(%(pids)s)
                   AND sml.location_id = ANY(%(locs)s)
             ) m
-            GROUP BY product_id, location_id
+            GROUP BY product_id, location_id, lot_id
             HAVING ROUND(SUM(qty)::numeric, 4) != 0
         """, {
             'company_id': self.company_id.id,
@@ -260,14 +278,14 @@ class StockValuationOnhandWizard(models.TransientModel):
             'pids': product_ids,
             'locs': scope_location_ids,
         })
-        loc_rows = self.env.cr.fetchall()  # [(product_id, location_id, qty), ...]
+        loc_rows = self.env.cr.fetchall()  # [(product_id, location_id, lot_id|None, qty), ...]
 
         # With a warehouse filter, only products that actually have
         # stock in the selected warehouse(s) appear (they get rows only
         # from in-scope locations anyway).
         product_loc_qty = {}
-        for pid, loc_id, qty in loc_rows:
-            product_loc_qty.setdefault(pid, []).append((loc_id, qty))
+        for pid, loc_id, lot_id, qty in loc_rows:
+            product_loc_qty.setdefault(pid, []).append((loc_id, lot_id, qty))
 
         if self.warehouse_ids:
             product_ids = [pid for pid in product_ids if pid in product_loc_qty]
@@ -277,6 +295,39 @@ class StockValuationOnhandWizard(models.TransientModel):
         location_names = {l.id: l.complete_name for l in Location.browse(
             list({r[1] for r in loc_rows})
         )}
+
+        # 5b. Lot/serial names, and the MO(s) that produced each lot.
+        #     The MO is only on the production move (stock_move.
+        #     production_id), so it is looked up per lot rather than per
+        #     row. Lots that were purchased/received (no production
+        #     move) get no MO. mrp is not a dependency of this module,
+        #     so the MO lookup is skipped when it is not installed.
+        lot_ids = list({r[2] for r in loc_rows if r[2]})
+        lot_names = {}
+        lot_mos = {}
+        if lot_ids:
+            lot_names = {
+                l.id: l.name
+                for l in self.env['stock.production.lot'].browse(lot_ids)
+            }
+            if 'mrp.production' in self.env:
+                self.env.cr.execute("""
+                    SELECT sml.lot_id,
+                           STRING_AGG(DISTINCT mp.name, ', ' ORDER BY mp.name) AS mo_numbers
+                    FROM stock_move_line sml
+                    JOIN stock_move sm        ON sm.id = sml.move_id
+                    JOIN mrp_production mp    ON mp.id = sm.production_id
+                    WHERE sml.state = 'done'
+                      AND sml.company_id = %(company_id)s
+                      AND sml.date <= %(date_end)s
+                      AND sml.lot_id = ANY(%(lot_ids)s)
+                    GROUP BY sml.lot_id
+                """, {
+                    'company_id': self.company_id.id,
+                    'date_end': date_end,
+                    'lot_ids': lot_ids,
+                })
+                lot_mos = {r[0]: r[1] for r in self.env.cr.fetchall()}
 
         # 6. PO numbers per product - received into the in-scope
         #    locations, up to date_end.
@@ -322,11 +373,13 @@ class StockValuationOnhandWizard(models.TransientModel):
                 acc = categ.property_stock_valuation_account_id
                 valuation_account = '%s %s' % (acc.code, acc.name)
 
-            def make_line(location, qty, value):
+            def make_line(location, qty, value, lot_id=None):
                 return {
                     'company': self.company_id.name,
                     'location': location,
                     'po_numbers': product_po.get(product_id, ''),
+                    'lot_name': lot_names.get(lot_id, '') if lot_id else '',
+                    'mo_numbers': lot_mos.get(lot_id, '') if lot_id else '',
                     'reference': product.default_code or '',
                     'created_by': created_by,
                     'created_on': created_on,
@@ -345,13 +398,13 @@ class StockValuationOnhandWizard(models.TransientModel):
 
             allocated_qty = 0.0
             allocated_value = 0.0
-            for loc_id, qty in product_loc_qty.get(product_id, []):
+            for loc_id, lot_id, qty in product_loc_qty.get(product_id, []):
                 value = qty * unit_cost
                 allocated_qty += qty
                 allocated_value += value
                 loc_name = location_names.get(loc_id, str(loc_id))
                 groups.setdefault(loc_name, []).append(
-                    make_line(loc_name, qty, value))
+                    make_line(loc_name, qty, value, lot_id))
 
             # Reconcile to the layer total so the report still ties to
             # Odoo's valuation. Skipped under a warehouse filter, where
@@ -367,7 +420,7 @@ class StockValuationOnhandWizard(models.TransientModel):
         for loc_name in sorted(groups, key=lambda n: (n == UNALLOCATED, n)):
             loc_lines = sorted(
                 groups[loc_name],
-                key=lambda l: (l['category'], l['reference'], l['product']))
+                key=lambda l: (l['category'], l['reference'], l['product'], l['lot_name']))
             result.append({
                 'location': loc_name,
                 'total_value': sum(l['total_value'] for l in loc_lines),
