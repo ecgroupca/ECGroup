@@ -306,9 +306,13 @@ class StockValuationOnhandWizard(models.TransientModel):
         lot_names = {}
         lot_mos = {}
         if lot_ids:
+            # The lot model is 'stock.production.lot' on older Odoo 16
+            # and 'stock.lot' on newer/Odoo Online builds, so take it
+            # from the move line's own lot_id field.
+            lot_model = self.env['stock.move.line']._fields['lot_id'].comodel_name
             lot_names = {
                 l.id: l.name
-                for l in self.env['stock.production.lot'].browse(lot_ids)
+                for l in self.env[lot_model].browse(lot_ids)
             }
             if 'mrp.production' in self.env:
                 self.env.cr.execute("""
