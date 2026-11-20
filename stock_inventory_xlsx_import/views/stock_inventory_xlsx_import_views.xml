@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="stock_inventory_xlsx_import_view_form" model="ir.ui.view">
+        <field name="name">stock.inventory.xlsx.import.form</field>
+        <field name="model">stock.inventory.xlsx.import</field>
+        <field name="arch" type="xml">
+            <form string="Import Inventory Adjustment">
+                <div class="alert alert-info" role="alert">
+                    <p class="mb-1">
+                        Upload an <strong>.xlsx</strong> file whose first row contains these columns:
+                    </p>
+                    <p class="mb-1">
+                        <strong>Part Number</strong> (Internal Reference) |
+                        <strong>Location</strong> |
+                        <strong>Lot/Serial Number</strong> |
+                        <strong>Quantity</strong>
+                    </p>
+                    <p class="mb-0">
+                        The quantities are loaded as <em>Counted Quantity</em> in a draft inventory
+                        adjustment. Nothing changes in stock until the adjustment is applied.
+                        If any row is invalid, nothing is imported and every problem is listed.
+                    </p>
+                </div>
+                <group>
+                    <field name="filename" invisible="1"/>
+                    <field name="file" filename="filename"/>
+                    <field name="create_missing_lots"/>
+                </group>
+                <p>
+                    <a href="/stock_inventory_xlsx_import/static/xls/inventory_import_template.xlsx"
+                       download="inventory_import_template.xlsx" target="_blank">
+                        <i class="fa fa-download"/> Download the XLSX template
+                    </a>
+                </p>
+                <footer>
+                    <button string="Import" name="action_import" type="object"
+                            class="btn-primary" data-hotkey="q"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="stock_inventory_xlsx_import_action" model="ir.actions.act_window">
+        <field name="name">Import Inventory Adjustment (XLSX)</field>
+        <field name="res_model">stock.inventory.xlsx.import</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="stock_inventory_xlsx_import_menu"
+              name="Import Inventory (XLSX)"
+              parent="stock.menu_stock_warehouse_mgmt"
+              action="stock_inventory_xlsx_import_action"
+              sequence="31"
+              groups="stock.group_stock_user"/>
+
+</odoo>
