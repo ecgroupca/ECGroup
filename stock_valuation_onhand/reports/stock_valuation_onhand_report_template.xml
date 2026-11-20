@@ -31,6 +31,8 @@
                                     <th>Company</th>
                                     <th>Location</th>
                                     <th>PO #</th>
+                                    <th>Lot/Serial #</th>
+                                    <th>MO #</th>
                                     <th>Reference</th>
                                     <th>Created By</th>
                                     <th>Created On</th>
@@ -48,13 +50,15 @@
                             <tbody>
                                 <t t-foreach="data.get('groups', [])" t-as="group">
                                     <tr style="font-weight:700; background-color:#dce6f1;">
-                                        <td colspan="15">Location: <t t-esc="group['location']" /></td>
+                                        <td colspan="17">Location: <t t-esc="group['location']" /></td>
                                     </tr>
                                     <t t-foreach="group['lines']" t-as="line">
                                         <tr>
                                             <td><t t-esc="line['company']" /></td>
                                             <td><t t-esc="line['location']" /></td>
                                             <td><t t-esc="line['po_numbers']" /></td>
+                                            <td><t t-esc="line['lot_name']" /></td>
+                                            <td><t t-esc="line['mo_numbers']" /></td>
                                             <td><t t-esc="line['reference']" /></td>
                                             <td><t t-esc="line['created_by']" /></td>
                                             <td><t t-esc="line['created_on']" /></td>
@@ -98,7 +102,7 @@
                                         </tr>
                                     </t>
                                     <tr style="font-weight:700; background-color:#eef3f9;">
-                                        <td colspan="12" class="text-right">Total – <t t-esc="group['location']" /></td>
+                                        <td colspan="14" class="text-right">Total – <t t-esc="group['location']" /></td>
                                         <td class="text-right">
                                             <t t-if="data.get('currency_position') == 'before'">
                                                     <t t-esc="data.get('currency_symbol','')" />&#160;<t t-esc="'%.2f' % group['total_value']" />
@@ -113,7 +117,7 @@
                             </tbody>
                             <tfoot>
                                 <tr style="font-weight:700; background-color:#f0f0f0;">
-                                    <td colspan="12" class="text-right">Grand Total</td>
+                                    <td colspan="14" class="text-right">Grand Total</td>
                                     <td class="text-right">
                                         <t t-if="data.get('currency_position') == 'before'">
                                             <t t-esc="data.get('currency_symbol','')" />&#160;<t t-esc="'%.2f' % (data.get('grand_total') or 0)" />
@@ -138,6 +142,8 @@
                                     valuation layers as of that date; each location's
                                     value is its quantity at that unit value.
                                     Sales Price and Cost are current values from the product page.
+                                    Lot/Serial # is blank for stock without a lot; MO # is the
+                                    manufacturing order that produced that lot (blank if it was not manufactured).
                                 </small>
                             </div>
                         </div>
