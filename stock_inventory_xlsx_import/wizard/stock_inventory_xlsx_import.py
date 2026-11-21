@@ -141,7 +141,7 @@ class StockInventoryXlsxImport(models.TransientModel):
         Returns (plan, lots_to_create, errors)."""
         Product = self.env['product.product']
         Location = self.env['stock.location']
-        Lot = self.env['stock.production.lot']
+        Lot = self.env['stock.lot']
         plan, errors = [], []
 
         # Bulk look-ups (one query each instead of one per row)
@@ -290,7 +290,7 @@ class StockInventoryXlsxImport(models.TransientModel):
         # Everything is valid: create the missing lots, then the counts.
         new_lots = {}
         if lots_to_create:
-            created = self.env['stock.production.lot'].create([{
+            created = self.env['stock.lot'].create([{
                 'name': name,
                 'product_id': product.id,
                 'company_id': product.company_id.id or self.env.company.id,
