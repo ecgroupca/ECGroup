@@ -5,7 +5,7 @@ import logging
 import math
 import re
 
-from odoo import _, fields, models
+from odoo import Command, _, fields, models
 from odoo.exceptions import AccessError, UserError
 
 _logger = logging.getLogger(__name__)
@@ -313,12 +313,24 @@ class StockInventoryXlsxImport(models.TransientModel):
                 vals['lot_id'] = lot.id
             vals_list.append(vals)
         quants = Quant.create(vals_list)
-        _logger.info("Inventory import %s: %s count line(s) created by %s",
-                     self.filename, len(quants), self.env.user.login)
 
-        action = self.env['stock.quant'].action_view_inventory()
-        action.update({
-            'name': _("Imported Inventory Adjustment (Draft)"),
-            'domain': [('id', 'in', quants.ids)],
+        # Keep a record of the upload (file, user, date and the count lines it created)
+        # so it shows up in Inventory > Operations > Import Inventory (XLSX).
+        batch = self.env['stock.inventory.xlsx.batch'].create({
+            'file_name': self.filename,
+            'file': self.file,
+            'line_count': len(quants),
+            'quant_ids': [Command.set(quants.ids)],
         })
-        return action
+        _logger.info("Inventory import %s (%s): %s count line(s) created by %s",
+                     batch.name, self.filename, len(quants), self.env.user.login)
+
+        return {
+            'type': 'ir.actions.act_window',
+            'name': batch.name,
+            'res_model': 'stock.inventory.xlsx.batch',
+            'res_id': batch.id,
+            'view_mode': 'form',
+            'views': [(False, 'form')],
+            'target': 'current',
+        }

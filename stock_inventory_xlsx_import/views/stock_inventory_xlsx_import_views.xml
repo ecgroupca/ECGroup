@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
 
+    <!-- ============ Upload dialog (wizard) ============ -->
     <record id="stock_inventory_xlsx_import_view_form" model="ir.ui.view">
         <field name="name">stock.inventory.xlsx.import.form</field>
         <field name="model">stock.inventory.xlsx.import</field>
         <field name="arch" type="xml">
-            <form string="Import Inventory Adjustment">
+            <form string="Upload Inventory Adjustment">
                 <div class="alert alert-info" role="alert">
                     <p class="mb-1">
                         Upload an <strong>.xlsx</strong> file whose first row contains these columns:
@@ -43,17 +44,118 @@
     </record>
 
     <record id="stock_inventory_xlsx_import_action" model="ir.actions.act_window">
-        <field name="name">Import Inventory Adjustment (XLSX)</field>
+        <field name="name">Upload Inventory Adjustment (XLSX)</field>
         <field name="res_model">stock.inventory.xlsx.import</field>
         <field name="view_mode">form</field>
         <field name="target">new</field>
     </record>
 
+    <!-- ============ Import list (has the Upload button in its header) ============ -->
+    <record id="stock_inventory_xlsx_batch_view_tree" model="ir.ui.view">
+        <field name="name">stock.inventory.xlsx.batch.tree</field>
+        <field name="model">stock.inventory.xlsx.batch</field>
+        <field name="arch" type="xml">
+            <tree string="Inventory Imports" js_class="stock_inventory_xlsx_batch_list"
+                  create="false" import="false" edit="false" delete="false">
+                <field name="name"/>
+                <field name="date"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="file_name"/>
+                <field name="line_count"/>
+                <field name="pending_count"/>
+                <field name="state" widget="badge"
+                       decoration-warning="state == 'draft'"
+                       decoration-success="state == 'done'"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="stock_inventory_xlsx_batch_view_form" model="ir.ui.view">
+        <field name="name">stock.inventory.xlsx.batch.form</field>
+        <field name="model">stock.inventory.xlsx.batch</field>
+        <field name="arch" type="xml">
+            <form string="Inventory Import" create="false" edit="false">
+                <header>
+                    <button name="action_open_draft_adjustment" type="object"
+                            string="Open Draft Adjustment" class="btn-primary"/>
+                    <field name="state" widget="statusbar"/>
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1><field name="name"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="user_id"/>
+                            <field name="date"/>
+                            <field name="company_id" groups="base.group_multi_company"/>
+                        </group>
+                        <group>
+                            <field name="file" filename="file_name"/>
+                            <field name="file_name" invisible="1"/>
+                            <field name="line_count"/>
+                            <field name="pending_count"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Counted Lines" name="lines">
+                            <field name="quant_ids" nolabel="1">
+                                <tree create="false" delete="false" edit="false">
+                                    <field name="product_id"/>
+                                    <field name="location_id"/>
+                                    <field name="lot_id" groups="stock.group_production_lot"/>
+                                    <field name="quantity" string="On Hand"/>
+                                    <field name="inventory_quantity" string="Counted"/>
+                                    <field name="inventory_diff_quantity" string="Difference"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="stock_inventory_xlsx_batch_view_search" model="ir.ui.view">
+        <field name="name">stock.inventory.xlsx.batch.search</field>
+        <field name="model">stock.inventory.xlsx.batch</field>
+        <field name="arch" type="xml">
+            <search string="Inventory Imports">
+                <field name="name"/>
+                <field name="file_name"/>
+                <field name="user_id"/>
+                <filter string="My Uploads" name="my_uploads" domain="[('user_id', '=', uid)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Uploaded By" name="group_user" context="{'group_by': 'user_id'}"/>
+                    <filter string="Upload Date" name="group_date" context="{'group_by': 'date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="stock_inventory_xlsx_batch_action" model="ir.actions.act_window">
+        <field name="name">Import Inventory (XLSX)</field>
+        <field name="res_model">stock.inventory.xlsx.batch</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">No inventory imports yet</p>
+            <p>
+                Click <strong>Upload</strong> to load an XLSX file. A draft inventory adjustment is
+                created from it and listed here.
+            </p>
+        </field>
+    </record>
+
+    <!-- Initial position; _place_menu below moves it right above Physical Inventory /
+         Inventory Adjustments, wherever that menu lives in the database. -->
     <menuitem id="stock_inventory_xlsx_import_menu"
               name="Import Inventory (XLSX)"
               parent="stock.menu_stock_warehouse_mgmt"
-              action="stock_inventory_xlsx_import_action"
-              sequence="31"
+              action="stock_inventory_xlsx_batch_action"
+              sequence="29"
               groups="stock.group_stock_user"/>
+
+    <function model="stock.inventory.xlsx.batch" name="_place_menu"/>
 
 </odoo>
