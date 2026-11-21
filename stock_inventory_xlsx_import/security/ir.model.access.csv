@@ -1,3 +1,4 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_stock_inventory_xlsx_batch_user,stock.inventory.xlsx.batch user,model_stock_inventory_xlsx_batch,stock.group_stock_user,1,0,1,0
 access_stock_inventory_xlsx_batch_manager,stock.inventory.xlsx.batch manager,model_stock_inventory_xlsx_batch,stock.group_stock_manager,1,1,1,1
+access_stock_inventory_xlsx_import_user,stock.inventory.xlsx.import user,model_stock_inventory_xlsx_import,stock.group_stock_user,1,1,1,1
