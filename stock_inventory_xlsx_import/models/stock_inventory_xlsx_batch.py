@@ -72,7 +72,15 @@ class StockInventoryXlsxBatch(models.Model):
                 if target:
                     break
         if target:
+            # The menu must stay visible to every Inventory user. If the parent of the
+            # target menu is restricted to groups an Inventory user is not in (e.g.
+            # Managers only), use the Operations menu instead of hiding the import.
+            parent = target.parent_id
+            user_group = self.env.ref('stock.group_stock_user')
+            reachable_groups = user_group | user_group.trans_implied_ids
+            if not parent or (parent.groups_id and not (parent.groups_id & reachable_groups)):
+                parent = self.env.ref('stock.menu_stock_warehouse_mgmt')
             menu.write({
-                'parent_id': target.parent_id.id,
+                'parent_id': parent.id,
                 'sequence': max(target.sequence - 1, 0),
             })

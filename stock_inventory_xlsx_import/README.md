@@ -35,6 +35,21 @@ The first sheet of the file is read; the first row must contain the headers:
   Missing lots/serials are created (can be switched off in the wizard).
 * **Quantity** - counted quantity, 0 or more (serials: 0 or 1).
 
+## Access rights
+Everything is available to the **Inventory / User** group (Inventory Managers inherit it):
+
+| What | Inventory User | Inventory Manager |
+|---|---|---|
+| Menu Inventory > Operations > Import Inventory (XLSX) | visible | visible |
+| Upload dialog (`stock.inventory.xlsx.import`) | full | full (inherited) |
+| Import records (`stock.inventory.xlsx.batch`) | read, create | read, create, write, delete |
+| Count lines created (`stock.quant`, inventory mode) | standard Odoo rights | standard Odoo rights |
+
+Users outside the Inventory User group do not see the menu, and the upload itself also
+checks the group. Import records are limited to the user's allowed companies. Applying
+the draft adjustment is governed by Odoo's own rights on Physical Inventory, not by this
+module.
+
 ## What "draft" means in Odoo 16
 Odoo 16 no longer has an Inventory Adjustment document. An adjustment is a set of
 `stock.quant` lines with a *Counted Quantity* that has not been applied. The import

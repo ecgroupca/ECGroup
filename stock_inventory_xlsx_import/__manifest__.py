@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Inventory Adjustment XLSX Import',
-    'version': '16.0.1.1.0',
+    'version': '16.0.1.2.0',
     'category': 'Inventory/Inventory',
     'summary': 'Create a draft inventory adjustment (physical inventory count) from an XLSX file',
     'description': """
