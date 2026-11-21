@@ -7,9 +7,23 @@ Upload an `.xlsx` file and a **draft** inventory adjustment is created.
 2. Copy the `stock_inventory_xlsx_import` folder into your addons path.
 3. Restart Odoo, Apps > Update Apps List, install **Inventory Adjustment XLSX Import**.
 
+## Upgrading from 16.0.1.0.0
+Copy the new files over the old ones and upgrade the module
+(`odoo-bin -u stock_inventory_xlsx_import -d <db>`), then restart and reload the browser
+so the new JavaScript is picked up.
+
 ## Use
-Inventory > Operations > **Import Inventory (XLSX)**. The first sheet is read; the
-first row must contain the headers:
+Inventory > Operations > **Import Inventory (XLSX)** - a list of all uploads, kept
+separate from the Physical Inventory screen, placed right above it in the menu.
+Click **Upload** in the list header, choose the file and click **Import**. The new
+import opens with an **Open Draft Adjustment** button that takes you to the count
+lines in Physical Inventory, where they can be reviewed and applied.
+
+Each import record keeps the uploaded file, who uploaded it and when, the count lines
+it created, and a status (*Draft* while any of its lines are still unapplied, *Done*
+once all have been applied).
+
+The first sheet of the file is read; the first row must contain the headers:
 
 | Part Number (default_code) | Location | Lot/Serial Number | Quantity |
 |---|---|---|---|

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="stock_inventory_xlsx_import.BatchListView.Buttons" owl="1">
+        <div class="o_cp_buttons" role="toolbar" aria-label="Control panel buttons">
+            <button type="button" class="btn btn-primary o_button_upload_inventory_xlsx"
+                    t-on-click="onClickUpload">
+                Upload
+            </button>
+        </div>
+    </t>
+
+</templates>
