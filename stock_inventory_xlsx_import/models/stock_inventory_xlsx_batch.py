@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from odoo import _, api, fields, models
+from odoo.exceptions import UserError
 
 
 class StockInventoryXlsxBatch(models.Model):
@@ -42,6 +43,41 @@ class StockInventoryXlsxBatch(models.Model):
                 vals['name'] = self.env['ir.sequence'].next_by_code(
                     'stock.inventory.xlsx.batch') or _('New')
         return super().create(vals_list)
+
+    def action_open_lines(self):
+        """Open this upload's count lines in a list with a check box on every line and an
+        "Apply Selected" button, so all or only some of the lines can be applied."""
+        self.ensure_one()
+        view = self.env.ref('stock_inventory_xlsx_import.stock_quant_xlsx_line_view_tree')
+        search_view = self.env.ref('stock_inventory_xlsx_import.stock_quant_xlsx_line_view_search')
+        return {
+            'type': 'ir.actions.act_window',
+            'name': _("Imported Lines %s") % self.name,
+            'res_model': 'stock.quant',
+            'view_mode': 'tree',
+            'views': [(view.id, 'tree')],
+            'search_view_id': [search_view.id, search_view.name],
+            'domain': [('id', 'in', self.quant_ids.ids)],
+            'context': {'search_default_pending': 1, 'create': False, 'delete': False},
+        }
+
+    @api.model
+    def action_apply_quants(self, quant_ids):
+        """Apply the selected count lines to stock (same as the Apply button of Physical
+        Inventory). Only lines that belong to an import and still wait to be applied are
+        used; the rest are skipped. Runs with the rights of the current user.
+
+        Returns an action when Odoo needs a confirmation wizard (outdated count, tracked
+        product without lot), otherwise {'applied': n, 'skipped': m}."""
+        quants = self.env['stock.quant'].browse(quant_ids).exists()
+        quants &= self.search([('quant_ids', 'in', quants.ids)]).quant_ids
+        pending = quants.filtered('inventory_quantity_set')
+        if not pending:
+            raise UserError(_("The selected lines are already applied, so there is nothing to apply."))
+        result = pending.with_context(inventory_mode=True).action_apply_inventory()
+        if isinstance(result, dict):
+            return result
+        return {'applied': len(pending), 'skipped': len(quant_ids) - len(pending)}
 
     def action_open_draft_adjustment(self):
         """Open this upload's count lines in the Physical Inventory screen,
