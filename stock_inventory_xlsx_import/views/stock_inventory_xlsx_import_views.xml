@@ -77,8 +77,10 @@
         <field name="arch" type="xml">
             <form string="Inventory Import" create="false" edit="false">
                 <header>
+                    <button name="action_open_lines" type="object"
+                            string="Review &amp; Apply Lines" class="btn-primary"/>
                     <button name="action_open_draft_adjustment" type="object"
-                            string="Open Draft Adjustment" class="btn-primary"/>
+                            string="Open Draft Adjustment"/>
                     <field name="state" widget="statusbar"/>
                 </header>
                 <sheet>
@@ -129,6 +131,50 @@
                 <group expand="0" string="Group By">
                     <filter string="Uploaded By" name="group_user" context="{'group_by': 'user_id'}"/>
                     <filter string="Upload Date" name="group_date" context="{'group_by': 'date:day'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- ============ Imported lines: check box per line + Apply Selected ============ -->
+    <record id="stock_quant_xlsx_line_view_tree" model="ir.ui.view">
+        <field name="name">stock.quant.xlsx.line.tree</field>
+        <field name="model">stock.quant</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <tree string="Imported Lines" js_class="stock_inventory_xlsx_line_list"
+                  create="false" delete="false" edit="false" import="false" export_xlsx="false"
+                  decoration-muted="not inventory_quantity_set">
+                <field name="product_id"/>
+                <field name="location_id"/>
+                <field name="lot_id" groups="stock.group_production_lot"/>
+                <field name="product_uom_id" string="UoM" groups="uom.group_uom"/>
+                <field name="quantity" string="On Hand"/>
+                <field name="inventory_quantity" string="Counted"/>
+                <field name="inventory_diff_quantity" string="Difference"
+                       decoration-danger="inventory_diff_quantity &lt; 0"
+                       decoration-success="inventory_diff_quantity &gt; 0"/>
+                <field name="inventory_quantity_set" string="Not Applied" widget="boolean"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="stock_quant_xlsx_line_view_search" model="ir.ui.view">
+        <field name="name">stock.quant.xlsx.line.search</field>
+        <field name="model">stock.quant</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <search string="Imported Lines">
+                <field name="product_id"/>
+                <field name="location_id"/>
+                <field name="lot_id" groups="stock.group_production_lot"/>
+                <filter string="Not Applied" name="pending"
+                        domain="[('inventory_quantity_set', '=', True)]"/>
+                <filter string="Applied" name="applied"
+                        domain="[('inventory_quantity_set', '=', False)]"/>
+                <group expand="0" string="Group By">
+                    <filter string="Location" name="group_location" context="{'group_by': 'location_id'}"/>
+                    <filter string="Product" name="group_product" context="{'group_by': 'product_id'}"/>
                 </group>
             </search>
         </field>

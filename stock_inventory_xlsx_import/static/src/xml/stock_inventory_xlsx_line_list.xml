@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="stock_inventory_xlsx_import.LineListView.Buttons" owl="1">
+        <div class="o_cp_buttons" role="toolbar" aria-label="Control panel buttons">
+            <button type="button" class="btn btn-primary o_button_apply_selected_xlsx"
+                    t-att-disabled="!model.root.selection.length"
+                    t-on-click="onClickApplySelected">
+                Apply Selected
+                <t t-if="model.root.selection.length">
+                    (<t t-esc="model.root.selection.length"/>)
+                </t>
+            </button>
+        </div>
+    </t>
+
+</templates>

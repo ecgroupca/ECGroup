@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 {
     'name': 'Inventory Adjustment XLSX Import',
-    'version': '16.0.1.2.1',
+    'version': '16.0.1.3.0',
     'category': 'Inventory/Inventory',
     'summary': 'Create a draft inventory adjustment (physical inventory count) from an XLSX file',
     'description': """
@@ -11,6 +11,8 @@ and a draft inventory adjustment is created for it: the quantities are loaded as
 "Counted Quantity" on Inventory > Operations > Physical Inventory and nothing is
 applied to stock until someone clicks "Apply". Every upload is kept in a separate list
 (Inventory > Operations > Import Inventory (XLSX)) with an Upload button in its header.
+From an upload, "Review & Apply Lines" lists the imported lines with a check box on each
+one so that all or only some of them can be applied to stock with "Apply Selected".
     """,
     'author': 'Custom',
     'license': 'LGPL-3',
@@ -26,6 +28,8 @@ applied to stock until someone clicks "Apply". Every upload is kept in a separat
         'web.assets_backend': [
             'stock_inventory_xlsx_import/static/src/js/stock_inventory_xlsx_batch_list.js',
             'stock_inventory_xlsx_import/static/src/xml/stock_inventory_xlsx_batch_list.xml',
+            'stock_inventory_xlsx_import/static/src/js/stock_inventory_xlsx_line_list.js',
+            'stock_inventory_xlsx_import/static/src/xml/stock_inventory_xlsx_line_list.xml',
         ],
     },
     'installable': True,
