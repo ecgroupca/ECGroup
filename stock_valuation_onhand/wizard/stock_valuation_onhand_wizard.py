@@ -90,7 +90,9 @@ class StockValuationOnhandWizard(models.TransientModel):
         warehouse filter the totals are that warehouse's share of the
         value (no Unallocated line, since leftovers belong to other
         locations). Only an unfiltered run (no warehouse, no category)
-        is expected to equal Odoo's Valuation report for the same date.
+        is expected to equal Odoo's Valuation report for the same date,
+        and then only if no service/consumable has valuation layers
+        (those are excluded from this report).
 
         LOT / SERIAL and MO COLUMNS: each product's per-location qty is
         split further by the lot/serial on the done move lines
@@ -194,12 +196,19 @@ class StockValuationOnhandWizard(models.TransientModel):
         product_value = {r[0]: r[2] for r in svl_rows}
         product_ids = list(product_qty.keys())
 
-        # 2. No product type / active filter: Odoo 16's own valuation
-        #    report (Inventory > Reporting > Valuation) lists every
-        #    product that has valuation layers, archived ones included,
-        #    so excluding any here would make the total drift from it.
+        # 2. No active filter: Odoo 16's own valuation report
+        #    (Inventory > Reporting > Valuation) lists every product that
+        #    has valuation layers, archived ones included, so archived
+        #    products are kept to stay close to it. Services and
+        #    consumables are deliberately EXCLUDED (only storable
+        #    products are listed), so if any of them carry valuation
+        #    layers the total will be lower than Odoo's Valuation report.
         Product = self.env['product.product'].with_context(active_test=False)
-        allowed = set(product_ids)
+        allowed = set(
+            Product.browse(product_ids)
+            .filtered(lambda p: p.type not in ('service', 'consu'))
+            .ids
+        )
 
         # 3. Category filter, if requested.
         if self.categ_ids:
