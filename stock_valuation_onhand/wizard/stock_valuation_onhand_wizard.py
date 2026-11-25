@@ -455,15 +455,17 @@ class StockValuationOnhandWizard(models.TransientModel):
         }
 
     def action_print_report(self):
+        # No `data` here on purpose: the report is built server-side from
+        # this wizard record (see the report parsers). Passing the whole
+        # result set as `data` makes the browser POST it back to
+        # /report/download, which fails with a 500 once it gets large.
         self.ensure_one()
-        data = self._prepare_report_values()
         return self.env.ref(
             'stock_valuation_onhand.action_report_stock_valuation_onhand'
-        ).report_action(self, data=data)
+        ).report_action(self)
 
     def action_print_xlsx(self):
         self.ensure_one()
-        data = self._prepare_report_values()
         return self.env.ref(
             'stock_valuation_onhand.action_report_stock_valuation_onhand_xlsx'
-        ).report_action(self, data=data)
+        ).report_action(self)
