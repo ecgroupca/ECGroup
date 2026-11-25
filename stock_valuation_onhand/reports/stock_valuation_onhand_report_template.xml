@@ -135,12 +135,17 @@
                         <div class="row mt-3">
                             <div class="col-12">
                                 <small class="text-muted">
-                                    * Quantities reflect all done stock movements into/out of
-                                    internal warehouse locations up to end of
-                                    <t t-esc="data.get('date', '')" />.
+                                    * Quantities are the on-hand quants in internal locations
+                                    as of end of <t t-esc="data.get('date', '')" />
+                                    (current quants, rolled back for moves done after that date).
                                     Unit Value is the weighted-average cost from stock
-                                    valuation layers as of that date; each location's
+                                    valuation layers as of that date; each row's
                                     value is its quantity at that unit value.
+                                    <t t-if="data.get('unreconciled')">
+                                        <t t-esc="len(data['unreconciled'])" /> product(s) have valuation
+                                        layers that do not match the quants; see the
+                                        "Quants vs Valuation" sheet in the Excel export.
+                                    </t>
                                     Sales Price and Cost are current values from the product page.
                                     Lot/Serial # is blank for stock without a lot; MO # is the
                                     manufacturing order that produced that lot (blank if it was not manufactured).
