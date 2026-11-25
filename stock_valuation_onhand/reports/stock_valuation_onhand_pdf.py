@@ -2,7 +2,7 @@ from odoo import models
 
 
 class ReportStockValuationOnhand(models.AbstractModel):
-    _name = 'report.stock_valuation_onhand.report_stock_valuation_onhand_template'
+    _name = 'report.stock_valuation_onhand.onhand_pdf'
     _description = 'Stock Valuation On-Hand PDF Report'
 
     def _get_report_values(self, docids, data=None):
