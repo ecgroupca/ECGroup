@@ -1,4 +1,7 @@
 import logging
+from datetime import datetime, time
+
+import pytz
 
 from odoo import fields, models, _
 from odoo.exceptions import UserError
@@ -33,197 +36,69 @@ class StockValuationOnhandWizard(models.TransientModel):
         help='Leave empty to include all categories.',
     )
 
+    def _get_date_end(self):
+        """End of the selected day in the user's timezone, as the naive
+        UTC datetime that stock_move_line.date / stock_valuation_layer.
+        create_date are stored in. (Using 23:59:59 as if it were UTC
+        cut off the last several hours of the selected day for
+        non-UTC users, so e.g. a report run for today in the evening
+        missed that afternoon's moves.)"""
+        self.ensure_one()
+        tz_name = self.env.user.tz or self.env.context.get('tz') or 'UTC'
+        tz = pytz.timezone(tz_name)
+        local_end = tz.localize(datetime.combine(self.date, time(23, 59, 59)))
+        return local_end.astimezone(pytz.utc).replace(tzinfo=None)
+
     def _get_report_data(self):
         """
-        On-hand inventory value as of self.date. qty and value both
-        come straight from stock_valuation_layer, summed per product
-        for the company for every layer with create_date <= date_end -
-        one source of truth for both numbers, matching how Odoo 16's
-        own Inventory > Reporting > Valuation computes a CURRENT total.
+        On-hand inventory value as of self.date.
 
-        This deliberately replaced an earlier approach that derived
-        qty from a separate stock_move_line query and only pulled cost
-        from stock_valuation_layer - two independently-tracked numbers
-        that can drift apart (manual quant adjustments, negative
-        stock, non-owned stock, etc.), which is what caused this
-        report's total to run ~$200k under Odoo's own valuation
-        report.
+        QUANTITIES come from stock.quant - the same thing Inventory >
+        Reporting > Stock / the Quants list shows - one row per
+        (location, product, lot). For a past date the current quants
+        are rolled BACK by reversing every done move line dated after
+        date_end, so a run for today is exactly the quants, and a run
+        for a past date is the quants as they stood then.
 
-        IMPORTANT: this sums quantity/value (each layer's original,
-        immutable amount as recorded at creation), NOT
-        remaining_qty/remaining_value (Odoo's live running balance,
-        which gets decremented on an OLD layer by a NEWER
-        delivery/consumption regardless of that consumption's own
-        date). Using remaining_qty/remaining_value made this report's
-        "as of a past date" totals silently drift every day forward as
-        ordinary business activity kept consuming older layers -
-        running the same date_end on two different days could give two
-        different answers. quantity/value never change after a layer
-        is created, so summing them for everything up to date_end is a
-        standard ledger-balance calculation that gives the same answer
-        no matter when you run it. (For date_end = today, this and the
-        remaining_*-based total should normally match anyway, since
-        both describe the same current on-hand position - only a
-        report for a PAST date_end actually depends on which of the
-        two you use.)
+        This replaced an approach that rebuilt per-location quantities
+        by summing ALL done move lines since the beginning of time and
+        then plugged any difference against the valuation layers into
+        an "Unallocated" line. Both of those produced rows that do not
+        exist in the quants: any gap between history and quants
+        (archived locations, legacy/adjusted data, stock moved with a
+        different lot than it came in with, layers with no matching
+        stock such as revaluations or landed costs) showed up as wrong
+        quantities or phantom lines.
 
-        LOCATION BREAKDOWN: stock_valuation_layer has no location
-        field, so the product-level qty/value above stays the single
-        source of truth (and the grand total still matches Odoo's own
-        valuation report). The report is itemized per location per
-        product by splitting each product's layer total across the
-        internal locations it sat in as of date_end:
+        VALUE is qty x the product's unit cost from
+        stock_valuation_layer (sum(value) / sum(quantity) over layers
+        created up to date_end). If a product has no positive layer
+        quantity to derive a cost from, its standard_price is used.
 
-          * location qty = done stock_move_line qty INTO the location
-            minus qty OUT of it, up to date_end (so a past as-of date
-            gives the location split as of that date, not today's
-            stock.quant).
-          * location value = location qty x the product's layer unit
-            cost (layer value / layer qty).
-          * if the location quantities do not add up to the layer qty
-            (manual adjustments, stock outside internal locations,
-            etc.) and no warehouse filter is set, the leftover goes on
-            an "Unallocated" line so the product still reconciles to
-            the layer total.
+        Locations: internal locations of the company (or of the
+        selected warehouses, via view_location_id so WH/Input,
+        WH/Output etc. are included). Archived locations are included,
+        because quants in them still exist.
 
-        warehouse_ids restricts which locations are listed, so with a
-        warehouse filter the totals are that warehouse's share of the
-        value (no Unallocated line, since leftovers belong to other
-        locations). Only an unfiltered run (no warehouse, no category)
-        is expected to equal Odoo's Valuation report for the same date,
-        and then only if no service/consumable has valuation layers
-        (those are excluded from this report).
+        Products with valuation layers whose total qty/value does not
+        agree with what the quants say are NOT shown as lines; they
+        are returned separately as `unreconciled` so the difference
+        against Odoo's Valuation report is visible rather than
+        silently plugged into the lines. (Not computed when a
+        warehouse filter is set, since layers are company-wide.)
 
-        LOT / SERIAL and MO COLUMNS: each product's per-location qty is
-        split further by the lot/serial on the done move lines
-        (stock_move_line.lot_id), so a lot-tracked product gets one
-        row per (location, lot). Stock moved without a lot (purchased,
-        untracked, RMA, ...) stays on a row with a blank lot. This is
-        only a finer split of the SAME location qty, valued at the same
-        product unit cost, so location/product/grand totals and the
-        Unallocated reconciliation are unchanged.
-        The MO # is the manufacturing order(s) that PRODUCED the lot
-        (done finished/by-product move lines with stock_move.production_id
-        set). It is looked up per lot, because only the production move
-        carries the MO - later transfers and deliveries of that lot do
-        not. Rows without a lot (or whose lot was not manufactured) have
-        a blank MO #.
-
-        Returns a list of groups, one per location, sorted by location:
-          [{'location': str, 'total_value': float, 'lines': [line, ...]}]
-        where each line has:
-          company, location, po_numbers, lot_name, mo_numbers,
-          reference, created_by, created_on,
-          product, category, valuation_account, qty, uom,
-          unit_cost, total_value, sales_price, cost,
-          currency_symbol, currency_position
+        Returns (groups, unreconciled):
+          groups: [{'location': str, 'total_value': float, 'lines': [line, ...]}]
+          unreconciled: [{'reference', 'product', 'category', 'uom',
+                          'svl_qty', 'quant_qty', 'diff_qty',
+                          'svl_value', 'quant_value', 'diff_value'}]
         """
         self.ensure_one()
-        date_end = fields.Datetime.to_datetime(
-            fields.Date.to_string(self.date) + ' 23:59:59'
-        )
+        date_end = self._get_date_end()
+        company_id = self.company_id.id
 
-        # 1. Core valuation numbers - straight from stock_valuation_layer,
-        #    grouped by product, same as Odoo's own valuation report.
-        #    No location involved at all here.
-        #IMPORTANT: this deliberately sums quantity/value, NOT
-        #remaining_qty/remaining_value. remaining_qty/remaining_value
-        #are LIVE running balances - Odoo decrements them on an old
-        #layer whenever ANY later delivery/consumption (FIFO/AVCO)
-        #draws from it, regardless of what date that consumption
-        #itself happened on. So a report run "as of 8/31" that reads
-        #remaining_qty/remaining_value keeps drifting every day
-        #forward, because a delivery next week that consumes from an
-        #8/20 layer reduces that layer's remaining_* TODAY - even
-        #though we're asking what was on hand back on 8/31. That's
-        #what was causing this report to return different numbers for
-        #the exact same as-of date depending on which day you ran it.
-        #
-        #quantity/value, by contrast, are each layer's original
-        #amounts as recorded when it was created (positive for
-        #receipts, negative for deliveries/consumption) - they never
-        #get mutated after the fact. Summing quantity/value for every
-        #layer with create_date <= date_end is a standard ledger-
-        #balance calculation: it reconstructs on-hand qty/value at
-        #that exact point in time, and stays stable no matter when you
-        #run the report afterward, since it only ever reads immutable,
-        #already-final numbers.
-        #
-        #COALESCE is still on the individual value column (not
-        #wrapped around the whole SUM), so one layer with a null value
-        #contributes 0 rather than poisoning the entire product's SUM
-        #(NULL + anything = NULL in SQL) - see products_with_null_layers.
-        self.env.cr.execute("""
-            SELECT
-                product_id,
-                SUM(quantity) AS qty,
-                SUM(COALESCE(value,0)) AS total_value,
-                COUNT(*) FILTER (WHERE quantity != 0 AND value IS NULL) AS null_value_layers
-            FROM stock_valuation_layer
-            WHERE company_id = %(company_id)s
-              AND create_date <= %(date_end)s
-            GROUP BY product_id
-            HAVING ROUND(SUM(quantity)::numeric, 4) != 0
-                OR ROUND(SUM(COALESCE(value,0))::numeric, 4) != 0
-        """, {'company_id': self.company_id.id, 'date_end': date_end})
-        svl_rows = self.env.cr.fetchall()  # [(product_id, qty, total_value, null_value_layers), ...]
-
-        #Products where at least one layer up to date_end has no
-        #recorded value at all - their total_value is understated by
-        #whatever that layer's real value should have been. Surfaced
-        #in the warning below rather than silently masked.
-        products_with_null_layers = {r[0]: r[3] for r in svl_rows if r[3]}
-        if products_with_null_layers:
-            #Not raised as a UserError - the report should still
-            #generate, just understated for these specific products -
-            #but this needs to be visible somewhere, since it's very
-            #likely the same root cause behind day-to-day total
-            #swings: which products have a null-valued layer, and how
-            #many, can change from one day's data to the next.
-            _logger.warning(
-                "Stock Valuation On-Hand: %d product(s) have on-hand "
-                "stock_valuation_layer rows with remaining_qty != 0 but "
-                "remaining_value IS NULL - their reported value is "
-                "understated by whatever those layers should have been "
-                "worth. product_id: null-valued layer count = %s",
-                len(products_with_null_layers), products_with_null_layers,
-            )
-
-        if not svl_rows:
-            return []
-
-        product_qty = {r[0]: r[1] for r in svl_rows}
-        product_value = {r[0]: r[2] for r in svl_rows}
-        product_ids = list(product_qty.keys())
-
-        # 2. No active filter: Odoo 16's own valuation report
-        #    (Inventory > Reporting > Valuation) lists every product that
-        #    has valuation layers, archived ones included, so archived
-        #    products are kept to stay close to it. Services and
-        #    consumables are deliberately EXCLUDED (only storable
-        #    products are listed), so if any of them carry valuation
-        #    layers the total will be lower than Odoo's Valuation report.
-        Product = self.env['product.product'].with_context(active_test=False)
-        allowed = set(
-            Product.browse(product_ids)
-            .filtered(lambda p: p.type not in ('service', 'consu'))
-            .ids
-        )
-
-        # 3. Category filter, if requested.
-        if self.categ_ids:
-            allowed &= set(
-                Product.browse(list(allowed))
-                .filtered(lambda p: p.categ_id.id in self.categ_ids.ids)
-                .ids
-            )
-
-        # 4. Locations in scope: the selected warehouse(s) if any
-        #    (view_location_id, not lot_stock_id - lot_stock_id only
-        #    covers WH/Stock and would miss WH/Input, WH/Output,
-        #    WH/Quality Control, WH/Packing Zone, etc.), otherwise every
-        #    internal location of the company.
-        Location = self.env['stock.location']
+        # 1. Locations in scope (archived ones included).
+        Location = self.env['stock.location'].with_context(active_test=False)
         if self.warehouse_ids:
             scope_locations = Location
             for wh in self.warehouse_ids:
@@ -233,19 +108,29 @@ class StockValuationOnhandWizard(models.TransientModel):
                 ])
         else:
             scope_locations = Location.search([
-                ('company_id', '=', self.company_id.id),
+                ('company_id', '=', company_id),
                 ('usage', '=', 'internal'),
             ])
         scope_location_ids = scope_locations.ids
+        if not scope_location_ids:
+            return [], []
 
-        product_ids = [pid for pid in product_ids if pid in allowed]
-        if not product_ids or (self.warehouse_ids and not scope_location_ids):
-            return []
+        # 2. Current quants per (product, location, lot). Packages and
+        #    owners are summed away, so a row is a location/lot total.
+        self.env.cr.execute("""
+            SELECT product_id, location_id, lot_id, SUM(quantity)
+            FROM stock_quant
+            WHERE company_id = %(company_id)s
+              AND location_id = ANY(%(locs)s)
+            GROUP BY product_id, location_id, lot_id
+        """, {'company_id': company_id, 'locs': scope_location_ids})
+        qty_map = {}  # (product_id, location_id, lot_id|None) -> qty
+        for pid, loc_id, lot_id, qty in self.env.cr.fetchall():
+            qty_map[(pid, loc_id, lot_id)] = qty or 0.0
 
-        # 5. On-hand qty per product PER LOCATION as of date_end, from
-        #    done move lines: qty received into a location minus qty
-        #    sent out of it. Converted to the product's own UoM. Moves
-        #    inside the same scope net to zero.
+        # 3. Roll back: net effect of done move lines AFTER date_end on
+        #    each (product, location, lot) - qty into the location minus
+        #    qty out of it. Converted to the product's own UoM.
         self.env.cr.execute("""
             SELECT product_id, location_id, lot_id, SUM(qty) AS qty
             FROM (
@@ -260,8 +145,7 @@ class StockValuationOnhandWizard(models.TransientModel):
                 JOIN uom_uom su          ON su.id = sml.product_uom_id
                 WHERE sml.state = 'done'
                   AND sml.company_id = %(company_id)s
-                  AND sml.date <= %(date_end)s
-                  AND sml.product_id = ANY(%(pids)s)
+                  AND sml.date > %(date_end)s
                   AND sml.location_dest_id = ANY(%(locs)s)
                 UNION ALL
                 SELECT sml.product_id,
@@ -275,54 +159,74 @@ class StockValuationOnhandWizard(models.TransientModel):
                 JOIN uom_uom su          ON su.id = sml.product_uom_id
                 WHERE sml.state = 'done'
                   AND sml.company_id = %(company_id)s
-                  AND sml.date <= %(date_end)s
-                  AND sml.product_id = ANY(%(pids)s)
+                  AND sml.date > %(date_end)s
                   AND sml.location_id = ANY(%(locs)s)
             ) m
             GROUP BY product_id, location_id, lot_id
-            HAVING ROUND(SUM(qty)::numeric, 4) != 0
         """, {
-            'company_id': self.company_id.id,
+            'company_id': company_id,
             'date_end': date_end,
-            'pids': product_ids,
             'locs': scope_location_ids,
         })
-        loc_rows = self.env.cr.fetchall()  # [(product_id, location_id, lot_id|None, qty), ...]
+        for pid, loc_id, lot_id, net_after in self.env.cr.fetchall():
+            key = (pid, loc_id, lot_id)
+            qty_map[key] = qty_map.get(key, 0.0) - (net_after or 0.0)
 
-        # With a warehouse filter, only products that actually have
-        # stock in the selected warehouse(s) appear (they get rows only
-        # from in-scope locations anyway).
-        product_loc_qty = {}
-        for pid, loc_id, lot_id, qty in loc_rows:
-            product_loc_qty.setdefault(pid, []).append((loc_id, lot_id, qty))
+        qty_map = {k: q for k, q in qty_map.items() if round(q, 4) != 0}
 
-        if self.warehouse_ids:
-            product_ids = [pid for pid in product_ids if pid in product_loc_qty]
-            if not product_ids:
-                return []
+        # 4. Valuation layers up to date_end, per product - used for
+        #    unit cost, and for the reconciliation below.
+        self.env.cr.execute("""
+            SELECT
+                product_id,
+                SUM(quantity) AS qty,
+                SUM(COALESCE(value, 0)) AS total_value,
+                COUNT(*) FILTER (WHERE quantity != 0 AND value IS NULL) AS null_value_layers
+            FROM stock_valuation_layer
+            WHERE company_id = %(company_id)s
+              AND create_date <= %(date_end)s
+            GROUP BY product_id
+        """, {'company_id': company_id, 'date_end': date_end})
+        svl_rows = self.env.cr.fetchall()
+        svl_qty = {r[0]: r[1] or 0.0 for r in svl_rows}
+        svl_value = {r[0]: r[2] or 0.0 for r in svl_rows}
+        products_with_null_layers = {r[0]: r[3] for r in svl_rows if r[3]}
+        if products_with_null_layers:
+            _logger.warning(
+                "Stock Valuation On-Hand: %d product(s) have valuation "
+                "layers with a quantity but no value - their value is "
+                "understated. product_id: null-valued layer count = %s",
+                len(products_with_null_layers), products_with_null_layers,
+            )
 
-        location_names = {l.id: l.complete_name for l in Location.browse(
-            list({r[1] for r in loc_rows})
-        )}
+        # 5. Product filters: storable products only (archived ones
+        #    kept), plus the category filter if requested.
+        candidate_ids = {k[0] for k in qty_map} | set(svl_qty)
+        if not candidate_ids:
+            return [], []
+        Product = self.env['product.product'].with_context(
+            active_test=False).with_company(self.company_id)
+        products = {
+            p.id: p for p in Product.browse(list(candidate_ids))
+            if p.type not in ('service', 'consu')
+            and (not self.categ_ids or p.categ_id.id in self.categ_ids.ids)
+        }
+        qty_map = {k: q for k, q in qty_map.items() if k[0] in products}
+        if not qty_map and self.warehouse_ids:
+            return [], []
 
-        # 5b. Lot/serial names, and the MO(s) that produced each lot.
-        #     The MO is only on the production move (stock_move.
-        #     production_id), so it is looked up per lot rather than per
-        #     row. Lots that were purchased/received (no production
-        #     move) get no MO. mrp is not a dependency of this module,
-        #     so the MO lookup is skipped when it is not installed.
-        lot_ids = list({r[2] for r in loc_rows if r[2]})
+        # 6. Names: locations, lots, and the MO(s) that produced each lot.
+        location_names = {
+            l.id: l.complete_name
+            for l in self.env['stock.location'].browse(
+                list({k[1] for k in qty_map}))
+        }
+        lot_ids = list({k[2] for k in qty_map if k[2]})
         lot_names = {}
         lot_mos = {}
         if lot_ids:
-            # The lot model is 'stock.production.lot' on older Odoo 16
-            # and 'stock.lot' on newer/Odoo Online builds, so take it
-            # from the move line's own lot_id field.
             lot_model = self.env['stock.move.line']._fields['lot_id'].comodel_name
-            lot_names = {
-                l.id: l.name
-                for l in self.env[lot_model].browse(lot_ids)
-            }
+            lot_names = {l.id: l.name for l in self.env[lot_model].browse(lot_ids)}
             if 'mrp.production' in self.env:
                 self.env.cr.execute("""
                     SELECT sml.lot_id,
@@ -336,49 +240,84 @@ class StockValuationOnhandWizard(models.TransientModel):
                       AND sml.lot_id = ANY(%(lot_ids)s)
                     GROUP BY sml.lot_id
                 """, {
-                    'company_id': self.company_id.id,
+                    'company_id': company_id,
                     'date_end': date_end,
                     'lot_ids': lot_ids,
                 })
                 lot_mos = {r[0]: r[1] for r in self.env.cr.fetchall()}
 
-        # 6. PO numbers per product - received into the in-scope
-        #    locations, up to date_end.
-        self.env.cr.execute("""
-            SELECT
-                sml.product_id,
-                STRING_AGG(DISTINCT po.name, ', ' ORDER BY po.name) AS po_numbers
-            FROM stock_move_line sml
-            JOIN stock_move sm         ON sm.id = sml.move_id
-            JOIN purchase_order_line pol ON pol.id = sm.purchase_line_id
-            JOIN purchase_order po      ON po.id = pol.order_id
-            WHERE sml.state = 'done'
-              AND sml.date <= %(date_end)s
-              AND sml.location_dest_id = ANY(%(locs)s)
-              AND sml.product_id = ANY(%(pids)s)
-            GROUP BY sml.product_id
-        """, {
-            'locs': scope_location_ids,
-            'date_end': date_end,
-            'pids': product_ids,
-        })
-        product_po = {r[0]: r[1] for r in self.env.cr.fetchall()}
+        # 7. PO receipts per product (and lot), newest first, so each
+        #    row can be matched to the POs that plausibly still account
+        #    for its stock (see _po_numbers_for_row). Receipts = done
+        #    purchase move lines into an internal location, up to
+        #    date_end, converted to the product's own UoM.
+        po_receipts = {}  # (product_id, lot_id|None) -> [(po_name, qty), ...] newest first
+        shown_pids = list({k[0] for k in qty_map})
+        if shown_pids:
+            self.env.cr.execute("""
+                SELECT sml.product_id, sml.lot_id, po.name,
+                       SUM(sml.qty_done / su.factor * pu.factor) AS qty,
+                       MAX(sml.date) AS last_date
+                FROM stock_move_line sml
+                JOIN stock_move sm           ON sm.id = sml.move_id
+                JOIN purchase_order_line pol ON pol.id = sm.purchase_line_id
+                JOIN purchase_order po       ON po.id = pol.order_id
+                JOIN stock_location dest     ON dest.id = sml.location_dest_id
+                JOIN product_product pp      ON pp.id = sml.product_id
+                JOIN product_template pt     ON pt.id = pp.product_tmpl_id
+                JOIN uom_uom pu              ON pu.id = pt.uom_id
+                JOIN uom_uom su              ON su.id = sml.product_uom_id
+                WHERE sml.state = 'done'
+                  AND sml.company_id = %(company_id)s
+                  AND sml.date <= %(date_end)s
+                  AND dest.usage = 'internal'
+                  AND sml.product_id = ANY(%(pids)s)
+                GROUP BY sml.product_id, sml.lot_id, po.name
+                ORDER BY last_date DESC, po.name DESC
+            """, {
+                'company_id': company_id,
+                'date_end': date_end,
+                'pids': shown_pids,
+            })
+            for pid, lot_id, po_name, qty, _last in self.env.cr.fetchall():
+                po_receipts.setdefault((pid, lot_id), []).append((po_name, qty or 0.0))
 
-        # 7. Build report lines - one row per product PER LOCATION,
-        #    grouped by location.
+        def po_numbers_for_row(product_id, lot_id, row_qty):
+            """POs behind the stock on one row. Assumes first-in-first-out
+            consumption: the stock still on hand came from the most recent
+            receipts, so walk back from the newest receipt until the row's
+            quantity is covered. A lot row only considers receipts of that
+            lot; a no-lot row only considers receipts without a lot.
+            Rows with zero/negative qty get none."""
+            if row_qty <= 0:
+                return ''
+            names, covered = [], 0.0
+            for po_name, rec_qty in po_receipts.get((product_id, lot_id), []):
+                if rec_qty <= 0:
+                    continue
+                if po_name not in names:
+                    names.append(po_name)
+                covered += rec_qty
+                if round(covered - row_qty, 4) >= 0:
+                    break
+            return ', '.join(sorted(names))
+
+        # 8. Build report lines - one per (location, product, lot).
         currency = self.company_id.currency_id
         created_by = self.env.user.name
         created_on = fields.Date.to_string(fields.Date.today())
-        UNALLOCATED = _('Unallocated (no internal location)')
 
-        products = {p.id: p for p in Product.browse(product_ids)}
         groups = {}  # location name -> list of lines
-
-        for product_id in product_ids:
+        reported_qty = {}
+        reported_value = {}
+        for (product_id, loc_id, lot_id), qty in qty_map.items():
             product = products[product_id]
-            svl_qty = product_qty[product_id]
-            svl_value = product_value[product_id]
-            unit_cost = (svl_value / svl_qty) if svl_qty else 0.0
+            p_qty = svl_qty.get(product_id, 0.0)
+            if p_qty > 0:
+                unit_cost = svl_value.get(product_id, 0.0) / p_qty
+            else:
+                unit_cost = product.standard_price
+            value = qty * unit_cost
 
             categ = product.categ_id
             valuation_account = ''
@@ -386,51 +325,66 @@ class StockValuationOnhandWizard(models.TransientModel):
                 acc = categ.property_stock_valuation_account_id
                 valuation_account = '%s %s' % (acc.code, acc.name)
 
-            def make_line(location, qty, value, lot_id=None):
-                return {
-                    'company': self.company_id.name,
-                    'location': location,
-                    'po_numbers': product_po.get(product_id, ''),
-                    'lot_name': lot_names.get(lot_id, '') if lot_id else '',
-                    'mo_numbers': lot_mos.get(lot_id, '') if lot_id else '',
+            loc_name = location_names.get(loc_id, str(loc_id))
+            groups.setdefault(loc_name, []).append({
+                'company': self.company_id.name,
+                'location': loc_name,
+                'po_numbers': po_numbers_for_row(product_id, lot_id, qty),
+                'lot_name': lot_names.get(lot_id, '') if lot_id else '',
+                'mo_numbers': lot_mos.get(lot_id, '') if lot_id else '',
+                'reference': product.default_code or '',
+                'created_by': created_by,
+                'created_on': created_on,
+                'product': product.display_name,
+                'category': categ.complete_name,
+                'valuation_account': valuation_account or 'N/A',
+                'qty': qty,
+                'uom': product.uom_id.name,
+                'unit_cost': unit_cost,
+                'total_value': value,
+                'sales_price': product.lst_price,
+                'cost': product.standard_price,
+                'currency_symbol': currency.symbol,
+                'currency_position': currency.position,
+            })
+            reported_qty[product_id] = reported_qty.get(product_id, 0.0) + qty
+            reported_value[product_id] = reported_value.get(product_id, 0.0) + value
+
+        # 9. Reconciliation against the valuation layers (company-wide,
+        #    so not meaningful under a warehouse filter).
+        unreconciled = []
+        if not self.warehouse_ids:
+            for product_id, product in products.items():
+                s_qty = svl_qty.get(product_id, 0.0)
+                s_val = svl_value.get(product_id, 0.0)
+                q_qty = reported_qty.get(product_id, 0.0)
+                q_val = reported_value.get(product_id, 0.0)
+                if round(s_qty - q_qty, 4) == 0 and round(s_val - q_val, 2) == 0:
+                    continue
+                unreconciled.append({
                     'reference': product.default_code or '',
-                    'created_by': created_by,
-                    'created_on': created_on,
                     'product': product.display_name,
-                    'category': categ.complete_name,
-                    'valuation_account': valuation_account or 'N/A',
-                    'qty': qty,
+                    'category': product.categ_id.complete_name,
                     'uom': product.uom_id.name,
-                    'unit_cost': unit_cost,
-                    'total_value': value,
-                    'sales_price': product.lst_price,
-                    'cost': product.standard_price,
-                    'currency_symbol': currency.symbol,
-                    'currency_position': currency.position,
-                }
-
-            allocated_qty = 0.0
-            allocated_value = 0.0
-            for loc_id, lot_id, qty in product_loc_qty.get(product_id, []):
-                value = qty * unit_cost
-                allocated_qty += qty
-                allocated_value += value
-                loc_name = location_names.get(loc_id, str(loc_id))
-                groups.setdefault(loc_name, []).append(
-                    make_line(loc_name, qty, value, lot_id))
-
-            # Reconcile to the layer total so the report still ties to
-            # Odoo's valuation. Skipped under a warehouse filter, where
-            # the leftover belongs to locations outside the selection.
-            if not self.warehouse_ids:
-                diff_qty = svl_qty - allocated_qty
-                diff_value = svl_value - allocated_value
-                if round(diff_qty, 4) != 0 or round(diff_value, 4) != 0:
-                    groups.setdefault(UNALLOCATED, []).append(
-                        make_line(UNALLOCATED, diff_qty, diff_value))
+                    'svl_qty': s_qty,
+                    'quant_qty': q_qty,
+                    'diff_qty': s_qty - q_qty,
+                    'svl_value': s_val,
+                    'quant_value': q_val,
+                    'diff_value': s_val - q_val,
+                })
+            unreconciled.sort(key=lambda r: (r['category'], r['reference'], r['product']))
+            if unreconciled:
+                _logger.info(
+                    "Stock Valuation On-Hand: %d product(s) where quants "
+                    "and valuation layers disagree as of %s (net value "
+                    "difference %.2f).",
+                    len(unreconciled), self.date,
+                    sum(r['diff_value'] for r in unreconciled),
+                )
 
         result = []
-        for loc_name in sorted(groups, key=lambda n: (n == UNALLOCATED, n)):
+        for loc_name in sorted(groups):
             loc_lines = sorted(
                 groups[loc_name],
                 key=lambda l: (l['category'], l['reference'], l['product'], l['lot_name']))
@@ -439,12 +393,12 @@ class StockValuationOnhandWizard(models.TransientModel):
                 'total_value': sum(l['total_value'] for l in loc_lines),
                 'lines': loc_lines,
             })
-        return result
+        return result, unreconciled
 
     def _prepare_report_values(self):
         """Build the data dict consumed by both PDF and XLSX templates."""
         self.ensure_one()
-        groups = self._get_report_data()
+        groups, unreconciled = self._get_report_data()
         if not groups:
             raise UserError(_(
                 'No on-hand inventory found for the selected criteria as of %s.'
@@ -459,6 +413,7 @@ class StockValuationOnhandWizard(models.TransientModel):
             'currency_symbol': self.company_id.currency_id.symbol,
             'currency_position': self.company_id.currency_id.position,
             'groups': groups,
+            'unreconciled': unreconciled,
             'lines': lines,
             'grand_total': grand_total,
         }

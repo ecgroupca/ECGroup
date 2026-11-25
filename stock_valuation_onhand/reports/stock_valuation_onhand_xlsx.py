@@ -10,7 +10,10 @@ class StockValuationOnhandXlsx(models.AbstractModel):
         # `data` is not used: the result set is built here, server-side,
         # instead of being posted back by the browser.
         for wizard in wizards:
-            self._generate_sheet(workbook, wizard._prepare_report_values())
+            values = wizard._prepare_report_values()
+            self._generate_sheet(workbook, values)
+            if values.get('unreconciled'):
+                self._generate_reconciliation_sheet(workbook, values)
 
     def _generate_sheet(self, workbook, data):
         sheet = workbook.add_worksheet('On-Hand Valuation')
@@ -146,3 +149,54 @@ class StockValuationOnhandXlsx(models.AbstractModel):
 
         sheet.outline_settings(True, False, True, False)  # subtotal row below detail
         sheet.freeze_panes(header_row + 1, 0)
+
+    def _generate_reconciliation_sheet(self, workbook, data):
+        """Products whose valuation layers do not agree with the quants.
+        These are NOT lines on the main sheet (they are not in the quants);
+        this lists them so the gap to Odoo's Valuation report is visible."""
+        sheet = workbook.add_worksheet('Quants vs Valuation')
+        fmt_title = workbook.add_format({'bold': True, 'font_size': 14})
+        fmt_subtitle = workbook.add_format({'italic': True, 'font_size': 10, 'font_color': '#555555'})
+        fmt_header = workbook.add_format({
+            'bold': True, 'font_color': '#FFFFFF', 'bg_color': '#2C6496',
+            'border': 1, 'align': 'center', 'valign': 'vcenter', 'text_wrap': True,
+        })
+        fmt_text = workbook.add_format({'border': 1, 'valign': 'vcenter'})
+        fmt_qty = workbook.add_format({'border': 1, 'num_format': '#,##0.0000', 'align': 'right'})
+        fmt_money = workbook.add_format({'border': 1, 'num_format': '#,##0.00', 'align': 'right'})
+        fmt_total_label = workbook.add_format({
+            'bold': True, 'border': 1, 'align': 'right', 'bg_color': '#F0F0F0'})
+        fmt_total_money = workbook.add_format({
+            'bold': True, 'border': 1, 'num_format': '#,##0.00', 'align': 'right',
+            'bg_color': '#F0F0F0'})
+
+        sheet.write(0, 0, 'Quants vs Valuation Layers – differences', fmt_title)
+        sheet.write(1, 0, 'Company: %s' % data.get('company', ''), fmt_subtitle)
+        sheet.write(2, 0, 'As of: %s' % data.get('date', ''), fmt_subtitle)
+        sheet.write(3, 0, 'Products where valuation-layer qty/value differs from the quants '
+                          '(quantities on the main sheet are the quants).', fmt_subtitle)
+        headers = ['Reference', 'Product', 'Product Category', 'UoM',
+                   'Layer Qty', 'Quant Qty', 'Qty Diff',
+                   'Layer Value', 'Quant Value (at unit cost)', 'Value Diff']
+        for col, label in enumerate(headers):
+            sheet.write(5, col, label, fmt_header)
+        row = 6
+        total_diff = 0.0
+        for r in data['unreconciled']:
+            sheet.write(row, 0, r['reference'], fmt_text)
+            sheet.write(row, 1, r['product'], fmt_text)
+            sheet.write(row, 2, r['category'], fmt_text)
+            sheet.write(row, 3, r['uom'], fmt_text)
+            sheet.write_number(row, 4, r['svl_qty'], fmt_qty)
+            sheet.write_number(row, 5, r['quant_qty'], fmt_qty)
+            sheet.write_number(row, 6, r['diff_qty'], fmt_qty)
+            sheet.write_number(row, 7, r['svl_value'], fmt_money)
+            sheet.write_number(row, 8, r['quant_value'], fmt_money)
+            sheet.write_number(row, 9, r['diff_value'], fmt_money)
+            total_diff += r['diff_value']
+            row += 1
+        sheet.merge_range(row, 0, row, 8, 'Net value difference', fmt_total_label)
+        sheet.write_number(row, 9, total_diff, fmt_total_money)
+        for col, w in enumerate([14, 34, 24, 8, 14, 14, 14, 16, 20, 16]):
+            sheet.set_column(col, col, w)
+        sheet.freeze_panes(6, 0)
