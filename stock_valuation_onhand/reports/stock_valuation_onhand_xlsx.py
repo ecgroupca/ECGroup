@@ -7,8 +7,10 @@ class StockValuationOnhandXlsx(models.AbstractModel):
     _description = 'Stock Valuation On-Hand XLSX Report'
 
     def generate_xlsx_report(self, workbook, data, wizards):
+        # `data` is not used: the result set is built here, server-side,
+        # instead of being posted back by the browser.
         for wizard in wizards:
-            self._generate_sheet(workbook, data)
+            self._generate_sheet(workbook, wizard._prepare_report_values())
 
     def _generate_sheet(self, workbook, data):
         sheet = workbook.add_worksheet('On-Hand Valuation')
@@ -60,9 +62,9 @@ class StockValuationOnhandXlsx(models.AbstractModel):
         headers = [
             'Company',                   # A  0
             'Location',                  # B  1
-            'PO #',                      # C  2
-            'Lot/Serial #',              # D  3
-            'MO #',                      # E  4
+            'Lot/Serial #',              # C  2
+            'MO #',                      # D  3
+            'PO #',                      # E  4
             'Reference',                 # F  5
             'Created By',                # G  6
             'Created On',                # H  7
@@ -94,9 +96,9 @@ class StockValuationOnhandXlsx(models.AbstractModel):
                 sheet.set_row(row, None, None, {'level': 1})
                 sheet.write(row, 0,  line.get('company', ''),           fmt_text)
                 sheet.write(row, 1,  line.get('location', ''),          fmt_text_wrap)
-                sheet.write(row, 2,  line.get('po_numbers', ''),        fmt_text_wrap)
-                sheet.write(row, 3,  line.get('lot_name', ''),          fmt_text_wrap)
-                sheet.write(row, 4,  line.get('mo_numbers', ''),        fmt_text_wrap)
+                sheet.write(row, 2,  line.get('lot_name', ''),          fmt_text_wrap)
+                sheet.write(row, 3,  line.get('mo_numbers', ''),        fmt_text_wrap)
+                sheet.write(row, 4,  line.get('po_numbers', ''),        fmt_text_wrap)
                 sheet.write(row, 5,  line.get('reference', ''),         fmt_text)
                 sheet.write(row, 6,  line.get('created_by', ''),        fmt_text)
                 sheet.write(row, 7,  line.get('created_on', ''),        fmt_text)
@@ -126,9 +128,9 @@ class StockValuationOnhandXlsx(models.AbstractModel):
         # ── Column widths ─────────────────────────────────────────────────────────────
         sheet.set_column(0,  0,  16)   # A  Company
         sheet.set_column(1,  1,  22)   # B  Location
-        sheet.set_column(2,  2,  16)   # C  PO #
-        sheet.set_column(3,  3,  18)   # D  Lot/Serial #
-        sheet.set_column(4,  4,  16)   # E  MO #
+        sheet.set_column(2,  2,  18)   # C  Lot/Serial #
+        sheet.set_column(3,  3,  16)   # D  MO #
+        sheet.set_column(4,  4,  16)   # E  PO #
         sheet.set_column(5,  5,  14)   # F  Reference
         sheet.set_column(6,  6,  16)   # G  Created By
         sheet.set_column(7,  7,  12)   # H  Created On
